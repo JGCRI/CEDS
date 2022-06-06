@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Drop rows containing missing values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drop_na.dtplyr_step {dtplyr}"><tr><td>drop_na.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Drop rows containing missing values</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the tidyr <code>drop_na()</code> generic. It is translated to
+<code>data.table::na.omit()</code>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+drop_na(data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../tidyr/html/tidyr_tidy_select.html">tidy-select</a></code>&gt; Columns to inspect for
+missing values.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr)
+library(tidyr)
+
+dt &lt;- lazy_dt(tibble(x = c(1, 2, NA), y = c("a", NA, "b")))
+dt %&gt;% drop_na()
+dt %&gt;% drop_na(x)
+
+vars &lt;- "y"
+dt %&gt;% drop_na(x, any_of(vars))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

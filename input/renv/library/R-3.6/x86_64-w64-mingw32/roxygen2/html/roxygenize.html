@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Process a package with the Rd, namespace and collate roclets.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for roxygenize {roxygen2}"><tr><td>roxygenize {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Process a package with the Rd, namespace and collate roclets.</h2>
+
+<h3>Description</h3>
+
+<p>This is the workhorse function that uses roclets, the built-in document
+transformation functions, to build all documentation for a package. See
+the documentation for the individual roclets, <code><a href="rd_roclet.html">rd_roclet()</a></code>,
+<code><a href="namespace_roclet.html">namespace_roclet()</a></code>, and for <code><a href="update_collate.html">update_collate()</a></code>,
+for more details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+roxygenize(package.dir = ".", roclets = NULL, load_code = NULL, clean = FALSE)
+
+roxygenise(package.dir = ".", roclets = NULL, load_code = NULL, clean = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package.dir</code></td>
+<td>
+<p>Location of package top level directory. Default is
+working directory.</p>
+</td></tr>
+<tr valign="top"><td><code>roclets</code></td>
+<td>
+<p>Character vector of roclet names to use with package.
+The default, <code>NULL</code>, uses the roxygen <code>roclets</code> option,
+which defaults to <code>c("collate", "namespace", "rd")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>load_code</code></td>
+<td>
+<p>A function used to load all the R code in the package
+directory. The default, <code>NULL</code>, uses the strategy defined by
+the <code>load</code> roxygen option, which defaults to <code><a href="load.html">load_pkgload()</a></code>.
+See <a href="load.html">load</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>clean</code></td>
+<td>
+<p>If <code>TRUE</code>, roxygen will delete all files previously
+created by roxygen before running each roclet.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that roxygen2 is a dynamic documentation system: it works by
+inspecting loaded objects in the package. This means that you must
+be able to load the package in order to document it: see <a href="load.html">load</a> for
+details.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>NULL</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

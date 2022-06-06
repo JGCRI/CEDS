@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create an AuthState</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for init_AuthState {gargle}"><tr><td>init_AuthState {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create an AuthState</h2>
+
+<h3>Description</h3>
+
+<p>Constructor function for objects of class <a href="AuthState-class.html">AuthState</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+init_AuthState(
+  package = NA_character_,
+  app = NULL,
+  api_key = NULL,
+  auth_active = TRUE,
+  cred = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>Package name, an optional string. The associated package will
+generally by implied by the namespace within which the <code>AuthState</code> is
+defined. But it's possible to record the package name explicitly and seems
+like a good practice.</p>
+</td></tr>
+<tr valign="top"><td><code>app</code></td>
+<td>
+<p>Optional. An OAuth consumer application, as produced by
+<code><a href="../../httr/html/oauth_app.html">httr::oauth_app()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>api_key</code></td>
+<td>
+<p>Optional. API key (a string). Some APIs accept unauthorized,
+&quot;token-free&quot; requests for public resources, but only if the request
+includes an API key.</p>
+</td></tr>
+<tr valign="top"><td><code>auth_active</code></td>
+<td>
+<p>Logical. <code>TRUE</code> means requests should include a token (and
+probably not an API key). <code>FALSE</code> means requests should include an API key
+(and probably not a token).</p>
+</td></tr>
+<tr valign="top"><td><code>cred</code></td>
+<td>
+<p>Credentials. Typically populated indirectly via <code><a href="token_fetch.html">token_fetch()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <a href="AuthState-class.html">AuthState</a>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+my_app &lt;- httr::oauth_app(
+  appname = "my_package",
+  key = "keykeykeykeykeykey",
+  secret = "secretsecretsecret"
+)
+
+init_AuthState(
+  package = "my_package",
+  app = my_app,
+  api_key = "api_key_api_key_api_key",
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

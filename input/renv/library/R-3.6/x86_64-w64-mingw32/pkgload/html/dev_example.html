@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run a examples for an in-development function.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dev_example {pkgload}"><tr><td>dev_example {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run a examples for an in-development function.</h2>
+
+<h3>Description</h3>
+
+<p><code>dev_example</code> is a replacement for <code>example</code>. <code>run_example</code>
+is a low-level function that takes a path to an Rd file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dev_example(topic, quiet = FALSE)
+
+run_example(
+  path,
+  run_donttest = FALSE,
+  run_dontrun = FALSE,
+  env = new.env(parent = globalenv()),
+  quiet = FALSE,
+  macros = NULL,
+  run,
+  test
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>topic</code></td>
+<td>
+<p>Name or topic (or name of Rd) file to run examples for</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If <code>TRUE</code>, does not echo code to console.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to <code>.Rd</code> file</p>
+</td></tr>
+<tr valign="top"><td><code>run_donttest</code></td>
+<td>
+<p>if <code>TRUE</code>, do run <code style="white-space: pre;">\donttest</code> sections in the Rd files.
+out.</p>
+</td></tr>
+<tr valign="top"><td><code>run_dontrun</code></td>
+<td>
+<p>if <code>TRUE</code>, do run <code style="white-space: pre;">\dontrun</code> sections in the Rd files.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which code will be run.</p>
+</td></tr>
+<tr valign="top"><td><code>macros</code></td>
+<td>
+<p>Custom macros to use to parse the <code>.Rd</code> file. See the
+<code>macros</code> argument of <code><a href="../../tools/html/parse_Rd.html">tools::parse_Rd()</a></code>. If <code>NULL</code>, then the
+<code><a href="../../tools/html/Rd2HTML.html">tools::Rd2ex()</a></code> (and <code><a href="../../tools/html/parse_Rd.html">tools::parse_Rd()</a></code>) default is used.</p>
+</td></tr>
+<tr valign="top"><td><code>run, test</code></td>
+<td>
+<p>Deprecated, see <code>run_dontrun</code> and <code>run_donttest</code> above.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# Runs installed example:
+library("ggplot2")
+example("ggplot")
+
+# Runs develoment example:
+dev_example("ggplot")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

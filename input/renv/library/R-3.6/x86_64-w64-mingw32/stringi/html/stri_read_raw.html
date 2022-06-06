@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read Text File as Raw</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_read_raw {stringi}"><tr><td>stri_read_raw {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read Text File as Raw</h2>
+
+<h3>Description</h3>
+
+<p>Reads a text file as-is, with no conversion or text line splitting.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_read_raw(con, fname = con)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>name of the output file or a connection object
+(opened in the binary mode)</p>
+</td></tr>
+<tr valign="top"><td><code>fname</code></td>
+<td>
+<p>deprecated alias of <code>con</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Once a text file is read into memory,
+encoding detection (see <code><a href="stri_enc_detect.html">stri_enc_detect</a></code>),
+conversion (see <code><a href="stri_encode.html">stri_encode</a></code>), and/or
+splitting of text into lines (see <code><a href="stri_split_lines.html">stri_split_lines1</a></code>)
+can be performed.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a vector of type <code>raw</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other files: 
+<code><a href="stri_read_lines.html">stri_read_lines</a>()</code>,
+<code><a href="stri_write_lines.html">stri_write_lines</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

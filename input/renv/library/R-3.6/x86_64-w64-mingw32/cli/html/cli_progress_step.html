@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Simplified cli progress messages, with styling</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_progress_step {cli}"><tr><td>cli_progress_step {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Simplified cli progress messages, with styling</h2>
+
+<h3>Description</h3>
+
+<p>This is a simplified progress bar, a single (dynamic)
+message, without progress units.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_progress_step(
+  msg,
+  msg_done = msg,
+  msg_failed = msg,
+  spinner = FALSE,
+  class = if (!spinner) ".alert-info",
+  current = TRUE,
+  .auto_close = TRUE,
+  .envir = parent.frame(),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>msg</code></td>
+<td>
+<p>Message to show. It may contain glue substitution and cli
+styling. It can be updated via <code><a href="cli_progress_bar.html">cli_progress_update()</a></code>, as usual.
+It is style as a cli info alert (see <code><a href="cli_alert.html">cli_alert_info()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>msg_done</code></td>
+<td>
+<p>Message to show on successful termination. By default
+this it is the same as <code>msg</code> and it is styled as a cli success alert
+(see <code><a href="cli_alert.html">cli_alert_success()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>msg_failed</code></td>
+<td>
+<p>Message to show on unsuccessful termination. By
+default it is the same as <code>msg</code> and it is styled as a cli danger alert
+(see <code><a href="cli_alert.html">cli_alert_danger()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>spinner</code></td>
+<td>
+<p>Whether to show a spinner at the beginning of the line.
+To make the spinner spin, you'll need to call <code>cli_progress_update()</code>
+regularly.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>cli class to add to the message. By default there is no
+class for steps with a spinner.</p>
+</td></tr>
+<tr valign="top"><td><code>current</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.auto_close</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>cli_progress_step()</code> always shows the progress message,
+even if no update is due.
+</p>
+
+
+<h4>Basic use</h4>
+
+<div class="sourceCode r"><pre>f &lt;- function() {
+  cli_progress_step("Downloading data")
+  Sys.sleep(2)
+  cli_progress_step("Importing data")
+  Sys.sleep(1)
+  cli_progress_step("Cleaning data")
+  Sys.sleep(2)
+  cli_progress_step("Fitting model")
+  Sys.sleep(3)
+}
+f()
+</pre></div>
+<p><img src="../help/figures/progress-step.svg" alt="progress-step.svg" />
+</p>
+
+
+
+<h4>Spinner</h4>
+
+<p>You can add a spinner to some or all steps with <code>spinner = TRUE</code>,
+but not that this will only work if you call <code><a href="cli_progress_bar.html">cli_progress_update()</a></code>
+regularly.<div class="sourceCode r"></p>
+<pre>f &lt;- function() {
+  cli_progress_step("Downloading data", spinner = TRUE)
+  for (i in 1:100) { Sys.sleep(2/100); cli_progress_update() }
+  cli_progress_step("Importing data")
+  Sys.sleep(1)
+  cli_progress_step("Cleaning data")
+  Sys.sleep(2)
+  cli_progress_step("Fitting model", spinner = TRUE)
+  for (i in 1:100) { Sys.sleep(3/100); cli_progress_update() }
+}
+f()
+</pre></div>
+<p><img src="../help/figures/progress-step-spin.svg" alt="progress-step-spin.svg" />
+</p>
+
+
+
+<h4>Dynamic messages</h4>
+
+<p>You can make the step messages dynamic, using glue templates.
+Since <code>cli_progress_step()</code> show that message immediately, we need
+to initialize <code>msg</code> first.<div class="sourceCode r"></p>
+<pre>f &lt;- function() {
+  msg &lt;- ""
+  cli_progress_step("Downloading data{msg}", spinner = TRUE)
+  for (i in 1:100) {
+    Sys.sleep(2/100)
+    msg &lt;- glue::glue(", got file {i}/100")
+    cli_progress_update()
+  }
+  cli_progress_step("Importing data")
+  Sys.sleep(1)
+  cli_progress_step("Cleaning data")
+  Sys.sleep(2)
+  cli_progress_step("Fitting model", spinner = TRUE)
+  for (i in 1:100) { Sys.sleep(3/100); cli_progress_update() }
+}
+f()
+</pre></div>
+<p><img src="../help/figures/progress-step-dynamic.svg" alt="progress-step-dynamic.svg" />
+</p>
+
+
+
+<h4>Termination messages</h4>
+
+<p>You can specify a different message for successful and/or
+unsuccessful termination:<div class="sourceCode r"></p>
+<pre>f &lt;- function() {
+  size &lt;- 0L
+  cli_progress_step(
+    "Downloading data.",
+    msg_done = "Downloaded {prettyunits::pretty_bytes(size)}.",
+    spinner = TRUE
+  )
+  for (i in 1:100) {
+    Sys.sleep(3/100)
+    size &lt;- size + 8192
+    cli_progress_update()
+  }
+}
+f()
+</pre></div>
+<p><img src="../help/figures/progress-step-msg.svg" alt="progress-step-msg.svg" />
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

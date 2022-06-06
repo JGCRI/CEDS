@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Knitr options for a PDF output format</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for knitr_options_pdf {rmarkdown}"><tr><td>knitr_options_pdf {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Knitr options for a PDF output format</h2>
+
+<h3>Description</h3>
+
+<p>Define knitr options for an R Markdown output format
+that creates PDF output.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+knitr_options_pdf(fig_width, fig_height, fig_crop, dev = "pdf")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fig_width</code></td>
+<td>
+<p>Default width (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_height</code></td>
+<td>
+<p>Default height (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_crop</code></td>
+<td>
+<p>Whether to crop PDF figures with the command
+<code>pdfcrop</code>. This requires the tools <code>pdfcrop</code> and
+<code>ghostscript</code> to be installed. By default, <code>fig_crop = TRUE</code>
+if these two tools are available.</p>
+</td></tr>
+<tr valign="top"><td><code>dev</code></td>
+<td>
+<p>Graphics device to use for figure output (defaults to png)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An list that can be passed as the <code>knitr</code> argument of the
+<code><a href="output_format.html">output_format</a></code> function.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="knitr_options.html">knitr_options</a>, <a href="output_format.html">output_format</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

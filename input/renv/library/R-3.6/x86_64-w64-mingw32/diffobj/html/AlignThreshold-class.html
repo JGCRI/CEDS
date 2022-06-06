@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Controls How Lines Within a Diff Hunk Are Aligned</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for AlignThreshold-class {diffobj}"><tr><td>AlignThreshold-class {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Controls How Lines Within a Diff Hunk Are Aligned</h2>
+
+<h3>Description</h3>
+
+<p>Controls How Lines Within a Diff Hunk Are Aligned
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>threshold</code></dt><dd><p>numeric(1L) between 0 and 1, what proportion of words
+in the lines must match in order to align them.  Set to 1 to effectively
+turn aligning off.  Defaults to 0.25.</p>
+</dd>
+<dt><code>min.chars</code></dt><dd><p>integer(1L) positive, minimum number of characters that must
+match across lines in order to align them.  This requirement is in addition
+to <code>threshold</code> and helps minimize spurious alignments.  Defaults to
+3.</p>
+</dd>
+<dt><code>count.alnum.only</code></dt><dd><p>logical(1L) modifier for <code>min.chars</code>, whether to
+count alpha numeric characters only.  Helps reduce spurious alignment
+caused by meta character sequences such as &ldquo;[[1]]&rdquo; that would
+otherwise meet the <code>min.chars</code> limit</p>
+</dd>
+</dl>
+
+
+<h3>Examples</h3>
+
+<pre>
+a1 &lt;- AlignThreshold(threshold=0)
+a2 &lt;- AlignThreshold(threshold=1)
+a3 &lt;- AlignThreshold(threshold=0, min.chars=2)
+## Note how "e f g" is aligned
+diffChr(c("a b c e", "d e f g"), "D e f g", align=a1, pager="off")
+## But now it is not
+diffChr(c("a b c e", "d e f g"), "D e f g", align=a2, pager="off")
+## "e f" are not enough chars to align
+diffChr(c("a b c", "d e f"), "D e f", align=a1, pager="off")
+## Override with min.chars, so now they align
+diffChr(c("a b c", "d e f"), "D e f", align=a3, pager="off")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

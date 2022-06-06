@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Perform an operation with temporary groups</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_groups {dplyr}"><tr><td>with_groups {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Perform an operation with temporary groups</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>This is an experimental new function that allows you to modify the grouping
+variables for a single operation.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_groups(.data, .groups, .f, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame</p>
+</td></tr>
+<tr valign="top"><td><code>.groups</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; One or more variables
+to group by. Unlike <code><a href="group_by.html">group_by()</a></code>, you can only group by existing variables,
+and you can use tidy-select syntax like <code>c(x, y, z)</code> to select multiple
+variables.
+</p>
+<p>Use <code>NULL</code> to temporarily <strong>un</strong>group.</p>
+</td></tr>
+<tr valign="top"><td><code>.f</code></td>
+<td>
+<p>Function to apply to regrouped data.
+Supports purrr-style <code>~</code> syntax</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed on to <code>...</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- tibble(g = c(1, 1, 2, 2, 3), x = runif(5))
+df %&gt;%
+  with_groups(g, mutate, x_mean = mean(x))
+df %&gt;%
+  with_groups(g, ~ mutate(.x, x1 = first(x)))
+
+df %&gt;%
+  group_by(g) %&gt;%
+  with_groups(NULL, mutate, x_mean = mean(x))
+
+# NB: grouping can't be restored if you remove the grouping variables
+df %&gt;%
+  group_by(g) %&gt;%
+  with_groups(NULL, mutate, g = NULL)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

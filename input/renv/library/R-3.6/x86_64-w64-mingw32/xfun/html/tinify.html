@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use the Tinify API to compress PNG and JPEG images</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tinify {xfun}"><tr><td>tinify {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use the Tinify API to compress PNG and JPEG images</h2>
+
+<h3>Description</h3>
+
+<p>Compress PNG/JPEG images with <span class="samp">api.tinify.com</span>, and download the
+compressed images. This function requires R packages <span class="pkg">curl</span> and
+<span class="pkg">jsonlite</span>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tinify(
+  input,
+  output,
+  quiet = FALSE,
+  force = FALSE,
+  key = getOption("xfun.tinify.key", Sys.getenv("R_XFUN_TINIFY_KEY")),
+  history = getOption("xfun.tinify.history", Sys.getenv("R_XFUN_TINIFY_HISTORY"))
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>A vector of input paths of images.</p>
+</td></tr>
+<tr valign="top"><td><code>output</code></td>
+<td>
+<p>A vector of output paths or a function that takes <code>input</code>
+and returns a vector of output paths (e.g., <code>output = <a href="../../base/html/identity.html">identity</a></code>
+means <code>output = input</code>). By default, if the <code>history</code> argument is
+not a provided, <code>output</code> is <code>input</code> with a suffix <code>-min</code>
+(e.g., when <code>input = 'foo.png'</code>, <code>output = 'foo-min.png'</code>),
+otherwise <code>output</code> is the same as <code>input</code>, which means the
+original image files will be overwritten.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>Whether to suppress detailed information about the compression,
+which is of the form <span class="samp">input.png (10 Kb) ==&gt; output.png (5 Kb, 50%);
+compression count: 42</span>. The percentage after <code>output.png</code> stands for
+the compression ratio, and the compression count shows the number of
+compressions used for the current month.</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>Whether to compress an image again when it appears to have been
+compressed before. This argument only makes sense when the <code>history</code>
+argument is provided.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>The Tinify API key. It can be set via either the global option
+<code>xfun.tinify.key</code> (you may set it in &lsquo;<span class="file">~/.Rprofile</span>&rsquo;) or the
+environment variable <code>R_XFUN_TINIFY_KEY</code> (you may set it in
+&lsquo;<span class="file">~/.Renviron</span>&rsquo;).</p>
+</td></tr>
+<tr valign="top"><td><code>history</code></td>
+<td>
+<p>Path to a history file to record the MD5 checksum of
+compressed images. If the checksum of an expected output image exists in
+this file and <code>force = FALSE</code>, the compression will be skipped. This
+can help you avoid unnecessary API calls.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>You are recommended to set the API key in &lsquo;<span class="file">.Rprofile</span>&rsquo; or
+&lsquo;<span class="file">.Renviron</span>&rsquo;. After that, the only required argument of this function is
+<code>input</code>. If the original images can be overwritten by the compressed
+images, you may either use <code>output = identity</code>, or set the value of the
+<code>history</code> argument in &lsquo;<span class="file">.Rprofile</span>&rsquo; or &lsquo;<span class="file">.Renviron</span>&rsquo;.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The output file paths.
+</p>
+
+
+<h3>References</h3>
+
+<p>Tinify API: <a href="https://tinypng.com/developers">https://tinypng.com/developers</a>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <span class="pkg">tinieR</span> package (<a href="https://github.com/jmablog/tinieR/">https://github.com/jmablog/tinieR/</a>)
+is a more comprehensive implementation of the Tinify API, whereas
+<code>xfun::tinify()</code> has only implemented the feature of shrinking images.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f = file.path(R.home("doc"), "html", "logo.jpg")
+xfun::tinify(f)  # remember to set the API key before trying this
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

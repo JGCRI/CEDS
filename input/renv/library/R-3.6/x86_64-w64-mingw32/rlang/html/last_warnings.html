@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Display last warnings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for last_warnings {rlang}"><tr><td>last_warnings {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Display last warnings</h2>
+
+<h3>Description</h3>
+
+<p><code>last_warnings()</code> and <code>last_messages()</code> return a list of all
+warnings and messages that occurred during the last R command.
+</p>
+<p><code><a href="global_entrace.html">global_entrace()</a></code> must be active in order to log the messages and
+warnings.
+</p>
+<p>By default the warnings and messages are printed with a simplified
+backtrace, like <code><a href="last_error.html">last_error()</a></code>. Use <code>summary()</code> to print the
+conditions with a full backtrace.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+last_warnings(n = NULL)
+
+last_messages(n = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>How many warnings or messages to display. Defaults to all.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<p>Enable backtrace capture with <code>global_entrace()</code>:<div class="sourceCode r"></p>
+<pre>global_entrace()
+</pre></div>
+<p>Signal some warnings in nested functions. The warnings inform about
+which function emitted a warning but they don't provide information
+about the call stack:<div class="sourceCode r"></p>
+<pre>f &lt;- function() { warning("foo"); g() }
+g &lt;- function() { warning("bar", immediate. = TRUE); h() }
+h &lt;- function() warning("baz")
+
+f()
+#&gt; Warning in g() : bar
+#&gt; Warning messages:
+#&gt; 1: In f() : foo
+#&gt; 2: In h() : baz
+</pre></div>
+<p>Call <code>last_warnings()</code> to see backtraces for each of these warnings:<div class="sourceCode r"></p>
+<pre>last_warnings()
+#&gt; [[1]]
+#&gt; &lt;warning/rlang_warning&gt;
+#&gt; Warning in `f()`: foo
+#&gt; Backtrace:
+#&gt;  1. global f()
+#&gt;
+#&gt; [[2]]
+#&gt; &lt;warning/rlang_warning&gt;
+#&gt; Warning in `g()`: bar
+#&gt; Backtrace:
+#&gt;  1. global f()
+#&gt;  2. global g()
+#&gt;
+#&gt; [[3]]
+#&gt; &lt;warning/rlang_warning&gt;
+#&gt; Warning in `h()`: baz
+#&gt; Backtrace:
+#&gt;  1. global f()
+#&gt;  2. global g()
+#&gt;  3. global h()
+</pre></div>
+<p>To get a full backtrace, use <code><a href="../../base/html/summary.html">summary()</a></code>. In this case the full
+backtraces do not include more information:<div class="sourceCode r"></p>
+<pre>summary(last_warnings())
+#&gt; [[1]]
+#&gt; &lt;warning/rlang_warning&gt;
+#&gt; Warning in `f()`:
+#&gt; foo
+#&gt; Backtrace:
+#&gt;     x
+#&gt;  1. \-global f()
+#&gt;
+#&gt; [[2]]
+#&gt; &lt;warning/rlang_warning&gt;
+#&gt; Warning in `g()`:
+#&gt; bar
+#&gt; Backtrace:
+#&gt;     x
+#&gt;  1. \-global f()
+#&gt;  2.   \-global g()
+#&gt;
+#&gt; [[3]]
+#&gt; &lt;warning/rlang_warning&gt;
+#&gt; Warning in `h()`:
+#&gt; baz
+#&gt; Backtrace:
+#&gt;     x
+#&gt;  1. \-global f()
+#&gt;  2.   \-global g()
+#&gt;  3.     \-global h()
+</pre></div>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="last_error.html">last_error()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Memoise a function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for memoise {memoise}"><tr><td>memoise {memoise}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Memoise a function</h2>
+
+<h3>Description</h3>
+
+<p><code>mf &lt;- memoise(f)</code> creates <code>mf</code>, a memoised copy of
+<code>f</code>. A memoised copy is basically a
+lazier version of the same function: it saves the answers of
+new invocations, and re-uses the answers of old ones. Under the right
+circumstances, this can provide a very nice speedup indeed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+memoise(
+  f,
+  ...,
+  envir = environment(f),
+  cache = cachem::cache_mem(max_size = 1024 * 1024^2),
+  omit_args = c(),
+  hash = function(x) rlang::hash(x)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>f</code></td>
+<td>
+<p>Function of which to create a memoised copy.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>optional variables to use as additional restrictions on
+caching, specified as one-sided formulas (no LHS). See Examples for usage.</p>
+</td></tr>
+<tr valign="top"><td><code>envir</code></td>
+<td>
+<p>Environment of the returned function.</p>
+</td></tr>
+<tr valign="top"><td><code>cache</code></td>
+<td>
+<p>Cache object. The default is a [cachem::cache_mem()] with a max
+size of 1024 MB.</p>
+</td></tr>
+<tr valign="top"><td><code>omit_args</code></td>
+<td>
+<p>Names of arguments to ignore when calculating hash.</p>
+</td></tr>
+<tr valign="top"><td><code>hash</code></td>
+<td>
+<p>A function which takes an R object as input and returns a string
+which is used as a cache key.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>There are two main ways to use the <code>memoise</code> function. Say that
+you wish to memoise <code>glm</code>, which is in the <code>stats</code>
+package; then you could use <br />
+<code>  mem_glm &lt;- memoise(glm)</code>, or you could use<br />
+<code>  glm &lt;- memoise(stats::glm)</code>. <br />
+The first form has the advantage that you still have easy access to
+both the memoised and the original function. The latter is especially
+useful to bring the benefits of memoisation to an existing block
+of R code.
+</p>
+<p>Two example situations where <code>memoise</code> could be of use:
+</p>
+
+<ul>
+<li><p> You're evaluating a function repeatedly over the rows (or
+larger chunks) of a dataset, and expect to regularly get the same
+input.
+</p>
+</li>
+<li><p> You're debugging or developing something, which involves
+a lot of re-running the code.  If there are a few expensive calls
+in there, memoising them can make life a lot more pleasant.
+If the code is in a script file that you're <code>source()</code>ing,
+take care that you don't just put <br />
+<code>  glm &lt;- memoise(stats::glm)</code> <br />
+at the top of your file: that would reinitialise the memoised
+function every time the file was sourced. Wrap it in <br />
+<code>  if (!is.memoised(glm)) </code>, or do the memoisation call
+once at the R prompt, or put it somewhere else where it won't get
+repeated.
+</p>
+</li></ul>
+
+<p>It is recommended that functions in a package are not memoised at build-time,
+but when the package is loaded. The simplest way to do this is within
+<code>.onLoad()</code> with, for example
+</p>
+<pre>
+# file.R
+fun &lt;- function() {
+ some_expensive_process()
+}
+
+# zzz.R
+.onLoad &lt;- function(libname, pkgname) {
+ fun &lt;&lt;- memoise::memoise(fun)
+}
+</pre>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="forget.html">forget</a></code>, <code><a href="is.memoised.html">is.memoised</a></code>,
+<code><a href="timeout.html">timeout</a></code>, <a href="https://en.wikipedia.org/wiki/Memoization">https://en.wikipedia.org/wiki/Memoization</a>,
+<code><a href="drop_cache.html">drop_cache</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# a() is evaluated anew each time. memA() is only re-evaluated
+# when you call it with a new set of parameters.
+a &lt;- function(n) { runif(n) }
+memA &lt;- memoise(a)
+replicate(5, a(2))
+replicate(5, memA(2))
+
+# Caching is done based on parameters' value, so same-name-but-
+# changed-value correctly produces two different outcomes...
+N &lt;- 4; memA(N)
+N &lt;- 5; memA(N)
+# ... and same-value-but-different-name correctly produces
+#     the same cached outcome.
+N &lt;- 4; memA(N)
+N2 &lt;- 4; memA(N2)
+
+# memoise() knows about default parameters.
+b &lt;- function(n, dummy="a") { runif(n) }
+memB &lt;- memoise(b)
+memB(2)
+memB(2, dummy="a")
+# This works, because the interface of the memoised function is the same as
+# that of the original function.
+formals(b)
+formals(memB)
+# However, it doesn't know about parameter relevance.
+# Different call means different caching, no matter
+# that the outcome is the same.
+memB(2, dummy="b")
+
+# You can create multiple memoisations of the same function,
+# and they'll be independent.
+memA(2)
+memA2 &lt;- memoise(a)
+memA(2)  # Still the same outcome
+memA2(2) # Different cache, different outcome
+
+# Multiple memoized functions can share a cache.
+cm &lt;- cachem::cache_mem(max_size = 50 * 1024^2)
+memA &lt;- memoise(a, cache = cm)
+memB &lt;- memoise(b, cache = cm)
+
+# Don't do the same memoisation assignment twice: a brand-new
+# memoised function also means a brand-new cache, and *that*
+# you could as easily and more legibly achieve using forget().
+# (If you're not sure whether you already memoised something,
+#  use is.memoised() to check.)
+memA(2)
+memA &lt;- memoise(a)
+memA(2)
+
+# Make a memoized result automatically time out after 10 seconds.
+memA3 &lt;- memoise(a, cache = cachem::cache_mem(max_age = 10))
+memA3(2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>memoise</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

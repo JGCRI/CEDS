@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: CLI text</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_text {cli}"><tr><td>cli_text {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>CLI text</h2>
+
+<h3>Description</h3>
+
+<p>Write some text to the screen. This function is most appropriate for
+longer paragraphs. See <code><a href="cli_alert.html">cli_alert()</a></code> for shorter status messages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_text(..., .envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>The text to show, in character vectors. They will be
+concatenated into a single string. Newlines are <em>not</em> preserved.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>Environment to evaluate the glue expressions in.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Text wrapping</h4>
+
+<p>Text is wrapped to the console width, see <code><a href="console_width.html">console_width()</a></code>.<div class="sourceCode r"></p>
+<pre>cli_text(cli:::lorem_ipsum())
+</pre></div>
+<p><img src="../help/figures/cli-text.svg" alt="cli-text.svg" />
+</p>
+
+
+
+<h4>New lines</h4>
+
+<p>A <code>cli_text()</code> call always appends a newline character to the end.<div class="sourceCode r"></p>
+<pre>cli_text("First line.")
+cli_text("Second line.")
+</pre></div>
+<p><img src="../help/figures/cli-text-newline.svg" alt="cli-text-newline.svg" />
+</p>
+
+
+
+<h4>Styling</h4>
+
+<p>You can use <a href="inline-markup.html">inline markup</a>, as usual.<div class="sourceCode r"></p>
+<pre>cli_text("The {.fn cli_text} function in the {.pkg cli} package.")
+</pre></div>
+<p><img src="../help/figures/cli-text-markup.svg" alt="cli-text-markup.svg" />
+</p>
+
+
+
+<h4>Interpolation</h4>
+
+<p>String interpolation via glue works as usual. Interpolated vectors
+are collapsed.<div class="sourceCode r"></p>
+<pre>pos &lt;- c(5, 14, 25, 26)
+cli_text("We have {length(pos)} missing measurements: {pos}.")
+</pre></div>
+<p><img src="../help/figures/cli-text-glue.svg" alt="cli-text-glue.svg" />
+</p>
+
+
+
+<h4>Styling and interpolation</h4>
+
+<p>Use double braces to combine styling and string interpolation.<div class="sourceCode r"></p>
+<pre>fun &lt;- "cli-text"
+pkg &lt;- "cli"
+cli_text("The {.fn {fun}} function in the {.pkg {pkg}} package.")
+</pre></div>
+<p><img src="../help/figures/cli-text-glue-style.svg" alt="cli-text-glue-style.svg" />
+</p>
+
+
+
+<h4>Multiple arguments</h4>
+
+<p>Arguments are concatenated.<div class="sourceCode r"></p>
+<pre>cli_text(c("This ", "will ", "all "), "be ", "one ", "sentence.")
+</pre></div>
+<p><img src="../help/figures/cli-text-concat.svg" alt="cli-text-concat.svg" />
+</p>
+
+
+
+<h4>Containers</h4>
+
+<p>You can use <code>cli_text()</code> within cli <a href="containers.html">containers</a>.<div class="sourceCode r"></p>
+<pre>ul &lt;- cli_ul()
+cli_li("First item.")
+cli_text("Still the {.emph first} item")
+cli_li("Second item.")
+cli_text("Still the {.emph second} item")
+cli_end(ul)
+</pre></div>
+<p><img src="../help/figures/cli-text-containers.svg" alt="cli-text-containers.svg" />
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

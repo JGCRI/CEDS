@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Munch coordinates data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coord_munch {ggplot2}"><tr><td>coord_munch {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Munch coordinates data</h2>
+
+<h3>Description</h3>
+
+<p>This function &quot;munches&quot; lines, dividing each line into many small pieces
+so they can be transformed independently. Used inside geom functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coord_munch(coord, data, range, segment_length = 0.01)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>coord</code></td>
+<td>
+<p>Coordinate system definition.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Data set to transform - should have variables <code>x</code> and
+<code>y</code> are chopped up into small pieces (as defined by <code>group</code>).
+All other variables are duplicated as needed.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>Panel range specification.</p>
+</td></tr>
+<tr valign="top"><td><code>segment_length</code></td>
+<td>
+<p>Target segment length</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query Default Settings for 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_info {stringi}"><tr><td>stri_info {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query Default Settings for <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p>Gives the current default settings used by the <span class="pkg">ICU</span> library.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_info(short = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>short</code></td>
+<td>
+<p>logical; whether or not the results should be given
+in a concise form; defaults to <code>TRUE</code></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If <code>short</code> is <code>TRUE</code>, then a single string providing
+information on the default character encoding, locale, and Unicode
+as well as <span class="pkg">ICU</span> version is returned.
+</p>
+<p>Otherwise, a list with the following components is returned:
+</p>
+
+<ul>
+<li> <p><code>Unicode.version</code> &ndash; version of Unicode supported
+by the <span class="pkg">ICU</span> library;
+</p>
+</li>
+<li> <p><code>ICU.version</code> &ndash; <span class="pkg">ICU</span> library version used;
+</p>
+</li>
+<li> <p><code>Locale</code> &ndash; contains information on default locale,
+as returned by <code><a href="stri_locale_info.html">stri_locale_info</a></code>;
+</p>
+</li>
+<li> <p><code>Charset.internal</code> &ndash; fixed at <code>c('UTF-8', 'UTF-16')</code>;
+</p>
+</li>
+<li> <p><code>Charset.native</code> &ndash; information on the default encoding,
+as returned by <code><a href="stri_enc_info.html">stri_enc_info</a></code>;
+</p>
+</li>
+<li> <p><code>ICU.system</code> &ndash; logical; <code>TRUE</code> indicates that
+the system <span class="pkg">ICU</span> libs are used, otherwise <span class="pkg">ICU</span> was built together
+with <span class="pkg">stringi</span>;
+</p>
+</li>
+<li> <p><code>ICU.UTF8</code> &ndash; logical; <code>TRUE</code> if the internal
+<code>U_CHARSET_IS_UTF8</code> flag is defined and set.
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

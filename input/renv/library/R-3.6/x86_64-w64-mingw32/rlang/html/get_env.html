@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get or set the environment of an object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for get_env {rlang}"><tr><td>get_env {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get or set the environment of an object</h2>
+
+<h3>Description</h3>
+
+<p>These functions dispatch internally with methods for functions,
+formulas and frames. If called with a missing argument, the
+environment of the current evaluation frame is returned. If you
+call <code>get_env()</code> with an environment, it acts as the identity
+function and the environment is simply returned (this helps
+simplifying code when writing generic functions for environments).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+get_env(env, default = NULL)
+
+set_env(env, new_env = caller_env())
+
+env_poke_parent(env, new_env)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>The default environment in case <code>env</code> does not wrap
+an environment. If <code>NULL</code> and no environment could be extracted,
+an error is issued.</p>
+</td></tr>
+<tr valign="top"><td><code>new_env</code></td>
+<td>
+<p>An environment to replace <code>env</code> with.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>While <code>set_env()</code> returns a modified copy and does not have side
+effects, <code>env_poke_parent()</code> operates changes the environment by
+side effect. This is because environments are
+<a href="is_copyable.html">uncopyable</a>. Be careful not to change environments
+that you don't own, e.g. a parent environment of a function from a
+package.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="quosure-tools.html">quo_get_env()</a></code> and <code><a href="quosure-tools.html">quo_set_env()</a></code> for versions of
+<code><a href="get_env.html">get_env()</a></code> and <code><a href="get_env.html">set_env()</a></code> that only work on quosures.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Environment of closure functions:
+fn &lt;- function() "foo"
+get_env(fn)
+
+# Or of quosures or formulas:
+get_env(~foo)
+get_env(quo(foo))
+
+
+# Provide a default in case the object doesn't bundle an environment.
+# Let's create an unevaluated formula:
+f &lt;- quote(~foo)
+
+# The following line would fail if run because unevaluated formulas
+# don't bundle an environment (they didn't have the chance to
+# record one yet):
+# get_env(f)
+
+# It is often useful to provide a default when you're writing
+# functions accepting formulas as input:
+default &lt;- env()
+identical(get_env(f, default), default)
+
+# set_env() can be used to set the enclosure of functions and
+# formulas. Let's create a function with a particular environment:
+env &lt;- child_env("base")
+fn &lt;- set_env(function() NULL, env)
+
+# That function now has `env` as enclosure:
+identical(get_env(fn), env)
+identical(get_env(fn), current_env())
+
+# set_env() does not work by side effect. Setting a new environment
+# for fn has no effect on the original function:
+other_env &lt;- child_env(NULL)
+set_env(fn, other_env)
+identical(get_env(fn), other_env)
+
+# Since set_env() returns a new function with a different
+# environment, you'll need to reassign the result:
+fn &lt;- set_env(fn, other_env)
+identical(get_env(fn), other_env)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

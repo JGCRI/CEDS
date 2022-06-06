@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Interval class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Interval-class {lubridate}"><tr><td>Interval-class {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Interval class</h2>
+
+<h3>Description</h3>
+
+<p>Interval is an S4 class that extends the <a href="Timespan-class.html">Timespan</a> class. An
+Interval object records one or more spans of time. Intervals record these
+timespans as a sequence of seconds that begin at a specified date. Since
+intervals are anchored to a precise moment of time, they can accurately be
+converted to <a href="Period-class.html">Period</a> or <a href="Duration-class.html">Duration</a> class objects. This
+is because we can observe the length in seconds of each period that begins on a
+specific date. Contrast this to a generalized period, which may not have a
+consistent length in seconds (e.g. the number of seconds in a year will change
+if it is a leap year).
+</p>
+
+
+<h3>Details</h3>
+
+<p>Intervals can be both negative and positive. Negative intervals progress
+backwards from the start date; positive intervals progress forwards.
+</p>
+<p>Interval class objects have two slots: .Data, a numeric object equal to the number
+of seconds in the interval; and start, a POSIXct object that specifies the time
+when the interval starts.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

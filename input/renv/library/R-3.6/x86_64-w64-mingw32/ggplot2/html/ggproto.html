@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new ggproto object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ggproto {ggplot2}"><tr><td>ggproto {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new ggproto object</h2>
+
+<h3>Description</h3>
+
+<p>Construct a new object with <code>ggproto()</code>, test with <code>is.ggproto()</code>,
+and access parent methods/fields with <code>ggproto_parent()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ggproto(`_class` = NULL, `_inherit` = NULL, ...)
+
+ggproto_parent(parent, self)
+
+is.ggproto(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>_class</code></td>
+<td>
+<p>Class name to assign to the object. This is stored as the class
+attribute of the object. This is optional: if <code>NULL</code> (the default),
+no class name will be added to the object.</p>
+</td></tr>
+<tr valign="top"><td><code>_inherit</code></td>
+<td>
+<p>ggproto object to inherit from. If <code>NULL</code>, don't
+inherit from any object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>A list of members in the ggproto object.</p>
+</td></tr>
+<tr valign="top"><td><code>parent, self</code></td>
+<td>
+<p>Access parent class <code>parent</code> of object <code>self</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>ggproto implements a protype based OO system which blurs the lines between
+classes and instances. It is inspired by the proto package, but it has some
+important differences. Notably, it cleanly supports cross-package
+inheritance, and has faster performance.
+</p>
+<p>In most cases, creating a new OO system to be used by a single package is
+not a good idea. However, it was the least-bad solution for ggplot2 because
+it required the fewest changes to an already complex code base.
+</p>
+
+
+<h3>Calling methods</h3>
+
+<p>ggproto methods can take an optional <code>self</code> argument: if it is present,
+it is a regular method; if it's absent, it's a &quot;static&quot; method (i.e. it
+doesn't use any fields).
+</p>
+<p>Imagine you have a ggproto object <code>Adder</code>, which has a
+method <code>addx = function(self, n) n + self$x</code>. Then, to call this
+function, you would use <code>Adder$addx(10)</code> &ndash; the <code>self</code> is passed
+in automatically by the wrapper function. <code>self</code> be located anywhere
+in the function signature, although customarily it comes first.
+</p>
+
+
+<h3>Calling methods in a parent</h3>
+
+<p>To explicitly call a methods in a parent, use
+<code>ggproto_parent(Parent, self)</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+Adder &lt;- ggproto("Adder",
+  x = 0,
+  add = function(self, n) {
+    self$x &lt;- self$x + n
+    self$x
+  }
+ )
+is.ggproto(Adder)
+
+Adder$add(10)
+Adder$add(10)
+
+Doubler &lt;- ggproto("Doubler", Adder,
+  add = function(self, n) {
+    ggproto_parent(Adder, self)$add(n * 2)
+  }
+)
+Doubler$x
+Doubler$add(10)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

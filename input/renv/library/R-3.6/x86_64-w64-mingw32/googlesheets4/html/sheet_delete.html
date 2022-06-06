@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delete one or more (work)sheets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_delete {googlesheets4}"><tr><td>sheet_delete {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delete one or more (work)sheets</h2>
+
+<h3>Description</h3>
+
+<p>Deletes one or more (work)sheets from a (spread)Sheet.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_delete(ss, sheet)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to delete, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. You can pass a vector to delete multiple sheets at once or even a list, if you need to mix names and positions.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes an <code>DeleteSheetsRequest</code>:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#DeleteSheetRequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#DeleteSheetRequest</a>
+</p>
+</li></ul>
+
+<p>Other worksheet functions: 
+<code><a href="sheet_add.html">sheet_add</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_properties.html">sheet_properties</a>()</code>,
+<code><a href="sheet_relocate.html">sheet_relocate</a>()</code>,
+<code><a href="sheet_rename.html">sheet_rename</a>()</code>,
+<code><a href="sheet_resize.html">sheet_resize</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  ss &lt;- gs4_create("delete-sheets-from-me")
+  sheet_add(ss, c("alpha", "beta", "gamma", "delta"))
+
+  # get an overview of the sheets
+  sheet_properties(ss)
+
+  # delete sheets
+  sheet_delete(ss, 1)
+  sheet_delete(ss, "gamma")
+  sheet_delete(ss, list("alpha", 2))
+
+  # get an overview of the sheets
+  sheet_properties(ss)
+
+  # clean up
+  gs4_find("delete-sheets-from-me") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

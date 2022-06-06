@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Old-style expectations.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for oldskool {testthat}"><tr><td>oldskool {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Old-style expectations.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p>Initial testthat used a style of testing that looked like
+<code style="white-space: pre;">expect_that(a, equals(b)))</code> this allowed expectations to read like
+English sentences, but was verbose and a bit too cutesy. This style
+will continue to work but has been soft-deprecated - it is no longer
+documented, and new expectations will only use the new style
+<code>expect_equal(a, b)</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_null()
+
+is_a(class)
+
+is_true()
+
+is_false()
+
+has_names(expected, ignore.order = FALSE, ignore.case = FALSE)
+
+is_less_than(expected, label = NULL, ...)
+
+is_more_than(expected, label = NULL, ...)
+
+equals(expected, label = NULL, ...)
+
+is_equivalent_to(expected, label = NULL)
+
+is_identical_to(expected, label = NULL)
+
+equals_reference(file, label = NULL, ...)
+
+shows_message(regexp = NULL, all = FALSE, ...)
+
+gives_warning(regexp = NULL, all = FALSE, ...)
+
+prints_text(regexp = NULL, ...)
+
+throws_error(regexp = NULL, ...)
+
+matches(regexp, all = TRUE, ...)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

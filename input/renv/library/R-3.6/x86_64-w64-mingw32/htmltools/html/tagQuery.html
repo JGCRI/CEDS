@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query and modify HTML tags</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tagQuery {htmltools}"><tr><td>tagQuery {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query and modify HTML tags</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a><br /><br /> <code>tagQuery()</code> provides a
+<a href="https://jquery.com/"><code>jQuery</code></a> inspired interface for querying and modifying
+<code><a href="builder.html">tag()</a></code> (and <code><a href="tagList.html">tagList()</a></code>) objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tagQuery(tags)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tags</code></td>
+<td>
+<p>A <code><a href="builder.html">tag()</a></code>, <code><a href="tagList.html">tagList()</a></code>, or <code><a href="../../base/html/list.html">list()</a></code> of tags.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A class with methods that are described below. This class can't be
+used directly inside other <code><a href="builder.html">tag()</a></code> or a <code><a href="renderTags.html">renderTags()</a></code> context, but
+underlying HTML tags may be extracted via <code style="white-space: pre;">$allTags()</code> or
+<code style="white-space: pre;">$selectedTags()</code>. Note: The returned tags will have their <code style="white-space: pre;">$children</code>
+fields flattened to a single <code>list()</code>, which may not be the same shape
+that was provided to <code>tagQuery()</code>.
+</p>
+
+
+<h3>Vignette</h3>
+
+<p>To get started with using <code>tagQuery()</code>, visit
+<a href="https://rstudio.github.io/htmltools/articles/tagQuery.html">https://rstudio.github.io/htmltools/articles/tagQuery.html</a>.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>Unless otherwise stated, <code>tagQuery()</code> methods accept a character
+vector as input.
+</p>
+
+
+<h4>Query methods</h4>
+
+<p>Query methods identify particular subsets of the root tag using CSS
+selectors (or R functions).
+</p>
+
+
+<h5>Children</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$find(cssSelector)</code>: Get the descendants of
+each selected tag, filtered by a <code>cssSelector</code>.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$children(cssSelector = NULL)</code>: Get the direct
+children of each selected tag, optionally filtered by a
+<code>cssSelector</code>.
+</p>
+</li></ul>
+
+
+
+
+<h5>Siblings</h5>
+
+
+<ul>
+<li> <p><code>siblings(cssSelector = NULL)</code>: Get the
+siblings of each selected tag, optionally filtered by a
+<code>cssSelector</code>.
+</p>
+</li></ul>
+
+
+
+
+<h5>Parents</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$parent(cssSelector = NULL)</code>: Get the parent
+of each selected tag, optionally filtered by a <code>cssSelector</code>.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$parents(cssSelector = NULL)</code>: Get the
+ancestors of each selected tag, optionally filtered by a
+<code>cssSelector</code>.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$closest(cssSelector = NULL)</code>: For each selected tag, get the closest
+ancestor tag (including itself) satisfying a <code>cssSelector</code>. If
+<code>cssSelector = NULL</code>, it is equivalent to calling <code style="white-space: pre;">$selectedTags()</code>.
+</p>
+</li></ul>
+
+
+
+
+<h5>Custom filter</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$filter(fn)</code>: Filter the selected tags to those for which <code>fn(x, i)</code> returns <code>TRUE</code>. In addition to an R function with two arguments
+(the selected tag <code>x</code> and the index <code>i</code>), <code>fn</code> may also be a valid
+CSS selector.
+</p>
+</li></ul>
+
+
+
+
+<h5>Length</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$length()</code>: Number of tags that have been selected.
+</p>
+</li></ul>
+
+
+
+
+<h5>Reset</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$resetSelected()</code>: Reset selected tags to the <code style="white-space: pre;">$root()</code> tag. Useful
+in combination with <code style="white-space: pre;">$replaceWith()</code> since it empties the selection.
+</p>
+</li></ul>
+
+
+
+
+
+<h4>Modify methods</h4>
+
+<p>Unlike query methods, modify methods modify the <code>tagQuery()</code> object.
+</p>
+
+
+<h5>Attributes</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$addClass(class)</code>: Adds class(es) to each selected tag.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$removeClass(class)</code>: Removes class(es) to each selected tag.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$toggleClass(class)</code>: Adds class(es) that don't already exist and
+removes class(es) that do already exist (for each selected tag).
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$hasClass(class)</code>: Does each selected tag have all the provided
+class(es)?
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$addAttrs(...)</code>: Add a set of attributes to each selected tag.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$removeAttrs(attrs)</code>: Remove a set of attributes from each
+selected tag.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$hasAttrs(attr)</code>: Do each selected tags have all of the attributes?
+</p>
+</li></ul>
+
+
+
+
+<h5>Children</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$append(...)</code>: For each selected tag, insert <code>...</code> <strong>after</strong> any
+existing children.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$prepend(...)</code>: For each selected tag, insert <code>...</code> <strong>before</strong> any
+existing children.
+</p>
+</li></ul>
+
+
+
+
+<h5>Siblings</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$after(...)</code>: Add all <code>...</code> objects as siblings after each of the
+selected tags.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$before(...)</code>: Add all <code>...</code> objects as siblings before each of
+the selected tags.
+</p>
+</li></ul>
+
+
+
+
+<h5>Custom</h5>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$each(fn)</code>: Modify each selected tag with a function <code>fn</code>. <code>fn</code>
+should accept two arguments: the first is the selected tag and second
+is the selected tags position index. Since the selected tag is a
+reference, any modifications to it will also modify the <code>tagQuery()</code>
+object.
+</p>
+</li></ul>
+
+
+
+
+
+<h4>Replace methods</h4>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$replaceWith(...)</code>: Replace all selected tags with <code>...</code> in the
+root tag and clear the selection.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$remove(...)</code>: Remove all selected tags from the root tag and
+clear the current selection.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$empty()</code>: Remove any children of each selected tag. Use this
+method before calling <code style="white-space: pre;">$append(...)</code> to replace the children of
+each selected tag, with other content.
+</p>
+</li></ul>
+
+
+
+
+<h4>Extract HTML tags</h4>
+
+
+<ul>
+<li> <p><code style="white-space: pre;">$allTags()</code>: Return the (possibly modified) root <code>tags</code>.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$selectedTags()</code>: Return a <code><a href="tagList.html">tagList()</a></code> of the currently selected
+tags.
+</p>
+</li></ul>
+
+
+
+
+<h3>Examples</h3>
+
+<pre>
+tagQ &lt;- tagQuery(div(a()))
+tagQ$find("a")$addClass("foo")
+tagQ
+
+# To learn more, visit https://rstudio.github.io/htmltools/articles/tagQuery.html
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

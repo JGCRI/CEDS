@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Arrange rows by column values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for arrange {dplyr}"><tr><td>arrange {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Arrange rows by column values</h2>
+
+<h3>Description</h3>
+
+<p><code>arrange()</code> orders the rows of a data frame by the values of selected
+columns.
+</p>
+<p>Unlike other dplyr verbs, <code>arrange()</code> largely ignores grouping; you
+need to explicitly mention grouping variables (or use  <code>.by_group = TRUE</code>)
+in order to group by them, and functions of variables are evaluated
+once per data frame, not once per group.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+arrange(.data, ..., .by_group = FALSE)
+
+## S3 method for class 'data.frame'
+arrange(.data, ..., .by_group = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Variables, or functions of
+variables. Use <code><a href="desc.html">desc()</a></code> to sort a variable in descending order.</p>
+</td></tr>
+<tr valign="top"><td><code>.by_group</code></td>
+<td>
+<p>If <code>TRUE</code>, will sort first by grouping variable. Applies to
+grouped data frames only.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Locales</h4>
+
+<p>The sort order for character vectors will depend on the collating sequence
+of the locale in use: see <code><a href="../../base/html/locales.html">locales()</a></code>.
+</p>
+
+
+
+<h4>Missing values</h4>
+
+<p>Unlike base sorting with <code>sort()</code>, <code>NA</code> are:
+</p>
+
+<ul>
+<li><p> always sorted to the end for local data, even when wrapped with <code>desc()</code>.
+</p>
+</li>
+<li><p> treated differently for remote data, depending on the backend.
+</p>
+</li></ul>
+
+
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following
+properties:
+</p>
+
+<ul>
+<li><p> All rows appear in the output, but (usually) in a different place.
+</p>
+</li>
+<li><p> Columns are not modified.
+</p>
+</li>
+<li><p> Groups are not modified.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li></ul>
+
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="filter.html">filter</a>()</code>,
+<code><a href="mutate.html">mutate</a>()</code>,
+<code><a href="rename.html">rename</a>()</code>,
+<code><a href="select.html">select</a>()</code>,
+<code><a href="slice.html">slice</a>()</code>,
+<code><a href="summarise.html">summarise</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+arrange(mtcars, cyl, disp)
+arrange(mtcars, desc(disp))
+
+# grouped arrange ignores groups
+by_cyl &lt;- mtcars %&gt;% group_by(cyl)
+by_cyl %&gt;% arrange(desc(wt))
+# Unless you specifically ask:
+by_cyl %&gt;% arrange(desc(wt), .by_group = TRUE)
+
+# use embracing when wrapping in a function;
+# see ?dplyr_data_masking for more details
+tidy_eval_arrange &lt;- function(.data, var) {
+  .data %&gt;%
+    arrange({{ var }})
+}
+tidy_eval_arrange(mtcars, mpg)
+
+# use across() access select()-style semantics
+iris %&gt;% arrange(across(starts_with("Sepal")))
+iris %&gt;% arrange(across(starts_with("Sepal"), desc))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

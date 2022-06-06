@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Factor coercion</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coercion-factor {generics}"><tr><td>coercion-factor {generics}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Factor coercion</h2>
+
+<h3>Description</h3>
+
+<p>Coercion functions for creating factors from other existing objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as.factor(x, ...)
+
+as.ordered(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector of data.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions override non-generic factor coercion functions provided
+in base so that packages can provide methods for different data types. The
+default methods call the base versions.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>as.factor()</code>, a factor. For <code>as.ordered()</code>,
+an ordered factor.
+</p>
+
+
+<h3>Methods</h3>
+
+
+
+<h4><code>as.factor()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h4><code>as.ordered()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+as.factor(letters[1:5])
+as.ordered(letters[1:5])
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>generics</em> version 0.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

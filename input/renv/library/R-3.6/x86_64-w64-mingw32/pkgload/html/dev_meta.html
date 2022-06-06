@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return devtools metadata environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dev_meta {pkgload}"><tr><td>dev_meta {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return devtools metadata environment</h2>
+
+<h3>Description</h3>
+
+<p>If the package was not loaded with devtools, returns <code>NULL</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dev_meta(name)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name of a loaded package</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+dev_meta("stats") # NULL
+
+if (has_tests()) {
+# Load the test package in directory "testLoadHooks"
+load_all(pkgtest("testLoadHooks"))
+
+# Get metdata for the package
+x &lt;- dev_meta("testLoadHooks")
+as.list(x)
+
+# Clean up.
+unload("testLoadHooks")
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Clip lines so they don't run into a set of boxes.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for clip_lines {isoband}"><tr><td>clip_lines {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Clip lines so they don't run into a set of boxes.</h2>
+
+<h3>Description</h3>
+
+<p>Clip lines so they don't run into a set of boxes. Useful for labeling isolines,
+as it allows removal of line segments that would run into any text labels.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+clip_lines(x, y, id, clip_boxes, asp = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Numeric vector of x coordinates</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>Numeric vector of y coordinates</p>
+</td></tr>
+<tr valign="top"><td><code>id</code></td>
+<td>
+<p>Integer vector of id numbers indicating which lines are connected</p>
+</td></tr>
+<tr valign="top"><td><code>clip_boxes</code></td>
+<td>
+<p>Data frame specifying the locations of boxes to clip to.
+Should have five columns, named <code>x</code>, <code>y</code>, <code>width</code>, <code>height</code>, <code>theta</code>, which
+specify the x and y positions of each box midpoint, as well as the box width,
+box height, and box angle in radians. Each box is specified by one data
+row.</p>
+</td></tr>
+<tr valign="top"><td><code>asp</code></td>
+<td>
+<p>Aspect ratio (width/height) of the target canvas. This is used to convert
+widths to heights and vice versa for rotated boxes</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

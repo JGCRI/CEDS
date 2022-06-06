@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse dates with *y*ear, *m*onth, and *d*ay components</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ymd {lubridate}"><tr><td>ymd {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse dates with <strong>y</strong>ear, <strong>m</strong>onth, and <strong>d</strong>ay components</h2>
+
+<h3>Description</h3>
+
+<p>Transforms dates stored in character and numeric vectors to Date or POSIXct
+objects (see <code>tz</code> argument). These functions recognize arbitrary
+non-digit separators as well as no separator. As long as the order of
+formats is correct, these functions will parse dates correctly even when the
+input vectors contain differently formatted dates. See examples.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ymd(
+  ...,
+  quiet = FALSE,
+  tz = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+ydm(
+  ...,
+  quiet = FALSE,
+  tz = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+mdy(
+  ...,
+  quiet = FALSE,
+  tz = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+myd(
+  ...,
+  quiet = FALSE,
+  tz = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+dmy(
+  ...,
+  quiet = FALSE,
+  tz = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+dym(
+  ...,
+  quiet = FALSE,
+  tz = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+yq(..., quiet = FALSE, tz = NULL, locale = Sys.getlocale("LC_TIME"))
+
+ym(..., quiet = FALSE, tz = NULL, locale = Sys.getlocale("LC_TIME"))
+
+my(..., quiet = FALSE, tz = NULL, locale = Sys.getlocale("LC_TIME"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>a character or numeric vector of suspected dates</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, function evaluates without displaying
+customary messages.</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>Time zone indicator. If <code>NULL</code> (default), a Date object is
+returned. Otherwise a POSIXct with time zone attribute set to <code>tz</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>locale to be used, see <a href="../../base/html/locales.html">locales</a>. On Linux systems you
+can use <code>system("locale -a")</code> to list all the installed locales.</p>
+</td></tr>
+<tr valign="top"><td><code>truncated</code></td>
+<td>
+<p>integer. Number of formats that can be truncated.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In case of heterogeneous date formats, the <code>ymd()</code> family guesses formats based
+on a subset of the input vector. If the input vector contains many missing
+values or non-date strings, the subset might not contain meaningful dates
+and the date-time format won't be guessed resulting in
+<code style="white-space: pre;">All formats failed to parse</code> error. In such cases please see
+<code><a href="parse_date_time.html">parse_date_time()</a></code> for a more flexible parsing interface.
+</p>
+<p>If the <code>truncated</code> parameter is non-zero, the <code>ymd()</code> functions also check for
+truncated formats. For example, <code>ymd()</code> with <code>truncated = 2</code> will also
+parse incomplete dates like <code>2012-06</code> and <code>2012</code>.
+</p>
+<p>NOTE: The <code>ymd()</code> family of functions is based on <code>parse_date_time()</code> and thus
+directly drop to the internal C parser for numeric months, but uses
+<code><a href="../../base/html/strptime.html">base::strptime()</a></code> for alphabetic months. This implies that some of <code><a href="../../base/html/strptime.html">base::strptime()</a></code>'s
+limitations are inherited by <span class="pkg">lubridate</span>'s parser. For example, truncated
+formats (like <code style="white-space: pre;">%Y-%b</code>) will not be parsed. Numeric truncated formats (like
+<code style="white-space: pre;">%Y-%m</code>) are handled correctly by <span class="pkg">lubridate</span>'s C parser.
+</p>
+<p>As of version 1.3.0, <span class="pkg">lubridate</span>'s parse functions no longer return a
+message that displays which format they used to parse their input. You can
+change this by setting the <code>lubridate.verbose</code> option to <code>TRUE</code> with
+<code>options(lubridate.verbose = TRUE)</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a vector of class POSIXct if <code>tz</code> argument is non-<code>NULL</code> or Date if tz
+is <code>NULL</code> (default)
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="parse_date_time.html">parse_date_time()</a></code> for an even more flexible low level
+mechanism.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- c("09-01-01", "09-01-02", "09-01-03")
+ymd(x)
+x &lt;- c("2009-01-01", "2009-01-02", "2009-01-03")
+ymd(x)
+ymd(090101, 90102)
+now() &gt; ymd(20090101)
+## TRUE
+dmy(010210)
+mdy(010210)
+
+yq('2014.2')
+
+## heterogeneous formats in a single vector:
+x &lt;- c(20090101, "2009-01-02", "2009 01 03", "2009-1-4",
+       "2009-1, 5", "Created on 2009 1 6", "200901 !!! 07")
+ymd(x)
+
+## What lubridate might not handle:
+
+## Extremely weird cases when one of the separators is "" and some of the
+## formats are not in double digits might not be parsed correctly:
+## Not run: ymd("201002-01", "201002-1", "20102-1")
+dmy("0312-2010", "312-2010")
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

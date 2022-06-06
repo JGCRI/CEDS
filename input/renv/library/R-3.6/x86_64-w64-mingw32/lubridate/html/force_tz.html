@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Replace time zone to create new date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for force_tz {lubridate}"><tr><td>force_tz {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Replace time zone to create new date-time</h2>
+
+<h3>Description</h3>
+
+<p><code>force_tz</code> returns the date-time that has the same clock time as input time,
+but in the new time zone. <code>force_tzs</code> is the parallel version of <code>force_tz</code>,
+meaning that every element from <code>time</code> argument is matched with the
+corresponding time zone in <code>tzones</code> argument.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+force_tz(time, tzone = "", roll = FALSE)
+
+force_tzs(time, tzones, tzone_out = "UTC", roll = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>time</code></td>
+<td>
+<p>a POSIXct, POSIXlt, Date, chron date-time object, or a data.frame
+object. When a data.frame all POSIXt elements of a data.frame are processed
+with <code>force_tz()</code> and new data.frame is returned.</p>
+</td></tr>
+<tr valign="top"><td><code>tzone</code></td>
+<td>
+<p>a character string containing the time zone to convert to. R
+must recognize the name contained in the string as a time zone on your
+system.</p>
+</td></tr>
+<tr valign="top"><td><code>roll</code></td>
+<td>
+<p>logical. If TRUE, and <code>time</code> falls into the DST-break, assume
+the next valid civil time, otherwise return NA. See examples.</p>
+</td></tr>
+<tr valign="top"><td><code>tzones</code></td>
+<td>
+<p>character vector of timezones to be &quot;enforced&quot; on <code>time</code> time
+stamps. If <code>time</code> and <code>tzones</code> lengths differ, the smaller one is recycled
+in accordance with usual R conventions.</p>
+</td></tr>
+<tr valign="top"><td><code>tzone_out</code></td>
+<td>
+<p>timezone of the returned date-time vector (for <code>force_tzs</code>).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Although the new date-time has the same clock time (e.g. the same values in
+the year, month, days, etc. elements) it is a different moment of time than
+the input date-time.
+</p>
+<p>As R date-time vectors cannot hold elements with non-uniform time zones,
+<code>force_tzs</code> returns a vector with time zone <code>tzone_out</code>, UTC by default.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a POSIXct object in the updated time zone
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="with_tz.html">with_tz()</a></code>, <code><a href="local_time.html">local_time()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd_hms("2009-08-07 00:00:01", tz = "America/New_York")
+force_tz(x, "UTC")
+force_tz(x, "Europe/Amsterdam")
+
+## DST skip:
+
+y &lt;- ymd_hms("2010-03-14 02:05:05 UTC")
+force_tz(y, "America/New_York", roll=FALSE)
+force_tz(y, "America/New_York", roll=TRUE)
+
+## Heterogeneous time-zones:
+
+x &lt;- ymd_hms(c("2009-08-07 00:00:01", "2009-08-07 01:02:03"))
+force_tzs(x, tzones = c("America/New_York", "Europe/Amsterdam"))
+force_tzs(x, tzones = c("America/New_York", "Europe/Amsterdam"), tzone_out = "America/New_York")
+
+x &lt;- ymd_hms("2009-08-07 00:00:01")
+force_tzs(x, tzones = c("America/New_York", "Europe/Amsterdam"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

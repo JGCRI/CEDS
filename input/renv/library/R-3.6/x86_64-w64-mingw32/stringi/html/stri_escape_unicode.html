@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Escape Unicode Code Points</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_escape_unicode {stringi}"><tr><td>stri_escape_unicode {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Escape Unicode Code Points</h2>
+
+<h3>Description</h3>
+
+<p>Escapes all Unicode (not ASCII-printable) code points.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_escape_unicode(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>For non-printable and certain special (well-known,
+see also R man page <a href="../../base/html/Quotes.html">Quotes</a>)
+ASCII characters the following
+(also recognized in R) convention is used.
+We get <code>\a</code>, <code>\b</code>, <code>\t</code>, <code>\n</code>, <code>\v</code>,
+<code>\f</code>, <code>\r</code>, <code>\"</code>, <code>\'</code>, <code>\\</code>
+or either \uXXXX (4 hex digits) or \UXXXXXXXX (8 hex digits)
+otherwise.
+</p>
+<p>As usual, any input string is converted to Unicode
+before executing the escape process.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other escape: 
+<code><a href="stri_unescape_unicode.html">stri_unescape_unicode</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_escape_unicode('a\u0105!')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

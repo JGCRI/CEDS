@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy a(n) garch object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glance.garch {broom}"><tr><td>glance.garch {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy a(n) garch object</h2>
+
+<h3>Description</h3>
+
+<p>Tidy summarizes information about the components of a model.
+A model component might be a single term in a regression, a single
+hypothesis, a cluster, or a class. Exactly what tidy considers to be a
+model component varies across models but is usually self-evident.
+If a model has several distinct types of components, you will need to
+specify which components to return.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'garch'
+glance(x, test = c("box-ljung-test", "jarque-bera-test"), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>garch</code> object returned by <code><a href="../../tseries/html/garch.html">tseries::garch()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>test</code></td>
+<td>
+<p>Character specification of which hypothesis test to use. The
+<code>garch</code> function reports 2 hypothesis tests: Jarque-Bera to residuals
+and Box-Ljung to squared residuals.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with exactly one row and columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>AIC</code></td>
+<td>
+<p>Akaike's Information Criterion for the model.</p>
+</td></tr>
+<tr valign="top"><td><code>BIC</code></td>
+<td>
+<p>Bayesian Information Criterion for the model.</p>
+</td></tr>
+<tr valign="top"><td><code>logLik</code></td>
+<td>
+<p>The log-likelihood of the model. [stats::logLik()] may be a useful reference.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Which method was used.</p>
+</td></tr>
+<tr valign="top"><td><code>nobs</code></td>
+<td>
+<p>Number of observations used.</p>
+</td></tr>
+<tr valign="top"><td><code>p.value</code></td>
+<td>
+<p>P-value corresponding to the test statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>statistic</code></td>
+<td>
+<p>Test statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>parameter</code></td>
+<td>
+<p>Parameter field in the htest, typically degrees of
+freedom.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">glance()</a></code>, <code><a href="../../tseries/html/garch.html">tseries::garch()</a></code>, []
+</p>
+<p>Other garch tidiers: 
+<code><a href="tidy.garch.html">tidy.garch</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

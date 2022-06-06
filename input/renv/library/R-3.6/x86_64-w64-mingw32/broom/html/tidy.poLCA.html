@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy a(n) poLCA object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidy.poLCA {broom}"><tr><td>tidy.poLCA {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy a(n) poLCA object</h2>
+
+<h3>Description</h3>
+
+<p>Tidy summarizes information about the components of a model.
+A model component might be a single term in a regression, a single
+hypothesis, a cluster, or a class. Exactly what tidy considers to be a
+model component varies across models but is usually self-evident.
+If a model has several distinct types of components, you will need to
+specify which components to return.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'poLCA'
+tidy(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>poLCA</code> object returned from <code><a href="../../poLCA/html/poLCA.html">poLCA::poLCA()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>The class under consideration.</p>
+</td></tr>
+<tr valign="top"><td><code>outcome</code></td>
+<td>
+<p>Outcome of manifest variable.</p>
+</td></tr>
+<tr valign="top"><td><code>std.error</code></td>
+<td>
+<p>The standard error of the regression term.</p>
+</td></tr>
+<tr valign="top"><td><code>variable</code></td>
+<td>
+<p>Manifest variable</p>
+</td></tr>
+<tr valign="top"><td><code>estimate</code></td>
+<td>
+<p>Estimated class-conditional response probability</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">tidy()</a></code>, <code><a href="../../poLCA/html/poLCA.html">poLCA::poLCA()</a></code>
+</p>
+<p>Other poLCA tidiers: 
+<code><a href="augment.poLCA.html">augment.poLCA</a>()</code>,
+<code><a href="glance.poLCA.html">glance.poLCA</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+if (requireNamespace("poLCA", quietly = TRUE)) {
+
+library(poLCA)
+library(dplyr)
+
+data(values)
+f &lt;- cbind(A, B, C, D) ~ 1
+M1 &lt;- poLCA(f, values, nclass = 2, verbose = FALSE)
+
+M1
+tidy(M1)
+augment(M1)
+glance(M1)
+
+library(ggplot2)
+
+ggplot(tidy(M1), aes(factor(class), estimate, fill = factor(outcome))) +
+  geom_bar(stat = "identity", width = 1) +
+  facet_wrap(~variable)
+## Three-class model with a single covariate.
+
+data(election)
+f2a &lt;- cbind(
+  MORALG, CARESG, KNOWG, LEADG, DISHONG, INTELG,
+  MORALB, CARESB, KNOWB, LEADB, DISHONB, INTELB
+) ~ PARTY
+nes2a &lt;- poLCA(f2a, election, nclass = 3, nrep = 5, verbose = FALSE)
+
+td &lt;- tidy(nes2a)
+td
+
+# show
+
+ggplot(td, aes(outcome, estimate, color = factor(class), group = class)) +
+  geom_line() +
+  facet_wrap(~variable, nrow = 2) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+au &lt;- augment(nes2a)
+au
+count(au, .class)
+
+# if the original data is provided, it leads to NAs in new columns
+# for rows that weren't predicted
+au2 &lt;- augment(nes2a, data = election)
+au2
+dim(au2)
+
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

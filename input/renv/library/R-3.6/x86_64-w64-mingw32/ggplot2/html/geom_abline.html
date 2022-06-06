@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Reference lines: horizontal, vertical, and diagonal</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for geom_abline {ggplot2}"><tr><td>geom_abline {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Reference lines: horizontal, vertical, and diagonal</h2>
+
+<h3>Description</h3>
+
+<p>These geoms add reference lines (sometimes called rules) to a plot, either
+horizontal, vertical, or diagonal (specified by slope and intercept).
+These are useful for annotating plots.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+geom_abline(
+  mapping = NULL,
+  data = NULL,
+  ...,
+  slope,
+  intercept,
+  na.rm = FALSE,
+  show.legend = NA
+)
+
+geom_hline(
+  mapping = NULL,
+  data = NULL,
+  ...,
+  yintercept,
+  na.rm = FALSE,
+  show.legend = NA
+)
+
+geom_vline(
+  mapping = NULL,
+  data = NULL,
+  ...,
+  xintercept,
+  na.rm = FALSE,
+  show.legend = NA
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or <code><a href="aes_.html">aes_()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>xintercept, yintercept, slope, intercept</code></td>
+<td>
+<p>Parameters that control the
+position of the line. If these are set, <code>data</code>, <code>mapping</code> and
+<code>show.legend</code> are overridden.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These geoms act slightly differently from other geoms. You can supply the
+parameters in two ways: either as arguments to the layer function,
+or via aesthetics. If you use arguments, e.g.
+<code>geom_abline(intercept = 0, slope = 1)</code>, then behind the scenes
+the geom makes a new data frame containing just the data you've supplied.
+That means that the lines will be the same in all facets; if you want them
+to vary across facets, construct the data frame yourself and use aesthetics.
+</p>
+<p>Unlike most other geoms, these geoms do not inherit aesthetics from the plot
+default, because they do not understand x and y aesthetics which are
+commonly set in the plot. They also do not affect the x and y scales.
+</p>
+
+
+<h3>Aesthetics</h3>
+
+<p>These geoms are drawn using with <code><a href="geom_path.html">geom_line()</a></code> so support the
+same aesthetics: <code>alpha</code>, <code>colour</code>, <code>linetype</code> and
+<code>size</code>. They also each have aesthetics that control the position of
+the line:
+</p>
+
+<ul>
+<li> <p><code>geom_vline()</code>: <code>xintercept</code>
+</p>
+</li>
+<li> <p><code>geom_hline()</code>: <code>yintercept</code>
+</p>
+</li>
+<li> <p><code>geom_abline()</code>: <code>slope</code> and <code>intercept</code>
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>See <code><a href="geom_segment.html">geom_segment()</a></code> for a more general approach to
+adding straight line segments to a plot.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+
+# Fixed values
+p + geom_vline(xintercept = 5)
+p + geom_vline(xintercept = 1:5)
+p + geom_hline(yintercept = 20)
+
+p + geom_abline() # Can't see it - outside the range of the data
+p + geom_abline(intercept = 20)
+
+# Calculate slope and intercept of line of best fit
+coef(lm(mpg ~ wt, data = mtcars))
+p + geom_abline(intercept = 37, slope = -5)
+# But this is easier to do with geom_smooth:
+p + geom_smooth(method = "lm", se = FALSE)
+
+# To show different lines in different facets, use aesthetics
+p &lt;- ggplot(mtcars, aes(mpg, wt)) +
+  geom_point() +
+  facet_wrap(~ cyl)
+
+mean_wt &lt;- data.frame(cyl = c(4, 6, 8), wt = c(2.28, 3.11, 4.00))
+p + geom_hline(aes(yintercept = wt), mean_wt)
+
+# You can also control other aesthetics
+ggplot(mtcars, aes(mpg, wt, colour = wt)) +
+  geom_point() +
+  geom_hline(aes(yintercept = wt, colour = wt), mean_wt) +
+  facet_wrap(~ cyl)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

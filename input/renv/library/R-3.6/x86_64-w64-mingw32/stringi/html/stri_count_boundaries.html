@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count the Number of Text Boundaries</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_count_boundaries {stringi}"><tr><td>stri_count_boundaries {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count the Number of Text Boundaries</h2>
+
+<h3>Description</h3>
+
+<p>These functions determine the number of text boundaries
+(like character, word, line, or sentence boundaries) in a string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_count_boundaries(str, ..., opts_brkiter = NULL)
+
+stri_count_words(str, locale = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector or an object coercible to</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional settings for <code>opts_brkiter</code></p>
+</td></tr>
+<tr valign="top"><td><code>opts_brkiter</code></td>
+<td>
+<p>a named list with <span class="pkg">ICU</span> BreakIterator's settings,
+see <code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a></code>;
+<code>NULL</code> for the default break iterator, i.e., <code>line_break</code></p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for text boundary analysis following
+the conventions of the default locale, or a single string with
+locale identifier, see <a href="about_locale.html">stringi-locale</a></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>.
+</p>
+<p>For more information on text boundary analysis
+performed by <span class="pkg">ICU</span>'s <code>BreakIterator</code>, see
+<a href="about_search_boundaries.html">stringi-search-boundaries</a>.
+</p>
+<p>In case of <code>stri_count_words</code>,
+just like in <code><a href="stri_extract_boundaries.html">stri_extract_all_words</a></code> and
+<code><a href="stri_locate_boundaries.html">stri_locate_all_words</a></code>,
+<span class="pkg">ICU</span>'s word <code>BreakIterator</code> iterator is used
+to locate the word boundaries, and all non-word characters
+(<code>UBRK_WORD_NONE</code> rule status) are ignored.
+This function is equivalent to a call to
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>(str, type='word', skip_word_none=TRUE, locale=locale)</code>.
+</p>
+<p>Note that a <code>BreakIterator</code> of type <code>character</code>
+may be used to count the number of <em>Unicode characters</em> in a string.
+The <code><a href="stri_length.html">stri_length</a></code> function,
+which aims to count the number of <em>Unicode code points</em>,
+might report different results.
+</p>
+<p>Moreover, a <code>BreakIterator</code> of type <code>sentence</code>
+may be used to count the number of sentences in a text piece.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Both functions return an integer vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_count: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_count.html">stri_count</a>()</code>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+<p>Other text_boundaries: 
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_split_lines.html">stri_split_lines</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+test &lt;- 'The\u00a0above-mentioned    features are very useful. Spam, spam, eggs, bacon, and spam.'
+stri_count_boundaries(test, type='word')
+stri_count_boundaries(test, type='sentence')
+stri_count_boundaries(test, type='character')
+stri_count_words(test)
+
+test2 &lt;- stri_trans_nfkd('\u03c0\u0153\u0119\u00a9\u00df\u2190\u2193\u2192')
+stri_count_boundaries(test2, type='character')
+stri_length(test2)
+stri_numbytes(test2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

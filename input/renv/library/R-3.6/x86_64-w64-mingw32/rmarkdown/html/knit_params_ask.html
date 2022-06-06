@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run a shiny application asking for parameter configuration...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for knit_params_ask {rmarkdown}"><tr><td>knit_params_ask {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run a shiny application asking for parameter configuration for the given document.</h2>
+
+<h3>Description</h3>
+
+<p>Run a shiny application asking for parameter configuration for the given document.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+knit_params_ask(
+  file = NULL,
+  input_lines = NULL,
+  params = NULL,
+  shiny_args = NULL,
+  save_caption = "Save",
+  encoding = "UTF-8"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Path to the R Markdown document with configurable parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>input_lines</code></td>
+<td>
+<p>Content of the R Markdown document. If <code>NULL</code>, the contents of <code>file</code> will be read.</p>
+</td></tr>
+<tr valign="top"><td><code>params</code></td>
+<td>
+<p>A named list of optional parameter overrides used in place of the document defaults.</p>
+</td></tr>
+<tr valign="top"><td><code>shiny_args</code></td>
+<td>
+<p>Additional arguments to <code><a href="../../shiny/html/runApp.html">runApp</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>save_caption</code></td>
+<td>
+<p>Caption to use use for button that saves/confirms parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>Ignored. The encoding is always assumed to be UTF-8.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>named list with overridden parameter names and value.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

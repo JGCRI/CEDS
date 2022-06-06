@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Load roxygen2 options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for load_options {roxygen2}"><tr><td>load_options {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Load roxygen2 options</h2>
+
+<h3>Description</h3>
+
+<p>Options can be stored in the <code>Roxygen</code> field of the <code>DESCRIPTION</code>, or
+in <code>man/roxygen/meta.R</code>. In either case, the code is parsed and evaluated
+in a child of the base environment. Call <code>roxy_meta_get()</code> to access
+current option values from within tag and roclet methods.
+</p>
+<p>Options in <code>man/roxygen/meta.R</code> override those present in <code>DESCRIPTION</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+load_options(base_path = ".")
+
+roxy_meta_get(key = NULL, default = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>base_path</code></td>
+<td>
+<p>Path to package.</p>
+</td></tr>
+</table>
+
+
+<h3>Possible options</h3>
+
+
+<ul>
+<li> <p><code>roclets</code> <code style="white-space: pre;">&lt;character&gt;</code>: giving names of roclets to run. See
+<code><a href="roclet_find.html">roclet_find()</a></code> for details.
+</p>
+</li>
+<li> <p><code>packages</code> <code style="white-space: pre;">&lt;character&gt;</code>: packages to load that implement new tags.
+</p>
+</li>
+<li> <p><code>load</code> <code style="white-space: pre;">&lt;string&gt;</code>: how to load R code. See <a href="load.html">load</a> for details.
+</p>
+</li>
+<li> <p><code>old_usage</code> <code style="white-space: pre;">&lt;flag&gt;</code>: use old style usage formatting?
+</p>
+</li>
+<li> <p><code>markdown</code> <code style="white-space: pre;">&lt;flag&gt;</code>: translate markdown syntax to Rd?
+</p>
+</li>
+<li> <p><code>r6</code> <code style="white-space: pre;">&lt;flag&gt;</code>: document R6 classes?
+</p>
+</li>
+<li> <p><code>current_package</code> <code style="white-space: pre;">&lt;string&gt;</code> (read only): name of package being documented.
+</p>
+</li>
+<li> <p><code>rd_family_title</code> <code style="white-space: pre;">&lt;list&gt;</code>: overrides for <code style="white-space: pre;">@family</code> titles. See the
+<em>rd</em> vignette for details: <code>vignette("rd", package = "roxygen2")</code>
+</p>
+</li></ul>
+
+
+
+<h3>How to set</h3>
+
+<p>Either set in <code>DESCRIPTION</code>:</p>
+<pre>Roxygen: list(markdown = TRUE, load = "installed")
+</pre>
+<p>Or if longer, you can put in <code style="white-space: pre;">/man/roxygen/meta.R</code>:</p>
+<pre>list(
+  markdown = TRUE,
+  load = "installed"
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: About cli containers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for containers {cli}"><tr><td>containers {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>About cli containers</h2>
+
+<h3>Description</h3>
+
+<p>Container elements may contain other elements. Currently the following
+commands create container elements: <code><a href="cli_div.html">cli_div()</a></code>, <code><a href="cli_par.html">cli_par()</a></code>, the list
+elements: <code><a href="cli_ul.html">cli_ul()</a></code>, <code><a href="cli_ol.html">cli_ol()</a></code>, <code><a href="cli_dl.html">cli_dl()</a></code>, and list items are
+containers as well: <code><a href="cli_li.html">cli_li()</a></code>.
+</p>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Themes</h4>
+
+<p>A container can add a new theme, which is removed when the container
+exits.<div class="sourceCode r"></p>
+<pre>d &lt;- cli_div(theme = list(h1 = list(color = "blue",
+                                    "font-weight" = "bold")))
+cli_h1("Custom title")
+cli_end(d)
+</pre></div>
+<p><img src="../help/figures/cnt-theme.svg" alt="cnt-theme.svg" />
+</p>
+
+
+
+<h4>Auto-closing</h4>
+
+<p>Container elements are closed with <code><a href="cli_end.html">cli_end()</a></code>. For convenience,
+by default they are closed automatically when the function that created
+them terminated (either regularly or with an error). The default
+behavior can be changed with the <code>.auto_close</code> argument.<div class="sourceCode r"></p>
+<pre>div &lt;- function() {
+  cli_div(class = "tmp", theme = list(.tmp = list(color = "yellow")))
+  cli_text("This is yellow")
+}
+div()
+cli_text("This is not yellow any more")
+</pre></div>
+<p><img src="../help/figures/cnt-auto-close.svg" alt="cnt-auto-close.svg" />
+</p>
+
+
+
+<h4>Debugging</h4>
+
+<p>You can use the internal <code>cli:::cli_debug_doc()</code> function to see the
+currently open containers.<div class="sourceCode r"></p>
+<pre>fun &lt;- function() {
+  cli_div(id = "mydiv")
+  cli_par(class = "myclass")
+  cli:::cli_debug_doc()
+}
+fun()
+</pre></div>
+<p><img src="../help/figures/cnt-debug.svg" alt="cnt-debug.svg" />
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

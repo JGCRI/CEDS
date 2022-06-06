@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Filter paths</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for path_filter {fs}"><tr><td>path_filter {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Filter paths</h2>
+
+<h3>Description</h3>
+
+<p>Filter paths
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+path_filter(path, glob = NULL, regexp = NULL, invert = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>glob</code></td>
+<td>
+<p>A wildcard aka globbing pattern (e.g. <code style="white-space: pre;">*.csv</code>) passed on to <code><a href="../../base/html/grep.html">grep()</a></code> to filter paths.</p>
+</td></tr>
+<tr valign="top"><td><code>regexp</code></td>
+<td>
+<p>A regular expression (e.g. <code style="white-space: pre;">[.]csv$</code>) passed on to <code><a href="../../base/html/grep.html">grep()</a></code> to filter paths.</p>
+</td></tr>
+<tr valign="top"><td><code>invert</code></td>
+<td>
+<p>If <code>TRUE</code> return files which do <em>not</em> match</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <a href="../../base/html/grep.html">grep</a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+path_filter(c("foo", "boo", "bar"), glob = "*oo")
+path_filter(c("foo", "boo", "bar"), glob = "*oo", invert = TRUE)
+
+path_filter(c("foo", "boo", "bar"), regexp = "b.r")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

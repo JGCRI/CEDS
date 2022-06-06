@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Curl connection interface</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curl {curl}"><tr><td>curl {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Curl connection interface</h2>
+
+<h3>Description</h3>
+
+<p>Drop-in replacement for base <code><a href="../../base/html/connections.html">url</a></code> that supports https, ftps,
+gzip, deflate, etc. Default behavior is identical to <code><a href="../../base/html/connections.html">url</a></code>, but
+request can be fully configured by passing a custom <code><a href="handle.html">handle</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+curl(url = "http://httpbin.org/get", open = "", handle = new_handle())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>character string. See examples.</p>
+</td></tr>
+<tr valign="top"><td><code>open</code></td>
+<td>
+<p>character string. How to open the connection if it should be opened
+initially. Currently only &quot;r&quot; and &quot;rb&quot; are supported.</p>
+</td></tr>
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>a curl handle object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>As of version 2.3 curl connections support <code>open(con, blocking = FALSE)</code>.
+In this case <code>readBin</code> and <code>readLines</code> will return immediately with data
+that is available without waiting. For such non-blocking connections the caller
+needs to call <code><a href="../../base/html/connections.html">isIncomplete</a></code> to check if the download has completed
+yet.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+con &lt;- curl("https://httpbin.org/get")
+readLines(con)
+
+# Auto-opened connections can be recycled
+open(con, "rb")
+bin &lt;- readBin(con, raw(), 999)
+close(con)
+rawToChar(bin)
+
+# HTTP error
+curl("https://httpbin.org/status/418", "r")
+
+# Follow redirects
+readLines(curl("https://httpbin.org/redirect/3"))
+
+# Error after redirect
+curl("https://httpbin.org/redirect-to?url=http://httpbin.org/status/418", "r")
+
+# Auto decompress Accept-Encoding: gzip / deflate (rfc2616 #14.3)
+readLines(curl("http://httpbin.org/gzip"))
+readLines(curl("http://httpbin.org/deflate"))
+
+# Binary support
+buf &lt;- readBin(curl("http://httpbin.org/bytes/98765", "rb"), raw(), 1e5)
+length(buf)
+
+# Read file from disk
+test &lt;- paste0("file://", system.file("DESCRIPTION"))
+readLines(curl(test))
+
+# Other protocols
+read.csv(curl("ftp://cran.r-project.org/pub/R/CRAN_mirrors.csv"))
+readLines(curl("ftps://test.rebex.net:990/readme.txt"))
+readLines(curl("gopher://quux.org/1"))
+
+# Streaming data
+con &lt;- curl("http://jeroen.github.io/data/diamonds.json", "r")
+while(length(x &lt;- readLines(con, n = 5))){
+  print(x)
+}
+
+# Stream large dataset over https with gzip
+library(jsonlite)
+con &lt;- gzcon(curl("https://jeroen.github.io/data/nycflights13.json.gz"))
+nycflights &lt;- stream_in(con)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

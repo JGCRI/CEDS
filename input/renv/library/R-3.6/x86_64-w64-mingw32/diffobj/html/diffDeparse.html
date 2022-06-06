@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Diff Deparsed Objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for diffDeparse {diffobj}"><tr><td>diffDeparse {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Diff Deparsed Objects</h2>
+
+<h3>Description</h3>
+
+<p>Perform diff on the character vectors produced by <code><a href="../../base/html/deparse.html">deparse</a></code>ing
+the objects.  Each element counts as a line.  If an element contains newlines
+it will be split into elements new lines by the newlines.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+diffDeparse(target, current, ...)
+
+## S4 method for signature 'ANY'
+diffDeparse(
+  target,
+  current,
+  mode = gdo("mode"),
+  context = gdo("context"),
+  format = gdo("format"),
+  brightness = gdo("brightness"),
+  color.mode = gdo("color.mode"),
+  word.diff = gdo("word.diff"),
+  pager = gdo("pager"),
+  guides = gdo("guides"),
+  trim = gdo("trim"),
+  rds = gdo("rds"),
+  unwrap.atomic = gdo("unwrap.atomic"),
+  max.diffs = gdo("max.diffs"),
+  disp.width = gdo("disp.width"),
+  ignore.white.space = gdo("ignore.white.space"),
+  convert.hz.white.space = gdo("convert.hz.white.space"),
+  tab.stops = gdo("tab.stops"),
+  line.limit = gdo("line.limit"),
+  hunk.limit = gdo("hunk.limit"),
+  align = gdo("align"),
+  style = gdo("style"),
+  palette.of.styles = gdo("palette"),
+  frame = par_frame(),
+  interactive = gdo("interactive"),
+  term.colors = gdo("term.colors"),
+  tar.banner = NULL,
+  cur.banner = NULL,
+  strip.sgr = gdo("strip.sgr"),
+  sgr.supported = gdo("sgr.supported"),
+  extra = list()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>target</code></td>
+<td>
+<p>the reference object</p>
+</td></tr>
+<tr valign="top"><td><code>current</code></td>
+<td>
+<p>the object being compared to <code>target</code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>unused, for compatibility of methods with generics</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>character(1L), one of:
+</p>
+
+<ul>
+<li> <p>&ldquo;unified&rdquo;: diff mode used by <code>git diff</code>
+</p>
+</li>
+<li> <p>&ldquo;sidebyside&rdquo;: line up the differences side by side
+</p>
+</li>
+<li> <p>&ldquo;context&rdquo;: show the target and current hunks in their
+entirety; this mode takes up a lot of screen space but makes it easier
+to see what the objects actually look like
+</p>
+</li>
+<li> <p>&ldquo;auto&rdquo;: default mode; pick one of the above, will favor
+&ldquo;sidebyside&rdquo; unless <code>getOption("width")</code> is less than 80,
+or in <code>diffPrint</code> and objects are dimensioned and do not fit side
+by side, or in <code>diffChr</code>, <code>diffDeparse</code>, <code>diffFile</code> and
+output does not fit in side by side without wrapping
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>context</code></td>
+<td>
+<p>integer(1L) how many lines of context are shown on either side
+of differences (defaults to 2).  Set to <code>-1L</code> to allow as many as
+there are.  Set to &ldquo;auto&rdquo;  to display as many as 10 lines or as few
+as 1 depending on whether total screen lines fit within the number of lines
+specified in <code>line.limit</code>.  Alternatively pass the return value of
+<code><a href="auto_context.html">auto_context</a></code> to fine tune the parameters of the auto context
+calculation.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>character(1L), controls the diff output format, one of:
+</p>
+
+<ul>
+<li> <p>&ldquo;auto&rdquo;: to select output format based on terminal
+capabilities; will attempt to use one of the ANSI formats if they
+appear to be supported, and if not or if you are in the Rstudio console
+it will attempt to use HTML and browser output if in interactive mode.
+</p>
+</li>
+<li> <p>&ldquo;raw&rdquo;: plain text
+</p>
+</li>
+<li> <p>&ldquo;ansi8&rdquo;: color and format diffs using basic ANSI escape
+sequences
+</p>
+</li>
+<li> <p>&ldquo;ansi256&rdquo;: like &ldquo;ansi8&rdquo;, except using the full range
+of ANSI formatting options
+</p>
+</li>
+<li> <p>&ldquo;html&rdquo;: color and format using HTML markup; the resulting
+string is processed with <code><a href="../../base/html/Encoding.html">enc2utf8</a></code> when output as a full
+web page (see docs for <code>html.output</code> under <code><a href="Style.html">Style</a></code>).
+</p>
+</li></ul>
+
+<p>Defaults to &ldquo;auto&rdquo;.  See <code>palette.of.styles</code> for details
+on customization, <code><a href="../../crayon/html/style.html">style</a></code> for full control of output format.
+See 'pager' parameter for more discussion of Rstudio behavior.</p>
+</td></tr>
+<tr valign="top"><td><code>brightness</code></td>
+<td>
+<p>character, one of &ldquo;light&rdquo;, &ldquo;dark&rdquo;,
+&ldquo;neutral&rdquo;, useful for adjusting color scheme to light or dark
+terminals.  &ldquo;neutral&rdquo; by default.  See <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code>
+for details and limitations.  Advanced: you may specify brightness as a
+function of <code>format</code>.  For example, if you typically wish to use a
+&ldquo;dark&rdquo; color scheme, except for when in &ldquo;html&rdquo; format when
+you prefer the &ldquo;light&rdquo; scheme, you may use
+<code>c("dark", html="light")</code> as the value for this parameter.  This is
+particularly useful if <code>format</code> is set to &ldquo;auto&rdquo; or if you
+want to specify a default value for this parameter via options.  Any names
+you use should correspond to a <code>format</code>.  You must have one unnamed
+value which will be used as the default for all <code>format</code>s that are
+not explicitly specified.</p>
+</td></tr>
+<tr valign="top"><td><code>color.mode</code></td>
+<td>
+<p>character, one of &ldquo;rgb&rdquo; or &ldquo;yb&rdquo;.
+Defaults to &ldquo;yb&rdquo;.  &ldquo;yb&rdquo; stands for &ldquo;Yellow-Blue&rdquo; for
+color schemes that rely primarily on those colors to style diffs.
+Those colors can be easily distinguished by individuals with
+limited red-green color sensitivity.  See <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code> for
+details and limitations.  Also offers the same advanced usage as the
+<code>brightness</code> parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>word.diff</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to run a secondary word
+diff on the in-hunk differences.  For atomic vectors setting this to
+FALSE could make the diff <em>slower</em> (see the <code>unwrap.atomic</code>
+parameter).  For other uses, particularly with <code><a href="diffChr.html">diffChr</a></code>
+setting this to FALSE can substantially improve performance.</p>
+</td></tr>
+<tr valign="top"><td><code>pager</code></td>
+<td>
+<p>one of &ldquo;auto&rdquo; (default), &ldquo;on&rdquo;,
+&ldquo;off&rdquo;, a <code><a href="Pager.html">Pager</a></code> object, or a list; controls whether and
+how a pager is used to display the diff output.  If you require a
+particular pager behavior you must use a <code><a href="Pager.html">Pager</a></code>
+object, or &ldquo;off&rdquo; to turn off the pager.  All other settings will
+interact with other parameters such as <code>format</code>, <code>style</code>, as well
+as with your system capabilities in order to select the pager expected to
+be most useful.
+</p>
+<p>&ldquo;auto&rdquo; and &ldquo;on&rdquo; are the same, except that in non-interactive
+mode &ldquo;auto&rdquo; is equivalent to &ldquo;off&rdquo;.  &ldquo;off&rdquo; will always
+send output to the console.  If &ldquo;on&rdquo;, whether the output
+actually gets routed to the pager depends on the pager <code>threshold</code>
+setting (see <code><a href="Pager.html">Pager</a></code>).  The default behavior is to use the
+pager associated with the <code>Style</code> object.  The <code>Style</code> object is
+itself is determined by the <code>format</code> or <code>style</code> parameters.
+</p>
+<p>Depending on your system configuration different styles and corresponding
+pagers will get selected, unless you specify a <code>Pager</code> object
+directly.  On a system with a system pager that supports ANSI CSI SGR
+colors, the pager will only trigger if the output is taller than one
+window.  If the system pager is not known to support ANSI colors then the
+output will be sent as HTML to the IDE viewer if available or to the web
+browser if not.  Even though Rstudio now supports ANSI CSI SGR at the
+console output is still formatted as HTML and sent to the IDE viewer.
+Partly this is for continuity of behavior, but also because the default
+Rstudio pager does not support ANSI CSI SGR, at least as of this writing.
+</p>
+<p>If <code>pager</code> is a list, then the same as with &ldquo;on&rdquo;, except that
+the <code>Pager</code> object associated with the selected <code>Style</code> object is
+re-instantiated with the union of the list elements and the existing
+settings of that <code>Pager</code>.  The list should contain named elements that
+correspond to the <code><a href="Pager.html">Pager</a></code> instantiation parameters.  The names
+must be specified in full as partial parameter matching will not be carried
+out because the pager is re-instantiated with <code><a href="../../methods/html/new.html">new</a></code>.
+</p>
+<p>See <code><a href="Pager.html">Pager</a></code>, <code><a href="Style.html">Style</a></code>, and
+<code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code> for more details and for instructions on how
+to modify the default behavior.</p>
+</td></tr>
+<tr valign="top"><td><code>guides</code></td>
+<td>
+<p>TRUE (default), FALSE, or a function that accepts at least two
+arguments and requires no more than two arguments.  Guides
+are additional context lines that are not strictly part of a hunk, but
+provide important contextual data (e.g. column headers).  If TRUE, the
+context lines are shown in addition to the normal diff output, typically
+in a different color to indicate they are not part of the hunk.  If a
+function, the function should accept as the first argument the object
+being diffed, and the second the character representation of the object.
+The function should return the indices of the elements of the
+character representation that should be treated as guides.  See
+<code><a href="guides.html">guides</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>trim</code></td>
+<td>
+<p>TRUE (default), FALSE, or a function that accepts at least two
+arguments and requires no more than two arguments.  Function should compute
+for each line in captured output what portion of those lines should be
+diffed.  By default, this is used to remove row meta data differences
+(e.g. <code>[1,]</code>) so they alone do not show up as differences in the
+diff.  See <code><a href="trim.html">trim</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>rds</code></td>
+<td>
+<p>TRUE (default) or FALSE, if TRUE will check whether
+<code>target</code> and/or <code>current</code> point to a file that can be read with
+<code><a href="../../base/html/readRDS.html">readRDS</a></code> and if so, loads the R object contained in the file
+and carries out the diff on the object instead of the original argument.
+Currently there is no mechanism for specifying additional arguments to
+<code>readRDS</code></p>
+</td></tr>
+<tr valign="top"><td><code>unwrap.atomic</code></td>
+<td>
+<p>TRUE (default) or FALSE.  Relevant primarily for
+<code>diffPrint</code>, if TRUE, and <code>word.diff</code> is also TRUE, and both
+<code>target</code> and <code>current</code> are <em>unnamed</em> one-dimension atomics ,
+the vectors are unwrapped and diffed element by element, and then
+re-wrapped.  Since <code>diffPrint</code> is fundamentally a line diff, the
+re-wrapped lines are lined up in a manner that is as consistent as possible
+with the unwrapped diff.  Lines that contain the location of the word
+differences will be paired up.  Since the vectors may well be wrapped with
+different periodicities this will result in lines that are paired up that
+look like they should not be paired up, though the locations of the
+differences should be.  If is entirely possible that setting this parameter
+to FALSE will result in a slower diff.  This happens if two vectors are
+actually fairly similar, but their line representations are not.  For
+example, in comparing <code>1:100</code> to <code>c(100, 1:99)</code>, there is really
+only one difference at the &ldquo;word&rdquo; level, but every screen line is
+different.  <code>diffChr</code> will also do the unwrapping if it is given a
+character vector that contains output that looks like the atomic vectors
+described above.  This is a bug, but as the functionality could be useful
+when diffing e.g. <code>capture.output</code> data, we now declare it a feature.</p>
+</td></tr>
+<tr valign="top"><td><code>max.diffs</code></td>
+<td>
+<p>integer(1L), number of <em>differences</em> (default 50000L)
+after which we abandon the <code>O(n^2)</code> diff algorithm in favor of a naive
+<code>O(n)</code> one. Set to <code>-1L</code> to stick to the original algorithm up to
+the maximum allowed (~INT_MAX/4).</p>
+</td></tr>
+<tr valign="top"><td><code>disp.width</code></td>
+<td>
+<p>integer(1L) number of display columns to take up; note that
+in &ldquo;sidebyside&rdquo; <code>mode</code> the effective display width is half this
+number (set to 0L to use default widths which are <code>getOption("width")</code>
+for normal styles and <code>80L</code> for HTML styles.  Future versions of
+<code>diffobj</code> may change this to larger values for two dimensional objects
+for better diffs (see details).</p>
+</td></tr>
+<tr valign="top"><td><code>ignore.white.space</code></td>
+<td>
+<p>TRUE or FALSE, whether to consider differences in
+horizontal whitespace (i.e. spaces and tabs) as differences (defaults to
+TRUE).</p>
+</td></tr>
+<tr valign="top"><td><code>convert.hz.white.space</code></td>
+<td>
+<p>TRUE or FALSE, whether modify input strings
+that contain tabs and carriage returns in such a way that they display as
+they would <b>with</b> those characters, but without using those
+characters (defaults to TRUE).  The conversion assumes that tab stops are
+spaced evenly eight characters apart on the terminal.  If this is not the
+case you may specify the tab stops explicitly with <code>tab.stops</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>tab.stops</code></td>
+<td>
+<p>integer, what tab stops to use when converting hard tabs to
+spaces.  If not integer will be coerced to integer (defaults to 8L).  You
+may specify more than one tab stop.  If display width exceeds that
+addressable by your tab stops the last tab stop will be repeated.</p>
+</td></tr>
+<tr valign="top"><td><code>line.limit</code></td>
+<td>
+<p>integer(2L) or integer(1L), if length 1 how many lines of
+output to show, where <code>-1</code> means no limit.  If length 2, the first
+value indicates the threshold of screen lines to begin truncating output,
+and the second the number of lines to truncate to, which should be fewer
+than the threshold.  Note that this parameter is implemented on a
+best-efforts basis and should not be relied on to produce the exact
+number of lines requested.  In particular do not expect it to work well for
+for values small enough that the banner portion of the diff would have to
+be trimmed.  If you want a specific number of lines use <code>[</code> or
+<code>head</code> / <code>tail</code>.  One advantage of <code>line.limit</code> over these
+other options is that you can combine it with <code>context="auto"</code> and
+auto <code>max.level</code> selection (the latter for <code>diffStr</code>), which
+allows the diff to dynamically adjust to make best use of the available
+display lines.  <code>[</code>, <code>head</code>, and <code>tail</code> just subset the text
+of the output.</p>
+</td></tr>
+<tr valign="top"><td><code>hunk.limit</code></td>
+<td>
+<p>integer(2L) or integer (1L), how many diff hunks to show.
+Behaves similarly to <code>line.limit</code>.  How many hunks are in a
+particular diff is a function of how many differences, and also how much
+<code>context</code> is used since context can cause two hunks to bleed into
+each other and become one.</p>
+</td></tr>
+<tr valign="top"><td><code>align</code></td>
+<td>
+<p>numeric(1L) between 0 and 1, proportion of
+words in a line of <code>target</code> that must be matched in a line of
+<code>current</code> in the same hunk for those lines to be paired up when
+displayed (defaults to 0.25), or an <code><a href="AlignThreshold-class.html">AlignThreshold</a></code> object.
+Set to <code>1</code> to turn off alignment which will cause all lines in a hunk
+from <code>target</code> to show up first, followed by all lines from
+<code>current</code>.  Note that in order to be aligned lines must meet the
+threshold and have at least 3 matching alphanumeric characters (see
+<code><a href="AlignThreshold-class.html">AlignThreshold</a></code> for details).</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>&ldquo;auto&rdquo;, a <code><a href="Style.html">Style</a></code> object, or a list.
+&ldquo;auto&rdquo; by default.  If a <code>Style</code> object, will override the
+the <code>format</code>, <code>brightness</code>, and <code>color.mode</code> parameters.
+The <code>Style</code> object provides full control of diff output styling.
+If a list, then the same as &ldquo;auto&rdquo;, except that if the auto-selected
+<code>Style</code> requires instantiation (see <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code>),
+then the list contents will be used as arguments when instantiating the
+style object.  See <code><a href="Style.html">Style</a></code> for more details, in particular the
+examples.</p>
+</td></tr>
+<tr valign="top"><td><code>palette.of.styles</code></td>
+<td>
+<p><code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code> object; advanced
+usage, contains all the <code><a href="Style.html">Style</a></code> objects or
+&ldquo;classRepresentation&rdquo; objects extending <code><a href="Style.html">Style</a></code> that are
+selected by specifying the <code>format</code>, <code>brightness</code>, and
+<code>color.mode</code> parameters.  See <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code> for more
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>an environment to use as the evaluation frame for the
+<code>print/show/str</code>, calls and for <code>diffObj</code>, the evaluation frame
+for the <code>diffPrint</code> / <code>diffStr</code> calls.  Defaults to the return
+value of <code><a href="par_frame.html">par_frame</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>interactive</code></td>
+<td>
+<p>TRUE or FALSE whether the function is being run in
+interactive mode, defaults to the return value of
+<code><a href="../../base/html/interactive.html">interactive</a></code>.  If in interactive mode, pager will be used if
+<code>pager</code> is &ldquo;auto&rdquo;, and if ANSI styles are not supported and
+<code>style</code> is &ldquo;auto&rdquo;, output will be send to viewer/browser as
+HTML.</p>
+</td></tr>
+<tr valign="top"><td><code>term.colors</code></td>
+<td>
+<p>integer(1L) how many ANSI colors are supported by the
+terminal.  This variable is provided for when
+<code><a href="../../crayon/html/num_colors.html">crayon::num_colors</a></code> does not properly detect how
+many ANSI colors are supported by your terminal. Defaults to return value
+of <code><a href="../../crayon/html/num_colors.html">crayon::num_colors</a></code> and should be 8 or 256 to
+allow ANSI colors, or any other number to disallow them.  This only
+impacts output format selection when <code>style</code> and <code>format</code> are
+both set to &ldquo;auto&rdquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>tar.banner</code></td>
+<td>
+<p>character(1L), language, or NULL, used to generate the
+text to display ahead of the diff section representing the target output.
+If NULL will use the deparsed <code>target</code> expression, if language, will
+use the language as it would the <code>target</code> expression, if
+character(1L), will use the string with no modifications.  The language
+mode is provided because <code>diffStr</code> modifies the expression prior to
+display (e.g. by wrapping it in a call to <code>str</code>).  Note that it is
+possible in some cases that the substituted value of <code>target</code> actually
+is character(1L), but if you provide a character(1L) value here it will be
+assumed you intend to use that value literally.</p>
+</td></tr>
+<tr valign="top"><td><code>cur.banner</code></td>
+<td>
+<p>character(1L) like <code>tar.banner</code>, but for
+<code>current</code></p>
+</td></tr>
+<tr valign="top"><td><code>strip.sgr</code></td>
+<td>
+<p>TRUE, FALSE, or NULL (default), whether to strip ANSI CSI
+SGR sequences prior to comparison and for display of diff.  If NULL,
+resolves to TRUE if 'style' resolves to an ANSI formatted diff, and
+FALSE otherwise.  The default behavior is to avoid confusing diffs where
+the original SGR and the SGR added by the diff are mixed together.</p>
+</td></tr>
+<tr valign="top"><td><code>sgr.supported</code></td>
+<td>
+<p>TRUE, FALSE, or NULL (default), whether to assume the
+standard output device supports ANSI CSI SGR sequences.  If TRUE, strings
+will be manipulated accounting for the SGR sequences.  If NULL,
+resolves to TRUE if 'style' resolves to an ANSI formatted diff, and
+to 'crayon::has_color()' otherwise.  This only controls how the strings are
+manipulated, not whether SGR is added to format the diff, which is
+controlled by the 'style' parameter.  This parameter is exposed for the
+rare cases where you might wish to control string manipulation behavior
+directly.</p>
+</td></tr>
+<tr valign="top"><td><code>extra</code></td>
+<td>
+<p>list additional arguments to pass on to the functions used to
+create text representation of the objects to diff (e.g. <code>print</code>,
+<code>str</code>, etc.)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a <code>Diff</code> object; see <code><a href="diffPrint.html">diffPrint</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="diffPrint.html">diffPrint</a></code> for details on the <code>diff*</code> functions,
+<code><a href="diffObj.html">diffObj</a></code>, <code><a href="diffStr.html">diffStr</a></code>,
+<code><a href="diffChr.html">diffChr</a></code> to compare character vectors directly,
+<code><a href="ses.html">ses</a></code> for a minimal and fast diff
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## `pager="off"` for CRAN compliance; you may omit in normal use
+diffDeparse(matrix(1:9, 3), 1:9, pager="off")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

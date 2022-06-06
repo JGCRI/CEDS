@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find first non-missing element</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coalesce {dplyr}"><tr><td>coalesce {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find first non-missing element</h2>
+
+<h3>Description</h3>
+
+<p>Given a set of vectors, <code>coalesce()</code> finds the first non-missing value
+at each position. This is inspired by the SQL <code>COALESCE</code> function
+which does the same thing for <code>NULL</code>s.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coalesce(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../rlang/html/dyn-dots.html">dynamic-dots</a></code>&gt; Vectors. Inputs should be
+recyclable (either be length 1 or same length as the longest vector) and
+coercible to a common type. If data frames, they are coalesced column by
+column.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A vector the same length as the first <code>...</code> argument with
+missing values replaced by the first non-missing value.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="na_if.html">na_if()</a></code> to replace specified values with a <code>NA</code>.
+<code><a href="../../tidyr/html/replace_na.html">tidyr::replace_na()</a></code> to replace <code>NA</code> with a value
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Use a single value to replace all missing values
+x &lt;- sample(c(1:5, NA, NA, NA))
+coalesce(x, 0L)
+
+# Or match together a complete vector from missing pieces
+y &lt;- c(1, 2, NA, NA, 5)
+z &lt;- c(NA, NA, 3, 4, 5)
+coalesce(y, z)
+
+# Supply lists by with dynamic dots
+vecs &lt;- list(
+  c(1, 2, NA, NA, 5),
+  c(NA, NA, 3, 4, 5)
+)
+coalesce(!!!vecs)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

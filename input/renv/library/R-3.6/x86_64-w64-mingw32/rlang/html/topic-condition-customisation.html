@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Customising condition messages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-condition-customisation {rlang}"><tr><td>topic-condition-customisation {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Customising condition messages</h2>
+
+<h3>Description</h3>
+
+<p>Various aspects of the condition messages displayed by <code><a href="abort.html">abort()</a></code>, <code><a href="abort.html">warn()</a></code>, and <code><a href="abort.html">inform()</a></code> can be customised using options from the <a href="https://cli.r-lib.org">cli</a> package.
+</p>
+
+
+<h3>Turning off unicode bullets</h3>
+
+<p>By default, bulleted lists are prefixed with unicode symbols:
+</p>
+<div class="sourceCode r"><pre>rlang::abort(c(
+  "The error message.",
+  "*" = "Regular bullet.",
+  "i" = "Informative bullet.",
+  "x" = "Cross bullet.",
+  "v" = "Victory bullet.",
+  "&gt;" = "Arrow bullet."
+))
+#&gt; Error:
+#&gt; ! The error message.
+#&gt; • Regular bullet.
+#&gt; ℹ Informative bullet.
+#&gt; ✖ Cross bullet.
+#&gt; ✔ Victory bullet.
+#&gt; → Arrow bullet.
+</pre></div>
+<p>Set this option to use simple letters instead:<div class="sourceCode r"></p>
+<pre>options(cli.condition_unicode_bullets = FALSE)
+
+rlang::abort(c(
+  "The error message.",
+  "*" = "Regular bullet.",
+  "i" = "Informative bullet.",
+  "x" = "Cross bullet.",
+  "v" = "Victory bullet.",
+  "&gt;" = "Arrow bullet."
+))
+#&gt; Error:
+#&gt; ! The error message.
+#&gt; * Regular bullet.
+#&gt; i Informative bullet.
+#&gt; x Cross bullet.
+#&gt; v Victory bullet.
+#&gt; &gt; Arrow bullet.
+</pre></div>
+
+
+<h3>Changing the bullet symbols</h3>
+
+<p>You can specify what symbol to use for each type of bullet through your cli user theme. For instance, here is how to uniformly use <code>*</code> for all bullet kinds:<div class="sourceCode r"></p>
+<pre>options(cli.user_theme = list(
+  ".cli_rlang .bullet-*" = list(before = "* "),
+  ".cli_rlang .bullet-i" = list(before = "* "),
+  ".cli_rlang .bullet-x" = list(before = "* "),
+  ".cli_rlang .bullet-v" = list(before = "* "),
+  ".cli_rlang .bullet-&gt;" = list(before = "* ")
+))
+
+rlang::abort(c(
+  "The error message.",
+  "*" = "Regular bullet.",
+  "i" = "Informative bullet.",
+  "x" = "Cross bullet.",
+  "v" = "Victory bullet.",
+  "&gt;" = "Arrow bullet."
+))
+#&gt; Error:
+#&gt; ! The error message.
+#&gt; * Regular bullet.
+#&gt; * Informative bullet.
+#&gt; * Cross bullet.
+#&gt; * Victory bullet.
+#&gt; * Arrow bullet.
+</pre></div>
+<p>If you want all the bullets to be the same, including the leading bullet, you can achieve this using the <code>bullet</code> class:<div class="sourceCode r"></p>
+<pre>options(cli.user_theme = list(
+  ".cli_rlang .bullet" = list(before = "* ")
+))
+
+rlang::abort(c(
+  "The error message.",
+  "*" = "Regular bullet.",
+  "i" = "Informative bullet.",
+  "x" = "Cross bullet.",
+  "v" = "Victory bullet.",
+  "&gt;" = "Arrow bullet."
+))
+#&gt; Error:
+#&gt; * The error message.
+#&gt; * Regular bullet.
+#&gt; * Informative bullet.
+#&gt; * Cross bullet.
+#&gt; * Victory bullet.
+#&gt; * Arrow bullet.
+</pre></div>
+
+
+<h3>Changing the foreground and background colour of error calls</h3>
+
+<p>When called inside a function, <code>abort()</code> displays the function call to help contextualise the error:<div class="sourceCode r"></p>
+<pre>splash &lt;- function() {
+  abort("Can't splash without water.")
+}
+
+splash()
+#&gt; Error in `splash()`:
+#&gt; ! Can't splash without water.
+</pre></div>
+<p>The call is formatted with cli as a <code>code</code> element. This is not visible in the manual, but code text is formatted with a highlighted background colour by default. When this can be reliably detected, that background colour is different depending on whether you're using a light or dark theme.
+</p>
+<p>You can override the colour of code elements in your cli theme. Here is my personal configuration that fits well with the colour theme I currently use in my IDE:<div class="sourceCode r"></p>
+<pre>options(cli.user_theme = list(
+  span.code = list(
+    "background-color" = "#3B4252",
+    color = "#E5E9F0"
+  )
+))
+</pre></div>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

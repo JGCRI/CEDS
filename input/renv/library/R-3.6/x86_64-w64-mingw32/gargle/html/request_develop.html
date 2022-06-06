@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build a Google API request</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for request_develop {gargle}"><tr><td>request_develop {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build a Google API request</h2>
+
+<h3>Description</h3>
+
+<p>Intended primarily for internal use in client packages that provide
+high-level wrappers for users. The vignette <a href="https://gargle.r-lib.org/articles/request-helper-functions.html">Request helper functions</a>
+describes how one might use these functions inside a wrapper package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+request_develop(
+  endpoint,
+  params = list(),
+  base_url = "https://www.googleapis.com"
+)
+
+request_build(
+  method = "GET",
+  path = "",
+  params = list(),
+  body = list(),
+  token = NULL,
+  key = NULL,
+  base_url = "https://www.googleapis.com"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>endpoint</code></td>
+<td>
+<p>List of information about the target endpoint or, in
+Google's vocabulary, the target &quot;method&quot;. Presumably prepared from the
+<a href="https://developers.google.com/discovery/v1/getting_started#background-resources">Discovery Document</a>
+for the target API.</p>
+</td></tr>
+<tr valign="top"><td><code>params</code></td>
+<td>
+<p>Named list. Values destined for URL substitution, the query,
+or, for <code>request_develop()</code> only, the body. For <code>request_build()</code>, body
+parameters must be passed via the <code>body</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>base_url</code></td>
+<td>
+<p>Character.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Character. An HTTP verb, such as <code>GET</code> or <code>POST</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Character. Path to the resource, not including the API's
+<code>base_url</code>. Examples: <code>drive/v3/about</code> or <code>drive/v3/files/{fileId}</code>. The
+<code>path</code> can be a template, i.e. it can include variables inside curly
+brackets, such as <code>{fileId}</code> in the example. Such variables are substituted
+by <code>request_build()</code>, using named parameters found in <code>params</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>body</code></td>
+<td>
+<p>List. Values to send in the API request body.</p>
+</td></tr>
+<tr valign="top"><td><code>token</code></td>
+<td>
+<p>Token, ready for inclusion in a request, i.e. prepared with
+<code><a href="../../httr/html/config.html">httr::config()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>API key. Needed for requests that don't contain a token. For more,
+see Google's document <a href="https://support.google.com/googleapi/answer/6158857?hl=en&amp;ref_topic=7013279">Credentials, access, security, and identity</a>.
+A key can be passed as a named component of <code>params</code>, but note that the
+formal argument <code>key</code> will clobber it, if non-<code>NULL</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>request_develop()</code>: <code>list()</code> with components <code>method</code>, <code>path</code>, <code>params</code>,
+<code>body</code>, and <code>base_url</code>.
+</p>
+<p><code>request_build()</code>: <code>list()</code> with components <code>method</code>, <code>path</code>
+(post-substitution), <code>query</code> (the input <code>params</code> not used in URL
+substitution), <code>body</code>, <code>token</code>, <code>url</code> (the full URL, post-substitution,
+including the query).
+</p>
+
+
+<h3><code>request_develop()</code></h3>
+
+<p>Combines user input (<code>params</code>) with information about an API endpoint.
+<code>endpoint</code> should contain these components:
+</p>
+
+<ul>
+<li> <p><code>path</code>: See documentation for argument.
+</p>
+</li>
+<li> <p><code>method</code>: See documentation for argument.
+</p>
+</li>
+<li> <p><code>parameters</code>: Compared with <code>params</code> supplied by user. An error is
+thrown if user-supplied <code>params</code> aren't named in
+<code>endpoint$parameters</code> or if user fails to supply all required
+parameters. In the return value, body parameters are separated from
+those destined for path substitution or the query.
+</p>
+</li></ul>
+
+<p>The return value is typically used as input to <code>request_build()</code>.
+</p>
+
+
+<h3><code>request_build()</code></h3>
+
+<p>Builds a request, in a purely mechanical sense. This function does nothing
+specific to any particular Google API or endpoint.
+</p>
+
+<ul>
+<li><p> Use with the output of <code>request_develop()</code> or with hand-crafted input.
+</p>
+</li>
+<li> <p><code>params</code> are used for variable substitution in <code>path</code>. Leftover <code>params</code>
+that are not bound by the <code>path</code> template automatically become HTTP
+query parameters.
+</p>
+</li>
+<li><p> Adds an API key to the query iff <code>token = NULL</code> and removes the API key
+otherwise. Client packages should generally pass their own API key in, but
+note that <code><a href="gargle_api_key.html">gargle_api_key()</a></code> is available for small-scale experimentation.
+</p>
+</li></ul>
+
+<p>See <code>googledrive::generate_request()</code> for an example of usage in a client
+package. googledrive has an internal list of selected endpoints, derived from
+the <a href="https://www.googleapis.com/discovery/v1/apis/drive/v3/rest">Drive API Discovery Document</a>,
+exposed via <code>googledrive::drive_endpoints()</code>. An element from such a list is
+the expected input for <code>endpoint</code>. <code>googledrive::generate_request()</code> is a
+wrapper around <code>request_develop()</code> and <code>request_build()</code> that inserts a
+googledrive-managed API key and some logic about Team Drives. All user-facing
+functions use <code>googledrive::generate_request()</code> under the hood.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other requests and responses: 
+<code><a href="request_make.html">request_make</a>()</code>,
+<code><a href="response_process.html">response_process</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+## Example with a prepared endpoint
+ept &lt;- googledrive::drive_endpoints("drive.files.update")[[1]]
+req &lt;- request_develop(
+  ept,
+  params = list(
+    fileId = "abc",
+    addParents = "123",
+    description = "Exciting File"
+  )
+)
+req
+
+req &lt;- request_build(
+  method = req$method,
+  path = req$path,
+  params = req$params,
+  body = req$body,
+  token = "PRETEND_I_AM_A_TOKEN"
+)
+req
+
+## Example with no previous knowledge of the endpoint
+## List a file's comments
+## https://developers.google.com/drive/v3/reference/comments/list
+req &lt;- request_build(
+  method = "GET",
+  path = "drive/v3/files/{fileId}/comments",
+  params = list(
+    fileId = "your-file-id-goes-here",
+    fields = "*"
+  ),
+  token = "PRETEND_I_AM_A_TOKEN"
+)
+req
+
+# Example with no previous knowledge of the endpoint and no token
+# use an API key for which the Places API is enabled!
+API_KEY &lt;- "1234567890"
+
+# get restaurants close to a location in Vancouver, BC
+req &lt;- request_build(
+  method = "GET",
+  path = "maps/api/place/nearbysearch/json",
+  params = list(
+    location = "49.268682,-123.167117",
+    radius = 100,
+    type = "restaurant"
+  ),
+  key = API_KEY,
+  base_url = "https://maps.googleapis.com"
+)
+resp &lt;- request_make(req)
+out &lt;- response_process(resp)
+vapply(out$results, function(x) x$name, character(1))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

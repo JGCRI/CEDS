@@ -1,0 +1,631 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: cli environment variables and options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli-config {cli}"><tr><td>cli-config {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>cli environment variables and options</h2>
+
+<h3>Description</h3>
+
+<p>cli environment variables and options
+</p>
+
+
+<h3>User facing configuration</h3>
+
+<p>These are environment variables and options that uses may set, to modify
+the behavior of cli.
+</p>
+
+
+<h4>User facing environment variables</h4>
+
+
+
+<h5><code>NO_COLOR</code></h5>
+
+<p>Set to a nonempty value to turn off ANSI colors.
+See <code><a href="num_ansi_colors.html">num_ansi_colors()</a></code>.
+</p>
+
+
+
+<h5><code>R_CLI_DYNAMIC</code></h5>
+
+<p>Set to <code>true</code>, <code>TRUE</code> or <code>True</code> to assume a dynamic terminal, that supports <code style="white-space: pre;">\r</code>.
+Set to anything else to assume a non-dynamic terminal.
+See <code><a href="is_dynamic_tty.html">is_dynamic_tty()</a></code>.
+</p>
+
+
+
+<h5><code>R_CLI_NUM_COLORS</code></h5>
+
+<p>Set to a positive integer to assume a given number of colors.
+See <code><a href="num_ansi_colors.html">num_ansi_colors()</a></code>.
+</p>
+
+
+
+
+<h4>User facing options</h4>
+
+
+
+<h5><code>cli.ansi</code></h5>
+
+<p>Set to <code>true</code>, <code>TRUE</code> or <code>True</code> to assume a terminal that supports ANSI
+control sequences.
+Set to anything else to assume a non-ANSI terminal.
+See <code><a href="is_ansi_tty.html">is_ansi_tty()</a></code>.
+</p>
+
+
+
+<h5><code>cli.condition_width</code></h5>
+
+<p>Integer scalar (or <code>Inf</code>) to set the console width when cli is formatting
+errors, warnings or messages in <code>format_error()</code>, <code>format_warning()</code> and
+<code>format_message()</code>. When formatting conditions this option takes precedence
+over <code>cli.width</code>.
+</p>
+
+
+
+<h5><code>cli.default_handler</code></h5>
+
+<p>General handler function for all cli conditions.
+See <a href="https://cli.r-lib.org/articles/semantic-cli.html#cli-messages-1">https://cli.r-lib.org/articles/semantic-cli.html#cli-messages-1</a>
+</p>
+
+
+
+<h5><code>cli.dynamic</code></h5>
+
+<p>Set to <code>TRUE</code> to assume a dynamic terminal, that supports <code style="white-space: pre;">\r</code>.
+Set to anything else to assume a non-dynamic terminal.
+See <code><a href="is_dynamic_tty.html">is_dynamic_tty()</a></code>.
+</p>
+
+
+
+<h5><code>cli.hide_cursor</code></h5>
+
+<p>Whether the cli status bar should try to hide the cursor on terminals.
+Set the <code>FALSE</code> if the hidden cursor causes issues.
+</p>
+
+
+
+<h5><code>cli.hyperlink</code></h5>
+
+<p>Set to <code>true</code>, <code>TRUE</code> or <code>True</code> to tell cli that the terminal supports
+ANSI hyperlinks.
+Set to anything else to assume no hyperlink support.
+See <code><a href="style_hyperlink.html">style_hyperlink()</a></code>.
+</p>
+
+
+
+<h5><code>cli.num_colors</code></h5>
+
+<p>Number of ANSI colors. See <code><a href="num_ansi_colors.html">num_ansi_colors()</a></code>.
+</p>
+
+
+
+<h5><code>cli.message_class</code></h5>
+
+<p>Character vector of classes to add to cli's conditions.
+</p>
+
+
+
+<h5><code>cli.progress_bar_style</code></h5>
+
+<p>Progress bar style.
+See <code><a href="cli_progress_styles.html">cli_progress_styles()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_bar_style_ascii</code></h5>
+
+<p>Progress bar style on ASCII consoles.
+See <code><a href="cli_progress_styles.html">cli_progress_styles()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_bar_style_unicode</code></h5>
+
+<p>Progress bar style on Unicode (UTF-8) consoles;
+See <code><a href="cli_progress_styles.html">cli_progress_styles()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_clear</code></h5>
+
+<p>Whether to clear terminated progress bar from the screen on dynamic terminals.
+See <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_demo_live</code></h5>
+
+<p>Whether <code>cli_progress_demo()</code> should show a live demo, or just record the
+progress bar frames.
+</p>
+
+
+
+<h5><code>cli.progress_format_download</code></h5>
+
+<p>Default format string for <code>download</code> progress bars.
+</p>
+
+
+
+<h5><code>cli.progress_format_download_nototal</code></h5>
+
+<p>Default format string for <code>download</code> progress bars with unknown totals.
+</p>
+
+
+
+<h5><code>cli.progress_format_iterator</code></h5>
+
+<p>Default format string for <code>iterator</code> progress bars.
+</p>
+
+
+
+<h5><code>cli.progress_format_iterator_nototal</code></h5>
+
+<p>Default format string for <code>iterator</code> progress bars with unknown total number
+of progress units.
+</p>
+
+
+
+<h5><code>cli.progress_format_tasks</code></h5>
+
+<p>Default format string for <code>tasks</code> progress bars.
+</p>
+
+
+
+<h5><code>cli.progress_format_tasks_nototal</code></h5>
+
+<p>Default format string for <code>tasks</code> progress bars with unknown totals.
+</p>
+
+
+
+<h5><code>cli.progress_handlers</code></h5>
+
+<p>Progress handlers to try.
+See <code><a href="cli_progress_builtin_handlers.html">cli_progress_builtin_handlers()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_handlers_force</code></h5>
+
+<p>Progress handlers that will always be used, even if another handler
+was already selected.
+See <code><a href="cli_progress_builtin_handlers.html">cli_progress_builtin_handlers()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_handlers_only</code></h5>
+
+<p>Progress handlers to force, ignoring handlers set in
+<code>cli.progress_handlers</code> and <code>cli.progress_handlers_force</code>.
+See <code><a href="cli_progress_builtin_handlers.html">cli_progress_builtin_handlers()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_say_args</code></h5>
+
+<p>Command line arguments for the <code>say</code> progress handlers.
+See <code><a href="cli_progress_builtin_handlers.html">cli_progress_builtin_handlers()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_say_command</code></h5>
+
+<p>External command to use in the <code>say</code> progress handler.
+See <code><a href="cli_progress_builtin_handlers.html">cli_progress_builtin_handlers()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_say_frequency</code></h5>
+
+<p>Minimum delay between <code>say</code> calls in the <code>say</code> progress handler.
+<code>say</code> ignores very frequent updates, to keep the speech comprehensible.
+See <code><a href="cli_progress_builtin_handlers.html">cli_progress_builtin_handlers()</a></code>.
+</p>
+
+
+
+<h5><code>cli.progress_show_after</code></h5>
+
+<p>Delay before showing a progress bar, in seconds.
+Progress bars that finish before this delay are not shown at all.
+</p>
+
+
+
+<h5><code>cli.spinner</code></h5>
+
+<p>Default spinner to use, see <code><a href="get_spinner.html">get_spinner()</a></code>.
+</p>
+
+
+
+<h5><code>cli.spinner_ascii</code></h5>
+
+<p>Default spinner to use on ASCII terminals, see <code><a href="get_spinner.html">get_spinner()</a></code>.
+</p>
+
+
+
+<h5><code>cli.spinner_unicode</code></h5>
+
+<p>Default spinner to use on Unicode terminals, see <code><a href="get_spinner.html">get_spinner()</a></code>.
+</p>
+
+
+
+<h5><code>cli.theme</code></h5>
+
+<p>Default cli theme, in addition to the built-in theme.
+This option in intended for the package developers.
+See <a href="themes.html">themes</a> and <code><a href="start_app.html">start_app()</a></code>.
+</p>
+
+
+
+<h5><code>cli_theme_dark</code></h5>
+
+<p>Whether cli should assume a dark theme for the builtin theme.
+See <code><a href="builtin_theme.html">builtin_theme()</a></code>.
+</p>
+
+
+
+<h5><code>cli.unicode</code></h5>
+
+<p>Whether to assume a Unicode terminal.
+If not set, then it is auto-detected.
+See <code><a href="is_utf8_output.html">is_utf8_output()</a></code>.
+</p>
+
+
+
+<h5><code>cli.user_theme</code></h5>
+
+<p>cli user theme.
+This option is intended for end users.
+See <a href="themes.html">themes</a>.
+</p>
+
+
+
+<h5><code>cli.width</code></h5>
+
+<p>Terminal width to assume.
+If not set, then it is auto-detected.
+See <code><a href="console_width.html">console_width()</a></code>.
+</p>
+
+
+
+<h5><code>rlib_interactive</code></h5>
+
+<p>Whether to assume an interactive R session.
+If not set, then it is auto-detected.
+</p>
+
+
+
+<h5><code>width</code></h5>
+
+<p>Terminal width.
+This is used on some platforms, if <code>cli.width</code> is not set.
+</p>
+
+
+
+
+<h3>Internal configuration</h3>
+
+<p>These are environment variables and options are for cli developers, users
+should not rely on them as they may change between cli releases.
+</p>
+
+
+<h4>Internal environment variables</h4>
+
+
+
+<h5><code>ASCIICAST</code></h5>
+
+<p>Used to detect an asciicast sub-process in RStudio.
+</p>
+
+
+
+<h5><code>ANSICON</code></h5>
+
+<p>Used to detect ANSICON when detecting the number of ANSI colors.
+</p>
+
+
+
+<h5><code>CI</code></h5>
+
+<p>Used to detect if the code is running on a CI.
+If yes, we avoid ANSI hyperlinks.
+</p>
+
+
+
+<h5><code>CLI_DEBUG_BAD_END</code></h5>
+
+<p>Whether to warn about <code>cli_end()</code> calls when there is no container to close.
+</p>
+
+
+
+<h5><code>CLI_NO_BUILTIN_THEME</code></h5>
+
+<p>Set it to <code>true</code> to omit the builtin theme.
+</p>
+
+
+
+<h5><code>CLI_SPEED_TIME</code></h5>
+
+<p>Can be used to speed up cli's timer.
+It is a factor, e.g. setting it to 2 makes cli's time go twice as fast.
+</p>
+
+
+
+<h5><code>CLI_TICK_TIME</code></h5>
+
+<p>How often the cli timer should alert, in milliseconds.
+</p>
+
+
+
+<h5><code>CMDER_ROOT</code></h5>
+
+<p>Used to detect cmder when detecting the number of ANSI colors.
+</p>
+
+
+
+<h5><code>COLORTERM</code></h5>
+
+<p>Used when detecting ANSI color support.
+</p>
+
+
+
+<h5><code>ConEmuANSI</code></h5>
+
+<p>Used to detect ConEmu when detecting the number of ANSI colors.
+</p>
+
+
+
+<h5><code>EMACS</code></h5>
+
+<p>Used to detect Emacs.
+</p>
+
+
+
+<h5><code>INSIDE_EMACS</code></h5>
+
+<p>Used to detect Emacs.
+</p>
+
+
+
+<h5><code>NOT_CRAN</code></h5>
+
+<p>Set to <code>true</code> to run tests / examples / checks, that do not run on CRAN.
+</p>
+
+
+
+<h5><code style="white-space: pre;">_R_CHECK_PACKAGE_NAME_</code></h5>
+
+<p>Used to detect <code style="white-space: pre;">R CMD check</code>.
+</p>
+
+
+
+<h5><code>R_BROWSER</code></h5>
+
+<p>Used to detect the RStudio build pane.
+</p>
+
+
+
+<h5><code>R_GUI_APP_VERSION</code></h5>
+
+<p>Used to detect R.app on macOS, to decide if the console has ANSI control
+sequences.
+</p>
+
+
+
+<h5><code>R_PACKAGE_DIR</code></h5>
+
+<p>Used to detect if the code is running under <code style="white-space: pre;">R CMD INSTALL</code>.
+</p>
+
+
+
+<h5><code>R_PDFVIEWER</code></h5>
+
+<p>Used to detect the RStudio build pane.
+</p>
+
+
+
+<h5><code>R_PROGRESS_NO_EXAMPLES</code></h5>
+
+<p>Set to <code>true</code> to avoid running examples, outside of <code style="white-space: pre;">R CMD check</code>.
+</p>
+
+
+
+<h5><code>RSTUDIO</code></h5>
+
+<p>Used to detect RStudio, in various functions.
+</p>
+
+
+
+<h5><code>RSTUDIO_CONSOLE_COLOR</code></h5>
+
+<p>Used to detect the number of colors in RStudio.
+See <code><a href="num_ansi_colors.html">num_ansi_colors()</a></code>.
+</p>
+
+
+
+<h5><code>RSTUDIO_CONSOLE_WIDTH</code></h5>
+
+<p>Used to auto-detect console width in RStudio.
+</p>
+
+
+
+<h5><code>RSTUDIO_TERM</code></h5>
+
+<p>Used to detect the RStudio build pane.
+</p>
+
+
+
+<h5><code>TEAMCITY_VERSION</code></h5>
+
+<p>Used to detect the TeamCity CI, to turn off ANSI hyperlinks.
+</p>
+
+
+
+<h5><code>TERM</code></h5>
+
+<p>Used to detect if the console has ANSI control sequences, in a terminal.
+</p>
+
+
+
+<h5><code>TERM_PROGRAM</code></h5>
+
+<p>Used to detect iTerm for the dark theme detection and the ANSI hyperlink
+support detection.
+</p>
+
+
+
+<h5><code>TERM_PROGRAM_VERSION</code></h5>
+
+<p>Used to detect a suitable iTerm version for ANSI hyperlink support.
+</p>
+
+
+
+<h5><code>TESTTHAT</code></h5>
+
+<p>Used to detect running in testthat tests.
+</p>
+
+
+
+<h5><code>VTE_VERSION</code></h5>
+
+<p>Used to detect a suitable VTE version for ANSI hyperlinks.
+</p>
+
+
+
+
+<h4>Internal options</h4>
+
+
+
+<h5><code>cli__pb</code></h5>
+
+<p>This option is set to the progress bar that is being updated, when
+interpolating the format string.
+</p>
+
+
+
+<h5><code>cli.record</code></h5>
+
+<p>Internal option to mark the state that cli is recording messages.
+</p>
+
+
+
+<h5><code>crayon.colors</code></h5>
+
+<p>Deprecated option for the number of ANSI colors, that is still supported
+by cli, when the new options are not set.
+See <code><a href="num_ansi_colors.html">num_ansi_colors()</a></code>.
+</p>
+
+
+
+<h5><code>crayon.enabled</code></h5>
+
+<p>Deprecated option to turn ANSI colors on/off.
+This is still supported by cli when the new options are not set.
+See <code><a href="num_ansi_colors.html">num_ansi_colors()</a></code>.
+</p>
+
+
+
+<h5><code>crayon.hyperlink</code></h5>
+
+<p>Whether to assume ANSI hyperlink support.
+See <code><a href="style_hyperlink.html">ansi_has_hyperlink_support()</a></code>.
+</p>
+
+
+
+<h5><code>knitr.in.progress</code></h5>
+
+<p>Used to detect knitr when detecting interactive sessions and ANSI color
+support.
+</p>
+
+
+
+<h5><code>rstudio.notebook.executing</code></h5>
+
+<p>Used to detect knitr when detecting interactive sessions.
+</p>
+
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

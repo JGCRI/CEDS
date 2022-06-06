@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a labelled vector.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for labelled {haven}"><tr><td>labelled {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a labelled vector.</h2>
+
+<h3>Description</h3>
+
+<p>A labelled vector is a common data structure in other statistical
+environments, allowing you to assign text labels to specific values.
+This class makes it possible to import such labelled vectors in to R
+without loss of fidelity. This class provides few methods, as I
+expect you'll coerce to a standard R class (e.g. a <code><a href="../../base/html/factor.html">factor()</a></code>)
+soon after importing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+labelled(x = double(), labels = NULL, label = NULL)
+
+is.labelled(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector to label. Must be either numeric (integer or double) or
+character.</p>
+</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
+<p>A named vector or <code>NULL</code>. The vector should be the same type
+as <code>x</code>. Unlike factors, labels don't need to be exhaustive: only a fraction
+of the values might be labelled.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>A short, human-readable description of the vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+s1 &lt;- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
+s2 &lt;- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+s3 &lt;- labelled(c(1, 1, 2), c(Male = 1, Female = 2),
+               label="Assigned sex at birth")
+
+# Unfortunately it's not possible to make as.factor work for labelled objects
+# so instead use as_factor. This works for all types of labelled vectors.
+as_factor(s1)
+as_factor(s1, levels = "values")
+as_factor(s2)
+
+# Other statistical software supports multiple types of missing values
+s3 &lt;- labelled(c("M", "M", "F", "X", "N/A"),
+  c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
+)
+s3
+as_factor(s3)
+
+# Often when you have a partially labelled numeric vector, labelled values
+# are special types of missing. Use zap_labels to replace labels with missing
+# values
+x &lt;- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
+zap_labels(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

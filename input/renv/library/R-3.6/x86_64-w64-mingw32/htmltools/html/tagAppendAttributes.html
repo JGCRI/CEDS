@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Append tag attributes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tagAppendAttributes {htmltools}"><tr><td>tagAppendAttributes {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Append tag attributes</h2>
+
+<h3>Description</h3>
+
+<p>Append (<code>tagAppendAttributes()</code>), check existence (<code>tagHasAttribute()</code>),
+and obtain the value (<code>tagGetAttribute()</code>) of HTML attribute(s).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tagAppendAttributes(tag, ..., .cssSelector = NULL)
+
+tagHasAttribute(tag, attr)
+
+tagGetAttribute(tag, attr)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>a <a href="builder.html">tag</a> object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>a collection of attributes.</p>
+</td></tr>
+<tr valign="top"><td><code>.cssSelector</code></td>
+<td>
+<p>A character string containing a <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Selectors">CSS selector</a>
+for targeting particular (inner) tags of interest. At the moment, only a
+combination of
+<a href="https://www.w3.org/TR/CSS22/selector.html#type-selectors">type</a> (e.g,
+<code>div</code>), <a href="https://www.w3.org/TR/CSS22/selector.html#class-html">class</a>
+(e.g., <code>.my-class</code>),
+<a href="https://www.w3.org/TR/CSS22/selector.html#id-selectors">id</a> (e.g.,
+<code style="white-space: pre;">#myID</code>), and
+<a href="https://www.w3.org/TR/CSS22/selector.html#universal-selector">universal</a>
+(<code>*</code>) selectors within a given <a href="https://www.w3.org/TR/CSS22/selector.html#selector-syntax">simple selector</a> is
+supported. Note, if <code>.cssSelector</code> is used, the returned tags will have
+their <code style="white-space: pre;">$children</code> fields flattened to a single <code>list()</code> via <code><a href="tagQuery.html">tagQuery()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>attr</code></td>
+<td>
+<p>The name of an attribute.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="tagAppendChild.html">tagAppendChildren()</a></code>, <code><a href="tagQuery.html">tagQuery()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+html &lt;- div(a())
+tagAppendAttributes(html, class = "foo")
+tagAppendAttributes(html, .cssSelector = "a", class = "bar")
+
+tagHasAttribute(div(foo = "bar"), "foo")
+tagGetAttribute(div(foo = "bar"), "foo")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Import backported functions into your package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for import {backports}"><tr><td>import {backports}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Import backported functions into your package</h2>
+
+<h3>Description</h3>
+
+<p>Imports objects from <span class="pkg">backports</span> into the namespace of other packages
+by assigning it during load-time.
+See examples for a code snippet to copy to your package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+import(pkgname, obj = NULL, force = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkgname</code></td>
+<td>
+<p>[<code>character(1)</code>]<br />
+Name of the package where the backported function should be assigned.</p>
+</td></tr>
+<tr valign="top"><td><code>obj</code></td>
+<td>
+<p>[<code>character</code>]<br />
+Name of objects to assign, as character vector.
+If <code>NULL</code>, all backports which are not provided by R itself are assigned.</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>[<code>logical</code>]<br />
+If <code>obj</code> is provided and <code>force</code> is set to <code>FALSE</code>, only backports
+not provided by the base package of the executing R interpreter are imported.
+Set to <code>TRUE</code> to ignore this check and always import the backport into the package's namespace.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../base/html/ns-hooks.html">.onLoad</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# This imports all functions implemented in backports while the package is loaded
+.onLoad &lt;- function(libname, pkgname) {
+  backports::import(pkgname)
+}
+
+# This only imports the function "trimws"
+.onLoad &lt;- function(libname, pkgname) {
+  backports::import(pkgname, "trimws")
+}
+
+# This imports all backports from base and force-imports "hasName" from utils
+.onLoad &lt;- function(libname, pkgname) {
+  backports::import(pkgname)
+  backports::import(pkgname, "hasName", force = TRUE)
+}
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>backports</em> version 1.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

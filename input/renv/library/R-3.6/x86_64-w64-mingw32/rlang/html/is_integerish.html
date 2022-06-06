@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is a vector integer-like?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_integerish {rlang}"><tr><td>is_integerish {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is a vector integer-like?</h2>
+
+<h3>Description</h3>
+
+<p>These predicates check whether R considers a number vector to be
+integer-like, according to its own tolerance check (which is in
+fact delegated to the C library). This function is not adapted to
+data analysis, see the help for <code><a href="../../base/html/integer.html">base::is.integer()</a></code> for examples
+of how to check for whole numbers.
+</p>
+<p>Things to consider when checking for integer-like doubles:
+</p>
+
+<ul>
+<li><p> This check can be expensive because the whole double vector has
+to be traversed and checked.
+</p>
+</li>
+<li><p> Large double values may be integerish but may still not be
+coercible to integer. This is because integers in R only support
+values up to <code>2^31 - 1</code> while numbers stored as double can be
+much larger.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+is_integerish(x, n = NULL, finite = NULL)
+
+is_bare_integerish(x, n = NULL, finite = NULL)
+
+is_scalar_integerish(x, finite = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to be tested.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Expected length of a vector.</p>
+</td></tr>
+<tr valign="top"><td><code>finite</code></td>
+<td>
+<p>Whether all values of the vector are finite. The
+non-finite values are <code>NA</code>, <code>Inf</code>, <code>-Inf</code> and <code>NaN</code>. Setting this
+to something other than <code>NULL</code> can be expensive because the whole
+vector needs to be traversed and checked.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="bare-type-predicates.html">is_bare_numeric()</a></code> for testing whether an object is a
+base numeric type (a bare double or integer vector).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+is_integerish(10L)
+is_integerish(10.0)
+is_integerish(10.0, n = 2)
+is_integerish(10.000001)
+is_integerish(TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

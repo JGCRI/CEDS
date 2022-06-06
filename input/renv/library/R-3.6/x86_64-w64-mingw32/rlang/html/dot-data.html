@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: '.data' and '.env' pronouns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dot-data {rlang}"><tr><td>dot-data {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2><code>.data</code> and <code>.env</code> pronouns</h2>
+
+<h3>Description</h3>
+
+<p>The <code>.data</code> and <code>.env</code> pronouns make it explicit where to find
+objects when programming with <a href="topic-data-mask.html">data-masked</a>
+functions.</p>
+<pre>m &lt;- 10
+mtcars %&gt;% mutate(disp = .data$disp * .env$m)
+</pre>
+
+<ul>
+<li> <p><code>.data</code> retrieves data-variables from the data frame.
+</p>
+</li>
+<li> <p><code>.env</code> retrieves env-variables from the environment.
+</p>
+</li></ul>
+
+<p>Because the lookup is explicit, there is no ambiguity between both
+kinds of variables. Compare:</p>
+<pre>disp &lt;- 10
+mtcars %&gt;% mutate(disp = .data$disp * .env$disp)
+mtcars %&gt;% mutate(disp = disp * disp)
+</pre>
+<p>Note that <code>.data</code> is only a pronoun, it is not a real data
+frame. This means that you can't take its names or map a function
+over the contents of <code>.data</code>. Similarly, <code>.env</code> is not an actual R
+environment. For instance, it doesn't have a parent and the
+subsetting operators behave differently.
+</p>
+
+
+<h3><code>.data</code> versus the magrittr pronoun <code>.</code></h3>
+
+<p>In a <a href="https://magrittr.tidyverse.org/">magrittr pipeline</a>, <code>.data</code>
+is not necessarily interchangeable with the magrittr pronoun <code>.</code>.
+With grouped data frames in particular, <code>.data</code> represents the
+current group slice whereas the pronoun <code>.</code> represents the whole
+data frame. Always prefer using <code>.data</code> in data-masked context.
+</p>
+
+
+<h3>Where does <code>.data</code> live?</h3>
+
+<p>The <code>.data</code> pronoun is automatically created for you by
+data-masking functions using the <a href="eval_tidy.html">tidy eval framework</a>.
+You don't need to import <code>rlang::.data</code> or use <code>library(rlang)</code> to
+work with this pronoun.
+</p>
+<p>However, the <code>.data</code> object exported from rlang is useful to import
+in your package namespace to avoid a <code style="white-space: pre;">R CMD check</code> note when
+referring to objects from the data mask. R does not have any way of
+knowing about the presence or absence of <code>.data</code> in a particular
+scope so you need to import it explicitly or equivalently declare
+it with <code>utils::globalVariables(".data")</code>.
+</p>
+<p>Note that <code>rlang::.data</code> is a &quot;fake&quot; pronoun. Do not refer to
+<code>rlang::.data</code> with the <code style="white-space: pre;">rlang::</code> qualifier in data masking
+code. Use the unqualified <code>.data</code> symbol that is automatically put
+in scope by data-masking functions.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dir_ls {fs}"><tr><td>dir_ls {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List files</h2>
+
+<h3>Description</h3>
+
+<p><code>dir_ls()</code> is equivalent to the <code>ls</code> command. It returns filenames as a
+named <code>fs_path</code> character vector. The names are equivalent to the values,
+which is useful for passing onto functions like <code>purrr::map_dfr()</code>.
+</p>
+<p><code>dir_info()</code> is equivalent to <code>ls -l</code> and a shortcut for
+<code>file_info(dir_ls())</code>.
+</p>
+<p><code>dir_map()</code> applies a function <code>fun()</code> to each entry in the path and returns
+the result in a list.
+</p>
+<p><code>dir_walk()</code> calls <code>fun</code> for its side-effect and returns the input <code>path</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dir_ls(
+  path = ".",
+  all = FALSE,
+  recurse = FALSE,
+  type = "any",
+  glob = NULL,
+  regexp = NULL,
+  invert = FALSE,
+  fail = TRUE,
+  ...,
+  recursive
+)
+
+dir_map(
+  path = ".",
+  fun,
+  all = FALSE,
+  recurse = FALSE,
+  type = "any",
+  fail = TRUE
+)
+
+dir_walk(
+  path = ".",
+  fun,
+  all = FALSE,
+  recurse = FALSE,
+  type = "any",
+  fail = TRUE
+)
+
+dir_info(
+  path = ".",
+  all = FALSE,
+  recurse = FALSE,
+  type = "any",
+  regexp = NULL,
+  glob = NULL,
+  fail = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>all</code></td>
+<td>
+<p>If <code>TRUE</code> hidden files are also returned.</p>
+</td></tr>
+<tr valign="top"><td><code>recurse</code></td>
+<td>
+<p>If <code>TRUE</code> recurse fully, if a positive number the number of levels
+to recurse.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>File type(s) to return, one or more of &quot;any&quot;, &quot;file&quot;, &quot;directory&quot;,
+&quot;symlink&quot;, &quot;FIFO&quot;, &quot;socket&quot;, &quot;character_device&quot; or &quot;block_device&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>glob</code></td>
+<td>
+<p>A wildcard aka globbing pattern (e.g. <code style="white-space: pre;">*.csv</code>) passed on to <code><a href="../../base/html/grep.html">grep()</a></code> to filter paths.</p>
+</td></tr>
+<tr valign="top"><td><code>regexp</code></td>
+<td>
+<p>A regular expression (e.g. <code style="white-space: pre;">[.]csv$</code>) passed on to <code><a href="../../base/html/grep.html">grep()</a></code> to filter paths.</p>
+</td></tr>
+<tr valign="top"><td><code>invert</code></td>
+<td>
+<p>If <code>TRUE</code> return files which do <em>not</em> match</p>
+</td></tr>
+<tr valign="top"><td><code>fail</code></td>
+<td>
+<p>Should the call fail (the default) or warn if a file cannot be
+accessed.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <a href="../../base/html/grep.html">grep</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>recursive</code></td>
+<td>
+<p>(Deprecated) If <code>TRUE</code> recurse fully.</p>
+</td></tr>
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>A function, taking one parameter, the current path entry.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+dir_ls(R.home("share"), type = "directory")
+
+# Create a shorter link
+link_create(system.file(package = "base"), "base")
+
+dir_ls("base", recurse = TRUE, glob = "*.R")
+
+# If you need the full paths input an absolute path
+dir_ls(path_abs("base"))
+
+dir_map("base", identity)
+
+dir_walk("base", str)
+
+dir_info("base")
+
+# Cleanup
+link_delete("base")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

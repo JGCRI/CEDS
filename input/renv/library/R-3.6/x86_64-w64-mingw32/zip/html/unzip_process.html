@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class for an external unzip process</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for unzip_process {zip}"><tr><td>unzip_process {zip}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class for an external unzip process</h2>
+
+<h3>Description</h3>
+
+<p><code>unzip_process()</code> returns an R6 class that represents an unzip process.
+It is implemented as a subclass of <a href="../../processx/html/process.html">processx::process</a>.
+</p>
+<link rel="stylesheet" type="text/css" href="../doc/assets/extra.css">
+<script src="../doc/assets/rd.js"></script>
+
+
+<h3>Usage</h3>
+
+<pre>
+unzip_process()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>An <code>unzip_process</code> R6 class object, a subclass of
+<a href="../../processx/html/process.html">processx::process</a>.
+</p>
+
+
+<h3>Using the <code>unzip_process</code> class</h3>
+
+<pre>up &lt;- unzip_process()$new(zipfile, exdir = ".", poll_connection = TRUE,
+                           stderr = tempfile(), ...)
+</pre>
+<p>See <a href="../../processx/html/process.html">processx::process</a> for the class methods.
+</p>
+<p>Arguments:
+</p>
+
+<ul>
+<li> <p><code>zipfile</code>: Path to the zip file to uncompress.
+</p>
+</li>
+<li> <p><code>exdir</code>: Directory to uncompress the archive to. If it does not
+exist, it will be created.
+</p>
+</li>
+<li> <p><code>poll_connection</code>: passed to the <code>initialize</code> method of
+<a href="../../processx/html/process.html">processx::process</a>, it allows using <code><a href="../../processx/html/poll.html">processx::poll()</a></code> or the
+<code>poll_io()</code> method to poll for the completion of the process.
+</p>
+</li>
+<li> <p><code>stderr</code>: passed to the <code>initialize</code> method of <a href="../../processx/html/process.html">processx::process</a>,
+by default the standard error is written to a temporary file.
+This file can be used to diagnose errors if the process failed.
+</p>
+</li>
+<li> <p><code>...</code> passed to the <code>initialize</code> method of <a href="../../processx/html/process.html">processx::process</a>.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+ex &lt;- system.file("example.zip", package = "zip")
+tmp &lt;- tempfile()
+up &lt;- unzip_process()$new(ex, exdir = tmp)
+up$wait()
+up$get_exit_status()
+dir(tmp)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>zip</em> version 2.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

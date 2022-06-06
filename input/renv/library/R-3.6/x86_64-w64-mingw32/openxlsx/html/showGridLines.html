@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set worksheet gridlines to show or hide.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for showGridLines {openxlsx}"><tr><td>showGridLines {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set worksheet gridlines to show or hide.</h2>
+
+<h3>Description</h3>
+
+<p>Set worksheet gridlines to show or hide.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+showGridLines(wb, sheet, showGridLines = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>showGridLines</code></td>
+<td>
+<p>A logical. If <code>FALSE</code>, grid lines are hidden.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- loadWorkbook(file = system.file("extdata", "loadExample.xlsx", package = "openxlsx"))
+names(wb) ## list worksheets in workbook
+showGridLines(wb, 1, showGridLines = FALSE)
+showGridLines(wb, "testing", showGridLines = FALSE)
+## Not run: 
+saveWorkbook(wb, "showGridLinesExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

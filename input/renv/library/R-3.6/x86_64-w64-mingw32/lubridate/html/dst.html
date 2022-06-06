@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get *d*aylight *s*avings *t*ime indicator of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dst {lubridate}"><tr><td>dst {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get <strong>d</strong>aylight <strong>s</strong>avings <strong>t</strong>ime indicator of a date-time</h2>
+
+<h3>Description</h3>
+
+<p>Date-time must be a POSIXct, POSIXlt, Date, chron, yearmon, yearqtr, zoo,
+zooreg, timeDate, xts, its, ti, jul, timeSeries, and fts objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dst(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a date-time object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>A date-time's daylight savings flag can not be set because it depends on the
+date-time's year, month, day, and hour values.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A logical. TRUE if DST is in force, FALSE if not, NA if unknown.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd("2012-03-26")
+dst(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

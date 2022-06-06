@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Quote identifiers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbQuoteIdentifier {DBI}"><tr><td>dbQuoteIdentifier {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Quote identifiers</h2>
+
+<h3>Description</h3>
+
+<p>Call this method to generate a string that is suitable for
+use in a query as a column or table name, to make sure that you
+generate valid SQL and protect against SQL injection attacks. The inverse
+operation is <code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier()</a></code>.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbQuoteIdentifier(conn, x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector, <a href="SQL.html">SQL</a> or <a href="Id.html">Id</a> object to quote as identifier.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>dbQuoteIdentifier()</code> returns an object that can be coerced to <a href="../../base/html/character.html">character</a>,
+of the same length as the input.
+For an empty character vector this function returns a length-0 object.
+The names of the input argument are preserved in the output.
+When passing the returned object again to <code>dbQuoteIdentifier()</code>
+as <code>x</code>
+argument, it is returned unchanged.
+Passing objects of class <a href="SQL.html">SQL</a> should also return them unchanged.
+(For backends it may be most convenient to return <a href="SQL.html">SQL</a> objects
+to achieve this behavior, but this is not required.)
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>An error is raised if the input contains <code>NA</code>,
+but not for an empty string.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>Calling <code><a href="dbGetQuery.html">dbGetQuery()</a></code> for a query of the format <code style="white-space: pre;">SELECT 1 AS ...</code>
+returns a data frame with the identifier, unquoted, as column name.
+Quoted identifiers can be used as table and column names in SQL queries,
+in particular in queries like <code style="white-space: pre;">SELECT 1 AS ...</code>
+and <code style="white-space: pre;">SELECT * FROM (SELECT 1) ...</code>.
+The method must use a quoting mechanism that is unambiguously different
+from the quoting mechanism used for strings, so that a query like
+<code style="white-space: pre;">SELECT ... FROM (SELECT 1 AS ...)</code>
+throws an error if the column names do not match.
+</p>
+<p>The method can quote column names that
+contain special characters such as a space,
+a dot,
+a comma,
+or quotes used to mark strings
+or identifiers,
+if the database supports this.
+In any case, checking the validity of the identifier
+should be performed only when executing a query,
+and not by <code>dbQuoteIdentifier()</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Quoting ensures that arbitrary input is safe for use in a query
+name &lt;- "Robert'); DROP TABLE Students;--"
+dbQuoteIdentifier(ANSI(), name)
+
+# Use Id() to specify other components such as the schema
+id_name &lt;- Id(schema = "schema_name", table = "table_name")
+id_name
+dbQuoteIdentifier(ANSI(), id_name)
+
+# SQL vectors are always passed through as is
+var_name &lt;- SQL("select")
+var_name
+dbQuoteIdentifier(ANSI(), var_name)
+
+# This mechanism is used to prevent double escaping
+dbQuoteIdentifier(ANSI(), dbQuoteIdentifier(ANSI(), name))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

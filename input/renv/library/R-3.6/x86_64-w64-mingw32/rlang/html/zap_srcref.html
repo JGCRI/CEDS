@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Zap source references</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for zap_srcref {rlang}"><tr><td>zap_srcref {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Zap source references</h2>
+
+<h3>Description</h3>
+
+<p>There are a number of situations where R creates source references:
+</p>
+
+<ul>
+<li><p> Reading R code from a file with <code>source()</code> and <code>parse()</code> might save
+source references inside calls to <code>function</code> and <code style="white-space: pre;">{</code>.
+</p>
+</li>
+<li> <p><code><a href="../../base/html/sys.parent.html">sys.call()</a></code> includes a source reference if possible.
+</p>
+</li>
+<li><p> Creating a closure stores the source reference from the call to
+<code>function</code>, if any.
+</p>
+</li></ul>
+
+<p>These source references take up space and might cause a number of
+issues. <code>zap_srcref()</code> recursively walks through expressions and
+functions to remove all source references.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+zap_srcref(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An R object. Functions and calls are walked recursively.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

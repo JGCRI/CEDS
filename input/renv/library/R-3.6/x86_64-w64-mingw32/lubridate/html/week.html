@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get/set weeks component of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for week {lubridate}"><tr><td>week {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get/set weeks component of a date-time</h2>
+
+<h3>Description</h3>
+
+<p><code>week()</code> returns the number of complete seven day periods that have
+occurred between the date and January 1st, plus one.
+</p>
+<p><code>isoweek()</code> returns the week as it would appear in the ISO 8601
+system, which uses a reoccurring leap week.
+</p>
+<p><code>epiweek()</code> is the US CDC version of epidemiological week. It
+follows same rules as <code>isoweek()</code> but starts on Sunday. In other parts of
+the world the convention is to start epidemiological weeks on Monday,
+which is the same as <code>isoweek</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+week(x)
+
+week(x) &lt;- value
+
+isoweek(x)
+
+epiweek(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a date-time object. Must be a POSIXct, POSIXlt, Date, chron,
+yearmon, yearqtr, zoo, zooreg, timeDate, xts, its, ti, jul, timeSeries, or
+fts object.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a numeric object</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>the weeks element of x as an integer number
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="https://en.wikipedia.org/wiki/ISO_week_date">https://en.wikipedia.org/wiki/ISO_week_date</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="year.html">isoyear()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd("2012-03-26")
+week(x)
+week(x) &lt;- 1
+week(x) &lt;- 54
+week(x) &gt; 3
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

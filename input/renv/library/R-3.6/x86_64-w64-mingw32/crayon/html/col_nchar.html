@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count number of characters in an ANSI colored string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for col_nchar {crayon}"><tr><td>col_nchar {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count number of characters in an ANSI colored string</h2>
+
+<h3>Description</h3>
+
+<p>This is a color-aware counterpart of <code><a href="../../base/html/nchar.html">base::nchar()</a></code>,
+which does not do well, since it also counts the ANSI control
+characters.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+col_nchar(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character vector, potentially ANSO styled, or a vector to be
+coarced to character.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments, passed on to <code>base::nchar()</code>
+after removing ANSI escape sequences.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Numeric vector, the length of the strings in the character
+vector.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other ANSI string operations: 
+<code><a href="col_align.html">col_align</a>()</code>,
+<code><a href="col_strsplit.html">col_strsplit</a>()</code>,
+<code><a href="col_substring.html">col_substring</a>()</code>,
+<code><a href="col_substr.html">col_substr</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+str &lt;- paste(
+  red("red"),
+  "default",
+  green("green")
+)
+
+cat(str, "\n")
+nchar(str)
+col_nchar(str)
+nchar(strip_style(str))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

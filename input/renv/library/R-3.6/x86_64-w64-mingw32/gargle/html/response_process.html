@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Process a Google API response</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for response_process {gargle}"><tr><td>response_process {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Process a Google API response</h2>
+
+<h3>Description</h3>
+
+<p><code>response_process()</code> is intended primarily for internal use in client
+packages that provide high-level wrappers for users. Typically applied as the
+final step in this sequence of calls:
+</p>
+
+<ul>
+<li><p> Request prepared with <code><a href="request_develop.html">request_build()</a></code>.
+</p>
+</li>
+<li><p> Request made with <code><a href="request_make.html">request_make()</a></code>.
+</p>
+</li>
+<li><p> Response processed with <code>response_process()</code>.
+</p>
+</li></ul>
+
+<p>All that's needed for a successful request is to parse the JSON extracted via
+<code>httr::content()</code>. Therefore, the main point of <code>response_process()</code> is to
+handle less happy outcomes:
+</p>
+
+<ul>
+<li><p> Status codes in the 400s (client error) and 500s (server error). The
+structure of the error payload varies across Google APIs and we try to
+create a useful message for all variants we know about.
+</p>
+</li>
+<li><p> Non-JSON content type, such as HTML.
+</p>
+</li>
+<li><p> Status code in the 100s (information) or 300s (redirection). These are
+unexpected.
+</p>
+</li></ul>
+
+<p>If <code>process_response()</code> results in an error, a redacted version of the <code>resp</code>
+input is returned in the condition (auth tokens are removed).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+response_process(resp, error_message = gargle_error_message, remember = TRUE)
+
+response_as_json(resp)
+
+gargle_error_message(resp)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>resp</code></td>
+<td>
+<p>Object of class <code>response</code> from <a href="../../httr/html/httr-package.html">httr</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>error_message</code></td>
+<td>
+<p>Function that produces an informative error message from
+the primary input, <code>resp</code>. It must return a character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>remember</code></td>
+<td>
+<p>Whether to remember the most recently processed response.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>When <code>remember = TRUE</code> (the default), gargle stores the most recently seen
+response internally, for <em>post hoc</em> examination. The stored response is
+literally just the most recent <code>resp</code> input, but with auth tokens redacted.
+It can be accessed via the unexported function
+<code>gargle:::gargle_last_response()</code>. A companion function
+<code>gargle:::gargle_last_content()</code> returns the content of the last response,
+which is probably the most useful form for <em>post mortem</em> analysis.
+</p>
+<p>The <code>response_as_json()</code> helper is exported only as an aid to maintainers who
+wish to use their own <code>error_message</code> function, instead of gargle's built-in
+<code>gargle_error_message()</code>. When implementing a custom <code>error_message</code>
+function, call <code>response_as_json()</code> immediately on the input in order to
+inherit gargle's handling of non-JSON input.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The content of the request, as a list. An HTTP status code of 204 (No
+content) is a special case returning <code>TRUE</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other requests and responses: 
+<code><a href="request_develop.html">request_develop</a>()</code>,
+<code><a href="request_make.html">request_make</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# get an OAuth2 token with 'userinfo.email' scope
+token &lt;- token_fetch(scopes = "https://www.googleapis.com/auth/userinfo.email")
+
+# see the email associated with this token
+req &lt;- gargle::request_build(
+  method = "GET",
+  path = "v1/userinfo",
+  token = token,
+  base_url = "https://openidconnect.googleapis.com"
+)
+resp &lt;- gargle::request_make(req)
+response_process(resp)
+
+# make a bad request (this token has incorrect scope)
+req &lt;- gargle::request_build(
+  method = "GET",
+  path = "fitness/v1/users/{userId}/dataSources",
+  token = token,
+  params = list(userId = 12345)
+)
+resp &lt;- gargle::request_make(req)
+response_process(resp)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

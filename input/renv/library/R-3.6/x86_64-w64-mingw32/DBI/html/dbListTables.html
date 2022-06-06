@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List remote tables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbListTables {DBI}"><tr><td>dbListTables {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List remote tables</h2>
+
+<h3>Description</h3>
+
+<p>Returns the unquoted names of remote tables accessible through this
+connection.
+This should include views and temporary objects, but not all database backends
+(in particular <span class="pkg">RMariaDB</span> and <span class="pkg">RMySQL</span>) support this.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbListTables(conn, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>dbListTables()</code>
+returns a character vector
+that enumerates all tables
+and views
+in the database.
+Tables added with <code><a href="dbWriteTable.html">dbWriteTable()</a></code>
+are part of the list.
+As soon a table is removed from the database,
+it is also removed from the list of database tables.
+</p>
+<p>The same applies to temporary tables if supported by the database.
+</p>
+<p>The returned names are suitable for quoting with <code>dbQuoteIdentifier()</code>.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>An error is raised when calling this method for a closed
+or invalid connection.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIConnection generics: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbCreateTable.html">dbCreateTable</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetException.html">dbGetException</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetQuery.html">dbGetQuery</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbListTables(con)
+dbWriteTable(con, "mtcars", mtcars)
+dbListTables(con)
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

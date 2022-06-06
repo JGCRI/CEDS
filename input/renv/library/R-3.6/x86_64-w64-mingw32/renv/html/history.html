@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: View Lockfile History</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for history {renv}"><tr><td>history {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>View Lockfile History</h2>
+
+<h3>Description</h3>
+
+<p>Use your version control system to find prior versions of the <code>renv.lock</code>
+file that have been used in your project.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+history(project = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>history()</code> function is currently only implemented for projects using
+<code>git</code> for version control.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> <code>data.frame</code>, summarizing the commits in which <code>renv.lock</code>
+has been mutated.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+
+# get history of previous versions of renv.lock in VCS
+db &lt;- renv::history()
+
+# choose an older commit
+commit &lt;- db$commit[5]
+
+# revert to that version of the lockfile
+renv::revert(commit = commit)
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

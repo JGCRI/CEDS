@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create vectors matching the length of a given vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rep_along {rlang}"><tr><td>rep_along {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create vectors matching the length of a given vector</h2>
+
+<h3>Description</h3>
+
+<p>These functions take the idea of <code><a href="../../base/html/seq.html">seq_along()</a></code> and apply it to
+repeating values.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rep_along(along, x)
+
+rep_named(names, x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>along</code></td>
+<td>
+<p>Vector whose length determine how many times <code>x</code>
+is repeated.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Values to repeat.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>Names for the new vector. The length of <code>names</code>
+determines how many times <code>x</code> is repeated.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>new-vector
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- 0:5
+rep_along(x, 1:2)
+rep_along(x, 1)
+
+# Create fresh vectors by repeating missing values:
+rep_along(x, na_int)
+rep_along(x, na_chr)
+
+# rep_named() repeats a value along a names vectors
+rep_named(c("foo", "bar"), list(letters))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Git Branch</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_branch {gert}"><tr><td>git_branch {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Git Branch</h2>
+
+<h3>Description</h3>
+
+<p>Create, list, and checkout branches.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_branch(repo = ".")
+
+git_branch_list(local = NULL, repo = ".")
+
+git_branch_checkout(branch, force = FALSE, orphan = FALSE, repo = ".")
+
+git_branch_create(branch, ref = "HEAD", checkout = TRUE, repo = ".")
+
+git_branch_delete(branch, repo = ".")
+
+git_branch_move(branch, new_branch, force = FALSE, repo = ".")
+
+git_branch_fast_forward(ref, repo = ".")
+
+git_branch_set_upstream(upstream, branch = git_branch(repo), repo = ".")
+
+git_branch_exists(branch, local = TRUE, repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>local</code></td>
+<td>
+<p>set TRUE to only check for local branches, FALSE to check for remote
+branches. Use NULL to return all branches.</p>
+</td></tr>
+<tr valign="top"><td><code>branch</code></td>
+<td>
+<p>name of branch to check out</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>ignore conflicts and overwrite modified files</p>
+</td></tr>
+<tr valign="top"><td><code>orphan</code></td>
+<td>
+<p>if branch does not exist, checkout unborn branch</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>string with a branch/tag/commit</p>
+</td></tr>
+<tr valign="top"><td><code>checkout</code></td>
+<td>
+<p>move HEAD to the newly created branch</p>
+</td></tr>
+<tr valign="top"><td><code>new_branch</code></td>
+<td>
+<p>target name of the branch once the move is performed; this name is validated for consistency.</p>
+</td></tr>
+<tr valign="top"><td><code>upstream</code></td>
+<td>
+<p>remote branch from <a href="git_branch.html">git_branch_list</a>, for example <code>"origin/master"</code></p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

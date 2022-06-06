@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get or set function body</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fn_body {rlang}"><tr><td>fn_body {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get or set function body</h2>
+
+<h3>Description</h3>
+
+<p><code>fn_body()</code> is a simple wrapper around <code><a href="../../base/html/body.html">base::body()</a></code>. It always
+returns a <code style="white-space: pre;">\{</code> expression and throws an error when the input is a
+primitive function (whereas <code>body()</code> returns <code>NULL</code>). The setter
+version preserves attributes, unlike <code style="white-space: pre;">body&lt;-</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fn_body(fn = caller_fn())
+
+fn_body(fn) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fn</code></td>
+<td>
+<p>A function. It is looked up in the calling frame if not
+supplied.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>New formals or formals names for <code>fn</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# fn_body() is like body() but always returns a block:
+fn &lt;- function() do()
+body(fn)
+fn_body(fn)
+
+# It also throws an error when used on a primitive function:
+try(fn_body(base::list))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

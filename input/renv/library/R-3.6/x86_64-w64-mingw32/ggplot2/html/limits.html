@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate correct scale type for specified limits</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for limits {ggplot2}"><tr><td>limits {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate correct scale type for specified limits</h2>
+
+<h3>Description</h3>
+
+<p>Generate correct scale type for specified limits
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+limits(lims, var)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lims</code></td>
+<td>
+<p>vector of limits</p>
+</td></tr>
+<tr valign="top"><td><code>var</code></td>
+<td>
+<p>name of variable</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+ggplot2:::limits(c(1, 5), "x")
+ggplot2:::limits(c(5, 1), "x")
+ggplot2:::limits(c("A", "b", "c"), "x")
+ggplot2:::limits(c("A", "b", "c"), "fill")
+ggplot2:::limits(as.Date(c("2008-01-01", "2009-01-01")), "x")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

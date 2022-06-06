@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query for existence and access permissions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file_access {fs}"><tr><td>file_access {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query for existence and access permissions</h2>
+
+<h3>Description</h3>
+
+<p><code>file_exists(path)</code> is a shortcut for <code>file_access(x, "exists")</code>;
+<code>dir_exists(path)</code> and <code>link_exists(path)</code> are similar but also check that
+the path is a directory or link, respectively. (<code>file_exists(path)</code> returns
+<code>TRUE</code> if <code>path</code> exists and it is a directory.)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_access(path, mode = "exists")
+
+file_exists(path)
+
+dir_exists(path)
+
+link_exists(path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>A character vector containing one or more of 'exists', 'read',
+'write', 'execute'.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><strong>Cross-compatibility warning:</strong> There is no executable bit on
+Windows. Checking a file for mode 'execute' on Windows, e.g.
+<code>file_access(x, "execute")</code> will always return <code>TRUE</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A logical vector, with names corresponding to the input <code>path</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+file_access("/")
+file_access("/", "read")
+file_access("/", "write")
+
+file_exists("WOMBATS")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

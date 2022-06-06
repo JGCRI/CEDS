@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Backtrace specification</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rlib_trace_spec {rlang}"><tr><td>rlib_trace_spec {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Backtrace specification</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+
+
+<h3>Structure</h3>
+
+<p>An r-lib backtrace is a data frame that contains the following
+columns:
+</p>
+
+<ul>
+<li> <p><code>call</code>: List of calls. These may carry <code>srcref</code> objects.
+</p>
+</li>
+<li> <p><code>visible</code>: Logical vector. If <code>FALSE</code>, the corresponding call
+will be hidden from simplified backtraces.
+</p>
+</li>
+<li> <p><code>parent</code>: Integer vector of parent references (see
+<code><a href="../../base/html/sys.parent.html">sys.parents()</a></code>) as row numbers. 0 is global.
+</p>
+</li>
+<li> <p><code>namespace</code>: Character vector of namespaces. <code>NA</code> for global or
+no namespace
+</p>
+</li>
+<li> <p><code>scope</code>: Character vector of strings taking values <code>"::"</code>,
+<code>":::"</code>, <code>"global"</code>, or <code>"local"</code>.
+</p>
+</li></ul>
+
+<p>A backtrace data frame may contain extra columns. If you add
+additional columns, make sure to prefix their names with the name
+of your package or organisation to avoid potential conflicts with
+future extensions of this spec, e.g. <code>"mypkg_column"</code>.
+</p>
+
+
+<h3>Operations</h3>
+
+
+<ul>
+<li> <p><strong>Length</strong>. The length of the backtrace is the number of rows of
+the underlying data.
+</p>
+</li>
+<li> <p><strong>Concatenation</strong>. Performed by row-binding two backtraces.  The
+<code>parent</code> column of the RHS is shifted by <code>nrow(LHS)</code> so that the
+last call of the LHS takes place of the global frame of the RHS.
+</p>
+</li>
+<li> <p><strong>Subsetting</strong>. Performed by slicing the backtrace. After the
+data frame is sliced, the <code>parent</code> column is adjusted to the new
+row indices. Any <code>parent</code> value that no longer exists in the
+sliced backtrace is set to 0 (the global frame).
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

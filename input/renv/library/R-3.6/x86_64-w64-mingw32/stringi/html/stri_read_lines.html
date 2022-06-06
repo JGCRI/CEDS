@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read Text Lines from a Text File</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_read_lines {stringi}"><tr><td>stri_read_lines {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read Text Lines from a Text File</h2>
+
+<h3>Description</h3>
+
+<p>Reads a text file in ins entirety, re-encodes it, and splits it into text lines.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_read_lines(con, encoding = NULL, fname = con, fallback_encoding = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>name of the output file or a connection object
+(opened in the binary mode)</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>single string; input encoding;
+<code>NULL</code> or <code>''</code> for the current default encoding.</p>
+</td></tr>
+<tr valign="top"><td><code>fname</code></td>
+<td>
+<p>deprecated alias of <code>con</code></p>
+</td></tr>
+<tr valign="top"><td><code>fallback_encoding</code></td>
+<td>
+<p>deprecated argument, no longer used</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This aims to be a substitute for the <code><a href="../../base/html/readLines.html">readLines</a></code> function,
+with the ability to re-encode the input file in a much more robust way,
+and split the text into lines with <code><a href="stri_split_lines.html">stri_split_lines1</a></code>
+(which conforms with the Unicode guidelines for newline markers).
+</p>
+<p>The function calls <code><a href="stri_read_raw.html">stri_read_raw</a></code>,
+<code><a href="stri_encode.html">stri_encode</a></code>, and <code><a href="stri_split_lines.html">stri_split_lines1</a></code>,
+in this order.
+</p>
+<p>Because of the way this function is currently implemented,
+maximal file size cannot exceed ~0.67 GB.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector, each text line is a separate string.
+The output is always marked as UTF-8.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other files: 
+<code><a href="stri_read_raw.html">stri_read_raw</a>()</code>,
+<code><a href="stri_write_lines.html">stri_write_lines</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

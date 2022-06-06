@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Validate and format a function call for use in error messages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for format_error_call {rlang}"><tr><td>format_error_call {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Validate and format a function call for use in error messages</h2>
+
+<h3>Description</h3>
+
+<p><code>format_error_call()</code> simplifies its input to a simple call (see
+section below) and formats the result as code (using cli if
+available). Use this function to generate the &quot;in&quot; part
+of an error message from a stack frame call.
+</p>
+<p>If passed an environment, the corresponding <code>sys.call()</code> is taken
+as call, unless there is a local flag (see <code><a href="local_error_call.html">local_error_call()</a></code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+format_error_call(call)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Either a string formatted as code or <code>NULL</code> if a simple
+call could not be generated.
+</p>
+
+
+<h3>Details of formatting</h3>
+
+
+<ul>
+<li><p> The arguments of function calls are stripped.
+</p>
+</li>
+<li><p> Complex function calls containing inlined objects return
+<code>NULL</code>.
+</p>
+</li>
+<li><p> Calls to <code>if</code> preserve the condition since it might be
+informative. Branches are dropped.
+</p>
+</li>
+<li><p> Calls to operators and other special syntax are formatted using
+their names rather than the potentially confusing function form.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# Arguments are stripped
+writeLines(format_error_call(quote(foo(bar, baz))))
+
+# Returns `NULL` with complex calls such as those that contain
+# inlined functions
+format_error_call(call2(list))
+
+# Operators are formatted using their names rather than in
+# function call form
+writeLines(format_error_call(quote(1 + 2)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

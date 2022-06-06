@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse package dependency strings.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for parse_deps {pkgload}"><tr><td>parse_deps {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse package dependency strings.</h2>
+
+<h3>Description</h3>
+
+<p>Parse package dependency strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+parse_deps(string)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>string</code></td>
+<td>
+<p>to parse. Should look like <code>"R (&gt;= 3.0), ggplot2"</code> etc.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>list of two character vectors: <code>name</code> package names,
+and <code>version</code> package versions. If version is not specified,
+it will be stored as NA.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+parse_deps("httr (&lt; 2.1),\nRCurl (&gt;= 3)")
+# only package dependencies are returned
+parse_deps("utils (== 2.12.1),\ntools,\nR (&gt;= 2.10),\nmemoise")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

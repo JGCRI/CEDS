@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run OptiPNG on all PNG files under a directory</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for optipng {xfun}"><tr><td>optipng {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run OptiPNG on all PNG files under a directory</h2>
+
+<h3>Description</h3>
+
+<p>Call the command <code>optipng</code> via <code>system2()</code> to optimize all PNG
+files under a directory.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+optipng(
+  dir = ".",
+  files = list.files(dir, "[.]png$", recursive = TRUE, full.names = TRUE),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>Path to a directory.</p>
+</td></tr>
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>Alternatively, you can choose the specific files to optimize.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to be passed to <code>system2()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>References</h3>
+
+<p>OptiPNG: <a href="http://optipng.sourceforge.net">http://optipng.sourceforge.net</a>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

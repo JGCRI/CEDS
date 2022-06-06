@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Evaluate, compare, benchmark operations of a set of srcs.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bench_compare {dplyr}"><tr><td>bench_compare {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Evaluate, compare, benchmark operations of a set of srcs.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+These functions are deprecated because we now believe that you're
+better of performing the comparisons directly, yourself, in order to
+generate more informative test failures.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bench_tbls(tbls, op, ..., times = 10)
+
+compare_tbls(tbls, op, ref = NULL, compare = equal_data_frame, ...)
+
+compare_tbls2(tbls_x, tbls_y, op, ref = NULL, compare = equal_data_frame, ...)
+
+eval_tbls(tbls, op)
+
+eval_tbls2(tbls_x, tbls_y, op)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tbls, tbls_x, tbls_y</code></td>
+<td>
+<p>A list of <code><a href="tbl.html">tbl()</a></code>s.</p>
+</td></tr>
+<tr valign="top"><td><code>op</code></td>
+<td>
+<p>A function with a single argument, called often with each
+element of <code>tbls</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>compare_tbls()</code>: additional parameters passed on the
+<code>compare()</code> function
+</p>
+<p>For <code>bench_tbls()</code>: additional benchmarks to run.</p>
+</td></tr>
+<tr valign="top"><td><code>times</code></td>
+<td>
+<p>For benchmarking, the number of times each operation is
+repeated.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>For checking, a data frame to test results against. If not
+supplied, defaults to the results from the first <code>src</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>compare</code></td>
+<td>
+<p>A function used to compare the results. Defaults to
+<code>equal_data_frame</code> which ignores the order of rows and columns.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>eval_tbls()</code>: a list of data frames.
+</p>
+<p><code>compare_tbls()</code>: an invisible <code>TRUE</code> on success, otherwise
+an error is thrown.
+</p>
+<p><code>bench_tbls()</code>: an object of class
+<code><a href="../../microbenchmark/html/microbenchmark.html">microbenchmark::microbenchmark()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Try an expression and see if it throws an error</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for try_error {xfun}"><tr><td>try_error {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Try an expression and see if it throws an error</h2>
+
+<h3>Description</h3>
+
+<p>Use <code><a href="../../base/html/conditions.html">tryCatch</a>()</code> to check if an expression throws an error.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+try_error(expr)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An R expression.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>TRUE</code> (error) or <code>FALSE</code> (success).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::try_error(stop("foo"))  # TRUE
+xfun::try_error(1:10)  # FALSE
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create an ANSI color style</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for make_style {crayon}"><tr><td>make_style {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create an ANSI color style</h2>
+
+<h3>Description</h3>
+
+<p>Create a style, or a style function, or both. This function
+is intended for those who wish to use 256 ANSI colors,
+instead of the more widely supported eight colors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+make_style(..., bg = FALSE, grey = FALSE, colors = num_colors())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>The style to create. See details and examples below.</p>
+</td></tr>
+<tr valign="top"><td><code>bg</code></td>
+<td>
+<p>Whether the color applies to the background.</p>
+</td></tr>
+<tr valign="top"><td><code>grey</code></td>
+<td>
+<p>Whether to specifically create a grey color.
+This flag is included because ANSI 256 has a finer color scale
+for greys than the usual 0:5 scale for R, G and B components.
+It is only used for RGB color specifications (either numerically
+or via a hexa string) and is ignored on eigth color ANSI
+terminals.</p>
+</td></tr>
+<tr valign="top"><td><code>colors</code></td>
+<td>
+<p>Number of colors, detected automatically
+by default.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The crayon package comes with predefined styles (see
+<code><a href="styles.html">styles()</a></code> for a list) and functions for the basic eight-color
+ANSI standard (<code>red</code>, <code>blue</code>, etc., see <a href="crayon.html">crayon</a>).
+</p>
+<p>There are no predefined styles or style functions for the 256 color
+ANSI mode, however, because we simply did not want to create that
+many styles and functions. Instead, <code>make_style()</code> can be
+used to create a style (or a style function, or both).
+</p>
+<p>There are two ways to use this function: </p>
+
+<ol>
+<li><p> If its first argument is not named, then it returns a function
+that can be used to color strings.
+</p>
+</li>
+<li><p> If its first argument is named, then it also creates a
+style with the given name. This style can be used in
+<code><a href="style.html">style()</a></code>. One can still use the return value
+of the function, to create a style function.
+</p>
+</li></ol>
+
+<p>The style (the code... argument) can be anything of the
+following: </p>
+
+<ul>
+<li><p> An R color name, see <code><a href="../../grDevices/html/colors.html">colors()</a></code>.
+</p>
+</li>
+<li><p> A 6- or 8-digit hexa color string, e.g. <code style="white-space: pre;">#ff0000</code> means
+red. Transparency (alpha channel) values are ignored.
+</p>
+</li>
+<li><p> A one-column matrix with three rows for the red, green
+and blue channels, as returned by <code>col2rgb</code> (in the base
+grDevices package).
+</p>
+</li></ul>
+
+<p><code>make_style()</code> detects the number of colors to use
+automatically (this can be overridden using the <code>colors</code>
+argument). If the number of colors is less than 256 (detected or given),
+then it falls back to the color in the ANSI eight color mode that
+is closest to the specified (RGB or R) color.
+</p>
+<p>See the examples below.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A function that can be used to color strings.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other styles: 
+<code><a href="drop_style.html">drop_style</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a style function without creating a style
+pink &lt;- make_style("pink")
+bgMaroon &lt;- make_style(rgb(0.93, 0.19, 0.65), bg = TRUE)
+cat(bgMaroon(pink("I am pink if your terminal wants it, too.\n")))
+
+## Create a new style for pink and maroon background
+make_style(pink = "pink")
+make_style(bgMaroon = rgb(0.93, 0.19, 0.65), bg = TRUE)
+"pink" %in% names(styles())
+"bgMaroon" %in% names(styles())
+cat(style("I am pink, too!\n", "pink", bg = "bgMaroon"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

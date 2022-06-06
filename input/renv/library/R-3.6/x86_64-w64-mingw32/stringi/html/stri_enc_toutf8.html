@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert Strings To UTF-8</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_toutf8 {stringi}"><tr><td>stri_enc_toutf8 {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert Strings To UTF-8</h2>
+
+<h3>Description</h3>
+
+<p>Converts character strings with declared marked encodings
+to UTF-8 strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_toutf8(str, is_unknown_8bit = FALSE, validate = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>a character vector to be converted</p>
+</td></tr>
+<tr valign="top"><td><code>is_unknown_8bit</code></td>
+<td>
+<p>a single logical value, see Details</p>
+</td></tr>
+<tr valign="top"><td><code>validate</code></td>
+<td>
+<p>a single logical value (can be <code>NA</code>), see Details</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If <code>is_unknown_8bit</code> is set to <code>FALSE</code> (the default),
+then R encoding marks are used, see <code><a href="stri_enc_mark.html">stri_enc_mark</a></code>.
+Bytes-marked strings will cause the function to fail.
+</p>
+<p>If a string is in UTF-8 and has a byte order mark (BOM),
+then the BOM will be silently removed from the output string.
+</p>
+<p>If the default encoding is UTF-8, see <code><a href="stri_enc_set.html">stri_enc_get</a></code>,
+then strings marked with <code>native</code> are &ndash; for efficiency reasons &ndash;
+returned as-is, i.e., with unchanged markings.
+A similar behavior is observed when calling <code><a href="../../base/html/Encoding.html">enc2utf8</a></code>.
+</p>
+<p>For <code>is_unknown_8bit=TRUE</code>, if a string is declared to be neither
+in ASCII nor in UTF-8, then all byte codes &gt; 127 are replaced with
+the Unicode REPLACEMENT CHARACTER (\Ufffd).
+Note that the REPLACEMENT CHARACTER may be interpreted as Unicode
+missing value for single characters.
+Here a <code>bytes</code>-marked string is assumed to use an 8-bit encoding
+that extends the ASCII map.
+</p>
+<p>What is more, setting <code>validate</code> to <code>TRUE</code>
+or <code>NA</code> in both cases validates the resulting UTF-8 byte stream.
+If <code>validate=TRUE</code>, then
+in case of any incorrect byte sequences, they will be
+replaced with the REPLACEMENT CHARACTER.
+This option may be used in a case
+where you want to fix an invalid UTF-8 byte sequence.
+For <code>NA</code>, a bogus string will be replaced with a missing value.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_conversion: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_fromutf32.html">stri_enc_fromutf32</a>()</code>,
+<code><a href="stri_enc_toascii.html">stri_enc_toascii</a>()</code>,
+<code><a href="stri_enc_tonative.html">stri_enc_tonative</a>()</code>,
+<code><a href="stri_enc_toutf32.html">stri_enc_toutf32</a>()</code>,
+<code><a href="stri_encode.html">stri_encode</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

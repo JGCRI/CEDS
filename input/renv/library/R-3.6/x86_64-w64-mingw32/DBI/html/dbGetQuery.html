@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Send query, retrieve results and then clear result set</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbGetQuery {DBI}"><tr><td>dbGetQuery {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Send query, retrieve results and then clear result set</h2>
+
+<h3>Description</h3>
+
+<p>Returns the result of a query as a data frame.
+<code>dbGetQuery()</code> comes with a default implementation
+(which should work with most backends) that calls
+<code><a href="dbSendQuery.html">dbSendQuery()</a></code>, then <code><a href="dbFetch.html">dbFetch()</a></code>, ensuring that
+the result is always free-d by <code><a href="dbClearResult.html">dbClearResult()</a></code>.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbGetQuery(conn, statement, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>statement</code></td>
+<td>
+<p>a character string containing SQL.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This method is for <code>SELECT</code> queries only
+(incl. other SQL statements that return a <code>SELECT</code>-alike result,
+e. g. execution of a stored procedure).
+</p>
+<p>To execute a stored procedure that does not return a result set,
+use <code><a href="dbExecute.html">dbExecute()</a></code>.
+</p>
+<p>Some backends may
+support data manipulation statements through this method for compatibility
+reasons.  However, callers are strongly advised to use
+<code><a href="dbExecute.html">dbExecute()</a></code> for data manipulation statements.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>dbGetQuery()</code> always returns a <a href="../../base/html/data.frame.html">data.frame</a>
+with as many rows as records were fetched and as many
+columns as fields in the result set,
+even if the result is a single value
+or has one
+or zero rows.
+</p>
+
+
+<h3>Implementation notes</h3>
+
+<p>Subclasses should override this method only if they provide some sort of
+performance optimization.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>An error is raised when issuing a query over a closed
+or invalid connection,
+if the syntax of the query is invalid,
+or if the query is not a non-<code>NA</code> string.
+If the <code>n</code> argument is not an atomic whole number
+greater or equal to -1 or Inf, an error is raised,
+but a subsequent call to <code>dbGetQuery()</code> with proper <code>n</code> argument succeeds.
+</p>
+
+
+<h3>Additional arguments</h3>
+
+<p>The following arguments are not part of the <code>dbGetQuery()</code> generic
+(to improve compatibility across backends)
+but are part of the DBI specification:
+</p>
+
+<ul>
+<li> <p><code>n</code> (default: -1)
+</p>
+</li>
+<li> <p><code>params</code> (default: <code>NULL</code>)
+</p>
+</li>
+<li> <p><code>immediate</code> (default: <code>NULL</code>)
+</p>
+</li></ul>
+
+<p>They must be provided as named arguments.
+See the &quot;Specification&quot; and &quot;Value&quot; sections for details on their usage.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>A column named <code>row_names</code> is treated like any other column.
+</p>
+<p>The <code>n</code> argument specifies the number of rows to be fetched.
+If omitted, fetching multi-row queries with one
+or more columns returns the entire result.
+A value of <a href="../../base/html/is.finite.html">Inf</a> for the <code>n</code> argument is supported
+and also returns the full result.
+If more rows than available are fetched (by passing a too large value for
+<code>n</code>), the result is returned in full without warning.
+If zero rows are requested, the columns of the data frame are still fully
+typed.
+Fetching fewer rows than available is permitted,
+no warning is issued.
+</p>
+<p>The <code>param</code> argument allows passing query parameters, see <code><a href="dbBind.html">dbBind()</a></code> for details.
+</p>
+
+
+<h3>Specification for the <code>immediate</code> argument</h3>
+
+<p>The <code>immediate</code> argument supports distinguishing between &quot;direct&quot;
+and &quot;prepared&quot; APIs offered by many database drivers.
+Passing <code>immediate = TRUE</code> leads to immediate execution of the
+query or statement, via the &quot;direct&quot; API (if supported by the driver).
+The default <code>NULL</code> means that the backend should choose whatever API
+makes the most sense for the database, and (if relevant) tries the
+other API if the first attempt fails. A successful second attempt
+should result in a message that suggests passing the correct
+<code>immediate</code> argument.
+Examples for possible behaviors:
+</p>
+
+<ol>
+<li><p> DBI backend defaults to <code>immediate = TRUE</code> internally
+</p>
+
+<ol>
+<li><p> A query without parameters is passed: query is executed
+</p>
+</li>
+<li><p> A query with parameters is passed:
+</p>
+
+<ol>
+<li> <p><code>params</code> not given: rejected immediately by the database
+because of a syntax error in the query, the backend tries
+<code>immediate = FALSE</code> (and gives a message)
+</p>
+</li>
+<li> <p><code>params</code> given: query is executed using <code>immediate = FALSE</code>
+</p>
+</li></ol>
+
+</li></ol>
+
+</li>
+<li><p> DBI backend defaults to <code>immediate = FALSE</code> internally
+</p>
+
+<ol>
+<li><p> A query without parameters is passed:
+</p>
+
+<ol>
+<li><p> simple query: query is executed
+</p>
+</li>
+<li><p> &quot;special&quot; query (such as setting a config options): fails,
+the backend tries <code>immediate = TRUE</code> (and gives a message)
+</p>
+</li></ol>
+
+</li>
+<li><p> A query with parameters is passed:
+</p>
+
+<ol>
+<li> <p><code>params</code> not given: waiting for parameters via <code><a href="dbBind.html">dbBind()</a></code>
+</p>
+</li>
+<li> <p><code>params</code> given: query is executed
+</p>
+</li></ol>
+
+</li></ol>
+
+</li></ol>
+
+
+
+<h3>See Also</h3>
+
+<p>For updates: <code><a href="dbSendStatement.html">dbSendStatement()</a></code> and <code><a href="dbExecute.html">dbExecute()</a></code>.
+</p>
+<p>Other DBIConnection generics: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbCreateTable.html">dbCreateTable</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetException.html">dbGetException</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbListTables.html">dbListTables</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbWriteTable(con, "mtcars", mtcars)
+dbGetQuery(con, "SELECT * FROM mtcars")
+dbGetQuery(con, "SELECT * FROM mtcars", n = 6)
+
+# Pass values using the param argument:
+# (This query runs eight times, once for each different
+# parameter. The resulting rows are combined into a single
+# data frame.)
+dbGetQuery(
+  con,
+  "SELECT COUNT(*) FROM mtcars WHERE cyl = ?",
+  params = list(1:8)
+)
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

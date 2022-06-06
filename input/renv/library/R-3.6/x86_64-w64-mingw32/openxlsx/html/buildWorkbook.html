@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build Workbook</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for buildWorkbook {openxlsx}"><tr><td>buildWorkbook {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build Workbook</h2>
+
+<h3>Description</h3>
+
+<p>Build a workbook from a data.frame or named list
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+buildWorkbook(x, asTable = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data.frame or a (named) list of objects that can be handled by
+<code><a href="writeData.html">writeData()</a></code> or <code><a href="writeDataTable.html">writeDataTable()</a></code> to write to file</p>
+</td></tr>
+<tr valign="top"><td><code>asTable</code></td>
+<td>
+<p>If <code>TRUE</code> will use <code><a href="writeDataTable.html">writeDataTable()</a></code> rather
+than <code><a href="writeData.html">writeData()</a></code> to write <code>x</code> to the file (default:
+<code>FALSE</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="writeData.html">writeData()</a></code>,
+<code><a href="writeDataTable.html">writeDataTable()</a></code>, <code><a href="setColWidths.html">setColWidths()</a></code> (see Optional
+Parameters)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function can be used as shortcut to create a workbook object from a
+data.frame or named list.  If names are available in the list they will be
+used as the worksheet names.  The parameters in <code>...</code> are collected
+and passed to <code><a href="writeData.html">writeData()</a></code> or <code><a href="writeDataTable.html">writeDataTable()</a></code> to
+initially create the Workbook objects then appropriate parameters are
+passed to <code><a href="setColWidths.html">setColWidths()</a></code>.
+</p>
+<p>columns of x with class Date or POSIXt are automatically
+styled as dates and datetimes respectively.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A Workbook object
+</p>
+
+
+<h3>Optional Parameters</h3>
+
+<p><strong>createWorkbook Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>creator</strong> A string specifying the workbook author
+</p>
+</li></ul>
+
+<p><strong>addWorksheet Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>sheetName</strong> Name of the worksheet
+</p>
+</li>
+<li><p><strong>gridLines</strong> A logical. If <code>FALSE</code>, the worksheet grid lines will be hidden.
+</p>
+</li>
+<li><p><strong>tabColour</strong> Colour of the worksheet tab. A valid colour (belonging to colours())
+or a valid hex colour beginning with &quot;#&quot;.
+</p>
+</li>
+<li><p><strong>zoom</strong> A numeric between 10 and 400. Worksheet zoom level as a percentage.
+</p>
+</li></ul>
+
+<p><strong>writeData/writeDataTable Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>startCol</strong> A vector specifying the starting column(s) to write df
+</p>
+</li>
+<li><p><strong>startRow</strong> A vector specifying the starting row(s) to write df
+</p>
+</li>
+<li><p><strong>xy</strong> An alternative to specifying startCol and startRow individually.
+A vector of the form c(startCol, startRow)
+</p>
+</li>
+<li><p><strong>colNames or col.names</strong> If <code>TRUE</code>, column names of x are written.
+</p>
+</li>
+<li><p><strong>rowNames or row.names</strong> If <code>TRUE</code>, row names of x are written.
+</p>
+</li>
+<li><p><strong>headerStyle</strong> Custom style to apply to column names.
+</p>
+</li>
+<li><p><strong>borders</strong> Either &quot;surrounding&quot;, &quot;columns&quot; or &quot;rows&quot; or NULL.  If &quot;surrounding&quot;, a border is drawn around the
+data.  If &quot;rows&quot;, a surrounding border is drawn a border around each row. If &quot;columns&quot;, a surrounding border is drawn with a border
+between each column.  If &quot;<code>all</code>&quot; all cell borders are drawn.
+</p>
+</li>
+<li><p><strong>borderColour</strong> Colour of cell border
+</p>
+</li>
+<li><p><strong>borderStyle</strong> Border line style.
+</p>
+</li>
+<li><p><strong>keepNA</strong> If <code>TRUE</code>, NA values are converted to #N/A (or <code>na.string</code>, if not NULL) in Excel, else NA cells will be empty. Defaults to FALSE.
+</p>
+</li>
+<li><p><strong>na.string</strong> If not NULL, and if <code>keepNA</code> is <code>TRUE</code>, NA values are converted to this string in Excel. Defaults to NULL.
+</p>
+</li></ul>
+
+<p><strong>freezePane Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>firstActiveRow</strong> Top row of active region to freeze pane.
+</p>
+</li>
+<li><p><strong>firstActiveCol</strong> Furthest left column of active region to freeze pane.
+</p>
+</li>
+<li><p><strong>firstRow</strong> If <code>TRUE</code>, freezes the first row (equivalent to firstActiveRow = 2)
+</p>
+</li>
+<li><p><strong>firstCol</strong> If <code>TRUE</code>, freezes the first column (equivalent to firstActiveCol = 2)
+</p>
+</li></ul>
+
+<p><strong>colWidths Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>colWidths</strong> May be a single value for all columns (or &quot;auto&quot;), or a list of vectors that will be recycled for each sheet (see examples)
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Jordan Mark Barbone
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="write.xlsx.html">write.xlsx()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- data.frame(a = 1, b = 2)
+wb &lt;- buildWorkbook(x)
+
+y &lt;- list(a = x, b = x, c = x)
+buildWorkbook(y, asTable = TRUE)
+buildWorkbook(y, asTable = TRUE, tableStyle = "TableStyleLight8")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

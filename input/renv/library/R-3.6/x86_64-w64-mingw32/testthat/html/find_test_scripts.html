@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find test files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for find_test_scripts {testthat}"><tr><td>find_test_scripts {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find test files</h2>
+
+<h3>Description</h3>
+
+<p>Find test files
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+find_test_scripts(
+  path,
+  filter = NULL,
+  invert = FALSE,
+  ...,
+  full.names = TRUE,
+  start_first = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>path to tests</p>
+</td></tr>
+<tr valign="top"><td><code>filter</code></td>
+<td>
+<p>If not <code>NULL</code>, only tests with file names matching this
+regular expression will be executed. Matching is performed on the file
+name after it's stripped of <code>"test-"</code> and <code>".R"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>invert</code></td>
+<td>
+<p>If <code>TRUE</code> return files which <strong>don't</strong> match.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="../../base/html/grep.html">grepl()</a></code> to control filtering.</p>
+</td></tr>
+<tr valign="top"><td><code>start_first</code></td>
+<td>
+<p>A character vector of file patterns (globs, see
+<code><a href="../../utils/html/glob2rx.html">utils::glob2rx()</a></code>). The patterns are for the file names (base names),
+not for the whole paths. testthat starts the files matching the
+first pattern first,  then the ones matching the second, etc. and then
+the rest of the files, alphabetically. Parallel tests tend to finish
+quicker if you start the slowest files first. <code>NULL</code> means alphabetical
+order.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of paths
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

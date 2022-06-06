@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add style to a string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for style {crayon}"><tr><td>style {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add style to a string</h2>
+
+<h3>Description</h3>
+
+<p>See <code>names(styles)</code>, or the crayon manual for available styles.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+style(string, as = NULL, bg = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>string</code></td>
+<td>
+<p>Character vector to style.</p>
+</td></tr>
+<tr valign="top"><td><code>as</code></td>
+<td>
+<p>Style function to apply, either the function object,
+or its name, or an object to pass to <code><a href="make_style.html">make_style()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>bg</code></td>
+<td>
+<p>Background style, a style function, or a name that
+is passed to <code><a href="make_style.html">make_style()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Styled character vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## These are equivalent
+style("foobar", bold)
+style("foobar", "bold")
+bold("foobar")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy a(n) pyears object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidy.pyears {broom}"><tr><td>tidy.pyears {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy a(n) pyears object</h2>
+
+<h3>Description</h3>
+
+<p>Tidy summarizes information about the components of a model.
+A model component might be a single term in a regression, a single
+hypothesis, a cluster, or a class. Exactly what tidy considers to be a
+model component varies across models but is usually self-evident.
+If a model has several distinct types of components, you will need to
+specify which components to return.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'pyears'
+tidy(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>pyears</code> object returned from <code><a href="../../survival/html/pyears.html">survival::pyears()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>expected</code> is only present in the output when if a <code>ratetable</code>
+term is present.
+</p>
+<p>If the <code>data.frame = TRUE</code> argument is supplied to <code>pyears</code>,
+this is simply the contents of <code>x$data</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>expected</code></td>
+<td>
+<p>Expected number of events.</p>
+</td></tr>
+<tr valign="top"><td><code>pyears</code></td>
+<td>
+<p>Person-years of exposure.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>number of subjects contributing time</p>
+</td></tr>
+<tr valign="top"><td><code>event</code></td>
+<td>
+<p>observed number of events</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">tidy()</a></code>, <code><a href="../../survival/html/pyears.html">survival::pyears()</a></code>
+</p>
+<p>Other pyears tidiers: 
+<code><a href="glance.pyears.html">glance.pyears</a>()</code>
+</p>
+<p>Other survival tidiers: 
+<code><a href="augment.coxph.html">augment.coxph</a>()</code>,
+<code><a href="augment.survreg.html">augment.survreg</a>()</code>,
+<code><a href="glance.aareg.html">glance.aareg</a>()</code>,
+<code><a href="glance.cch.html">glance.cch</a>()</code>,
+<code><a href="glance.coxph.html">glance.coxph</a>()</code>,
+<code><a href="glance.pyears.html">glance.pyears</a>()</code>,
+<code><a href="glance.survdiff.html">glance.survdiff</a>()</code>,
+<code><a href="glance.survexp.html">glance.survexp</a>()</code>,
+<code><a href="glance.survfit.html">glance.survfit</a>()</code>,
+<code><a href="glance.survreg.html">glance.survreg</a>()</code>,
+<code><a href="tidy.aareg.html">tidy.aareg</a>()</code>,
+<code><a href="tidy.cch.html">tidy.cch</a>()</code>,
+<code><a href="tidy.coxph.html">tidy.coxph</a>()</code>,
+<code><a href="tidy.survdiff.html">tidy.survdiff</a>()</code>,
+<code><a href="tidy.survexp.html">tidy.survexp</a>()</code>,
+<code><a href="tidy.survfit.html">tidy.survfit</a>()</code>,
+<code><a href="tidy.survreg.html">tidy.survreg</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+if (requireNamespace("survival", quietly = TRUE)) {
+
+library(survival)
+
+temp.yr &lt;- tcut(mgus$dxyr, 55:92, labels = as.character(55:91))
+temp.age &lt;- tcut(mgus$age, 34:101, labels = as.character(34:100))
+ptime &lt;- ifelse(is.na(mgus$pctime), mgus$futime, mgus$pctime)
+pstat &lt;- ifelse(is.na(mgus$pctime), 0, 1)
+pfit &lt;- pyears(Surv(ptime / 365.25, pstat) ~ temp.yr + temp.age + sex, mgus,
+  data.frame = TRUE
+)
+tidy(pfit)
+glance(pfit)
+
+# if data.frame argument is not given, different information is present in
+# output
+pfit2 &lt;- pyears(Surv(ptime / 365.25, pstat) ~ temp.yr + temp.age + sex, mgus)
+tidy(pfit2)
+glance(pfit2)
+
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

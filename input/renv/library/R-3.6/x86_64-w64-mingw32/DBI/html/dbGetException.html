@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get DBMS exceptions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbGetException {DBI}"><tr><td>dbGetException {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get DBMS exceptions</h2>
+
+<h3>Description</h3>
+
+<p>DEPRECATED. Backends should use R's condition system to signal errors and
+warnings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dbGetException(conn, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a list with elements <code>errorNum</code> (an integer error number) and
+<code>errorMsg</code> (a character string) describing the last error in the
+connection <code>conn</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIConnection generics: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbCreateTable.html">dbCreateTable</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetQuery.html">dbGetQuery</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbListTables.html">dbListTables</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

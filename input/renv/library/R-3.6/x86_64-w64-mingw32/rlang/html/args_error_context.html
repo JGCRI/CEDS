@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Documentation anchor for error arguments</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for args_error_context {rlang}"><tr><td>args_error_context {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Documentation anchor for error arguments</h2>
+
+<h3>Description</h3>
+
+<p>Use <code style="white-space: pre;">@inheritParams rlang::args_error_context</code> in your package to
+document <code>arg</code> and <code>call</code> arguments (or equivalently their prefixed
+versions <code>error_arg</code> and <code>error_call</code>).
+</p>
+
+<ul>
+<li> <p><code>arg</code> parameters should be formatted as argument (e.g. using
+cli's <code>.arg</code> specifier) and included in error messages. See also
+<code><a href="caller_arg.html">caller_arg()</a></code>.
+</p>
+</li>
+<li> <p><code>call</code> parameters should be included in error conditions in a
+field named <code>call</code>. An easy way to do this is by passing a <code>call</code>
+argument to <code><a href="abort.html">abort()</a></code>. See also <code><a href="local_error_call.html">local_error_call()</a></code>.
+</p>
+</li></ul>
+
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>arg, error_arg</code></td>
+<td>
+<p>An argument name as a string. This argument
+will be mentioned in error messages as the input that is at the
+origin of a problem.</p>
+</td></tr>
+<tr valign="top"><td><code>call, error_call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

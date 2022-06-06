@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: cli progress handlers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_progress_builtin_handlers {cli}"><tr><td>cli_progress_builtin_handlers {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>cli progress handlers</h2>
+
+<h3>Description</h3>
+
+<p>The progress handler(s) to use can be selected with global options.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_progress_builtin_handlers()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>There are three options that specify which handlers will be selected,
+but most of the time you only need to use one of them. You can set these
+options to a character vector, the names of the built-in cli handlers you
+want to use:
+</p>
+
+<ul>
+<li><p> If <code>cli.progress_handlers_only</code> is set, then these handlers are used,
+without considering others and without checking if they are able to
+handle a progress bar. This option is mainly intended for testing
+purposes.
+</p>
+</li>
+<li><p> The handlers named in <code>cli.progress_handlers</code> are checked if they are
+able to handle the progress bar, and from the ones that are, the first
+one is selected. This is usually the option that the end use would want
+to set.
+</p>
+</li>
+<li><p> The handlers named in <code>cli.progress_handlers_force</code> are always appended
+to the ones selected via <code>cli.progress_handlers</code>. This option is useful
+to add an additional handler, e.g. a logger that writes to a file.
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p><code>cli_progress_builtin_handlers()</code> returns the names of the
+currently supported progress handlers.
+</p>
+
+
+<h3>The built-in progress handlers</h3>
+
+
+
+<h4><code>cli</code></h4>
+
+<p>Use cli's internal status bar, the last line of the screen, to show the
+progress bar. This handler is always able to handle all progress bars.
+</p>
+
+
+
+<h4><code>logger</code></h4>
+
+<p>Log progress updates to the screen, with one line for each update and with
+time stamps. This handler is always able to handle all progress bars.
+</p>
+
+
+
+<h4><code>progressr</code></h4>
+
+<p>Use the progressr package to create
+progress bars. This handler is always able to handle all progress bars.
+(The progressr package needs to be installed.)
+</p>
+
+
+
+<h4><code>rstudio</code></h4>
+
+<p>Use <a href="https://www.rstudio.com/blog/rstudio-1-2-jobs/">RStudio's job panel</a>
+to show the progress bars. This handler is available at the RStudio console,
+in recent versions of RStudio.
+</p>
+
+
+
+<h4><code>say</code></h4>
+
+<p>Use the macOS <code>say</code> command to announce progress events in speech (type
+<code style="white-space: pre;">man say</code> on a terminal for more info). Set the <code>cli.progress_say_frequency</code>
+option to set the minimum delay between <code>say</code> invocations, the default is
+three seconds. This handler is available on macOS, if the <code>say</code> command is
+on the path.
+</p>
+<p>The external command and its arguments can be configured with options:
+</p>
+
+<ul>
+<li> <p><code>cli_progress_say_args</code>: command line arguments, e.g. you can use this
+to select a voice on macOS,
+</p>
+</li>
+<li> <p><code>cli_progress_say_command</code>: external command to run,
+</p>
+</li>
+<li> <p><code>cli_progress_say_frequency</code>: wait at least this many seconds between
+calling the external command.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>shiny</code></h4>
+
+<p>Use <a href="../../shiny/html/Progress.html">shiny's progress bars</a>. This handler is available if a
+shiny app is running.
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

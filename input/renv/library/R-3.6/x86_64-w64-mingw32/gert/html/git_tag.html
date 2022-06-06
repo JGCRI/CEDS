@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Git Tag</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_tag {gert}"><tr><td>git_tag {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Git Tag</h2>
+
+<h3>Description</h3>
+
+<p>Create and list tags.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_tag_list(match = "*", repo = ".")
+
+git_tag_create(name, message, ref = "HEAD", repo = ".")
+
+git_tag_delete(name, repo = ".")
+
+git_tag_push(name, ..., repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>match</code></td>
+<td>
+<p>pattern to filter tags (use <code>*</code> for wildcard)</p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>tag name</p>
+</td></tr>
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>tag message</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>target reference to tag</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other arguments passed to <a href="git_fetch.html">git_push</a></p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

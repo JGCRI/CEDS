@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Manipulate file paths</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for path_file {fs}"><tr><td>path_file {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Manipulate file paths</h2>
+
+<h3>Description</h3>
+
+<p><code>path_file()</code> returns the filename portion of the path, <code>path_dir()</code> returns
+the directory portion. <code>path_ext()</code> returns the last extension (if any) for a
+path. <code>path_ext_remove()</code> removes the last extension and returns the rest of
+the path. <code>path_ext_set()</code> replaces the extension with a new extension. If
+there is no existing extension the new extension is appended.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+path_file(path)
+
+path_dir(path)
+
+path_ext(path)
+
+path_ext_remove(path)
+
+path_ext_set(path, ext)
+
+path_ext(path) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>ext, value</code></td>
+<td>
+<p>The new file extension.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note because these are not full file paths they return regular character
+vectors, not <code>fs_path()</code> objects.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../base/html/basename.html">base::basename()</a></code>, <code><a href="../../base/html/basename.html">base::dirname()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+path_file("dir/file.zip")
+
+path_dir("dir/file.zip")
+
+path_ext("dir/file.zip")
+
+path_ext("file.tar.gz")
+
+path_ext_remove("file.tar.gz")
+
+# Only one level of extension is removed
+path_ext_set(path_ext_remove("file.tar.gz"), "zip")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

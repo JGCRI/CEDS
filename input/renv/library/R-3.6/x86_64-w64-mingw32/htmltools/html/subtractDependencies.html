@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subtract dependencies</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for subtractDependencies {htmltools}"><tr><td>subtractDependencies {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subtract dependencies</h2>
+
+<h3>Description</h3>
+
+<p>Remove a set of dependencies from another list of dependencies. The set of
+dependencies to remove can be expressed as either a character vector or a
+list; if the latter, a warning can be emitted if the version of the
+dependency being removed is later than the version of the dependency object
+that is causing the removal.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+subtractDependencies(dependencies, remove, warnOnConflict = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>A list of <code><a href="htmlDependency.html">htmlDependency()</a></code> objects from which
+dependencies should be removed.</p>
+</td></tr>
+<tr valign="top"><td><code>remove</code></td>
+<td>
+<p>A list of <code><a href="htmlDependency.html">htmlDependency()</a></code> objects indicating which
+dependencies should be removed, or a character vector indicating dependency
+names.</p>
+</td></tr>
+<tr valign="top"><td><code>warnOnConflict</code></td>
+<td>
+<p>If <code>TRUE</code>, a warning is emitted for each
+dependency that is removed if the corresponding dependency in <code>remove</code>
+has a lower version number. Has no effect if <code>remove</code> is provided as a
+character vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of <code><a href="htmlDependency.html">htmlDependency()</a></code> objects that don't intersect
+with <code>remove</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

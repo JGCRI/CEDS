@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate a List with Regex Matcher Settings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_opts_regex {stringi}"><tr><td>stri_opts_regex {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate a List with Regex Matcher Settings</h2>
+
+<h3>Description</h3>
+
+<p>A convenience function to tune the <span class="pkg">ICU</span> regular expressions
+matcher's behavior, e.g., in <code><a href="stri_count.html">stri_count_regex</a></code>
+and other <a href="about_search_regex.html">stringi-search-regex</a> functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_opts_regex(
+  case_insensitive,
+  comments,
+  dotall,
+  dot_all = dotall,
+  literal,
+  multiline,
+  multi_line = multiline,
+  unix_lines,
+  uword,
+  error_on_unknown_escapes,
+  time_limit = 0L,
+  stack_limit = 0L,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>case_insensitive</code></td>
+<td>
+<p>logical; enables case insensitive matching [regex flag <code>(?i)</code>]</p>
+</td></tr>
+<tr valign="top"><td><code>comments</code></td>
+<td>
+<p>logical; allows white space and comments within patterns [regex flag <code>(?x)</code>]</p>
+</td></tr>
+<tr valign="top"><td><code>dotall</code></td>
+<td>
+<p>logical;  if set, '<code>.</code>' matches line terminators,
+otherwise matching of '<code>.</code>'  stops at a line end [regex flag <code>(?s)</code>]</p>
+</td></tr>
+<tr valign="top"><td><code>dot_all</code></td>
+<td>
+<p>alias of <code>dotall</code></p>
+</td></tr>
+<tr valign="top"><td><code>literal</code></td>
+<td>
+<p>logical; if set, treat the entire pattern as a literal string:
+metacharacters or escape sequences in the input sequence will be given no special meaning;
+note that in most cases you would rather use the <a href="about_search_fixed.html">stringi-search-fixed</a>
+facilities in this case</p>
+</td></tr>
+<tr valign="top"><td><code>multiline</code></td>
+<td>
+<p>logical; controls the behavior of '<code>$</code>' and '<code>^</code>'.
+If set, recognize line terminators within a string, otherwise,
+match only at start and end of input string [regex flag <code>(?m)</code>]</p>
+</td></tr>
+<tr valign="top"><td><code>multi_line</code></td>
+<td>
+<p>alias of <code>multiline</code></p>
+</td></tr>
+<tr valign="top"><td><code>unix_lines</code></td>
+<td>
+<p>logical; Unix-only line endings;
+when enabled, only <code>U+000a</code> is recognized as a
+line ending by '<code>.</code>', '<code>$</code>', and '<code>^</code>'.</p>
+</td></tr>
+<tr valign="top"><td><code>uword</code></td>
+<td>
+<p>logical; Unicode word boundaries;
+if set, uses the Unicode TR 29 definition of word boundaries;
+warning: Unicode word boundaries are quite different from traditional
+regex word boundaries. [regex flag <code>(?w)</code>]
+See <a href="https://unicode.org/reports/tr29/#Word_Boundaries">https://unicode.org/reports/tr29/#Word_Boundaries</a></p>
+</td></tr>
+<tr valign="top"><td><code>error_on_unknown_escapes</code></td>
+<td>
+<p>logical;
+whether to generate an error on unrecognized backslash escapes;
+if set, fail with an error on patterns that contain backslash-escaped ASCII
+letters without a known special meaning;
+otherwise, these escaped letters represent themselves</p>
+</td></tr>
+<tr valign="top"><td><code>time_limit</code></td>
+<td>
+<p>integer; processing time limit, in ~milliseconds (but not precisely so,
+depends on the CPU speed), for match operations;
+setting a limit is desirable if poorly written regexes are expected on input;
+0 for no limit</p>
+</td></tr>
+<tr valign="top"><td><code>stack_limit</code></td>
+<td>
+<p>integer; maximal size, in bytes, of the heap storage available
+for the match backtracking stack; setting a limit is desirable if poorly
+written regexes are expected on input; 0 for no limit</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>[DEPRECATED] any other arguments passed to this function
+generate a warning; this argument will be removed in the future</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that some regex settings may be changed using ICU regex flags
+inside regexes. For example, <code>'(?i)pattern'</code> performs
+a case-insensitive match of a given pattern,
+see the <span class="pkg">ICU</span> User Guide entry on Regular Expressions
+in the References section or <a href="about_search_regex.html">stringi-search-regex</a>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a named list object; missing settings are left with default values.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em><code>enum URegexpFlag</code>: Constants for Regular Expression Match Modes</em>
+&ndash; ICU4C API Documentation,
+<a href="https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/uregex_8h.html">https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/uregex_8h.html</a>
+</p>
+<p><em>Regular Expressions</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/strings/regexp.html">https://unicode-org.github.io/icu/userguide/strings/regexp.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_regex: 
+<code><a href="about_search_regex.html">about_search_regex</a></code>,
+<code><a href="about_search.html">about_search</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_detect_regex('ala', 'ALA') # case-sensitive by default
+stri_detect_regex('ala', 'ALA', opts_regex=stri_opts_regex(case_insensitive=TRUE))
+stri_detect_regex('ala', 'ALA', case_insensitive=TRUE) # equivalent
+stri_detect_regex('ala', '(?i)ALA') # equivalent
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

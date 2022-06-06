@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Match an argument to a character vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for arg_match {rlang}"><tr><td>arg_match {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Match an argument to a character vector</h2>
+
+<h3>Description</h3>
+
+<p>This is equivalent to <code><a href="../../base/html/match.arg.html">base::match.arg()</a></code> with a few differences:
+</p>
+
+<ul>
+<li><p> Partial matches trigger an error.
+</p>
+</li>
+<li><p> Error messages are a bit more informative and obey the tidyverse
+standards.
+</p>
+</li></ul>
+
+<p><code>arg_match()</code> derives the possible values from the
+<a href="stack.html">caller function</a>.
+</p>
+<p><code>arg_match0()</code> is a bare-bones version if performance is at a premium.
+It requires a string as <code>arg</code> and explicit character <code>values</code>.
+For convenience, <code>arg</code> may also be a character vector containing
+every element of <code>values</code>, possibly permuted.
+In this case, the first element of <code>arg</code> is used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+arg_match(
+  arg,
+  values = NULL,
+  ...,
+  multiple = FALSE,
+  error_arg = caller_arg(arg),
+  error_call = caller_env()
+)
+
+arg_match0(arg, values, arg_nm = caller_arg(arg), error_call = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>arg</code></td>
+<td>
+<p>A symbol referring to an argument accepting strings.</p>
+</td></tr>
+<tr valign="top"><td><code>values</code></td>
+<td>
+<p>A character vector of possible values that <code>arg</code> can take.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots are for future extensions and must be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>multiple</code></td>
+<td>
+<p>Whether <code>arg</code> may contain zero or several values.</p>
+</td></tr>
+<tr valign="top"><td><code>error_arg</code></td>
+<td>
+<p>An argument name as a string. This argument
+will be mentioned in error messages as the input that is at the
+origin of a problem.</p>
+</td></tr>
+<tr valign="top"><td><code>error_call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>arg_nm</code></td>
+<td>
+<p>Same as <code>error_arg</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The string supplied to <code>arg</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="check_required.html">check_required()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+fn &lt;- function(x = c("foo", "bar")) arg_match(x)
+fn("bar")
+
+# Throws an informative error for mismatches:
+try(fn("b"))
+try(fn("baz"))
+
+# Use the bare-bones version with explicit values for speed:
+arg_match0("bar", c("foo", "bar", "baz"))
+
+# For convenience:
+fn1 &lt;- function(x = c("bar", "baz", "foo")) fn3(x)
+fn2 &lt;- function(x = c("baz", "bar", "foo")) fn3(x)
+fn3 &lt;- function(x) arg_match0(x, c("foo", "bar", "baz"))
+fn1()
+fn2("bar")
+try(fn3("zoo"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

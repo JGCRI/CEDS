@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set or Get Default Time Zone in 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_timezone_get {stringi}"><tr><td>stri_timezone_get {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set or Get Default Time Zone in <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p><code>stri_timezone_set</code> changes the current default time zone for all functions
+in the <span class="pkg">stringi</span> package, i.e., establishes the meaning of the
+&ldquo;<code>NULL</code> time zone&rdquo; argument to date/time processing functions.
+</p>
+<p><code>stri_timezone_get</code> gets the current default time zone.
+</p>
+<p>For more information on time zone representation in <span class="pkg">ICU</span>
+and <span class="pkg">stringi</span>, refer to <code><a href="stri_timezone_list.html">stri_timezone_list</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_timezone_get()
+
+stri_timezone_set(tz)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>single string; time zone identifier</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Unless the default time zone has already been set using
+<code>stri_timezone_set</code>, the default time zone is determined
+by querying the OS with methods in <span class="pkg">ICU</span>'s internal platform utilities.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>stri_timezone_set</code> returns a string with
+previously used timezone, invisibly.
+</p>
+<p><code>stri_timezone_get</code> returns a single string
+with the current default time zone.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>TimeZone</em> class &ndash; ICU API Documentation,
+<a href="https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1TimeZone.html">https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1TimeZone.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+<p>Other timezone: 
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+oldtz &lt;- stri_timezone_set('Europe/Warsaw')
+# ... many time zone-dependent operations
+stri_timezone_set(oldtz) # restore previous default time zone
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

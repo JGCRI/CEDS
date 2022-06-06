@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate Random Strings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_rand_strings {stringi}"><tr><td>stri_rand_strings {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate Random Strings</h2>
+
+<h3>Description</h3>
+
+<p>Generates (pseudo)random strings of desired lengths.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_rand_strings(n, length, pattern = "[A-Za-z0-9]")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>single integer, number of observations</p>
+</td></tr>
+<tr valign="top"><td><code>length</code></td>
+<td>
+<p>integer vector, desired string lengths</p>
+</td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>character vector specifying character classes to draw
+elements from, see <a href="about_search_charclass.html">stringi-search-charclass</a></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>length</code> and <code>pattern</code>.
+If length of <code>length</code> or <code>pattern</code> is greater than <code>n</code>,
+then redundant elements are ignored. Otherwise,
+these vectors are recycled if necessary.
+</p>
+<p>This operation may result in non-Unicode-normalized
+strings and may give peculiar outputs for bidirectional strings.
+</p>
+<p>Sampling of code points from the set specified by <code>pattern</code>
+is always done with replacement and each code point appears with equal
+probability.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other random: 
+<code><a href="stri_rand_lipsum.html">stri_rand_lipsum</a>()</code>,
+<code><a href="stri_rand_shuffle.html">stri_rand_shuffle</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_rand_strings(5, 10) # 5 strings of length 10
+stri_rand_strings(5, sample(1:10, 5, replace=TRUE)) # 5 strings of random lengths
+stri_rand_strings(10, 5, '[\\p{script=latin}&amp;\\p{Ll}]') # small letters from the Latin script
+
+# generate n random passwords of length in [8, 14]
+# consisting of at least one digit, small and big ASCII letter:
+n &lt;- 10
+stri_rand_shuffle(stri_paste(
+   stri_rand_strings(n, 1, '[0-9]'),
+   stri_rand_strings(n, 1, '[a-z]'),
+   stri_rand_strings(n, 1, '[A-Z]'),
+   stri_rand_strings(n, sample(5:11, 5, replace=TRUE), '[a-zA-Z0-9]')
+))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

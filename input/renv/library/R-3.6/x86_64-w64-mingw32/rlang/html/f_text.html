@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Turn RHS of formula into a string or label</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for f_text {rlang}"><tr><td>f_text {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Turn RHS of formula into a string or label</h2>
+
+<h3>Description</h3>
+
+<p>Equivalent of <code><a href="expr_label.html">expr_text()</a></code> and <code><a href="expr_label.html">expr_label()</a></code> for formulas.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+f_text(x, width = 60L, nlines = Inf)
+
+f_name(x)
+
+f_label(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A formula.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of each line.</p>
+</td></tr>
+<tr valign="top"><td><code>nlines</code></td>
+<td>
+<p>Maximum number of lines to extract.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- ~ a + b + bc
+f_text(f)
+f_label(f)
+
+# Names a quoted with ``
+f_label(~ x)
+# Strings are encoded
+f_label(~ "a\nb")
+# Long expressions are collapsed
+f_label(~ foo({
+  1 + 2
+  print(x)
+}))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

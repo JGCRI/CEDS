@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Summarise built plot objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for summarise_plot {ggplot2}"><tr><td>summarise_plot {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Summarise built plot objects</h2>
+
+<h3>Description</h3>
+
+<p>These functions provide summarised information about built ggplot objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+summarise_layout(p)
+
+summarise_coord(p)
+
+summarise_layers(p)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>p</code></td>
+<td>
+<p>A ggplot_built object.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>There are three types of summary that can be obtained: A summary of the plot layout,
+a summary of the plot coord, and a summary of plot layers.
+</p>
+
+
+<h3>Layout summary</h3>
+
+<p>The function <code>summarise_layout()</code> returns a table that provides information about
+the plot panel(s) in the built plot. The table has the following columns:
+</p>
+
+<dl>
+<dt><code>panel</code></dt><dd><p>A factor indicating the individual plot panels.</p>
+</dd>
+<dt><code>row</code></dt><dd><p>Row number in the grid of panels.</p>
+</dd>
+<dt><code>col</code></dt><dd><p>Column number in the grid of panels.</p>
+</dd>
+<dt><code>vars</code></dt><dd><p>A list of lists. For each panel, the respective list
+provides the variables and their values that specify the panel.</p>
+</dd>
+<dt><code>xmin</code>, <code>xmax</code></dt><dd><p>The minimum and maximum values of the variable mapped to
+the x aesthetic, in transformed coordinates.</p>
+</dd>
+<dt><code>ymin</code>, <code>ymax</code></dt><dd><p>The minimum and maximum values of the variable mapped to
+the y aesthetic, in transformed coordinates.</p>
+</dd>
+<dt><code>xscale</code></dt><dd><p>The scale object applied to the x aesthetic.</p>
+</dd>
+<dt><code>yscale</code></dt><dd><p>The scale object applied to the y aesthetic.</p>
+</dd>
+</dl>
+
+<p>Importantly, the values for <code>xmin</code>, <code>xmax</code>, <code>ymin</code>, <code>ymax</code>, <code>xscale</code>, and <code>yscale</code>
+are determined by the variables that are mapped to <code>x</code> and <code>y</code> in the <code>aes()</code> call.
+So even if a coord changes how x and y are shown in the final plot (as is the case
+for <code>coord_flip()</code> or <code>coord_polar()</code>), these changes have no effect on the results
+returned by <code>summarise_plot()</code>.
+</p>
+
+
+<h3>Coord summary</h3>
+
+<p>The function <code>summarise_coord()</code> returns information about the log base for
+coordinates that are log-transformed in <code>coord_trans()</code>, and it also indicates
+whether the coord has flipped the x and y axes.
+</p>
+
+
+<h3>Layer summary</h3>
+
+<p>The function <code>summarise_layers()</code> returns a table with a single column, <code>mapping</code>, which
+contains information about aesthetic mapping for each layer.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;-
+  ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(~class)
+b &lt;- ggplot_build(p)
+
+summarise_layout(b)
+summarise_coord(b)
+summarise_layers(b)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

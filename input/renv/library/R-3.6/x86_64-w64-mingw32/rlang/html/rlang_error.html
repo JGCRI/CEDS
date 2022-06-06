@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Errors of class 'rlang_error'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rlang_error {rlang}"><tr><td>rlang_error {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Errors of class <code>rlang_error</code></h2>
+
+<h3>Description</h3>
+
+<p><code><a href="abort.html">abort()</a></code> and <code><a href="cnd.html">error_cnd()</a></code> create errors of class <code>"rlang_error"</code>.
+The differences with base errors are:
+</p>
+
+<ul>
+<li><p> Implementing <code>conditionMessage()</code> methods for subclasses of
+<code>"rlang_error"</code> is undefined behaviour. Instead, implement the
+<code><a href="cnd_message.html">cnd_header()</a></code> method (and possibly <code><a href="cnd_message.html">cnd_body()</a></code> and
+<code><a href="cnd_message.html">cnd_footer()</a></code>). These methods return character vectors which are
+assembled by rlang when needed: when
+<code><a href="../../base/html/conditions.html">conditionMessage.rlang_error()</a></code> is called
+(e.g. via <code><a href="../../base/html/try.html">try()</a></code>), when the error is displayed through <code><a href="../../base/html/print.html">print()</a></code>
+or <code><a href="../../base/html/format.html">format()</a></code>, and of course when the error is displayed to the
+user by <code><a href="abort.html">abort()</a></code>.
+</p>
+</li>
+<li> <p><code><a href="cnd_message.html">cnd_header()</a></code>, <code><a href="cnd_message.html">cnd_body()</a></code>, and <code><a href="cnd_message.html">cnd_footer()</a></code> methods can be
+overridden by storing closures in the <code>header</code>, <code>body</code>, and
+<code>footer</code> fields of the condition. This is useful to lazily
+generate messages based on state captured in the closure
+environment.
+</p>
+</li>
+<li> <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a> The <code>use_cli_format</code>
+condition field instructs whether to use cli (or rlang's fallback
+method if cli is not installed) to format the error message at
+print time.
+</p>
+<p>In this case, the <code>message</code> field may be a character vector of
+header and bullets. These are formatted at the last moment to
+take the context into account (starting position on the screen
+and indentation).
+</p>
+<p>See <code><a href="local_use_cli.html">local_use_cli()</a></code> for automatically setting this field in
+errors thrown with <code><a href="abort.html">abort()</a></code> within your package.
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: PUT new media into a Drive file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_put {googledrive}"><tr><td>drive_put {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>PUT new media into a Drive file</h2>
+
+<h3>Description</h3>
+
+<p>PUTs new media into a Drive file, in the HTTP sense:
+</p>
+
+<ul>
+<li><p> If the file already exists, we replace its content.
+</p>
+</li>
+<li><p> If the file does not already exist, we create a new file.
+</p>
+</li></ul>
+
+<p>This is a convenience wrapper around <code><a href="drive_upload.html">drive_upload()</a></code> and
+<code><a href="drive_update.html">drive_update()</a></code>. In pseudo-code:</p>
+<pre>target_filepath &lt;- &lt;determined from `path`, `name`, and `media`&gt;
+hits &lt;- &lt;get all Drive files at target_filepath&gt;
+if (no hits) {
+  drive_upload(media, path, name, type, ...)
+} else if (exactly 1 hit) {
+  drive_update(hit, media, ...)
+} else {
+  ERROR
+}
+</pre>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_put(
+  media,
+  path = NULL,
+  name = NULL,
+  ...,
+  type = NULL,
+  verbose = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>media</code></td>
+<td>
+<p>Character, path to the local file to upload.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Specifies target destination for the new file on Google
+Drive. Can be an actual path (character), a file id marked with
+<code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.
+</p>
+<p>If <code>path</code> is a shortcut to a folder, it is automatically resolved to its
+target folder.
+</p>
+<p>If <code>path</code> is given as a path (as opposed to a <code>dribble</code> or an id), it is
+best to explicitly indicate if it's a folder by including a trailing
+slash, since it cannot always be worked out from the context of the call.
+By default, the file is created in the current
+user's &quot;My Drive&quot; root folder.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Character, new file name if not specified as part of
+<code>path</code>. This will force <code>path</code> to be interpreted as a folder, even if it
+is character and lacks a trailing slash. Defaults to the file's local name.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Named parameters to pass along to the Drive API. Has <a href="../../rlang/html/dyn-dots.html">dynamic dots</a> semantics. You can affect the metadata of the target file by
+specifying properties of the Files resource via <code>...</code>. Read the &quot;Request
+body&quot; section of the Drive API docs for the associated endpoint to learn
+about relevant parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. If <code>type = NULL</code>, a MIME type is automatically
+determined from the file extension, if possible. If the source file is of a
+suitable type, you can request conversion to Google Doc, Sheet or Slides by
+setting <code>type</code> to <code>document</code>, <code>spreadsheet</code>, or <code>presentation</code>,
+respectively. All non-<code>NULL</code> values for <code>type</code> are pre-processed with
+<code><a href="drive_mime_type.html">drive_mime_type()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# create a local file to work with
+local_file &lt;- tempfile("drive_put_", fileext = ".txt")
+writeLines(c("beginning", "middle"), local_file)
+
+# PUT to a novel filepath --&gt; drive_put() delegates to drive_upload()
+file &lt;- drive_put(local_file)
+
+# update the local file
+cat("end", file = local_file, sep = "\n", append = TRUE)
+
+# PUT again --&gt; drive_put() delegates to drive_update()
+file &lt;- drive_put(local_file)
+
+# create a second file at this filepath
+file2 &lt;- drive_create(basename(local_file))
+
+# PUT again --&gt; ERROR
+drive_put(local_file)
+
+# clean-up
+drive_find("drive_put_.+[.]txt") %&gt;% drive_rm()
+unlink(local_file)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

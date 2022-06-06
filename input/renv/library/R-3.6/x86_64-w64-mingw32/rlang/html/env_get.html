@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get an object in an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_get {rlang}"><tr><td>env_get {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get an object in an environment</h2>
+
+<h3>Description</h3>
+
+<p><code>env_get()</code> extracts an object from an enviroment <code>env</code>. By
+default, it does not look in the parent environments.
+<code>env_get_list()</code> extracts multiple objects from an environment into
+a named list.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_get(env = caller_env(), nm, default, inherit = FALSE, last = empty_env())
+
+env_get_list(
+  env = caller_env(),
+  nms,
+  default,
+  inherit = FALSE,
+  last = empty_env()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>nm, nms</code></td>
+<td>
+<p>Names of bindings. <code>nm</code> must be a single string.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>A default value in case there is no binding for <code>nm</code>
+in <code>env</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>Whether to look for bindings in the parent
+environments.</p>
+</td></tr>
+<tr valign="top"><td><code>last</code></td>
+<td>
+<p>Last environment inspected when <code>inherit</code> is <code>TRUE</code>.
+Can be useful in conjunction with <code><a href="../../base/html/ns-topenv.html">base::topenv()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object if it exists. Otherwise, throws an error.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="env_cache.html">env_cache()</a></code> for a variant of <code>env_get()</code> designed to
+cache a value in an environment.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+parent &lt;- child_env(NULL, foo = "foo")
+env &lt;- child_env(parent, bar = "bar")
+
+# This throws an error because `foo` is not directly defined in env:
+# env_get(env, "foo")
+
+# However `foo` can be fetched in the parent environment:
+env_get(env, "foo", inherit = TRUE)
+
+# You can also avoid an error by supplying a default value:
+env_get(env, "foo", default = "FOO")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Progress bar variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for progress-variables {cli}"><tr><td>progress-variables {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Progress bar variables</h2>
+
+<h3>Description</h3>
+
+<p>Progress bar variables
+</p>
+
+
+<h3>Details</h3>
+
+<p>These variables can be used in cli progress bar format
+strings. They are calculated on demand. To use a variable, e.g. <code>pb_bar</code>
+in a package, you either need to to import <code>pb_bar</code> from cli, or use
+the qualified form in the format string: <code>cli::pb_bar</code>.
+</p>
+<p>Similarly, in R scripts, you can use <code>pb_bar</code> after <code>library(cli)</code>,
+or <code>cli::pb_bar</code> if you do not attach the cli package.
+</p>
+
+
+<h4><code>pb_bar</code></h4>
+
+<p>Creates a visual progress bar. If the number of total units
+is unknown, then it will return an empty string.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "Fitting model {cli::pb_bar} {cli::pb_percent}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-bar.svg" alt="progress-var-bar.svg" />
+</p>
+
+
+
+<h4><code>pb_current</code></h4>
+
+<p>The number of current progress units.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_spin} Reading file {cli::pb_current}/{cli::pb_total}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-current.svg" alt="progress-var-current.svg" />
+</p>
+
+
+
+<h4><code>pb_current_bytes</code></h4>
+
+<p>The number of current progress units formatted as bytes.
+The output has a constant width of six characters.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  format = "Got {cli::pb_current_bytes} in {cli::pb_elapsed}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-current-bytes.svg" alt="progress-var-current-bytes.svg" />
+</p>
+
+
+
+<h4><code>pb_elapsed</code></h4>
+
+<p>The elapsed time since the start of the progress bar. The time is
+measured since the progress bar was created with <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>
+or similar.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed}]"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-elapsed.svg" alt="progress-var-elapsed.svg" />
+</p>
+
+
+
+<h4><code>pb_elapsed_clock</code></h4>
+
+<p>The elapsed time, in <code style="white-space: pre;">hh::mm::ss</code> format.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent} [{cli::pb_elapsed_clock}]"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-elapsed-clock.svg" alt="progress-var-elapsed-clock.svg" />
+</p>
+
+
+
+<h4><code>pb_elapsed_raw</code></h4>
+
+<p>The number of seconds since the start of the progress bar.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent} [{round(cli::pb_elapsed_raw)}s]"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-elapsed-raw.svg" alt="progress-var-elapsed-raw.svg" />
+</p>
+
+
+
+<h4><code>pb_eta</code></h4>
+
+<p>The estimated time until the end of the progress bar,
+in human readable form.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent} | ETA: {cli::pb_eta}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-eta.svg" alt="progress-var-eta.svg" />
+</p>
+
+
+
+<h4><code>pb_eta_raw</code></h4>
+
+<p>The estimated time until the end of the progress
+bar, in seconds. This is useful if you want to adjust the default
+<code>pb_eta</code> display.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent} | ETA: {round(cli::pb_eta_raw)}s"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-eta-raw.svg" alt="progress-var-eta-raw.svg" />
+</p>
+
+
+
+<h4><code>pb_eta_str</code></h4>
+
+<p>The estimated time until the end of the progress bar.
+It includes the <code>"ETA:"</code> prefix. It is only shown if the time can be
+estimated, otherwise it is the empty string.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-eta-str.svg" alt="progress-var-eta-str.svg" />
+</p>
+
+
+
+<h4><code>pb_extra</code></h4>
+
+<p><code>pb_extra</code> can be used to access extra data, see the <code>extra</code> argument
+of <code>cli_progress_bar()</code> and <code>cli_progress_update()</code>.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  extra = list(user = whoami::username()),
+  format = "Cleaning cache for user '{cli::pb_extra$user}': {cli::pb_current_bytes}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-extra.svg" alt="progress-var-extra.svg" />
+</p>
+
+
+
+<h4><code>pb_id</code></h4>
+
+<p>The id of the progress bar. The id has the format
+<code style="white-space: pre;">cli-&lt;pid&gt;-&lt;counter&gt;</code> where <code style="white-space: pre;">&lt;pid&gt;</code> is the process id, and
+<code style="white-space: pre;">&lt;counter&gt;</code> is an integer counter that is incremented every time
+cli needs a new unique id.
+</p>
+<p>This is useful for debugging progress bars.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  format = "Progress bar '{cli::pb_id}' is at {cli::pb_current}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-id.svg" alt="progress-var-id.svg" />
+</p>
+
+
+
+<h4><code>pb_name</code></h4>
+
+<p>The name of the progress bar. This is supplied by the
+developer, and it is by default the empty string. A space character
+is added to non-empty names.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  name = "Loading training data",
+  total = 100,
+  format = "{cli::pb_name} {cli::pb_bar} {cli::pb_percent}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-name.svg" alt="progress-var-name.svg" />
+</p>
+
+
+
+<h4><code>pb_percent</code></h4>
+
+<p>The percentage of the progress bar, always formatted
+in three characters plus the percentage sign. If the total number of
+units is unknown, then it is <code>" NA%"</code>.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_bar} {cli::pb_percent}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-percent.svg" alt="progress-var-percent.svg" />
+</p>
+
+
+
+<h4><code>pb_pid</code></h4>
+
+<p>The integer process id of the progress bar. This is useful if you are
+aggregating logging output or progress results from multiple processes.
+</p>
+
+
+
+<h4><code>pb_rate</code></h4>
+
+<p>The progress rate, in number of units per second, formatted in a string.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 156,
+  format = "Reading input files {pb_current}/{pb_total} [{pb_rate}]"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-rate.svg" alt="progress-var-rate.svg" />
+</p>
+
+
+
+<h4><code>pb_rate_raw</code></h4>
+
+<p>The raw progress rate, in number of units per second.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 156,
+  format = "Reading input files {pb_current}/{pb_total} [{round(pb_rate_raw)}/s]"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-rate-raw.svg" alt="progress-var-rate-raw.svg" />
+</p>
+
+
+
+<h4><code>pb_rate_bytes</code></h4>
+
+<p>The progress rate, formatted as bytes per second, in human readable form.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 256 * 1024 * 1014,
+  format = paste0(
+    "Reading data {pb_current_bytes}/{pb_total_bytes} ",
+    "[{ansi_trimws(pb_rate_bytes)}]"
+  )
+</pre></div>
+<p><img src="../help/figures/progress-var-rate-bytes.svg" alt="progress-var-rate-bytes.svg" />
+</p>
+
+
+
+<h4><code>pb_spin</code></h4>
+
+<p>A spinner. The default spinner is selected via a <code><a href="get_spinner.html">get_spinner()</a></code> call.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_spin} Reading file {cli::pb_current}/{cli::pb_total}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-current.svg" alt="progress-var-current.svg" />
+</p>
+
+
+
+<h4><code>pb_status</code></h4>
+
+<p>The status string of the progress bar. By default this is an empty
+string, but it is possible to set it in <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>
+and 'cli_progress_update()].<div class="sourceCode r"></p>
+<pre>cli_progress_bar(status = "Connecting...")
+</pre></div>
+<p><img src="../help/figures/progress-var-status.svg" alt="progress-var-status.svg" />
+</p>
+
+
+
+<h4><code>pb_timestamp</code></h4>
+
+<p>A time stamp for the current time in ISO 8601 format.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  "Loading training data files",
+  format = "{pb_timestamp} {pb_current} ({pb_rate})"
+</pre></div>
+<p><img src="../help/figures/progress-var-timestamp.svg" alt="progress-var-timestamp.svg" />
+</p>
+
+
+
+<h4><code>pb_total</code></h4>
+
+<p>The total number of progress units, or <code>NA</code> if the number of units is
+unknown.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 100,
+  format = "{cli::pb_spin} Reading file {cli::pb_current}/{cli::pb_total}"
+)
+</pre></div>
+<p><img src="../help/figures/progress-var-current.svg" alt="progress-var-current.svg" />
+</p>
+
+
+
+<h4><code>pb_total_bytes</code></h4>
+
+<p>The total number of progress units, formatted as
+bytes, in a human readable format.<div class="sourceCode r"></p>
+<pre>cli_progress_bar(
+  total = 256 * 1024 * 1014,
+  format = paste0(
+    "Reading data {pb_current_bytes}/{pb_total_bytes} ",
+    "[{ansi_trimws(pb_rate_bytes)}]"
+  )
+</pre></div>
+<p><img src="../help/figures/progress-var-rate-bytes.svg" alt="progress-var-rate-bytes.svg" />
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

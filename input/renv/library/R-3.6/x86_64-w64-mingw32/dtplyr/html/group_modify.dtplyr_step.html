@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Apply a function to each group</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group_modify.dtplyr_step {dtplyr}"><tr><td>group_modify.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Apply a function to each group</h2>
+
+<h3>Description</h3>
+
+<p>These are methods for the dplyr <code><a href="../../dplyr/html/group_map.html">group_map()</a></code> and <code><a href="../../dplyr/html/group_map.html">group_modify()</a></code> generics.
+They are both translated to <code style="white-space: pre;">[.data.table</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+group_modify(.tbl, .f, ..., keep = FALSE)
+
+## S3 method for class 'dtplyr_step'
+group_map(.tbl, .f, ..., keep = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.tbl</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>.f</code></td>
+<td>
+<p>The name of a two argument function. The first argument is passed
+<code>.SD</code>,the data.table representing the current group; the second argument
+is passed <code>.BY</code>, a list giving the current values of the grouping
+variables. The function should return a list or data.table.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code>.f</code></p>
+</td></tr>
+<tr valign="top"><td><code>keep</code></td>
+<td>
+<p>Not supported for <a href="lazy_dt.html">lazy_dt</a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>group_map()</code> applies <code>.f</code> to each group, returning a list.
+<code>group_modify()</code> replaces each group with the results of <code>.f</code>, returning a
+modified <code><a href="lazy_dt.html">lazy_dt()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr)
+
+dt &lt;- lazy_dt(mtcars)
+
+dt %&gt;%
+  group_by(cyl) %&gt;%
+  group_modify(head, n = 2L)
+
+dt %&gt;%
+  group_by(cyl) %&gt;%
+  group_map(head, n = 2L)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

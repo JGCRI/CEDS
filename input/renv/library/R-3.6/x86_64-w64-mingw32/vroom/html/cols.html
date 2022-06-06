@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create column specification</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cols {vroom}"><tr><td>cols {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create column specification</h2>
+
+<h3>Description</h3>
+
+<p><code>cols()</code> includes all columns in the input data, guessing the column types
+as the default. <code>cols_only()</code> includes only the columns you explicitly
+specify, skipping the rest.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cols(..., .default = col_guess(), .delim = NULL)
+
+cols_only(...)
+
+col_logical(...)
+
+col_integer(...)
+
+col_big_integer(...)
+
+col_double(...)
+
+col_character(...)
+
+col_skip(...)
+
+col_number(...)
+
+col_guess(...)
+
+col_factor(levels = NULL, ordered = FALSE, include_na = FALSE, ...)
+
+col_datetime(format = "", ...)
+
+col_date(format = "", ...)
+
+col_time(format = "", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Either column objects created by <code style="white-space: pre;">col_*()</code>, or their abbreviated
+character names (as described in the <code>col_types</code> argument of
+<code><a href="vroom.html">vroom()</a></code>). If you're only overriding a few columns, it's
+best to refer to columns by name. If not named, the column types must match
+the column names exactly. In <code style="white-space: pre;">col_*()</code> functions these are stored in the
+object.</p>
+</td></tr>
+<tr valign="top"><td><code>.default</code></td>
+<td>
+<p>Any named columns not explicitly overridden in <code>...</code>
+will be read with this column type.</p>
+</td></tr>
+<tr valign="top"><td><code>.delim</code></td>
+<td>
+<p>The delimiter to use when parsing. If the <code>delim</code> argument
+used in the call to <code>vroom()</code> it takes precedence over the one specified in
+<code>col_types</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>levels</code></td>
+<td>
+<p>Character vector providing set of allowed levels. if <code>NULL</code>,
+will generate levels based on the unique values of <code>x</code>, ordered by order
+of appearance in <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ordered</code></td>
+<td>
+<p>Is it an ordered factor?</p>
+</td></tr>
+<tr valign="top"><td><code>include_na</code></td>
+<td>
+<p>If <code>NA</code> are present, include as an explicit factor to level?</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>A format specification, as described below. If set to &quot;&quot;,
+date times are parsed as ISO8601, dates and times used the date and
+time formats specified in the <code><a href="../../readr/html/locale.html">locale()</a></code>.
+</p>
+<p>Unlike <code><a href="../../base/html/strptime.html">strptime()</a></code>, the format specification must match
+the complete string.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The available specifications are: (long names in quotes and string abbreviations in brackets)</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+   function </td><td style="text-align: left;"> long name </td><td style="text-align: left;"> short name </td><td style="text-align: left;"> description </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_logical()</code> </td><td style="text-align: left;"> "logical" </td><td style="text-align: left;"> "l" </td><td style="text-align: left;"> Logical values containing only <code>T</code>, <code>F</code>, <code>TRUE</code> or <code>FALSE</code>. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_integer()</code> </td><td style="text-align: left;"> "integer" </td><td style="text-align: left;"> "i" </td><td style="text-align: left;"> Integer numbers. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_big_integer()</code> </td><td style="text-align: left;"> "big_integer" </td><td style="text-align: left;"> "I" </td><td style="text-align: left;"> Big Integers (64bit), requires the <code>bit64</code> package. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_double()</code> </td><td style="text-align: left;"> "double", "numeric" </td><td style="text-align: left;"> "d" </td><td style="text-align: left;"> 64-bit double floating point numbers. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_character()</code> </td><td style="text-align: left;"> "character" </td><td style="text-align: left;"> "c" </td><td style="text-align: left;"> Character string data. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_factor(levels, ordered)</code> </td><td style="text-align: left;"> "factor" </td><td style="text-align: left;"> "f" </td><td style="text-align: left;"> A fixed set of values. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_date(format = "")</code> </td><td style="text-align: left;"> "date" </td><td style="text-align: left;"> "D" </td><td style="text-align: left;"> Calendar dates formatted with the locale's <code>date_format</code>. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_time(format = "")</code> </td><td style="text-align: left;"> "time" </td><td style="text-align: left;"> "t" </td><td style="text-align: left;"> Times formatted with the locale's <code>time_format</code>. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_datetime(format = "")</code> </td><td style="text-align: left;"> "datetime", "POSIXct" </td><td style="text-align: left;"> "T" </td><td style="text-align: left;"> ISO8601 date times. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_number()</code> </td><td style="text-align: left;"> "number" </td><td style="text-align: left;"> "n" </td><td style="text-align: left;"> Human readable numbers containing the <code>grouping_mark</code> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_skip()</code> </td><td style="text-align: left;"> "skip", "NULL" </td><td style="text-align: left;"> "_", "-" </td><td style="text-align: left;"> Skip and don't import this column. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   <code>col_guess()</code> </td><td style="text-align: left;"> "guess", "NA" </td><td style="text-align: left;"> "?" </td><td style="text-align: left;"> Parse using the "best" guessed type based on the input. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+cols(a = col_integer())
+cols_only(a = col_integer())
+
+# You can also use the standard abbreviations
+cols(a = "i")
+cols(a = "i", b = "d", c = "_")
+
+# Or long names (like utils::read.csv)
+cols(a = "integer", b = "double", c = "skip")
+
+# You can also use multiple sets of column definitions by combining
+# them like so:
+
+t1 &lt;- cols(
+  column_one = col_integer(),
+  column_two = col_number())
+
+t2 &lt;- cols(
+ column_three = col_character())
+
+t3 &lt;- t1
+t3$cols &lt;- c(t1$cols, t2$cols)
+t3
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

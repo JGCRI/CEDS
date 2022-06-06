@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render panel strips</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for render_strips {ggplot2}"><tr><td>render_strips {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render panel strips</h2>
+
+<h3>Description</h3>
+
+<p>All positions are rendered and it is up to the facet to decide which to use
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+render_strips(x = NULL, y = NULL, labeller, theme)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>A data.frame with a column for each variable and a row for each
+combination to draw</p>
+</td></tr>
+<tr valign="top"><td><code>labeller</code></td>
+<td>
+<p>A labeller function</p>
+</td></tr>
+<tr valign="top"><td><code>theme</code></td>
+<td>
+<p>a <code>theme</code> object</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list with an &quot;x&quot; and a &quot;y&quot; element, each containing a &quot;top&quot; and
+&quot;bottom&quot; or &quot;left&quot; and &quot;right&quot; element respectively. These contains a list of
+rendered strips as gtables.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

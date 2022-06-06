@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format bullets for error messages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for format_error_bullets {rlang}"><tr><td>format_error_bullets {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format bullets for error messages</h2>
+
+<h3>Description</h3>
+
+<p><code>format_error_bullets()</code> takes a character vector and returns a single
+string (or an empty vector if the input is empty). The elements of
+the input vector are assembled as a list of bullets, depending on
+their names:
+</p>
+
+<ul>
+<li><p> Unnamed elements are unindented. They act as titles or subtitles.
+</p>
+</li>
+<li><p> Elements named <code>"*"</code> are bulleted with a cyan &quot;bullet&quot; symbol.
+</p>
+</li>
+<li><p> Elements named <code>"i"</code> are bulleted with a blue &quot;info&quot; symbol.
+</p>
+</li>
+<li><p> Elements named <code>"x"</code> are bulleted with a red &quot;cross&quot; symbol.
+</p>
+</li>
+<li><p> Elements named <code>"v"</code> are bulleted with a green &quot;tick&quot; symbol.
+</p>
+</li>
+<li><p> Elements named <code>"!"</code> are bulleted with a yellow &quot;warning&quot; symbol.
+</p>
+</li>
+<li><p> Elements named <code>"&gt;"</code> are bulleted with an &quot;arrow&quot; symbol.
+</p>
+</li>
+<li><p> Elements named <code>" "</code> start with an indented line break.
+</p>
+</li></ul>
+
+<p>For convenience, if the vector is fully unnamed, the elements are
+formatted as &quot;*&quot; bullets.
+</p>
+<p>The bullet formatting for errors follows the idea that sentences in
+error messages are best kept short and simple. The best way to
+present the information is in the <code><a href="cnd_message.html">cnd_body()</a></code> method of an error
+conditon as a bullet list of simple sentences containing a single
+clause. The info and cross symbols of the bullets provide hints on
+how to interpret the bullet relative to the general error issue,
+which should be supplied as <code><a href="cnd_message.html">cnd_header()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+format_error_bullets(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A named character vector of messages. Named elements are
+prefixed with the corresponding bullet. Elements named with a
+single space <code>" "</code> trigger a line break from the previous bullet.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# All bullets
+writeLines(format_error_bullets(c("foo", "bar")))
+
+# This is equivalent to
+writeLines(format_error_bullets(set_names(c("foo", "bar"), "*")))
+
+# Supply named elements to format info, cross, and tick bullets
+writeLines(format_error_bullets(c(i = "foo", x = "bar", v = "baz", "*" = "quux")))
+
+# An unnamed element breaks the line
+writeLines(format_error_bullets(c(i = "foo\nbar")))
+
+# A " " element breaks the line within a bullet (with indentation)
+writeLines(format_error_bullets(c(i = "foo", " " = "bar")))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

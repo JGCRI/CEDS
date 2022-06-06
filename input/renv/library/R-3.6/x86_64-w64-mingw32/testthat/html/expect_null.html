@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code return 'NULL'?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_null {testthat}"><tr><td>expect_null {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code return <code>NULL</code>?</h2>
+
+<h3>Description</h3>
+
+<p>This is a special case because <code>NULL</code> is a singleton so it's possible
+check for it either with <code>expect_equal(x, NULL)</code> or <code>expect_type(x, "NULL")</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_null(object, info = NULL, label = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert use only.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- NULL
+y &lt;- 10
+
+expect_null(x)
+show_failure(expect_null(y))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

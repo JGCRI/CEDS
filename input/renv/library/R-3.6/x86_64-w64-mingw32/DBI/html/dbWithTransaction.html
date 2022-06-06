@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Self-contained SQL transactions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbWithTransaction {DBI}"><tr><td>dbWithTransaction {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Self-contained SQL transactions</h2>
+
+<h3>Description</h3>
+
+<p>Given that <a href="transactions.html">transactions</a> are implemented, this function
+allows you to pass in code that is run in a transaction.
+The default method of <code>dbWithTransaction()</code> calls <code><a href="transactions.html">dbBegin()</a></code>
+before executing the code,
+and <code><a href="transactions.html">dbCommit()</a></code> after successful completion,
+or <code><a href="transactions.html">dbRollback()</a></code> in case of an error.
+The advantage is
+that you don't have to remember to do <code>dbBegin()</code> and <code>dbCommit()</code> or
+<code>dbRollback()</code> &ndash; that is all taken care of.
+The special function <code>dbBreak()</code> allows an early exit with rollback,
+it can be called only inside <code>dbWithTransaction()</code>.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbWithTransaction(conn, code, ...)
+
+dbBreak()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>An arbitrary block of R code.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>DBI implements <code>dbWithTransaction()</code>, backends should need to override this
+generic only if they implement specialized handling.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>dbWithTransaction()</code> returns the value of the executed code.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>Failure to initiate the transaction
+(e.g., if the connection is closed
+or invalid
+of if <code><a href="transactions.html">dbBegin()</a></code> has been called already)
+gives an error.
+</p>
+
+
+<h3>Specification</h3>
+
+<p><code>dbWithTransaction()</code> initiates a transaction with <code>dbBegin()</code>, executes
+the code given in the <code>code</code> argument, and commits the transaction with
+<code><a href="transactions.html">dbCommit()</a></code>.
+If the code raises an error, the transaction is instead aborted with
+<code><a href="transactions.html">dbRollback()</a></code>, and the error is propagated.
+If the code calls <code>dbBreak()</code>, execution of the code stops and the
+transaction is silently aborted.
+All side effects caused by the code
+(such as the creation of new variables)
+propagate to the calling environment.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbWriteTable(con, "cash", data.frame(amount = 100))
+dbWriteTable(con, "account", data.frame(amount = 2000))
+
+# All operations are carried out as logical unit:
+dbWithTransaction(
+  con,
+  {
+    withdrawal &lt;- 300
+    dbExecute(con, "UPDATE cash SET amount = amount + ?", list(withdrawal))
+    dbExecute(con, "UPDATE account SET amount = amount - ?", list(withdrawal))
+  }
+)
+
+# The code is executed as if in the curent environment:
+withdrawal
+
+# The changes are committed to the database after successful execution:
+dbReadTable(con, "cash")
+dbReadTable(con, "account")
+
+# Rolling back with dbBreak():
+dbWithTransaction(
+  con,
+  {
+    withdrawal &lt;- 5000
+    dbExecute(con, "UPDATE cash SET amount = amount + ?", list(withdrawal))
+    dbExecute(con, "UPDATE account SET amount = amount - ?", list(withdrawal))
+    if (dbReadTable(con, "account")$amount &lt; 0) {
+      dbBreak()
+    }
+  }
+)
+
+# These changes were not committed to the database:
+dbReadTable(con, "cash")
+dbReadTable(con, "account")
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

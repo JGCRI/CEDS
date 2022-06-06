@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Syntax highlighting themes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for code_theme_list {cli}"><tr><td>code_theme_list {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Syntax highlighting themes</h2>
+
+<h3>Description</h3>
+
+<p><code>code_theme_list()</code> lists the built-in code themes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+code_theme_list()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>Character vector of the built-in code theme names.
+</p>
+
+
+<h3>Code themes</h3>
+
+<p>A theme is a list of character vectors, except for <code>bracket</code>, see below.
+Each character vector must contain RGB colors (e.g. <code>"#a9a9a9"</code>),
+and cli styles, e.g. <code>"bold"</code>. Entries in the list:
+</p>
+
+<ul>
+<li> <p><code>reserved</code>: reserved words
+</p>
+</li>
+<li> <p><code>number</code>: numeric literals
+</p>
+</li>
+<li> <p><code>null</code>: the <code>NULL</code> constant
+</p>
+</li>
+<li> <p><code>operator</code>: operators, including assignment
+</p>
+</li>
+<li> <p><code>call</code>: function calls
+</p>
+</li>
+<li> <p><code>string</code>: character literals
+</p>
+</li>
+<li> <p><code>comment</code>: comments
+</p>
+</li>
+<li> <p><code>bracket</code>: brackets: <code>(){}[]</code> This is a list of character vectors,
+to create &quot;rainbow&quot; brackets. It is recycled for deeply nested lists.
+</p>
+</li></ul>
+
+
+
+<h3>The default code theme</h3>
+
+<p>In RStudio, it matches the current theme of the IDE.
+</p>
+<p>You can use three options to customize the code theme:
+</p>
+
+<ul>
+<li><p> If <code>cli.code_theme</code> is set, it is used.
+</p>
+</li>
+<li><p> Otherwise if R is running in RStudio and <code>cli.code_theme_rstudio</code> is
+set, then it is used.
+</p>
+</li>
+<li><p> Otherwise if T is not running in RStudio and <code>cli.code_theme_terminal</code>
+is set, then it is used.
+</p>
+</li></ul>
+
+<p>You can set these options to the name of a built-in theme, or to list
+that specifies a custom theme. See <code><a href="code_theme_list.html">code_theme_list()</a></code> for the list
+of the built-in themes.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other syntax highlighting: 
+<code><a href="code_highlight.html">code_highlight</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+code_theme_list()
+code_highlight(deparse(get), code_theme = "Solarized Dark")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

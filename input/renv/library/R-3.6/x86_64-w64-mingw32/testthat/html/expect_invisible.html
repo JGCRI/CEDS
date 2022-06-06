@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code return a visible or invisible object?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_invisible {testthat}"><tr><td>expect_invisible {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code return a visible or invisible object?</h2>
+
+<h3>Description</h3>
+
+<p>Use this to test whether a function returns a visible or invisible
+output. Typically you'll use this to check that functions called primarily
+for their side-effects return their data argument invisibly.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_invisible(call, label = NULL)
+
+expect_visible(call, label = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>A function call.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The evaluated <code>call</code>, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+expect_invisible(x &lt;- 10)
+expect_visible(x)
+
+# Typically you'll assign the result of the expectation so you can
+# also check that the value is as you expect.
+greet &lt;- function(name) {
+  message("Hi ", name)
+  invisible(name)
+}
+out &lt;- expect_invisible(greet("Hadley"))
+expect_equal(out, "Hadley")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract and/or mark as file id</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_id {googledrive}"><tr><td>as_id {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract and/or mark as file id</h2>
+
+<h3>Description</h3>
+
+<p>Gets file ids from various inputs and marks them as such, to
+distinguish them from file names or paths.
+</p>
+<p>This is a generic function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_id(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector of file or shared drive ids or URLs, a
+<code><a href="dribble.html">dribble</a></code>, or a suitable data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed down to methods. (Not used.)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector bearing the S3 class <code>drive_id</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+as_id("123abc")
+as_id("https://docs.google.com/spreadsheets/d/qawsedrf16273849/edit#gid=12345")
+
+x &lt;- drive_find(n_max = 3)
+as_id(x)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

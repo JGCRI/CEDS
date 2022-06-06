@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create new columns, dropping old</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for transmute.dtplyr_step {dtplyr}"><tr><td>transmute.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create new columns, dropping old</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the dplyr <code><a href="../../dplyr/html/mutate.html">transmute()</a></code> generic. It is translated to
+the <code>j</code> argument of <code style="white-space: pre;">[.data.table</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+transmute(.data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="../../dplyr/html/dplyr_data_masking.html">data-masking</a>&gt; Name-value pairs.
+The name gives the name of the column in the output, and the value should
+evaluate to a vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+dt &lt;- lazy_dt(dplyr::starwars)
+dt %&gt;% transmute(name, sh = paste0(species, "/", homeworld))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

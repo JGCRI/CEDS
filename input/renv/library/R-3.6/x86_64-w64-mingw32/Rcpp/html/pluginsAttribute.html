@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rcpp::plugins Attribute</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pluginsAttribute {Rcpp}"><tr><td>pluginsAttribute {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rcpp::plugins Attribute</h2>
+
+<h3>Description</h3>
+
+<p>The <code>Rcpp::plugins</code> attribute is added to a C++ source file to specify the
+<a href="../../inline/html/plugins.html">inline plugins</a> that should be used in the compilation.
+</p>
+<pre>
+// [[Rcpp::plugins(plugin1, plugin2)]]
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Plugins to add to the compilation.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Plugins must be registered using the <code><a href="registerPlugin.html">registerPlugin</a></code>
+function. 
+</p>
+<p>When included within a <code><a href="sourceCpp.html">sourceCpp</a></code> translation unit,
+the configuration-related fields of the plugin (e.g. <code>env</code> and 
+<code>LinkingTo</code>) are utilized, however the code-generation fields
+(e.g. <code>includes</code> and <code>body</code>) are not.
+</p>
+
+
+<h3>Note</h3>
+
+<p><span class="pkg">Rcpp</span> includes a built-in <code>cpp11</code> plugin that
+adds the flags required to enable <code>C++11</code> features in the compiler.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="registerPlugin.html">registerPlugin</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+// [[Rcpp::plugins(cpp11)]]
+
+// [[Rcpp::export]]
+int useCpp11() {
+    auto x = 10;
+    return x;
+}
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Assignment pipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %&amp;lt;&amp;gt;% {magrittr}"><tr><td>%&lt;&gt;% {magrittr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Assignment pipe</h2>
+
+<h3>Description</h3>
+
+<p>Pipe an object forward into a function or call expression and update the
+<code>lhs</code> object with the resulting value.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lhs %&lt;&gt;% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>An object which serves both as the initial value and as target.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>a function call using the magrittr semantics.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The assignment pipe, <code>%&lt;&gt;%</code>, is used to
+update a value by first piping it into one or more <code>rhs</code> expressions, and
+then assigning the result. For example, <code>some_object %&lt;&gt;% 
+foo %&gt;% bar</code> is equivalent to <code>some_object &lt;- some_object %&gt;% foo
+%&gt;% bar</code>. It must be the first pipe-operator in a chain, but otherwise it
+works like <code><a href="pipe.html">%&gt;%</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pipe.html">%&gt;%</a></code>, <code><a href="tee.html">%T&gt;%</a></code>, <code><a href="exposition.html">%$%</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+iris$Sepal.Length %&lt;&gt;% sqrt
+
+x &lt;- rnorm(100)
+
+x %&lt;&gt;% abs %&gt;% sort
+
+is_weekend &lt;- function(day)
+{
+   # day could be e.g. character a valid representation
+   day %&lt;&gt;% as.Date
+   
+   result &lt;- day %&gt;% format("%u") %&gt;% as.numeric %&gt;% is_greater_than(5)
+   
+   if (result)
+     message(day %&gt;% paste("is a weekend!"))
+   else
+     message(day %&gt;% paste("is not a weekend!"))
+   
+   invisible(result)
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>magrittr</em> version 2.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

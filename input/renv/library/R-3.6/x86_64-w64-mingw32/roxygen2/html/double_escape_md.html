@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check markdown escaping</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for double_escape_md {roxygen2}"><tr><td>double_escape_md {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check markdown escaping</h2>
+
+<h3>Description</h3>
+
+<p>This is a regression test for Markdown escaping.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+double_escape_md(text)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>Input text.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Each of the following bullets should look the same when rendered:
+</p>
+
+<ul>
+<li><p> Double escapes: \, \%, \$, \_
+</p>
+</li>
+<li><p> Backticks: <code style="white-space: pre;">\</code>, <code style="white-space: pre;">\%</code>, <code style="white-space: pre;">\$</code>, <code style="white-space: pre;">\_</code>
+</p>
+</li>
+<li> <p><code style="white-space: pre;">\verb{}</code>: <code style="white-space: pre;">\</code>, <code style="white-space: pre;">\%</code>, <code style="white-space: pre;">\$</code>, <code style="white-space: pre;">\_</code>
+</p>
+</li></ul>
+
+<p>[ this isn't a link ]
+\[ neither is this \]
+</p>
+
+
+<h3>Value</h3>
+
+<p>Double-escaped text.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+"%" # percent
+"\"" # double quote
+'\'' # single quote
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

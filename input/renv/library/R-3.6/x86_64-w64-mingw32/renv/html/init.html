@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Initialize a Project</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for init {renv}"><tr><td>init {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Initialize a Project</h2>
+
+<h3>Description</h3>
+
+<p>Discover packages used within the current project, and then initialize a
+project-local private <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> library with those packages. The currently-installed
+versions of any packages in use (as detected within the default R libraries)
+are then installed to the project's private library.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+init(
+  project = NULL,
+  ...,
+  settings = NULL,
+  bare = FALSE,
+  force = FALSE,
+  restart = interactive()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. The <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> working directory will be
+changed to match the requested project directory.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments; reserved for future expansion.</p>
+</td></tr>
+<tr valign="top"><td><code>settings</code></td>
+<td>
+<p>A list of <a href="settings.html">settings</a> to be used with the newly-initialized
+project.</p>
+</td></tr>
+<tr valign="top"><td><code>bare</code></td>
+<td>
+<p>Boolean; initialize the project without attempting to discover
+and install R package dependencies?</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>Boolean; force initialization? By default, <code>renv</code> will refuse
+to initialize the home directory as a project, to defend against accidental
+misusages of <code>init()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>restart</code></td>
+<td>
+<p>Boolean; attempt to restart the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> session after initializing
+the project? A session restart will be attempted if the <code>"restart"</code> <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>
+option is set by the frontend embedding <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The primary steps taken when initializing a new project are:
+</p>
+
+<ol>
+<li> <p><span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package dependencies are discovered within the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> files used within
+the project with <code><a href="dependencies.html">dependencies()</a></code>;
+</p>
+</li>
+<li><p> Discovered packages are copied into the <code>renv</code> global package cache, so
+these packages can be re-used across future projects as necessary;
+</p>
+</li>
+<li><p> Any missing <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package dependencies discovered are then installed into
+the project's private library;
+</p>
+</li>
+<li><p> A lockfile capturing the state of the project's library is created
+with <code><a href="snapshot.html">snapshot()</a></code>;
+</p>
+</li>
+<li><p> The project is activated with <code><a href="activate.html">activate()</a></code>.
+</p>
+</li></ol>
+
+<p>This mimics the workflow provided by <code>packrat::init()</code>, but with a few
+differences &ndash; in particular, <code>renv</code> does not attempt to download and store
+package sources, and <code>renv</code> will re-use packages that have already been
+installed whenever possible.
+</p>
+<p>If <code>renv</code> sees that the associated project has already been initialized and
+has a lockfile, then it will attempt to infer the appropriate action to take
+based on the presence of a private library. If no library is available,
+<code>renv</code> will restore the private library from the lockfile; if one is
+available, <code>renv</code> will ask if you want to perform a 'standard' init,
+restore from the lockfile, or activate the project without taking any
+further action.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The project directory, invisibly. Note that this function is normally
+called for its side effects.
+</p>
+
+
+<h3>Infrastructure</h3>
+
+<p><code>renv</code> will write or amend the following files in the project:
+</p>
+
+<ul>
+<li> <p><code>.Rprofile</code>: An auto-loader will be installed, so that new R sessions
+launched within the project are automatically loaded.
+</p>
+</li>
+<li> <p><code>renv/activate.R</code>: This script is run by the previously-mentioned
+<code>.Rprofile</code> to load the project.
+</p>
+</li>
+<li> <p><code>renv/.gitignore</code>: This is used to instruct Git to ignore the project's
+private library, as it does not need to be
+</p>
+</li>
+<li> <p><code>.Rbuildignore</code>: to ensure that the <code>renv</code> directory is ignored during
+package development; e.g. when attempting to build or install a package
+using <code>renv</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+
+# disable automatic snapshots
+auto.snapshot &lt;- getOption("renv.config.auto.snapshot")
+options(renv.config.auto.snapshot = FALSE)
+
+# initialize a new project (with an empty R library)
+renv::init(bare = TRUE)
+
+# install digest 0.6.19
+renv::install("digest@0.6.19")
+
+# save library state to lockfile
+renv::snapshot()
+
+# remove digest from library
+renv::remove("digest")
+
+# check library status
+renv::status()
+
+# restore lockfile, thereby reinstalling digest 0.6.19
+renv::restore()
+
+# restore automatic snapshots
+options(renv.config.auto.snapshot = auto.snapshot)
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

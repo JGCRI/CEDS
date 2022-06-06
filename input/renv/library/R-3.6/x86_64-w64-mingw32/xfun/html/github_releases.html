@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the tags of Github releases of a repository</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for github_releases {xfun}"><tr><td>github_releases {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the tags of Github releases of a repository</h2>
+
+<h3>Description</h3>
+
+<p>Use the Github API (<code><a href="rest_api.html">github_api</a>()</code>) to obtain the tags of the
+releases.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+github_releases(
+  repo,
+  tag = "",
+  pattern = "v[0-9.]+",
+  use_jsonlite = loadable("jsonlite")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The repository name of the form <code>user/repo</code>, e.g.,
+<code>"yihui/xfun"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>A tag as a character string. If provided, it will be returned if
+the tag exists. If <code>tag = "latest"</code>, the tag of the latest release is
+returned.</p>
+</td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>A regular expression to match the tags.</p>
+</td></tr>
+<tr valign="top"><td><code>use_jsonlite</code></td>
+<td>
+<p>Whether to use <span class="pkg">jsonlite</span> to parse the releases info.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of (GIT) tags.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::github_releases("yihui/xfun")
+xfun::github_releases("gohugoio/hugo")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

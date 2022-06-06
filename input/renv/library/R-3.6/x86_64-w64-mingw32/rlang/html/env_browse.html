@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Browse environments</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_browse {rlang}"><tr><td>env_browse {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Browse environments</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>env_browse(env)</code> is equivalent to evaluating <code>browser()</code> in
+<code>env</code>. It persistently sets the environment for step-debugging.
+Supply <code>value = FALSE</code> to disable browsing.
+</p>
+</li>
+<li> <p><code>env_is_browsed()</code> is a predicate that inspects whether an
+environment is being browsed.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+env_browse(env, value = TRUE)
+
+env_is_browsed(env)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>Whether to browse <code>env</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>env_browse()</code> returns the previous value of
+<code>env_is_browsed()</code> (a logical), invisibly.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

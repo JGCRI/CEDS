@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create LAB Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for LAB {colorspace}"><tr><td>LAB {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create LAB Colors</h2>
+
+<h3>Description</h3>
+
+<p>This function creates colors of class &ldquo;LAB&rdquo;; a subclass of the virtual
+<code><a href="color-class.html">color-class</a></code> class.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+LAB(L, A, B, names)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>L, A, B</code></td>
+<td>
+<p>these arguments give the L, A and B coordinates of the colors.
+The values can be provided in separate <code>L</code>, <code>A</code> and <code>B</code>
+vectors or in a three-column matrix passed as <code>L</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>a vector of names for the colors (by default the row names of
+<code>L</code> are used).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>L</code>, <code>A</code> and <code>B</code> values give the coordinates of the
+colors in the CIE <i>L*a*b*</i> space.  This is a transformation
+of the 1931 CIE XYZ space which attempts to produce perceptually based axes.
+Luminance takes values between 0 and 100, and the other coordinates 
+typically take values between -100 and 100, although these values can also
+be exceeded by highly saturated colors. The <i>a</i> and <i>b</i> coordinates
+measure positions on green/red and blue/yellow axes.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code>LAB</code> which inherits from class <code>color</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="RGB.html">RGB</a></code>, <code><a href="HSV.html">HSV</a></code>, <code><a href="XYZ.html">XYZ</a></code>,
+<code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>, <code><a href="LUV.html">LUV</a></code>,
+<code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Show the LAB space
+set.seed(1)
+x &lt;- RGB(runif(1000), runif(1000), runif(1000))
+y &lt;- as(x, "LAB")
+head(x)
+head(y)
+plot(y)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Taking multiple columns without '...'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-multiple-columns {rlang}"><tr><td>topic-multiple-columns {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Taking multiple columns without <code>...</code></h2>
+
+<h3>Description</h3>
+
+<p>In this guide we compare ways of taking multiple columns in a single function argument.
+</p>
+<p>As a refresher (see the <a href="topic-data-mask-programming.html">programming patterns</a> article), there are two common ways of passing arguments to <a href="topic-data-mask.html">data-masking</a> functions. For single arguments, embrace with <code><a href="embrace-operator.html">{{</a></code>:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, var) {
+  data %&gt;% dplyr::group_by({{ var }})
+}
+
+my_pivot_longer &lt;- function(data, var) {
+  data %&gt;% tidyr::pivot_longer({{ var }})
+}
+</pre></div>
+<p>For multiple arguments in <code>...</code>, pass them on to functions that also take <code>...</code> like <code>group_by()</code>, or pass them within <code>c()</code> for functions taking tidy selection in a single argument like <code>pivot_longer()</code>:<div class="sourceCode r"></p>
+<pre># Pass dots through
+my_group_by &lt;- function(.data, ...) {
+  .data %&gt;% dplyr::group_by(...)
+}
+
+my_pivot_longer &lt;- function(.data, ...) {
+  .data %&gt;% tidyr::pivot_longer(c(...))
+}
+</pre></div>
+<p>But what if you want to take multiple columns in a single named argument rather than in <code>...</code>?
+</p>
+
+
+<h3>Using tidy selections</h3>
+
+<p>The idiomatic tidyverse way of taking multiple columns in a single argument is to take a <em>tidy selection</em> (see the <a href="topic-data-mask-programming.html">Argument behaviours</a> section). In tidy selections, the syntax for passing multiple columns in a single argument is <code>c()</code>:<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% tidyr::pivot_longer(c(am, cyl, vs))
+</pre></div>
+<p>Since <code style="white-space: pre;">{{</code> inherits behaviour, this implementation of <code>my_pivot_longer()</code> automatically allows multiple columns passing:<div class="sourceCode r"></p>
+<pre>my_pivot_longer &lt;- function(data, var) {
+  data %&gt;% tidyr::pivot_longer({{ var }})
+}
+
+mtcars %&gt;% my_pivot_longer(c(am, cyl, vs))
+</pre></div>
+<p>For <code>group_by()</code>, which takes data-masked arguments, we'll use <code>across()</code> as a <em>bridge</em> (see <a href="topic-data-mask-programming.html">Bridge patterns</a>).<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, var) {
+  data %&gt;% dplyr::group_by(across({{ var }}))
+}
+
+mtcars %&gt;% my_group_by(c(am, cyl, vs))
+</pre></div>
+<p>When embracing in tidyselect context or using <code>across()</code> is not possible, you might have to implement tidyselect behaviour manually with <code>tidyselect::eval_select()</code>.
+</p>
+
+
+<h3>Using external defusal</h3>
+
+<p>To implement an argument with tidyselect behaviour, it is necessary to <a href="topic-defuse.html">defuse</a> the argument. However defusing an argument which had historically behaved like a regular argument is a rather disruptive breaking change. This is why we could not implement tidy selections in ggplot2 facetting functions like <code>facet_grid()</code> and <code>facet_wrap()</code>.
+</p>
+<p>An alternative is to use external defusal of arguments. This is what formula interfaces do for instance. A modelling function takes a formula in a regular argument and the formula defuses the user code:<div class="sourceCode r"></p>
+<pre>my_lm &lt;- function(data, f, ...) {
+  lm(f, data, ...)
+}
+
+mtcars %&gt;% my_lm(disp ~ drat)
+</pre></div>
+<p>Once created, the defused expressions contained in the formula are passed around like a normal argument. A similar approach was taken to update <code>facet_</code> functions to tidy eval. The <code>vars()</code> function (a simple alias to <code><a href="defusing-advanced.html">quos()</a></code>) is provided so that users can defuse their arguments externally.<div class="sourceCode r"></p>
+<pre>ggplot2::facet_grid(
+  ggplot2::vars(cyl),
+  ggplot2::vars(am, vs)
+)
+</pre></div>
+<p>You can implement this approach by simply taking a list of defused expressions as argument. This list can be passed the usual way to other functions taking such lists:<div class="sourceCode r"></p>
+<pre>my_facet_grid &lt;- function(rows, cols, ...) {
+  ggplot2::facet_grid(rows, cols, ...)
+}
+</pre></div>
+<p>Or it can be spliced with <code><a href="splice-operator.html">!!!</a></code>:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, vars) {
+  stopifnot(is_quosures(vars))
+  data %&gt;% dplyr::group_by(!!!vars)
+}
+
+mtcars %&gt;% my_group_by(dplyr::vars(cyl, am))
+</pre></div>
+
+
+<h3>A non-approach: Parsing lists</h3>
+
+<p>Intuitively, many programmers who want to take a list of expressions in a single argument try to defuse an argument and parse it. The user is expected to supply multiple arguments within a <code>list()</code> expression. When such a call is detected, the arguments are retrieved and spliced with <code style="white-space: pre;">!!!</code>. Otherwise, the user is assumed to have supplied a single argument which is injected with <code style="white-space: pre;">!!</code>. An implementation along these lines might look like this:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, vars) {
+  vars &lt;- enquo(vars)
+
+  if (quo_is_call(vars, "list")) {
+    expr &lt;- quo_get_expr(vars)
+    env &lt;- quo_get_env(vars)
+    args &lt;- as_quosures(call_args(expr), env = env)
+    data %&gt;% dplyr::group_by(!!!args)
+  } else {
+    data %&gt;% dplyr::group_by(!!vars)
+  }
+}
+</pre></div>
+<p>This does work in simple cases:<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% my_group_by(cyl) %&gt;% dplyr::group_vars()
+#&gt; [1] "cyl"
+
+mtcars %&gt;% my_group_by(list(cyl, am)) %&gt;% dplyr::group_vars()
+#&gt; [1] "cyl" "am"
+</pre></div>
+<p>However this parsing approach quickly shows limits:<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% my_group_by(list2(cyl, am))
+#&gt; Error in `group_by()`: Can't add columns.
+#&gt; ℹ `..1 = list2(cyl, am)`.
+#&gt; ℹ `..1` must be size 32 or 1, not 2.
+</pre></div>
+<p>Also, it would be better for overall consistency of interfaces to use the tidyselect syntax <code>c()</code> for passing multiple columns. In general, we recommend to use either the tidyselect or the external defusal approaches.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

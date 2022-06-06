@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add columns to a data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for add_column {tibble}"><tr><td>add_column {tibble}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add columns to a data frame</h2>
+
+<h3>Description</h3>
+
+<p>This is a convenient way to add one or more columns to an existing data
+frame.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+add_column(
+  .data,
+  ...,
+  .before = NULL,
+  .after = NULL,
+  .name_repair = c("check_unique", "unique", "universal", "minimal")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>Data frame to append to.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../rlang/html/dyn-dots.html">dynamic-dots</a></code>&gt;
+Name-value pairs, passed on to <code><a href="tibble.html">tibble()</a></code>. All values must have
+the same size of <code>.data</code> or size 1.</p>
+</td></tr>
+<tr valign="top"><td><code>.before, .after</code></td>
+<td>
+<p>One-based column index or column name where to add the
+new columns, default: after last column.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Treatment of problematic column names:
+</p>
+
+<ul>
+<li> <p><code>"minimal"</code>: No name repair or checks, beyond basic existence,
+</p>
+</li>
+<li> <p><code>"unique"</code>: Make sure names are unique and not empty,
+</p>
+</li>
+<li> <p><code>"check_unique"</code>: (default value), no name repair, but check they are
+<code>unique</code>,
+</p>
+</li>
+<li> <p><code>"universal"</code>: Make the names <code>unique</code> and syntactic
+</p>
+</li>
+<li><p> a function: apply custom name repair (e.g., <code>.name_repair = make.names</code>
+for names in the style of base R).
+</p>
+</li>
+<li><p> A purrr-style anonymous function, see <code><a href="../../rlang/html/as_function.html">rlang::as_function()</a></code>
+</p>
+</li></ul>
+
+<p>This argument is passed on as <code>repair</code> to <code><a href="../../vctrs/html/vec_as_names.html">vctrs::vec_as_names()</a></code>.
+See there for more details on these terms and the strategies used
+to enforce them.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other addition: 
+<code><a href="add_row.html">add_row</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# add_column ---------------------------------
+df &lt;- tibble(x = 1:3, y = 3:1)
+
+df %&gt;% add_column(z = -1:1, w = 0)
+df %&gt;% add_column(z = -1:1, .before = "y")
+
+# You can't overwrite existing columns
+try(df %&gt;% add_column(x = 4:6))
+
+# You can't create new observations
+try(df %&gt;% add_column(z = 1:5))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tibble</em> version 3.1.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

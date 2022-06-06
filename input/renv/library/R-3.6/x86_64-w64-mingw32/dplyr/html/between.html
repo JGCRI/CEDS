@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Do values in a numeric vector fall in specified range?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for between {dplyr}"><tr><td>between {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Do values in a numeric vector fall in specified range?</h2>
+
+<h3>Description</h3>
+
+<p>This is a shortcut for <code>x &gt;= left &amp; x &lt;= right</code>, implemented
+efficiently in C++ for local values, and translated to the
+appropriate SQL for remote tables.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+between(x, left, right)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A numeric vector of values</p>
+</td></tr>
+<tr valign="top"><td><code>left, right</code></td>
+<td>
+<p>Boundary values (must be scalars).</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+between(1:12, 7, 9)
+
+x &lt;- rnorm(1e2)
+x[between(x, -1, 1)]
+
+## Or on a tibble using filter
+filter(starwars, between(height, 100, 150))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

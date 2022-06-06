@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Example files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_examples {googledrive}"><tr><td>drive_examples {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Example files</h2>
+
+<h3>Description</h3>
+
+<p>googledrive makes a variety of example files &ndash; both local and remote &ndash;
+available for use in examples and reprexes. These functions help you access
+the example files. See <code>vignette("example-files", package = "googledrive")</code>
+for more.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_examples_local(matches)
+
+drive_examples_remote(matches)
+
+drive_example_local(matches)
+
+drive_example_remote(matches)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>matches</code></td>
+<td>
+<p>A regular expression that matches the name of the desired
+example file(s). This argument is optional for the plural forms
+(<code>drive_examples_local()</code> and <code>drive_examples_remote()</code> and, if provided,
+multiple matches are allowed. The single forms (<code>drive_example_local()</code> and
+<code>drive_example_reomote()</code> require this argument and require that there is
+exactly one match.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li><p> For <code>drive_example_local()</code> and <code>drive_examples_local()</code>, one or more local
+filepaths.
+</p>
+</li>
+<li><p> For <code>drive_example_remote()</code> and <code>drive_examples_remote()</code>, a <code>dribble</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+drive_examples_remote()
+drive_examples_remote("chicken")
+drive_example_remote("chicken_doc")
+
+drive_examples_local() %&gt;% basename()
+drive_examples_local("chicken") %&gt;% basename()
+drive_example_local("imdb")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

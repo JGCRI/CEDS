@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Sample n rows from a table</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sample_n {dplyr}"><tr><td>sample_n {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Sample n rows from a table</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+<code>sample_n()</code> and <code>sample_frac()</code> have been superseded in favour of
+<code><a href="slice.html">slice_sample()</a></code>. While they will not be deprecated in the near future,
+retirement means that we will only perform critical bug fixes, so we recommend
+moving to the newer alternative.
+</p>
+<p>These functions were superseded because we realised it was more convenient to
+have two mutually exclusive arguments to one function, rather than two
+separate functions. This also made it to clean up a few other smaller
+design issues with <code>sample_n()</code>/<code>sample_frac</code>:
+</p>
+
+<ul>
+<li><p> The connection to <code>slice()</code> was not obvious.
+</p>
+</li>
+<li><p> The name of the first argument, <code>tbl</code>, is inconsistent with other
+single table verbs which use <code>.data</code>.
+</p>
+</li>
+<li><p> The <code>size</code> argument uses tidy evaluation, which is surprising and
+undocumented.
+</p>
+</li>
+<li><p> It was easier to remove the deprecated <code>.env</code> argument.
+</p>
+</li>
+<li> <p><code>...</code> was in a suboptimal position.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+sample_n(tbl, size, replace = FALSE, weight = NULL, .env = NULL, ...)
+
+sample_frac(tbl, size = 1, replace = FALSE, weight = NULL, .env = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tbl</code></td>
+<td>
+<p>A data.frame.</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt;
+For <code>sample_n()</code>, the number of rows to select.
+For <code>sample_frac()</code>, the fraction of rows to select.
+If <code>tbl</code> is grouped, <code>size</code> applies to each group.</p>
+</td></tr>
+<tr valign="top"><td><code>replace</code></td>
+<td>
+<p>Sample with or without replacement?</p>
+</td></tr>
+<tr valign="top"><td><code>weight</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; Sampling weights.
+This must evaluate to a vector of non-negative numbers the same length as
+the input. Weights are automatically standardised to sum to 1.</p>
+</td></tr>
+<tr valign="top"><td><code>.env</code></td>
+<td>
+<p>DEPRECATED.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>ignored</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+by_cyl &lt;- mtcars %&gt;% group_by(cyl)
+
+# sample_n() -&gt; slice_sample() ----------------------------------------------
+sample_n(mtcars, 10)
+sample_n(mtcars, 50, replace = TRUE)
+sample_n(mtcars, 10, weight = mpg)
+
+# Changes:
+# * explicitly name the `n` argument,
+# * the `weight` argument is now `weight_by`.
+
+slice_sample(mtcars, n = 10)
+slice_sample(mtcars, n = 50, replace = TRUE)
+slice_sample(mtcars, n = 10, weight_by = mpg)
+
+# Note that sample_n() would error if n was bigger than the group size
+# slice_sample() will just use the available rows for consistency with
+# the other slice helpers like slice_head()
+
+# sample_frac() -&gt; slice_sample() -------------------------------------------
+sample_frac(mtcars)
+sample_frac(mtcars, replace = TRUE)
+
+# Changes:
+# * use prop = 1 to randomly sample all rows
+
+slice_sample(mtcars, prop = 1)
+slice_sample(mtcars, prop = 1, replace = TRUE)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

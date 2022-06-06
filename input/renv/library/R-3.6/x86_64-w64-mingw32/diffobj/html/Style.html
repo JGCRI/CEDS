@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Customize Appearance of Diff</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Style-class {diffobj}"><tr><td>Style-class {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Customize Appearance of Diff</h2>
+
+<h3>Description</h3>
+
+<p>S4 objects that expose the formatting controls for <code>Diff</code>
+objects.  Many predefined formats are defined as classes that extend the
+base <code>Style</code> class.  You may fine tune styles by either extending
+the pre-defined classes, or modifying an instance thereof.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>funs</code></td>
+<td>
+<p>a <code><a href="StyleFuns.html">StyleFuns</a></code> object that contains all the functions
+represented above</p>
+</td></tr>
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>a <code><a href="StyleText.html">StyleText</a></code> object that contains the non-content
+text used by the diff (e.g. <code>gutter.insert.txt</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>summary</code></td>
+<td>
+<p>a <code><a href="StyleSummary.html">StyleSummary</a></code> object that contains formatting
+functions and other meta data for rendering summaries</p>
+</td></tr>
+<tr valign="top"><td><code>pad</code></td>
+<td>
+<p>TRUE or FALSE, whether text should be right padded</p>
+</td></tr>
+<tr valign="top"><td><code>pager</code></td>
+<td>
+<p>what type of <code><a href="Pager.html">Pager</a></code> to use</p>
+</td></tr>
+<tr valign="top"><td><code>nchar.fun</code></td>
+<td>
+<p>function to use to count characters; intended mostly for
+internal use (used only for gutters as of version 0.2.0).</p>
+</td></tr>
+<tr valign="top"><td><code>wrap</code></td>
+<td>
+<p>TRUE or FALSE, whether text should be hard wrapped at
+<code>disp.width</code></p>
+</td></tr>
+<tr valign="top"><td><code>na.sub</code></td>
+<td>
+<p>what character value to substitute for NA elements; NA elements
+are generated when lining up side by side diffs by adding padding rows; by
+default the text styles replace these with a blank character string, and
+the HTML styles leave them as NA for the HTML formatting functions to deal
+with</p>
+</td></tr>
+<tr valign="top"><td><code>blank</code></td>
+<td>
+<p>sub what character value to replace blanks with; needed in
+particular for HTML rendering (uses <code>"&amp;nbsp;"</code>) to prevent lines from
+collapsing</p>
+</td></tr>
+<tr valign="top"><td><code>disp.width</code></td>
+<td>
+<p>how many columns the text representation of the objects to
+diff is allowed to take up before it is hard wrapped (assuming <code>wrap</code>
+is TRUE).  See param <code>disp.width</code> for <code><a href="diffPrint.html">diffPrint</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>finalizer</code></td>
+<td>
+<p>function that accepts at least two parameters and requires
+no more than two parameters, will receive as the first parameter the
+the object to render (either a <code>Diff</code> or a <code>DiffSummary</code>
+object), and the text representation of that object as the second
+argument.  This allows final modifications to the character output so that
+it is displayed correctly by the pager.  For example, <code>StyleHtml</code>
+objects use it to generate HTML headers if the <code>Diff</code> is destined to
+be displayed in a browser.  The object themselves are passed along to
+provide information about the paging device and other contextual data to
+the function.</p>
+</td></tr>
+<tr valign="top"><td><code>html.output</code></td>
+<td>
+<p>(<code>StyleHtml</code> objects only) one of:
+</p>
+
+<ul>
+<li> <p>&ldquo;page&rdquo;: Include all HTML/CSS/JS required to create a
+stand-alone web page with the diff; in this mode the diff string will
+be re-encoded with <code><a href="../../base/html/Encoding.html">enc2utf8</a></code> and the HTML page encoding
+will be declared as UTF-8.
+</p>
+</li>
+<li> <p>&ldquo;diff.w.style&rdquo;: The CSS and HTML, but without any of the
+outer tags that would make it a proper HTML page (i.e. no
+<code>&lt;html&gt;/&lt;head&gt;</code> tags or the like) and without the JS; note that
+technically this is illegal HTML since we have <code>&lt;style&gt;</code> tags
+floating outside of <code>&lt;head&gt;</code> tags, but it seems to work in most
+browsers.
+</p>
+</li>
+<li> <p>&ldquo;diff.only&rdquo;: Like &ldquo;diff.w.style&rdquo;, but without the CSS
+</p>
+</li>
+<li> <p>&ldquo;auto&rdquo;: Pick one of the above based on <code>Pager</code>, will
+chose &ldquo;page&rdquo; if the pager is of type <code>PagerBrowser</code> (as in
+that case the output is destined to be displayed in a browser like
+device), or &ldquo;diff.only&rdquo; if it is not.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>escape.html.entities</code></td>
+<td>
+<p>(<code>StyleHtml</code> objects only) TRUE (default)
+or FALSE, whether to escape HTML entities in the input</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>(<code>StyleHtml</code> objects only) TRUE (default) or FALSE,
+whether to scale HTML output to fit to the viewport</p>
+</td></tr>
+<tr valign="top"><td><code>css</code></td>
+<td>
+<p>(<code>StyleHtml</code> objects only) path to file containing CSS styles
+to style HTML output with</p>
+</td></tr>
+<tr valign="top"><td><code>js</code></td>
+<td>
+<p>(<code>StyleHtml</code> objects only) path to file containing Javascript
+used for scaling output to viewports.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Style S4 object
+</p>
+
+
+<h3>Pre-defined Classes</h3>
+
+<p>Pre-defined classes are used to populate the <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code>
+object, which in turn allows the <code>diff*</code> methods to pick the
+appropriate <code>Style</code> for each combination of the <code>format</code>,
+<code>color.mode</code>, and <code>brightness</code> parameters when the <code>style</code>
+parameter is set to &ldquo;auto&rdquo;.  The following classes are pre-defined:
+</p>
+
+<ul>
+<li> <p><code>StyleRaw</code>: No styles applied
+</p>
+</li>
+<li> <p><code>StyleAnsi8NeutralRgb</code>
+</p>
+</li>
+<li> <p><code>StyleAnsi8NeutralYb</code>
+</p>
+</li>
+<li> <p><code>StyleAnsi256LightRgb</code>
+</p>
+</li>
+<li> <p><code>StyleAnsi256LightYb</code>
+</p>
+</li>
+<li> <p><code>StyleAnsi256DarkRgb</code>
+</p>
+</li>
+<li> <p><code>StyleAnsi256DarkYb</code>
+</p>
+</li>
+<li> <p><code>StyleHtmlLightRgb</code>
+</p>
+</li>
+<li> <p><code>StyleHtmlLightYb</code>
+</p>
+</li></ul>
+
+<p>Each of these classes has an associated constructor function with the
+same name (see examples).  Objects instantiated from these classes
+may also be used directly as the value for the <code>style</code> parameter to the
+<code>diff*</code> methods. This will override the automatic selection process
+that uses <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code>.  If you wish to tweak an
+auto-selected style rather than explicitly specify one, pass a parameter
+list instead of a <code>Style</code> objects as the <code>style</code> parameter to the
+<code>diff*</code> methods (see examples).
+</p>
+<p>There are predefined classes for most combinations of
+<code>format/color.mode/brightness</code>, but not all.  For example, there are
+only &ldquo;light&rdquo; <code>brightness</code> defined for the &ldquo;html&rdquo;
+<code>format</code>, and those classes are re-used for all possible
+<code>brightness</code> values, and the 8 color ANSI neutral classes are used
+for the 256 color neutral selections as well.
+</p>
+<p>To get a preview of what a style looks like just instantiate
+an object; the <code>show</code> method will output a trivial diff to screen with
+styles applied.  Note that for ANSI styles of the dark and light variety
+the show method colors the terminal background and foregrounds in compatible
+colors.  In normal usage the terminal background and foreground colors are
+left untouched so you should not expect light styles to look good on dark
+background and vice versa even if they render correctly when showing the
+style object.
+</p>
+
+
+<h3>Style Structure</h3>
+
+<p>Most of the customization is done by specifying functions that operate on
+character vectors and return a modified character vector of the same length.
+The intended use case is to pass <code>crayon</code> functions such as
+<code>crayon::red</code>, although you may pass any function of your liking
+that behaves as described.  Formatting functions are expected to return their
+inputs formatted in such a way that their <em>display</em> width is unchanged.
+If your formatting functions change display width output may not render
+properly, particularly when using <code>mode="sidebyside"</code>.
+</p>
+<p>The visual representation of the diff has many nested components.  The
+functions you specify here will be applied starting with the innermost ones.
+A schematic of the various component that represent an inserted line follows
+(note &ldquo;insert&rdquo; abbreviated to &ldquo;ins&rdquo;, and &ldquo;gutter&rdquo;
+abbreviated to &ldquo;gtr&rdquo;):
+</p>
+<pre>+- line ---------------------------------------------------+
+|+- line.ins ---------------------------------------------+|
+||+- gtr ------------------------++- text ---------------+||
+|||+- gtr.ins ---++- gtr.pad ---+||+- text.ins ---------+|||
+||||             ||             ||||      +- word.ins -+||||
+|||| gtr.ins.txt || gtr.pad.txt |||| DIFF | TEXT HERE  |||||
+||||             ||             ||||      +------------+||||
+|||+-------------++-------------+||+--------------------+|||
+||+------------------------------++----------------------+||
+|+--------------------------------------------------------+|
++----------------------------------------------------------+
+</pre>
+<p>A similar model applies to deleted and matching lines.  The boxes represent
+functions.  <code>gutter.insert.txt</code> represents the text to use in the gutter
+and is not a function. <code>DIFF TEXT HERE</code> is text from the objects being
+diffed, with the portion that has different words inside the
+<code>word.insert</code>.  <code>gutter.pad</code> and <code>gutter.pad.txt</code> are used to
+separate the gutter from the text and usually end up resolving to a space.
+</p>
+<p>Most of the functions defined here default to <code><a href="../../base/html/identity.html">identity</a></code>, but
+you are given the flexibility to fully format the diff.  See
+<code><a href="StyleFuns.html">StyleFuns</a></code> and <code><a href="StyleText.html">StyleText</a></code> for a full listing of
+the adjustable elements.
+</p>
+<p>In side-by-side mode there are two &ldquo;lines&rdquo; per screen line, each with
+the structure described here.
+</p>
+<p>The structure described here may change in the future.
+</p>
+
+
+<h3>HTML Styles</h3>
+
+<p>If you use a <code>Style</code> that inherits from <code>StyleHtml</code> the
+diff will be wrapped in HTML tags, styled with CSS, and output to
+<code>getOption("viewer")</code> if your IDE supports it (e.g. Rstudio), or
+directly to the browser otherwise, assuming that the default
+<code><a href="Pager.html">Pager</a></code> or a correctly configured pager that inherits from
+<code><a href="Pager.html">PagerBrowser</a></code> is in effect.  Otherwise, the raw HTML will be
+output to your terminal.
+</p>
+<p>By default HTML output sent to the viewer/browser is a full stand-alone
+webpage with CSS styles to format and color the diff, and JS code to
+handle scaling.  The CSS and JS is read from the
+<a href="webfiles.html">default files</a> and injected into the HTML to simplify
+packaging of the output.  You can customize the CSS and JS by using the
+<code>css</code> and <code>js</code> arguments respectively, but read the rest of this
+documentation section if you plan on doing so.
+</p>
+<p>Should you want to capture the HTML output for use elsewhere, you can do
+so by using <code>as.character</code> on the return value of the <code>diff*</code>
+methods.  If you want the raw HTML without any of the headers, CSS, and
+JS use <code>html.ouput="diff.only"</code> when you instantiate the
+<code>StyleHtml</code> object (see examples), or disable the <code><a href="Pager.html">Pager</a></code>.
+Another option is <code>html.output="diff.w.style"</code> which will add
+<code>&lt;style&gt;</code> tags with the CSS, but without wrapping those in <code>&lt;head&gt;</code>
+tags. This last option results in illegal HTML with a <code>&lt;style&gt;</code> block
+outside of the <code>&lt;head&gt;</code> block, but appears to work and is useful if you
+want to embed HTML someplace but do not have access to the headers.
+</p>
+<p>If you wish to modify the CSS styles you should do so cautiously.  The
+HTML and CSS work well together out of the box, but may not take to kindly
+to modifications.  The safest changes you can make are to the colors of the
+scheme.  You also probably should not modify the functions in the
+<code>@funs</code> slot of the <code>StyleHtml</code> object.  If you want to provide
+your own custom styles make a copy of the file at the location returned by
+<code>diffobj_css()</code>, modify it to your liking, and pass the location of your
+modified sheet back via the <code>css</code> argument (see examples).
+</p>
+<p>The javascript controls the scaling of the output such that its width fits
+in the viewport.  If you wish to turn of this behavior you can do so via the
+<code>scale</code> argument.  You may need to modify the javascript if you modify
+the <code>@funs</code> functions, but otherwise you are probably best off leaving
+the javascript untouched.  You can provide the location of a modified
+javascript file via the <code>js</code> argument.
+</p>
+<p>Both the CSS and JS files can be specified via options,
+&ldquo;diffobj.html.css&rdquo;, and &ldquo;diffobj.html.js&rdquo; respectively.
+</p>
+<p>If you define your own custom <code>StyleHtml</code> object you may want to modify
+the slot <code>@funs@container</code>.  This slot contains a function that is
+applied to the entire diff output.  For example, <code>StyleHtmlLightRgb</code>
+uses <code>@funs@container &lt;- cont_f("light", "rgb")</code>.  <code>cont_f</code> returns
+a function that accepts a character vector as an argument and returns
+that value wrapped in a <code>DIV</code> block with class
+&ldquo;&quot;diffobj-container light rgb&quot;&rdquo;.  This allows the CSS style sheet to
+target the <code>Diff</code> elements with the correct styles.
+</p>
+
+
+<h3>Modifying Style Parameters Directly</h3>
+
+<p>Often you will want to specify some of the style parameters (e.g.
+<code>scale</code> for html styles) while still relying on the default style
+selection to pick the specific style.  You can do so by passing a list to the
+<code>style</code> parameter of the <code><a href="diffPrint.html">diff*</a></code> methods.
+See examples.
+</p>
+
+
+<h3>New Classes</h3>
+
+<p>You can in theory create entirely new classes that extent <code>Style</code>.  For
+example you could generate a class that renders the diff in <code>grid</code>
+graphics.  Note however that we have not tested such extensions and it is
+possible there is some embedded code that will misbehave with such a new
+class.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+## Create a new style based on existing style by changing
+## gutter symbols and guide color; see `?StyleFuns` and
+## `?StyleText` for a full list of adjustable elements
+my.style &lt;- StyleAnsi8NeutralYb()
+my.style   ## `show` method gives you a preview of the style
+my.style@text@gutter.insert &lt;- "+++"
+my.style@text@gutter.delete &lt;- "---"
+my.style@funs@text.guide &lt;- crayon::green
+my.style   ## Notice gutters and guide color
+
+## Provide a custom style sheet; here we assume there is a style sheet at
+## `HOME/web/mycss.css`
+my.css &lt;- file.path(path.expand("~"), "web", "mycss.css")
+diffPrint(1:5, 2:6, style=StyleHtmlLightYb(css=my.css))
+
+## Turn of scaling; notice how we pass a list to `style`
+## and we do not need to specify a specific style
+diffPrint(letters, letters[-5], format="html", style=list(scale=FALSE))
+
+## Alternatively we can do the same by specifying a style, but we must
+## give an exact html style instead of relying on preferences to pick
+## one for us
+my.style &lt;- StyleHtmlLightYb(scale=FALSE)
+diffPrint(letters, letters[-5], style=my.style)
+
+## End(Not run)
+## Return only the raw HTML without any of the headers
+as.character(
+  diffPrint(1:5, 2:6, format="html", style=list(html.output="diff.only"))
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

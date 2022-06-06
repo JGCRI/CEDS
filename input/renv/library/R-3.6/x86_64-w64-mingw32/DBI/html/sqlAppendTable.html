@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compose query to insert rows into a table</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sqlAppendTable {DBI}"><tr><td>sqlAppendTable {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compose query to insert rows into a table</h2>
+
+<h3>Description</h3>
+
+<p><code>sqlAppendTable()</code> generates a single SQL string that inserts a
+data frame into an existing table. <code>sqlAppendTableTemplate()</code> generates
+a template suitable for use with <code><a href="dbBind.html">dbBind()</a></code>.
+The default methods are ANSI SQL 99 compliant.
+These methods are mostly useful for backend implementers.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sqlAppendTable(con, table, values, row.names = NA, ...)
+
+sqlAppendTableTemplate(
+  con,
+  table,
+  values,
+  row.names = NA,
+  prefix = "?",
+  ...,
+  pattern = ""
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>A database connection.</p>
+</td></tr>
+<tr valign="top"><td><code>table</code></td>
+<td>
+<p>The table name, passed on to <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code>. Options are:
+</p>
+
+<ul>
+<li><p> a character string with the unquoted DBMS table name,
+e.g. <code>"table_name"</code>,
+</p>
+</li>
+<li><p> a call to <code><a href="Id.html">Id()</a></code> with components to the fully qualified table name,
+e.g. <code>Id(schema = "my_schema", table = "table_name")</code>
+</p>
+</li>
+<li><p> a call to <code><a href="SQL.html">SQL()</a></code> with the quoted and fully qualified table name
+given verbatim, e.g. <code>SQL('"my_schema"."table_name"')</code>
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>values</code></td>
+<td>
+<p>A data frame. Factors will be converted to character vectors.
+Character vectors will be escaped with <code><a href="dbQuoteString.html">dbQuoteString()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>row.names</code></td>
+<td>
+<p>Either <code>TRUE</code>, <code>FALSE</code>, <code>NA</code> or a string.
+</p>
+<p>If <code>TRUE</code>, always translate row names to a column called &quot;row_names&quot;.
+If <code>FALSE</code>, never translate row names. If <code>NA</code>, translate
+rownames only if they're a character vector.
+</p>
+<p>A string is equivalent to <code>TRUE</code>, but allows you to override the
+default name.
+</p>
+<p>For backward compatibility, <code>NULL</code> is equivalent to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments used by individual methods.</p>
+</td></tr>
+<tr valign="top"><td><code>prefix</code></td>
+<td>
+<p>Parameter prefix to use for placeholders.</p>
+</td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>Parameter pattern to use for placeholders:
+</p>
+
+<ul>
+<li> <p><code>""</code>: no pattern
+</p>
+</li>
+<li> <p><code>"1"</code>: position
+</p>
+</li>
+<li><p> anything else: field name
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>row.names</code> argument must be passed explicitly in order to avoid
+a compatibility warning.  The default will be changed in a later release.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+sqlAppendTable(ANSI(), "iris", head(iris))
+
+sqlAppendTable(ANSI(), "mtcars", head(mtcars))
+sqlAppendTable(ANSI(), "mtcars", head(mtcars), row.names = FALSE)
+sqlAppendTableTemplate(ANSI(), "iris", iris)
+
+sqlAppendTableTemplate(ANSI(), "mtcars", mtcars)
+sqlAppendTableTemplate(ANSI(), "mtcars", mtcars, row.names = FALSE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

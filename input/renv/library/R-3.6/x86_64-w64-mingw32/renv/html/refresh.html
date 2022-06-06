@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Refresh the Local Cache of Available Packages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for refresh {renv}"><tr><td>refresh {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Refresh the Local Cache of Available Packages</h2>
+
+<h3>Description</h3>
+
+<p>Query the active R package repositories for available packages, and
+update the in-memory cache of those packages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+refresh()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>Note that <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> also maintains its own on-disk cache of available packages,
+which is used by <code>available.packages()</code>. Calling <code>refresh()</code> will force
+an update of both types of caches. <code>renv</code> prefers using an in-memory
+cache as on occasion the temporary directory can be slow to access (e.g.
+when it is a mounted network filesystem).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A list of package databases, invisibly &ndash; one for each repository
+currently active in the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> session. Note that this function is normally
+called for its side effects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# check available packages
+db &lt;- available.packages()
+
+# wait some time (suppose packages are uploaded / changed in this time)
+Sys.sleep(5)
+
+# refresh the local available packages database
+# (the old locally cached db will be removed)
+db &lt;- renv::refresh()
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

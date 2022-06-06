@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy a(n) boot object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidy.boot {broom}"><tr><td>tidy.boot {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy a(n) boot object</h2>
+
+<h3>Description</h3>
+
+<p>Tidy summarizes information about the components of a model.
+A model component might be a single term in a regression, a single
+hypothesis, a cluster, or a class. Exactly what tidy considers to be a
+model component varies across models but is usually self-evident.
+If a model has several distinct types of components, you will need to
+specify which components to return.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'boot'
+tidy(
+  x,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  conf.method = c("perc", "bca", "basic", "norm"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code><a href="../../boot/html/boot.html">boot::boot()</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>conf.int</code></td>
+<td>
+<p>Logical indicating whether or not to include a confidence
+interval in the tidied output. Defaults to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>conf.level</code></td>
+<td>
+<p>The confidence level to use for the confidence interval
+if <code>conf.int = TRUE</code>. Must be strictly greater than 0 and less than 1.
+Defaults to 0.95, which corresponds to a 95 percent confidence interval.</p>
+</td></tr>
+<tr valign="top"><td><code>conf.method</code></td>
+<td>
+<p>Passed to the <code>type</code> argument of <code><a href="../../boot/html/boot.ci.html">boot::boot.ci()</a></code>.
+Defaults to <code>"perc"</code>. The allowed types are <code>"perc"</code>, <code>"basic"</code>,
+<code>"bca"</code>, and <code>"norm"</code>. Does not support <code>"stud"</code> or <code>"all"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If weights were provided to the <code>boot</code> function, an <code>estimate</code>
+column is included showing the weighted bootstrap estimate, and the
+standard error is of that estimate.
+</p>
+<p>If there are no original statistics in the &quot;boot&quot; object, such as with a
+call to <code>tsboot</code> with <code>orig.t = FALSE</code>, the <code>original</code>
+and <code>statistic</code> columns are omitted, and only <code>estimate</code> and
+<code>std.error</code> columns shown.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>bias</code></td>
+<td>
+<p>Bias of the statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>std.error</code></td>
+<td>
+<p>The standard error of the regression term.</p>
+</td></tr>
+<tr valign="top"><td><code>term</code></td>
+<td>
+<p>The name of the regression term.</p>
+</td></tr>
+<tr valign="top"><td><code>statistic</code></td>
+<td>
+<p>Original value of the statistic.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">tidy()</a></code>, <code><a href="../../boot/html/boot.html">boot::boot()</a></code>, <code><a href="../../boot/html/tsboot.html">boot::tsboot()</a></code>, <code><a href="../../boot/html/boot.ci.html">boot::boot.ci()</a></code>,
+<code><a href="../../rsample/html/bootstraps.html">rsample::bootstraps()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+if (requireNamespace("boot", quietly = TRUE)) {
+
+library(boot)
+
+clotting &lt;- data.frame(
+  u = c(5, 10, 15, 20, 30, 40, 60, 80, 100),
+  lot1 = c(118, 58, 42, 35, 27, 25, 21, 19, 18),
+  lot2 = c(69, 35, 26, 21, 18, 16, 13, 12, 12)
+)
+
+g1 &lt;- glm(lot2 ~ log(u), data = clotting, family = Gamma)
+
+bootfun &lt;- function(d, i) {
+  coef(update(g1, data = d[i, ]))
+}
+
+bootres &lt;- boot(clotting, bootfun, R = 999)
+tidy(g1, conf.int = TRUE)
+tidy(bootres, conf.int = TRUE)
+
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

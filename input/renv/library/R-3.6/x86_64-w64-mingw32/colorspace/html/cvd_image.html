@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert Colors of an Image</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cvd_image {colorspace}"><tr><td>cvd_image {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert Colors of an Image</h2>
+
+<h3>Description</h3>
+
+<p>Used in <code>cvd_emulator</code>. Takes an image object and converts
+the colors using <code><a href="simulate_cvd.html">deutan</a></code>, <code><a href="simulate_cvd.html">protan</a></code>,
+<code><a href="simulate_cvd.html">tritan</a></code>, <code><a href="desaturate.html">desaturate</a></code> functions. The image
+will be written to disc as a PNG file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cvd_image(img, type, file, severity = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>img</code></td>
+<td>
+<p><code>array</code> as returned by <code>readPNG</code> and <code>readJPEG</code>
+of size <code>height x width x depth</code>. The depth coordinate contains
+R/G/B and alpha if given (png).</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p><code>string</code> name of the function which will be used to
+convert the colors (<code>deutan</code>, <code>protan</code>, <code>tritan</code>, <code>desaturate</code>).
+If set to <code>original</code> the image will be written as is.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p><code>string</code> with (full) path to resulting image. Has to
+be a png image name.</p>
+</td></tr>
+<tr valign="top"><td><code>severity</code></td>
+<td>
+<p>numeric. Severity of the color vision defect, a number between 0 and 1.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

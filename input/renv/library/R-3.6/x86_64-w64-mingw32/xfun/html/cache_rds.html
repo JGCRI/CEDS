@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cache the value of an R expression to an RDS file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cache_rds {xfun}"><tr><td>cache_rds {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cache the value of an R expression to an RDS file</h2>
+
+<h3>Description</h3>
+
+<p>Save the value of an expression to a cache file (of the RDS format). Next
+time the value is loaded from the file if it exists.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cache_rds(
+  expr = { },
+  rerun = FALSE,
+  file = "cache.rds",
+  dir = "cache/",
+  hash = NULL,
+  clean = getOption("xfun.cache_rds.clean", TRUE),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An R expression.</p>
+</td></tr>
+<tr valign="top"><td><code>rerun</code></td>
+<td>
+<p>Whether to delete the RDS file, rerun the expression, and save
+the result again (i.e., invalidate the cache if it exists).</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>The <em>base</em> (see Details) cache filename under the directory
+specified by the <code>dir</code> argument. If not specified and this function is
+called inside a code chunk of a <span class="pkg">knitr</span> document (e.g., an R Markdown
+document), the default is the current chunk label plus the extension
+&lsquo;<span class="file">.rds</span>&rsquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>The path of the RDS file is partially determined by
+<code>paste0(dir, file)</code>. If not specified and the <span class="pkg">knitr</span> package is
+available, the default value of <code>dir</code> is the <span class="pkg">knitr</span> chunk option
+<code>cache.path</code> (so if you are compiling a <span class="pkg">knitr</span> document, you do
+not need to provide this <code>dir</code> argument explicitly), otherwise the
+default is &lsquo;<span class="file">cache/</span>&rsquo;. If you do not want to provide a <code>dir</code> but
+simply a valid path to the <code>file</code> argument, you may use <code>dir =
+""</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>hash</code></td>
+<td>
+<p>A <code>list</code> object that contributes to the MD5 hash of the
+cache filename (see Details). It can also take a special character value
+<code>"auto"</code>. Other types of objects are ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>clean</code></td>
+<td>
+<p>Whether to clean up the old cache files automatically when
+<code>expr</code> has changed.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to be passed to <code><a href="../../base/html/readRDS.html">saveRDS</a>()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that the <code>file</code> argument does not provide the full cache filename.
+The actual name of the cache file is of the form &lsquo;<span class="file">BASENAME_HASH.rds</span>&rsquo;,
+where &lsquo;<span class="file">BASENAME</span>&rsquo; is the base name provided via the &lsquo;<span class="file">file</span>&rsquo; argument
+(e.g., if <code>file = 'foo.rds'</code>, <code>BASENAME</code> would be &lsquo;<span class="file">foo</span>&rsquo;), and
+&lsquo;<span class="file">HASH</span>&rsquo; is the MD5 hash (also called the &lsquo;checksum&rsquo;) calculated
+from the R code provided to the <code>expr</code> argument and the value of the
+<code>hash</code> argument, which means when the code or the <code>hash</code> argument
+changes, the &lsquo;<span class="file">HASH</span>&rsquo; string may also change, and the old cache will be
+invalidated (if it exists). If you want to find the cache file, look for
+&lsquo;<span class="file">.rds</span>&rsquo; files that contain 32 hexadecimal digits (consisting of 0-9 and
+a-z) at the end of the filename.
+</p>
+<p>The possible ways to invalidate the cache are: 1) change the code in
+<code>expr</code> argument; 2) delete the cache file manually or automatically
+through the argument <code>rerun = TRUE</code>; and 3) change the value of the
+<code>hash</code> argument. The first two ways should be obvious. For the third
+way, it makes it possible to automatically invalidate the cache based on
+changes in certain R objects. For example, when you run <code>cache_rds({ x +
+y })</code>, you may want to invalidate the cache to rerun <code>{ x + y }</code> when
+the value of <code>x</code> or <code>y</code> has been changed, and you can tell
+<code>cache_rds()</code> to do so by <code>cache_rds({ x + y }, hash = list(x,
+y))</code>. The value of the argument <code>hash</code> is expected to be a list, but it
+can also take a special value, <code>"auto"</code>, which means
+<code>cache_rds(expr)</code> will try to automatically figure out the global
+variables in <code>expr</code>, return a list of their values, and use this list as
+the actual value of <code>hash</code>. This behavior is most likely to be what you
+really want: if the code in <code>expr</code> uses an external global variable, you
+may want to invalidate the cache if the value of the global variable has
+changed. Here a &ldquo;global variable&rdquo; means a variable not created locally
+in <code>expr</code>, e.g., for <code>cache_rds({ x &lt;- 1; x + y })</code>, <code>x</code> is a
+local variable, and <code>y</code> is (most likely to be) a global variable, so
+changes in <code>y</code> should invalidate the cache. However, you know your own
+code the best. If you want to be completely sure when to invalidate the
+cache, you can always provide a list of objects explicitly rather than
+relying on <code>hash = "auto"</code>.
+</p>
+<p>By default (the argument <code>clean = TRUE</code>), old cache files will be
+automatically cleaned up. Sometimes you may want to use <code>clean = FALSE</code>
+(set the R global option <code>options(xfun.cache_rds.clean = FALSE)</code> if you
+want <code>FALSE</code> to be the default). For example, you may not have decided
+which version of code to use, and you can keep the cache of both versions
+with <code>clean = FALSE</code>, so when you switch between the two versions of
+code, it will still be fast to run the code.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If the cache file does not exist, run the expression and save the
+result to the file, otherwise read the cache file and return the value.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Changes in the code in the <code>expr</code> argument do not necessarily
+always invalidate the cache, if the changed code is <code><a href="../../base/html/parse.html">parse</a>d</code> to
+the same expression as the previous version of the code. For example, if
+you have run <code>cache_rds({Sys.sleep(5);1+1})</code> before, running
+<code>cache_rds({ Sys.sleep( 5 ) ; 1 + 1 })</code> will use the cache, because
+the two expressions are essentially the same (they only differ in white
+spaces). Usually you can add/delete white spaces or comments to your code
+in <code>expr</code> without invalidating the cache. See the package vignette
+<code>vignette('xfun', package = 'xfun')</code> for more examples.
+</p>
+<p>When this function is called in a code chunk of a <span class="pkg">knitr</span> document, you
+may not want to provide the filename or directory of the cache file,
+because they have reasonable defaults.
+</p>
+<p>Side-effects (such as plots or printed output) will not be cached. The
+cache only stores the last value of the expression in <code>expr</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f = tempfile()  # the cache file
+compute = function(...) {
+    res = xfun::cache_rds({
+        Sys.sleep(1)
+        1:10
+    }, file = f, dir = "", ...)
+    res
+}
+compute()  # takes one second
+compute()  # returns 1:10 immediately
+compute()  # fast again
+compute(rerun = TRUE)  # one second to rerun
+compute()
+file.remove(f)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

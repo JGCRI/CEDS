@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Upgrade renv</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for upgrade {renv}"><tr><td>upgrade {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Upgrade renv</h2>
+
+<h3>Description</h3>
+
+<p>Upgrade the version of <code>renv</code> associated with a project.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+upgrade(project = NULL, version = NULL, reload = NULL, confirm = interactive())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>The version of <code>renv</code> to be installed. By default, the latest
+version of <code>renv</code> as available on the active R package repositories is
+used.</p>
+</td></tr>
+<tr valign="top"><td><code>reload</code></td>
+<td>
+<p>Boolean; reload <code>renv</code> after install? When <code>NULL</code> (the
+default), <code>renv</code> will be re-loaded only if updating <code>renv</code> for the
+active project. Note that this may fail if you've loaded packages
+which also depend on <code>renv</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>confirm</code></td>
+<td>
+<p>Boolean; confirm upgrade before proceeding?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>By default, this function will attempt to install the latest version of
+<code>renv</code> as available on the active R package repositories. If you'd instead
+like to try out a development version of <code>renv</code>, you can explicitly request a
+different version of <code>renv</code> and that version of the package will be
+downloaded and installed from GitHub. Use <code>version = "master"</code> to install the
+latest development version of <code>renv</code>, as from the <code>renv</code> project's <a href="https://github.com/rstudio/renv">GitHub page</a>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A boolean value, indicating whether the requested version of
+<code>renv</code> was successfully installed. Note that this function is normally
+called for its side effects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# upgrade to the latest version of renv
+renv::upgrade()
+
+# upgrade to the latest version of renv on GitHub (development version)
+renv::upgrade(version = "master")
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

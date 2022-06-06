@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert package news to the Markdown format</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for news2md {xfun}"><tr><td>news2md {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert package news to the Markdown format</h2>
+
+<h3>Description</h3>
+
+<p>Read the package news with <code><a href="../../utils/html/news.html">news</a>()</code>, convert the result to
+Markdown, and write to an output file (e.g., &lsquo;<span class="file">NEWS.md</span>&rsquo;). Each package
+version appears in a first-level header, each category (e.g., <span class="samp">NEW
+FEATURES</span> or <span class="samp">BUG FIXES</span>) is in a second-level header, and the news
+items are written into bullet lists.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+news2md(package, ..., output = "NEWS.md", category = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package, ...</code></td>
+<td>
+<p>Arguments to be passed to <code><a href="../../utils/html/news.html">news</a>()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>output</code></td>
+<td>
+<p>The output file path.</p>
+</td></tr>
+<tr valign="top"><td><code>category</code></td>
+<td>
+<p>Whether to keep the category names.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If <code>output = NA</code>, returns the Markdown content as a character
+vector, otherwise the content is written to the output file.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# news for the current version of R
+xfun::news2md("R", Version == getRversion(), output = NA)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

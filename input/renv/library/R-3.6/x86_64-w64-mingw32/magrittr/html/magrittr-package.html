@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: magrittr - Ceci n'est pas un pipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for magrittr-package {magrittr}"><tr><td>magrittr-package {magrittr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>magrittr - Ceci n'est pas un pipe</h2>
+
+<h3>Description</h3>
+
+<p>The magrittr package offers a set of operators which promote semantics
+that will improve your code by
+</p>
+
+<ul>
+<li><p> structuring sequences of data operations left-to-right
+(as opposed to from the inside and out),
+</p>
+</li>
+<li><p> avoiding nested function calls,
+</p>
+</li>
+<li><p> minimizing the need for local variables and function definitions, and
+</p>
+</li>
+<li><p> making it easy to add steps anywhere in the sequence of operations.
+</p>
+</li></ul>
+
+<p>The operators pipe their left-hand side values forward into expressions that
+appear on the right-hand side, i.e. one can replace <code>f(x)</code> with
+<code>x %&gt;% f</code>, where <code>%&gt;%</code> is the (main) pipe-operator.
+</p>
+
+
+<h3>Details</h3>
+
+<p>Consider the example below. Four operations are performed to
+arrive at the desired data set, and they are written in a natural order:
+the same as the order of execution. Also, no temporary variables are needed.
+If yet another operation is required, it is straight-forward to add to the
+sequence of operations whereever it may be needed.
+</p>
+<p>For a more detailed introduction see the vignette
+(<code>vignette("magrittr")</code>) or the documentation pages for the
+available operators:<br />
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<code><a href="pipe.html">%&gt;%</a></code>  </td><td style="text-align: left;"> pipe.</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code><a href="tee.html">%T&gt;%</a></code> </td><td style="text-align: left;"> tee pipe.</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code><a href="compound.html">%&lt;&gt;%</a></code> </td><td style="text-align: left;"> assignment pipe.</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code><a href="exposition.html">%$%</a></code>  </td><td style="text-align: left;"> exposition pipe.</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+
+
+<h3>Author(s)</h3>
+
+<p><strong>Maintainer</strong>: Lionel Henry <a href="mailto:lionel@rstudio.com">lionel@rstudio.com</a>
+</p>
+<p>Authors:
+</p>
+
+<ul>
+<li><p> Stefan Milton Bache <a href="mailto:stefan@stefanbache.dk">stefan@stefanbache.dk</a> (Original author and creator of magrittr) [copyright holder]
+</p>
+</li>
+<li><p> Hadley Wickham <a href="mailto:hadley@rstudio.com">hadley@rstudio.com</a>
+</p>
+</li></ul>
+
+<p>Other contributors:
+</p>
+
+<ul>
+<li><p> RStudio [copyright holder, funder]
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Useful links:
+</p>
+
+<ul>
+<li> <p><a href="https://magrittr.tidyverse.org">https://magrittr.tidyverse.org</a>
+</p>
+</li>
+<li> <p><a href="https://github.com/tidyverse/magrittr">https://github.com/tidyverse/magrittr</a>
+</p>
+</li>
+<li><p> Report bugs at <a href="https://github.com/tidyverse/magrittr/issues">https://github.com/tidyverse/magrittr/issues</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+the_data &lt;-
+  read.csv('/path/to/data/file.csv') %&gt;%
+  subset(variable_a &gt; x) %&gt;%
+  transform(variable_c = variable_a/variable_b) %&gt;%
+  head(100)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>magrittr</em> version 2.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

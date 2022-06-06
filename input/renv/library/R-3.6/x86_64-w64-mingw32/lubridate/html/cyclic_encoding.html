@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cyclic encoding of date-times</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cyclic_encoding {lubridate}"><tr><td>cyclic_encoding {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cyclic encoding of date-times</h2>
+
+<h3>Description</h3>
+
+<p>Encode a date-time object into a cyclic coordinate system in which the
+distances between two pairs of dates separated by the same time duration are
+the same.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cyclic_encoding(
+  x,
+  periods,
+  encoders = c("sin", "cos"),
+  week_start = getOption("lubridate.week.start", 7)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a date-time object</p>
+</td></tr>
+<tr valign="top"><td><code>periods</code></td>
+<td>
+<p>a character vector of periods. Follows same specification as
+<a href="period.html">period</a> and <a href="round_date.html">floor_date</a> functions.</p>
+</td></tr>
+<tr valign="top"><td><code>encoders</code></td>
+<td>
+<p>names of functions to produce the encoding. Defaults to
+&quot;sin&quot; and &quot;cos&quot;. Names of any predefined functions accepting a numeric
+input are allowed.</p>
+</td></tr>
+<tr valign="top"><td><code>week_start</code></td>
+<td>
+<p>day starting a week (used for weekly periods).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Machine learning models don't know that December 31st and January 1st are
+close in our human calendar sense. <code>cyclic_encoding</code> makes it obvious to the
+machine learner that two calendar dates are close by mapping the dates onto
+the circle.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a numeric matrix with number of columns equal <code>length(periods) * length(types)</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+times &lt;- ymd_hms("2019-01-01 00:00:00") + hours(0:23)
+cyclic_encoding(times, c("day", "week", "month"))
+plot(cyclic_encoding(times, "1d"))
+plot(cyclic_encoding(times, "2d"), xlim = c(-1, 1))
+plot(cyclic_encoding(times, "4d"), xlim = c(-1, 1))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Validate JSON</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for validate {jsonlite}"><tr><td>validate {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Validate JSON</h2>
+
+<h3>Description</h3>
+
+<p>Test if a string contains valid JSON. Characters vectors will be collapsed into a single string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+validate(txt)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>txt</code></td>
+<td>
+<p>JSON string</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+#Output from toJSON and serializeJSON should pass validation
+myjson &lt;- toJSON(mtcars)
+validate(myjson) #TRUE
+
+#Something bad happened
+truncated &lt;- substring(myjson, 1, 100)
+validate(truncated) #FALSE
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

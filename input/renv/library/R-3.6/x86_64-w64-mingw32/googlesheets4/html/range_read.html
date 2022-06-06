@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read a Sheet into a data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for range_read {googlesheets4}"><tr><td>range_read {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read a Sheet into a data frame</h2>
+
+<h3>Description</h3>
+
+<p>This is the main &quot;read&quot; function of the googlesheets4 package. It goes by two
+names, because we want it to make sense in two contexts:
+</p>
+
+<ul>
+<li> <p><code>read_sheet()</code> evokes other table-reading functions, like
+<code>readr::read_csv()</code> and <code>readxl::read_excel()</code>. The <code>sheet</code> in this case
+refers to a Google (spread)Sheet.
+</p>
+</li>
+<li> <p><code>range_read()</code> is the right name according to the naming convention used
+throughout the googlesheets4 package.
+</p>
+</li></ul>
+
+<p><code>read_sheet()</code> and <code>range_read()</code> are synonyms and you can use either one.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+range_read(
+  ss,
+  sheet = NULL,
+  range = NULL,
+  col_names = TRUE,
+  col_types = NULL,
+  na = "",
+  trim_ws = TRUE,
+  skip = 0,
+  n_max = Inf,
+  guess_max = min(1000, n_max),
+  .name_repair = "unique"
+)
+
+read_sheet(
+  ss,
+  sheet = NULL,
+  range = NULL,
+  col_names = TRUE,
+  col_types = NULL,
+  na = "",
+  trim_ws = TRUE,
+  skip = 0,
+  n_max = Inf,
+  guess_max = min(1000, n_max),
+  .name_repair = "unique"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to read, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. Ignored if the sheet is specified via <code>range</code>. If neither argument specifies the sheet, defaults to the first visible sheet.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>A cell range to read from. If <code>NULL</code>, all non-empty cells are
+read. Otherwise specify <code>range</code> as described in <a href="https://developers.google.com/sheets/api/guides/concepts#a1_notation">Sheets A1 notation</a>
+or using the helpers documented in <a href="cell-specification.html">cell-specification</a>. Sheets uses
+fairly standard spreadsheet range notation, although a bit different from
+Excel. Examples of valid ranges: <code>"Sheet1!A1:B2"</code>, <code>"Sheet1!A:A"</code>,
+<code>"Sheet1!1:2"</code>, <code>"Sheet1!A5:A"</code>, <code>"A1:B2"</code>, <code>"Sheet1"</code>. Interpreted
+strictly, even if the range forces the inclusion of leading, trailing, or
+embedded empty rows or columns. Takes precedence over <code>skip</code>, <code>n_max</code> and
+<code>sheet</code>. Note <code>range</code> can be a named range, like <code>"sales_data"</code>, without
+any cell reference.</p>
+</td></tr>
+<tr valign="top"><td><code>col_names</code></td>
+<td>
+<p><code>TRUE</code> to use the first row as column names, <code>FALSE</code> to get
+default names, or a character vector to provide column names directly. If
+user provides <code>col_types</code>, <code>col_names</code> can have one entry per column or one
+entry per unskipped column.</p>
+</td></tr>
+<tr valign="top"><td><code>col_types</code></td>
+<td>
+<p>Column types. Either <code>NULL</code> to guess all from the
+spreadsheet or a string of readr-style shortcodes, with one character or
+code per column. If exactly one <code>col_type</code> is specified, it is recycled.
+See Column Specification for more.</p>
+</td></tr>
+<tr valign="top"><td><code>na</code></td>
+<td>
+<p>Character vector of strings to interpret as missing values. By
+default, blank cells are treated as missing data.</p>
+</td></tr>
+<tr valign="top"><td><code>trim_ws</code></td>
+<td>
+<p>Logical. Should leading and trailing whitespace be trimmed
+from cell contents?</p>
+</td></tr>
+<tr valign="top"><td><code>skip</code></td>
+<td>
+<p>Minimum number of rows to skip before reading anything, be it
+column names or data. Leading empty rows are automatically skipped, so this
+is a lower bound. Ignored if <code>range</code> is given.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Maximum number of data rows to parse into the returned tibble.
+Trailing empty rows are automatically skipped, so this is an upper bound on
+the number of rows in the result. Ignored if <code>range</code> is given. <code>n_max</code> is
+imposed locally, after reading all non-empty cells, so, if speed is an
+issue, it is better to use <code>range</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>guess_max</code></td>
+<td>
+<p>Maximum number of data rows to use for guessing column
+types.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Handling of column names. By default, googlesheets4
+ensures column names are not empty and are unique. There is full support
+for <code>.name_repair</code> as documented in <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../tibble/html/tibble-package.html">tibble</a>
+</p>
+
+
+<h3>Column Specification</h3>
+
+<p>Column types must be specified in a single string of readr-style short
+codes, e.g. &quot;cci?l&quot; means &quot;character, character, integer, guess, logical&quot;.
+This is not where googlesheets4's col spec will end up, but it gets the
+ball rolling in a way that is consistent with readr and doesn't reinvent
+any wheels.
+</p>
+<p>Shortcodes for column types:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">_</code> or <code>-</code>: Skip. Data in a skipped column is still requested from the
+API (the high-level functions in this package are rectangle-oriented), but
+is not parsed into the data frame output.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">?</code>: Guess. A type is guessed for each cell and then a consensus type is
+selected for the column. If no atomic type is suitable for all cells, a
+list-column is created, in which each cell is converted to an R object of
+&quot;best&quot; type. If no column types are specified, i.e. <code>col_types = NULL</code>,
+all types are guessed.
+</p>
+</li>
+<li> <p><code>l</code>: Logical.
+</p>
+</li>
+<li> <p><code>i</code>: Integer. This type is never guessed from the data, because Sheets
+have no formal cell type for integers.
+</p>
+</li>
+<li> <p><code>d</code> or <code>n</code>: Numeric, in the sense of &quot;double&quot;.
+</p>
+</li>
+<li> <p><code>D</code>: Date. This type is never guessed from the data, because date cells
+are just serial datetimes that bear a &quot;date&quot; format.
+</p>
+</li>
+<li> <p><code>t</code>: Time of day. This type is never guessed from the data, because time
+cells are just serial datetimes that bear a &quot;time&quot; format. <em>Not implemented
+yet; returns POSIXct.</em>
+</p>
+</li>
+<li> <p><code>T</code>: Datetime, specifically POSIXct.
+</p>
+</li>
+<li> <p><code>c</code>: Character.
+</p>
+</li>
+<li> <p><code>C</code>: Cell. This type is unique to googlesheets4. This returns raw cell
+data, as an R list, which consists of everything sent by the Sheets API for
+that cell. Has S3 type of <code>"CELL_SOMETHING"</code> and <code>"SHEETS_CELL"</code>. Mostly
+useful internally, but exposed for those who want direct access to, e.g.,
+formulas and formats.
+</p>
+</li>
+<li> <p><code>L</code>: List, as in &quot;list-column&quot;. Each cell is a length-1 atomic vector of
+its discovered type.
+</p>
+</li>
+<li> <p><em>Still to come</em>: duration (code will be <code>:</code>) and factor (code will be
+<code>f</code>).
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  ss &lt;- gs4_example("deaths")
+  read_sheet(ss, range = "A5:F15")
+  read_sheet(ss, range = "other!A5:F15", col_types = "ccilDD")
+  read_sheet(ss, range = "arts_data", col_types = "ccilDD")
+
+  read_sheet(gs4_example("mini-gap"))
+  read_sheet(
+    gs4_example("mini-gap"),
+    sheet = "Europe",
+    range = "A:D",
+    col_types = "ccid"
+  )
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Async Multi Download</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for multi {curl}"><tr><td>multi {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Async Multi Download</h2>
+
+<h3>Description</h3>
+
+<p>AJAX style concurrent requests, possibly using HTTP/2 multiplexing.
+Results are only available via callback functions. Advanced use only!
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+multi_add(handle, done = NULL, fail = NULL, data = NULL, pool = NULL)
+
+multi_run(timeout = Inf, poll = FALSE, pool = NULL)
+
+multi_set(total_con = 50, host_con = 6, multiplex = TRUE, pool = NULL)
+
+multi_list(pool = NULL)
+
+multi_cancel(handle)
+
+new_pool(total_con = 100, host_con = 6, multiplex = TRUE)
+
+multi_fdset(pool = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>a curl <a href="handle.html">handle</a> with preconfigured <code>url</code> option.</p>
+</td></tr>
+<tr valign="top"><td><code>done</code></td>
+<td>
+<p>callback function for completed request. Single argument with
+response data in same structure as <a href="curl_fetch.html">curl_fetch_memory</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>fail</code></td>
+<td>
+<p>callback function called on failed request. Argument contains
+error message.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>(advanced) callback function, file path, or connection object for writing
+incoming data. This callback should only be used for <em>streaming</em> applications,
+where small pieces of incoming data get written before the request has completed. The
+signature for the callback function is <code>write(data, final = FALSE)</code>. If set
+to <code>NULL</code> the entire response gets buffered internally and returned by in
+the <code>done</code> callback (which is usually what you want).</p>
+</td></tr>
+<tr valign="top"><td><code>pool</code></td>
+<td>
+<p>a multi handle created by <a href="multi.html">new_pool</a>. Default uses a global pool.</p>
+</td></tr>
+<tr valign="top"><td><code>timeout</code></td>
+<td>
+<p>max time in seconds to wait for results. Use <code>0</code> to poll for results without
+waiting at all.</p>
+</td></tr>
+<tr valign="top"><td><code>poll</code></td>
+<td>
+<p>If <code>TRUE</code> then return immediately after any of the requests has completed.
+May also be an integer in which case it returns after n requests have completed.</p>
+</td></tr>
+<tr valign="top"><td><code>total_con</code></td>
+<td>
+<p>max total concurrent connections.</p>
+</td></tr>
+<tr valign="top"><td><code>host_con</code></td>
+<td>
+<p>max concurrent connections per host.</p>
+</td></tr>
+<tr valign="top"><td><code>multiplex</code></td>
+<td>
+<p>enable HTTP/2 multiplexing if supported by host and client.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Requests are created in the usual way using a curl <a href="handle.html">handle</a> and added
+to the scheduler with <a href="multi.html">multi_add</a>. This function returns immediately
+and does not perform the request yet. The user needs to call <a href="multi.html">multi_run</a>
+which performs all scheduled requests concurrently. It returns when all
+requests have completed, or case of a <code>timeout</code> or <code>SIGINT</code> (e.g.
+if the user presses <code>ESC</code> or <code>CTRL+C</code> in the console). In case of
+the latter, simply call <a href="multi.html">multi_run</a> again to resume pending requests.
+</p>
+<p>When the request succeeded, the <code>done</code> callback gets triggered with
+the response data. The structure if this data is identical to <a href="curl_fetch.html">curl_fetch_memory</a>.
+When the request fails, the <code>fail</code> callback is triggered with an error
+message. Note that failure here means something went wrong in performing the
+request such as a connection failure, it does not check the http status code.
+Just like <a href="curl_fetch.html">curl_fetch_memory</a>, the user has to implement application logic.
+</p>
+<p>Raising an error within a callback function stops execution of that function
+but does not affect other requests.
+</p>
+<p>A single handle cannot be used for multiple simultaneous requests. However
+it is possible to add new requests to a pool while it is running, so you
+can re-use a handle within the callback of a request from that same handle.
+It is up to the user to make sure the same handle is not used in concurrent
+requests.
+</p>
+<p>The <a href="multi.html">multi_cancel</a> function can be used to cancel a pending request.
+It has no effect if the request was already completed or canceled.
+</p>
+<p>The <a href="multi.html">multi_fdset</a> function returns the file descriptors curl is
+polling currently, and also a timeout parameter, the number of
+milliseconds an application should wait (at most) before proceeding. It
+is equivalent to the <code>curl_multi_fdset</code> and
+<code>curl_multi_timeout</code> calls. It is handy for applications that is
+expecting input (or writing output) through both curl, and other file
+descriptors.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+results &lt;- list()
+success &lt;- function(x){
+  results &lt;&lt;- append(results, list(x))
+}
+failure &lt;- function(str){
+  cat(paste("Failed request:", str), file = stderr())
+}
+# This handle will take longest (3sec)
+h1 &lt;- new_handle(url = "https://eu.httpbin.org/delay/3")
+multi_add(h1, done = success, fail = failure)
+
+# This handle writes data to a file
+con &lt;- file("output.txt")
+h2 &lt;- new_handle(url = "https://eu.httpbin.org/post", postfields = "bla bla")
+multi_add(h2, done = success, fail = failure, data = con)
+
+# This handle raises an error
+h3 &lt;- new_handle(url = "https://urldoesnotexist.xyz")
+multi_add(h3, done = success, fail = failure)
+
+# Actually perform the requests
+multi_run(timeout = 2)
+multi_run()
+
+# Check the file
+readLines("output.txt")
+unlink("output.txt")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

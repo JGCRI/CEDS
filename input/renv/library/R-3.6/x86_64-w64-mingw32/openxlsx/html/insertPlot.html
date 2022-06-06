@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Insert the current plot into a worksheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for insertPlot {openxlsx}"><tr><td>insertPlot {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Insert the current plot into a worksheet</h2>
+
+<h3>Description</h3>
+
+<p>The current plot is saved to a temporary image file using dev.copy.
+This file is then written to the workbook using insertImage.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+insertPlot(
+  wb,
+  sheet,
+  width = 6,
+  height = 4,
+  xy = NULL,
+  startRow = 1,
+  startCol = 1,
+  fileType = "png",
+  units = "in",
+  dpi = 300
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of figure. Defaults to 6in.</p>
+</td></tr>
+<tr valign="top"><td><code>height</code></td>
+<td>
+<p>Height of figure . Defaults to 4in.</p>
+</td></tr>
+<tr valign="top"><td><code>xy</code></td>
+<td>
+<p>Alternate way to specify startRow and startCol.  A vector of length 2 of form (startcol, startRow)</p>
+</td></tr>
+<tr valign="top"><td><code>startRow</code></td>
+<td>
+<p>Row coordinate of upper left corner of figure.<code> xy[[2]]</code> when xy is given.</p>
+</td></tr>
+<tr valign="top"><td><code>startCol</code></td>
+<td>
+<p>Column coordinate of upper left corner of figure. <code>xy[[1]]</code> when xy is given.</p>
+</td></tr>
+<tr valign="top"><td><code>fileType</code></td>
+<td>
+<p>File type of image</p>
+</td></tr>
+<tr valign="top"><td><code>units</code></td>
+<td>
+<p>Units of width and height. Can be &quot;in&quot;, &quot;cm&quot; or &quot;px&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>dpi</code></td>
+<td>
+<p>Image resolution</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="insertImage.html">insertImage()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+## Create a new workbook
+wb &lt;- createWorkbook()
+
+## Add a worksheet
+addWorksheet(wb, "Sheet 1", gridLines = FALSE)
+
+## create plot objects
+require(ggplot2)
+p1 &lt;- qplot(mpg,
+  data = mtcars, geom = "density",
+  fill = as.factor(gear), alpha = I(.5), main = "Distribution of Gas Mileage"
+)
+p2 &lt;- qplot(age, circumference,
+  data = Orange, geom = c("point", "line"), colour = Tree
+)
+
+## Insert currently displayed plot to sheet 1, row 1, column 1
+print(p1) # plot needs to be showing
+insertPlot(wb, 1, width = 5, height = 3.5, fileType = "png", units = "in")
+
+## Insert plot 2
+print(p2)
+insertPlot(wb, 1, xy = c("J", 2), width = 16, height = 10, fileType = "png", units = "cm")
+
+## Save workbook
+saveWorkbook(wb, "insertPlotExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

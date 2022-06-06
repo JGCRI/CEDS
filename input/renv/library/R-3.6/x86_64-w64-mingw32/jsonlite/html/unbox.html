@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Unbox a vector or data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for unbox {jsonlite}"><tr><td>unbox {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Unbox a vector or data frame</h2>
+
+<h3>Description</h3>
+
+<p>This function marks an atomic vector or data frame as a
+<a href="https://en.wikipedia.org/wiki/Singleton_(mathematics)">singleton</a>, i.e.
+a set with exactly 1 element. Thereby, the value will not turn into an
+<code>array</code> when encoded into JSON. This can only be done for
+atomic vectors of length 1, or data frames with exactly 1 row. To automatically
+unbox all vectors of length 1 within an object, use the <code>auto_unbox</code> argument
+in <code><a href="fromJSON.html">toJSON()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+unbox(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>atomic vector of length 1, or data frame with 1 row.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It is usually recommended to avoid this function and stick with the default
+encoding schema for the various <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> classes. The only use case for this function
+is if you are bound to some specific predefined JSON structure (e.g. to
+submit to an API), which has no natural <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> representation. Note that the default
+encoding for data frames naturally results in a collection of key-value pairs,
+without using <code>unbox</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a singleton version of <code>x</code>.
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="https://en.wikipedia.org/wiki/Singleton_(mathematics)">https://en.wikipedia.org/wiki/Singleton_(mathematics)</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+toJSON(list(foo=123))
+toJSON(list(foo=unbox(123)))
+
+# Auto unbox vectors of length one:
+x = list(x=1:3, y = 4, z = "foo", k = NULL)
+toJSON(x)
+toJSON(x, auto_unbox = TRUE)
+
+x &lt;- iris[1,]
+toJSON(list(rec=x))
+toJSON(list(rec=unbox(x)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

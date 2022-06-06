@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write a character vector as an Excel Formula</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for writeFormula {openxlsx}"><tr><td>writeFormula {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write a character vector as an Excel Formula</h2>
+
+<h3>Description</h3>
+
+<p>Write a a character vector containing Excel formula to a worksheet.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+writeFormula(
+  wb,
+  sheet,
+  x,
+  startCol = 1,
+  startRow = 1,
+  array = FALSE,
+  xy = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A Workbook object containing a worksheet.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>The worksheet to write to. Can be the worksheet index or name.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>startCol</code></td>
+<td>
+<p>A vector specifying the starting column to write to.</p>
+</td></tr>
+<tr valign="top"><td><code>startRow</code></td>
+<td>
+<p>A vector specifying the starting row to write to.</p>
+</td></tr>
+<tr valign="top"><td><code>array</code></td>
+<td>
+<p>A bool if the function written is of type array</p>
+</td></tr>
+<tr valign="top"><td><code>xy</code></td>
+<td>
+<p>An alternative to specifying <code>startCol</code> and
+<code>startRow</code> individually.  A vector of the form
+<code>c(startCol, startRow)</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Currently only the english version of functions are supported. Please don't use the local translation.
+The examples below show a small list of possible formulas:
+</p>
+
+<ul>
+<li><p>SUM(B2:B4)
+</p>
+</li>
+<li><p>AVERAGE(B2:B4)
+</p>
+</li>
+<li><p>MIN(B2:B4)
+</p>
+</li>
+<li><p>MAX(B2:B4)
+</p>
+</li>
+<li><p>...
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="writeData.html">writeData()</a></code> <code><a href="makeHyperlinkString.html">makeHyperlinkString()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## There are 3 ways to write a formula
+
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+writeData(wb, "Sheet 1", x = iris)
+
+## SEE int2col() to convert int to Excel column label
+
+## 1. -  As a character vector using writeFormula
+
+v &lt;- c("SUM(A2:A151)", "AVERAGE(B2:B151)") ## skip header row
+writeFormula(wb, sheet = 1, x = v, startCol = 10, startRow = 2)
+writeFormula(wb, 1, x = "A2 + B2", startCol = 10, startRow = 10)
+
+
+## 2. - As a data.frame column with class "formula" using writeData
+
+df &lt;- data.frame(
+  x = 1:3,
+  y = 1:3,
+  z = paste(paste0("A", 1:3 + 1L), paste0("B", 1:3 + 1L), sep = " + "),
+  z2 = sprintf("ADDRESS(1,%s)", 1:3),
+  stringsAsFactors = FALSE
+)
+
+class(df$z) &lt;- c(class(df$z), "formula")
+class(df$z2) &lt;- c(class(df$z2), "formula")
+
+addWorksheet(wb, "Sheet 2")
+writeData(wb, sheet = 2, x = df)
+
+
+
+## 3. - As a vector with class "formula" using writeData
+
+v2 &lt;- c("SUM(A2:A4)", "AVERAGE(B2:B4)", "MEDIAN(C2:C4)")
+class(v2) &lt;- c(class(v2), "formula")
+
+writeData(wb, sheet = 2, x = v2, startCol = 10, startRow = 2)
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "writeFormulaExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+
+## 4. - Writing internal hyperlinks
+
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet1")
+addWorksheet(wb, "Sheet2")
+writeFormula(wb, "Sheet1", x = '=HYPERLINK("#Sheet2!B3", "Text to Display - Link to Sheet2")')
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "writeFormulaHyperlinkExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

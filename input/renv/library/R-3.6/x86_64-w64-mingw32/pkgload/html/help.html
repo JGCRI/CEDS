@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Drop-in replacements for help and ? functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for help {pkgload}"><tr><td>help {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Drop-in replacements for help and ? functions</h2>
+
+<h3>Description</h3>
+
+<p>The <code style="white-space: pre;">?</code> and <code>help</code> functions are replacements for functions of the
+same name in the utils package. They are made available when a package is
+loaded with <code><a href="load_all.html">load_all()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+# help(topic, package = NULL, ...)
+
+# ?e2
+# e1?e2
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>topic</code></td>
+<td>
+<p>A name or character string specifying the help topic.</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>A name or character string specifying the package in which
+to search for the help topic. If NULL, search all packages.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments to pass to <code><a href="../../utils/html/help.html">utils::help()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>e1</code></td>
+<td>
+<p>First argument to pass along to <code style="white-space: pre;">utils::</code>?&ldquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>e2</code></td>
+<td>
+<p>Second argument to pass along to <code style="white-space: pre;">utils::</code>?&ldquo;.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code style="white-space: pre;">?</code> function is a replacement for <code><a href="../../utils/html/Question.html">utils::?()</a></code> from the
+utils package. It will search for help in devtools-loaded packages first,
+then in regular packages.
+</p>
+<p>The <code>help</code> function is a replacement for <code><a href="../../utils/html/help.html">utils::help()</a></code> from
+the utils package. If <code>package</code> is not specified, it will search for
+help in devtools-loaded packages first, then in regular packages. If
+<code>package</code> is specified, then it will search for help in devtools-loaded
+packages or regular packages, as appropriate.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# This would load devtools and look at the help for load_all, if currently
+# in the devtools source directory.
+load_all()
+?load_all
+help("load_all")
+
+## End(Not run)
+
+# To see the help pages for utils::help and utils::`?`:
+help("help", "utils")
+help("?", "utils")
+
+## Not run: 
+# Examples demonstrating the multiple ways of supplying arguments
+# NB: you can't do pkg &lt;- "ggplot2"; help("ggplot2", pkg)
+help(lm)
+help(lm, stats)
+help(lm, 'stats')
+help('lm')
+help('lm', stats)
+help('lm', 'stats')
+help(package = stats)
+help(package = 'stats')
+topic &lt;- "lm"
+help(topic)
+help(topic, stats)
+help(topic, 'stats')
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

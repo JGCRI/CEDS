@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Test package examples</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for test_examples {testthat}"><tr><td>test_examples {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Test package examples</h2>
+
+<h3>Description</h3>
+
+<p>These helper functions make it easier to test the examples in a package.
+Each example counts as one test, and it succeeds if the code runs without
+an error. Generally, this is redundant with R CMD check, and is not
+recommended in routine practice.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+test_examples(path = "../..")
+
+test_rd(rd, title = attr(rd, "Rdfile"))
+
+test_example(path, title = path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>For <code>test_examples()</code>, path to directory containing Rd files.
+For <code>test_example()</code>, path to a single Rd file. Remember the working
+directory for tests is <code>tests/testthat</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>rd</code></td>
+<td>
+<p>A parsed Rd object, obtained from <code><a href="../../tools/html/Rdutils.html">tools::Rd_db()</a></code> or otherwise.</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>Test title to use</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Shortest Edit Script</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ses {diffobj}"><tr><td>ses {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Shortest Edit Script</h2>
+
+<h3>Description</h3>
+
+<p>Computes shortest edit script to convert <code>a</code> into <code>b</code> by removing
+elements from <code>a</code> and adding elements from <code>b</code>.  Intended primarily
+for debugging or for other applications that understand that particular
+format.  See <a href="http://www.gnu.org/software/diffutils/manual/diffutils.html#Detailed-Normal">GNU diff docs</a>
+for how to interpret the symbols.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ses(a, b, max.diffs = gdo("max.diffs"), warn = gdo("warn"))
+
+ses_dat(a, b, extra = TRUE, max.diffs = gdo("max.diffs"), warn = gdo("warn"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>a</code></td>
+<td>
+<p>character</p>
+</td></tr>
+<tr valign="top"><td><code>b</code></td>
+<td>
+<p>character</p>
+</td></tr>
+<tr valign="top"><td><code>max.diffs</code></td>
+<td>
+<p>integer(1L), number of <em>differences</em> (default 50000L)
+after which we abandon the <code>O(n^2)</code> diff algorithm in favor of a naive
+<code>O(n)</code> one. Set to <code>-1L</code> to stick to the original algorithm up to
+the maximum allowed (~INT_MAX/4).</p>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>TRUE (default) or FALSE whether to warn if we hit
+<code>max.diffs</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>extra</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to also return the indices in
+<code>a</code> and <code>b</code> the diff values are taken from.  Set to FALSE for a
+small performance gain.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>ses</code> will be much faster than any of the
+<code><a href="diffPrint.html">diff*</a></code> methods, particularly for large inputs with
+limited numbers of differences.
+</p>
+<p>NAs are treated as the string &ldquo;NA&rdquo;.  Non-character inputs are coerced
+to character.
+</p>
+<p><code>ses_dat</code> provides a semi-processed &ldquo;machine-readable&rdquo; version of
+precursor data to <code>ses</code> that may be useful for those desiring to use the
+raw diff data and not the printed output of <code>diffobj</code>, but do not wish
+to manually parse the <code>ses</code> output.  Whether it is faster than
+<code>ses</code> or not depends on the ratio of matching to non-matching values as
+<code>ses_dat</code> includes matching values whereas <code>ses</code> does not.  See
+examples.
+</p>
+
+
+<h3>Value</h3>
+
+<p>character shortest edit script, or a machine readable version of it
+as a <code>data.frame</code> with columns <code>op</code> (factor, values
+&ldquo;Match&rdquo;, &ldquo;Insert&rdquo;, or &ldquo;Delete&rdquo;), <code>val</code> character
+corresponding to the value taken from either <code>a</code> or <code>b</code>,
+and if <code>extra</code> is TRUE, integer columns <code>id.a</code> and <code>id.b</code>
+corresponding to the indices in <code>a</code> or <code>b</code> that <code>val</code> was
+taken from.  See Details.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+a &lt;- letters[1:6]
+b &lt;- c('b', 'CC', 'DD', 'd', 'f')
+ses(a, b)
+(dat &lt;- ses_dat(a, b))
+
+## use `ses_dat` output to construct a minimal diff
+## color with ANSI CSI SGR
+diff &lt;- dat[['val']]
+del &lt;- dat[['op']] == 'Delete'
+ins &lt;- dat[['op']] == 'Insert'
+if(any(del))
+  diff[del] &lt;- paste0("\033[33m- ", diff[del], "\033[m")
+if(any(ins))
+  diff[ins] &lt;- paste0("\033[34m+ ", diff[ins], "\033[m")
+if(any(!ins &amp; !del))
+  diff[!ins &amp; !del] &lt;- paste0("  ", diff[!ins &amp; !del])
+writeLines(diff)
+
+## We can recover `a` and `b` from the data
+identical(subset(dat, op != 'Insert', val)[[1]], a)
+identical(subset(dat, op != 'Delete', val)[[1]], b)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

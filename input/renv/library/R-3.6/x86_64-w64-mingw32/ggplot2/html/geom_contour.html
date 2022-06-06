@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: 2D contours of a 3D surface</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for geom_contour {ggplot2}"><tr><td>geom_contour {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>2D contours of a 3D surface</h2>
+
+<h3>Description</h3>
+
+<p>ggplot2 can not draw true 3D surfaces, but you can use <code>geom_contour()</code>,
+<code>geom_contour_filled()</code>, and <code><a href="geom_tile.html">geom_tile()</a></code> to visualise 3D surfaces in 2D. To
+specify a valid surface, the data must contain <code>x</code>, <code>y</code>, and <code>z</code> coordinates,
+and each unique combination of <code>x</code> and <code>y</code> can appear at most once.
+Contouring requires that the points can be rearranged so that the <code>z</code> values
+form a matrix, with rows corresponding to unique <code>x</code> values, and columns
+corresponding to unique <code>y</code> values. Missing entries are allowed, but contouring
+will only be done on cells of the grid with all four <code>z</code> values present. If
+your data is irregular, you can interpolate to a grid before visualising
+using the <code><a href="../../interp/html/interp.html">interp::interp()</a></code> function from the <code>interp</code> package
+(or one of the interpolating functions from the <code>akima</code> package.)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+geom_contour(
+  mapping = NULL,
+  data = NULL,
+  stat = "contour",
+  position = "identity",
+  ...,
+  bins = NULL,
+  binwidth = NULL,
+  breaks = NULL,
+  lineend = "butt",
+  linejoin = "round",
+  linemitre = 10,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+
+geom_contour_filled(
+  mapping = NULL,
+  data = NULL,
+  stat = "contour_filled",
+  position = "identity",
+  ...,
+  bins = NULL,
+  binwidth = NULL,
+  breaks = NULL,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+
+stat_contour(
+  mapping = NULL,
+  data = NULL,
+  geom = "contour",
+  position = "identity",
+  ...,
+  bins = NULL,
+  binwidth = NULL,
+  breaks = NULL,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+
+stat_contour_filled(
+  mapping = NULL,
+  data = NULL,
+  geom = "contour_filled",
+  position = "identity",
+  ...,
+  bins = NULL,
+  binwidth = NULL,
+  breaks = NULL,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>stat</code></td>
+<td>
+<p>The statistical transformation to use on the data for this
+layer, as a string.</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>bins</code></td>
+<td>
+<p>Number of contour bins. Overridden by <code>binwidth</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>binwidth</code></td>
+<td>
+<p>The width of the contour bins. Overridden by <code>breaks</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>breaks</code></td>
+<td>
+<p>Numeric vector to set the contour breaks. Overrides <code>binwidth</code>
+and <code>bins</code>. By default, this is a vector of length ten with <code><a href="../../base/html/pretty.html">pretty()</a></code>
+breaks.</p>
+</td></tr>
+<tr valign="top"><td><code>lineend</code></td>
+<td>
+<p>Line end style (round, butt, square).</p>
+</td></tr>
+<tr valign="top"><td><code>linejoin</code></td>
+<td>
+<p>Line join style (round, mitre, bevel).</p>
+</td></tr>
+<tr valign="top"><td><code>linemitre</code></td>
+<td>
+<p>Line mitre limit (number greater than 1).</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>geom</code></td>
+<td>
+<p>The geometric object to use display the data</p>
+</td></tr>
+</table>
+
+
+<h3>Aesthetics</h3>
+
+<p><code>geom_contour()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code></strong>
+</p>
+</li>
+<li> <p><strong><code>y</code></strong>
+</p>
+</li>
+<li> <p><code>alpha</code>
+</p>
+</li>
+<li> <p><code>colour</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>linetype</code>
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li>
+<li> <p><code>weight</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+<p><code>geom_contour_filled()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code></strong>
+</p>
+</li>
+<li> <p><strong><code>y</code></strong>
+</p>
+</li>
+<li> <p><code>alpha</code>
+</p>
+</li>
+<li> <p><code>colour</code>
+</p>
+</li>
+<li> <p><code>fill</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>linetype</code>
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li>
+<li> <p><code>subgroup</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+<p><code>stat_contour()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code></strong>
+</p>
+</li>
+<li> <p><strong><code>y</code></strong>
+</p>
+</li>
+<li> <p><strong><code>z</code></strong>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>order</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+<p><code>stat_contour_filled()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code></strong>
+</p>
+</li>
+<li> <p><strong><code>y</code></strong>
+</p>
+</li>
+<li> <p><strong><code>z</code></strong>
+</p>
+</li>
+<li> <p><code>fill</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>order</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+
+
+<h3>Computed variables</h3>
+
+<p>The computed variables differ somewhat for contour lines (computed by
+<code>stat_contour()</code>) and contour bands (filled contours, computed by <code>stat_contour_filled()</code>).
+The variables <code>nlevel</code> and <code>piece</code> are available for both, whereas <code>level_low</code>, <code>level_high</code>,
+and <code>level_mid</code> are only available for bands. The variable <code>level</code> is a numeric or a factor
+depending on whether lines or bands are calculated.
+</p>
+
+<dl>
+<dt><code>level</code></dt><dd><p>Height of contour. For contour lines, this is numeric vector that
+represents bin boundaries. For contour bands, this is an ordered factor that
+represents bin ranges.</p>
+</dd>
+<dt><code>level_low</code>, <code>level_high</code>, <code>level_mid</code></dt><dd><p>(contour bands only) Lower and upper
+bin boundaries for each band, as well the mid point between the boundaries.</p>
+</dd>
+<dt><code>nlevel</code></dt><dd><p>Height of contour, scaled to maximum of 1.</p>
+</dd>
+<dt><code>piece</code></dt><dd><p>Contour piece (an integer).</p>
+</dd>
+</dl>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="geom_density_2d.html">geom_density_2d()</a></code>: 2d density contours
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Basic plot
+v &lt;- ggplot(faithfuld, aes(waiting, eruptions, z = density))
+v + geom_contour()
+
+# Or compute from raw data
+ggplot(faithful, aes(waiting, eruptions)) +
+  geom_density_2d()
+
+
+# use geom_contour_filled() for filled contours
+v + geom_contour_filled()
+
+# Setting bins creates evenly spaced contours in the range of the data
+v + geom_contour(bins = 3)
+v + geom_contour(bins = 5)
+
+# Setting binwidth does the same thing, parameterised by the distance
+# between contours
+v + geom_contour(binwidth = 0.01)
+v + geom_contour(binwidth = 0.001)
+
+# Other parameters
+v + geom_contour(aes(colour = after_stat(level)))
+v + geom_contour(colour = "red")
+v + geom_raster(aes(fill = density)) +
+  geom_contour(colour = "white")
+
+# Irregular data
+if (requireNamespace("interp")) {
+  # Use a dataset from the interp package
+  data(franke, package = "interp")
+  origdata &lt;- as.data.frame(interp::franke.data(1, 1, franke))
+  grid &lt;- with(origdata, interp::interp(x, y, z))
+  griddf &lt;- subset(data.frame(x = rep(grid$x, nrow(grid$z)),
+                              y = rep(grid$y, each = ncol(grid$z)),
+                              z = as.numeric(grid$z)),
+                   !is.na(z))
+  ggplot(griddf, aes(x, y, z = z)) +
+    geom_contour_filled() +
+    geom_point(data = origdata)
+} else
+  message("Irregular data requires the 'interp' package")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

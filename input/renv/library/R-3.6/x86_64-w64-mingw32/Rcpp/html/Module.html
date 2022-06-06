@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Retrieves an Rcpp module</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Module {Rcpp}"><tr><td>Module {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Retrieves an Rcpp module
+</h2>
+
+<h3>Description</h3>
+
+<p>Retrieves an Rcpp module from a dynamic library, usually associated with a 
+package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Module(module, PACKAGE = , where = , mustStart =  )
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>module</code></td>
+<td>
+<p>Name of the module, as declared in the <code>RCPP_MODULE</code> macro internally</p>
+</td></tr>
+<tr valign="top"><td><code>PACKAGE</code></td>
+<td>
+<p>Passed to <code><a href="../../base/html/getNativeSymbolInfo.html">getNativeSymbolInfo</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>where</code></td>
+<td>
+<p>When the module is loaded, S4 classes are defined based on the 
+internal classes. This argument is passed to <code><a href="../../methods/html/setClass.html">setClass</a></code>
+</p>
+</td></tr>
+<tr valign="top"><td><code>mustStart</code></td>
+<td>
+<p>TODO</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <a href="Module-class.html">Module</a> collecting functions 
+and classes declared in the module. 
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

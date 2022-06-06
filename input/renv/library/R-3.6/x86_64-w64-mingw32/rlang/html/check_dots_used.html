@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check that all dots have been used</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_dots_used {rlang}"><tr><td>check_dots_used {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check that all dots have been used</h2>
+
+<h3>Description</h3>
+
+<p>When <code>...</code> arguments are passed to methods, it is assumed there
+method will match and use these arguments. If this isn't the case,
+this often indicates a programming error. Call <code>check_dots_used()</code>
+to fail with an error when unused arguments are detected.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_dots_used(
+  env = caller_env(),
+  call = caller_env(),
+  error = NULL,
+  action = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which to look for <code>...</code> and to set up handler.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>error</code></td>
+<td>
+<p>An optional error handler passed to <code><a href="try_fetch.html">try_fetch()</a></code>. Use
+this e.g. to demote an error into a warning.</p>
+</td></tr>
+<tr valign="top"><td><code>action</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In packages, document <code>...</code> with this standard tag:</p>
+<pre> @inheritParams rlang::args_dots_used
+</pre>
+<p><code>check_dots_used()</code> implicitly calls <code><a href="../../base/html/on.exit.html">on.exit()</a></code> to check that all
+elements of <code>...</code> have been used when the function exits. If you
+use <code><a href="../../base/html/on.exit.html">on.exit()</a></code> elsewhere in your function, make sure to use <code>add = TRUE</code> so that you don't override the handler set up by
+<code>check_dots_used()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(...) {
+  check_dots_used()
+  g(...)
+}
+
+g &lt;- function(x, y, ...) {
+  x + y
+}
+f(x = 1, y = 2)
+
+try(f(x = 1, y = 2, z = 3))
+
+try(f(x = 1, y = 2, 3, 4, 5))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

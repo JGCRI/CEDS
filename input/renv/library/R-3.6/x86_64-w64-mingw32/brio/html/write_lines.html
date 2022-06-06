@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write lines to a file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write_lines {brio}"><tr><td>write_lines {brio}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write lines to a file</h2>
+
+<h3>Description</h3>
+
+<p>The text is converted to UTF-8 encoding before writing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+write_lines(text, path, eol = "\n")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>A character vector to write</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character string giving the file path to write to.</p>
+</td></tr>
+<tr valign="top"><td><code>eol</code></td>
+<td>
+<p>The end of line characters to use between lines.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The files are opened in binary mode, so they always use exactly the string
+given in <code>eol</code> as the line separator.
+</p>
+<p>To write a file with windows line endings use <code>write_lines(eol = "\r\n")</code>
+</p>
+
+
+<h3>Value</h3>
+
+<p>The UTF-8 encoded input text (invisibly).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+tf &lt;- tempfile()
+
+write_lines(rownames(mtcars), tf)
+
+# Write with Windows style line endings
+write_lines(rownames(mtcars), tf, eol = "\r\n")
+
+unlink(tf)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>brio</em> version 1.1.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert a ggproto object to a list</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as.list.ggproto {ggplot2}"><tr><td>as.list.ggproto {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert a ggproto object to a list</h2>
+
+<h3>Description</h3>
+
+<p>This will not include the object's <code>super</code> member.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'ggproto'
+as.list(x, inherit = TRUE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A ggproto object to convert to a list.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>If <code>TRUE</code> (the default), flatten all inherited items into
+the returned list. If <code>FALSE</code>, do not include any inherited items.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Arguments passed on to <code><a href="../../base/html/list.html">base::as.list.environment</a></code>
+</p>
+
+<dl>
+<dt><code>all.names</code></dt><dd><p>a logical indicating whether to copy all values or
+(default) only those whose names do not begin with a dot.</p>
+</dd>
+<dt><code>sorted</code></dt><dd><p>a logical indicating whether the <code><a href="../../base/html/names.html">names</a></code> of
+the resulting list should be sorted (increasingly).  Note that this
+is somewhat costly, but may be useful for comparison of environments.</p>
+</dd>
+</dl>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

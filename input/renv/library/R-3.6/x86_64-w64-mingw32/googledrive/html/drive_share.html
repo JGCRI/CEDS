@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Share Drive files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_share {googledrive}"><tr><td>drive_share {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Share Drive files</h2>
+
+<h3>Description</h3>
+
+<p>Grant individuals or other groups access to files, including permission to
+read, comment, or edit. The returned <code><a href="dribble.html">dribble</a></code> will have extra columns,
+<code>shared</code> and <code>permissions_resource</code>. Read more in <code><a href="drive_reveal.html">drive_reveal()</a></code>.
+</p>
+<p><code>drive_share_anyone()</code> is a convenience wrapper for a common special case:
+&quot;make this <code>file</code> readable by 'anyone with a link'&quot;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_share(
+  file,
+  role = c("reader", "commenter", "writer", "fileOrganizer", "owner", "organizer"),
+  type = c("user", "group", "domain", "anyone"),
+  ...,
+  verbose = deprecated()
+)
+
+drive_share_anyone(file, verbose = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file(s) of interest on your Google
+Drive. Can be a character vector of names/paths, a character vector of file
+ids or URLs marked with <code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>role</code></td>
+<td>
+<p>Character. The role to grant. Must be one of:
+</p>
+
+<ul>
+<li><p> owner (not allowed in shared drives)
+</p>
+</li>
+<li><p> organizer (applies to shared drives)
+</p>
+</li>
+<li><p> fileOrganizer (applies to shared drives)
+</p>
+</li>
+<li><p> writer
+</p>
+</li>
+<li><p> commenter
+</p>
+</li>
+<li><p> reader
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. Describes the grantee. Must be one of:
+</p>
+
+<ul>
+<li><p> user
+</p>
+</li>
+<li><p> group
+</p>
+</li>
+<li><p> domain
+</p>
+</li>
+<li><p> anyone
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Name-value pairs to add to the API request. This is where you
+provide additional information, such as the <code>emailAddress</code> (when grantee
+<code>type</code> is <code>"group"</code> or <code>"user"</code>) or the <code>domain</code> (when grantee type is
+<code>"domain"</code>). Read the API docs linked below for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+There will be extra columns, <code>shared</code> and
+<code>permissions_resource</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>permissions.create</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/permissions/create">https://developers.google.com/drive/api/v3/reference/permissions/create</a>
+</p>
+</li></ul>
+
+<p>Drive roles and permissions are described here:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/ref-roles">https://developers.google.com/drive/api/v3/ref-roles</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Create a file to share
+file &lt;- drive_example_remote("chicken_doc") %&gt;%
+  drive_cp(name = "chicken-share.txt")
+
+# Let a specific person comment
+file &lt;- file %&gt;%
+  drive_share(
+    role = "commenter",
+    type = "user",
+    emailAddress = "susan@example.com"
+  )
+
+# Let a different specific person edit and customize the email notification
+file &lt;- file %&gt;%
+  drive_share(
+    role = "writer",
+    type = "user",
+    emailAddress = "carol@example.com",
+    emailMessage = "Would appreciate your feedback on this!"
+  )
+
+# Let anyone read the file
+file &lt;- file %&gt;%
+  drive_share(role = "reader", type = "anyone")
+# Single-purpose wrapper function for this
+drive_share_anyone(file)
+
+# Clean up
+drive_rm(file)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

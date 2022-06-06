@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Lock or unlock environment bindings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_binding_lock {rlang}"><tr><td>env_binding_lock {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Lock or unlock environment bindings</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>Locked environment bindings trigger an error when an attempt is
+made to redefine the binding.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_binding_lock(env, nms = NULL)
+
+env_binding_unlock(env, nms = NULL)
+
+env_binding_are_locked(env, nms = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>nms</code></td>
+<td>
+<p>Names of bindings. Defaults to all bindings in <code>env</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>env_binding_are_unlocked()</code> returns a logical vector as
+long as <code>nms</code> and named after it. <code>env_binding_lock()</code> and
+<code>env_binding_unlock()</code> return the old value of
+<code>env_binding_are_unlocked()</code> invisibly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="env_lock.html">env_lock()</a></code> for locking an environment.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Bindings are unlocked by default:
+env &lt;- env(a = "A", b = "B")
+env_binding_are_locked(env)
+
+# But can optionally be locked:
+env_binding_lock(env, "a")
+env_binding_are_locked(env)
+
+# If run, the following would now return an error because `a` is locked:
+# env_bind(env, a = "foo")
+# with_env(env, a &lt;- "bar")
+
+# Let's unlock it. Note that the return value indicate which
+# bindings were locked:
+were_locked &lt;- env_binding_unlock(env)
+were_locked
+
+# Now that it is unlocked we can modify it again:
+env_bind(env, a = "foo")
+with_env(env, a &lt;- "bar")
+env$a
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

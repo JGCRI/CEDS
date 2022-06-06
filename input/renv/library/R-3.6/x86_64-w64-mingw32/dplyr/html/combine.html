@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine vectors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for combine {dplyr}"><tr><td>combine {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine vectors</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>combine()</code> is deprecated in favour of <code><a href="../../vctrs/html/vec_c.html">vctrs::vec_c()</a></code>. <code>combine()</code>
+attempted to automatically guess whether you wanted <code><a href="../../base/html/c.html">c()</a></code> or <code><a href="../../base/html/unlist.html">unlist()</a></code>,
+but could fail in surprising ways. We now believe it's better to be explicit.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+combine(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Vectors to combine.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f1 &lt;- factor("a")
+f2 &lt;- factor("b")
+
+combine(f1, f2)
+# -&gt;
+vctrs::vec_c(f1, f1)
+
+combine(list(f1, f2))
+# -&gt;
+vctrs::vec_c(!!!list(f1, f2))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

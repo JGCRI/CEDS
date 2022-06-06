@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return a new number after a given number of seconds</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for timeout {memoise}"><tr><td>timeout {memoise}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return a new number after a given number of seconds</h2>
+
+<h3>Description</h3>
+
+<p>This function will return a number corresponding to the system time and
+remain stable until a given number of seconds have elapsed, after which it
+will update to the current time. This makes it useful as a way to timeout
+and invalidate a memoised cache after a certain period of time.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+timeout(seconds, current = as.numeric(Sys.time()))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>seconds</code></td>
+<td>
+<p>Number of seconds after which to timeout.</p>
+</td></tr>
+<tr valign="top"><td><code>current</code></td>
+<td>
+<p>The current time as a numeric.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A numeric that will remain constant until the seconds have elapsed.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="memoise.html">memoise</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+a &lt;- function(n) { runif(n) }
+memA &lt;- memoise(a, ~timeout(10))
+memA(2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>memoise</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

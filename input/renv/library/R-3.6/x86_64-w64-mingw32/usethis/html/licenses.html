@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: License a package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for licenses {usethis}"><tr><td>licenses {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>License a package</h2>
+
+<h3>Description</h3>
+
+<p>Adds the necessary infrastructure to declare your package as licensed
+with one of these popular open source licenses:
+</p>
+<p>Permissive:
+</p>
+
+<ul>
+<li> <p><a href="https://choosealicense.com/licenses/mit/">MIT</a>: simple and permissive.
+</p>
+</li>
+<li> <p><a href="https://choosealicense.com/licenses/apache-2.0/">Apache 2.0</a>: MIT +
+provides patent protection.
+</p>
+</li></ul>
+
+<p>Copyleft:
+</p>
+
+<ul>
+<li> <p><a href="https://choosealicense.com/licenses/gpl-2.0/">GPL v2</a>: requires sharing
+of improvements.
+</p>
+</li>
+<li> <p><a href="https://choosealicense.com/licenses/gpl-3.0/">GPL v3</a>: requires sharing
+of improvements.
+</p>
+</li>
+<li> <p><a href="https://choosealicense.com/licenses/agpl-3.0/">AGPL v3</a>: requires sharing
+of improvements.
+</p>
+</li>
+<li> <p><a href="https://choosealicense.com/licenses/lgpl-2.1/">LGPL v2.1</a>: requires sharing
+of improvements.
+</p>
+</li>
+<li> <p><a href="https://choosealicense.com/licenses/lgpl-3.0/">LGPL v3</a>: requires sharing
+of improvements.
+</p>
+</li></ul>
+
+<p>Creative commons licenses appropriate for data packages:
+</p>
+
+<ul>
+<li> <p><a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>: dedicated
+to public domain.
+</p>
+</li>
+<li> <p><a href="https://creativecommons.org/licenses/by/4.0/">CC-BY</a>: Free to share and
+adapt, must give appropriate credit.
+</p>
+</li></ul>
+
+<p>See <a href="https://choosealicense.com">https://choosealicense.com</a> for more details and other options.
+</p>
+<p>Alternatively, for code that you don't want to share with others,
+<code>use_proprietary_license()</code> makes it clear that all rights are reserved,
+and the code is not open source.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_mit_license(copyright_holder = NULL)
+
+use_gpl_license(version = 3, include_future = TRUE)
+
+use_agpl_license(version = 3, include_future = TRUE)
+
+use_lgpl_license(version = 3, include_future = TRUE)
+
+use_apache_license(version = 2, include_future = TRUE)
+
+use_cc0_license()
+
+use_ccby_license()
+
+use_proprietary_license(copyright_holder)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>copyright_holder</code></td>
+<td>
+<p>Name of the copyright holder or holders. This
+defaults to &quot;package name authors&quot;; you should only change this if you
+use a CLA to assign copyright to a single entity.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>License version. This defaults to latest version all licenses.</p>
+</td></tr>
+<tr valign="top"><td><code>include_future</code></td>
+<td>
+<p>If <code>TRUE</code>, will license your package under the current
+and any potential future versions of the license. This is generally
+considered to be good practice because it means your package will
+automatically include &quot;bug&quot; fixes in licenses.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>CRAN does not permit you to include copies of standard licenses in your
+package, so these functions save the license as <code>LICENSE.md</code> and add it
+to <code>.Rbuildignore</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>For more details, refer to the the
+<a href="https://r-pkgs.org/license.html">license chapter</a> in <em>R Packages</em>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

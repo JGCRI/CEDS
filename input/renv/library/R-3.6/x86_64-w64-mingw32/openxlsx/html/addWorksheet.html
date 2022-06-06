@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add a worksheet to a workbook</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for addWorksheet {openxlsx}"><tr><td>addWorksheet {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add a worksheet to a workbook</h2>
+
+<h3>Description</h3>
+
+<p>Add a worksheet to a Workbook object
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+addWorksheet(
+  wb,
+  sheetName,
+  gridLines = openxlsx_getOp("gridLines", TRUE),
+  tabColour = NULL,
+  zoom = 100,
+  header = openxlsx_getOp("header"),
+  footer = openxlsx_getOp("footer"),
+  evenHeader = openxlsx_getOp("evenHeader"),
+  evenFooter = openxlsx_getOp("evenFooter"),
+  firstHeader = openxlsx_getOp("firstHeader"),
+  firstFooter = openxlsx_getOp("firstFooter"),
+  visible = TRUE,
+  paperSize = openxlsx_getOp("paperSize", 9),
+  orientation = openxlsx_getOp("orientation", "portrait"),
+  vdpi = openxlsx_getOp("vdpi", 300),
+  hdpi = openxlsx_getOp("hdpi", 300)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A Workbook object to attach the new worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>sheetName</code></td>
+<td>
+<p>A name for the new worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>gridLines</code></td>
+<td>
+<p>A logical. If <code>FALSE</code>, the worksheet grid lines will be hidden.</p>
+</td></tr>
+<tr valign="top"><td><code>tabColour</code></td>
+<td>
+<p>Colour of the worksheet tab. A valid colour (belonging to colours()) or a valid hex colour beginning with &quot;#&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>zoom</code></td>
+<td>
+<p>A numeric between 10 and 400. Worksheet zoom level as a percentage.</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>document header. Character vector of length 3 corresponding to positions left, center, right. Use NA to skip a position.</p>
+</td></tr>
+<tr valign="top"><td><code>footer</code></td>
+<td>
+<p>document footer. Character vector of length 3 corresponding to positions left, center, right. Use NA to skip a position.</p>
+</td></tr>
+<tr valign="top"><td><code>evenHeader</code></td>
+<td>
+<p>document header for even pages.</p>
+</td></tr>
+<tr valign="top"><td><code>evenFooter</code></td>
+<td>
+<p>document footer for even pages.</p>
+</td></tr>
+<tr valign="top"><td><code>firstHeader</code></td>
+<td>
+<p>document header for first page only.</p>
+</td></tr>
+<tr valign="top"><td><code>firstFooter</code></td>
+<td>
+<p>document footer for first page only.</p>
+</td></tr>
+<tr valign="top"><td><code>visible</code></td>
+<td>
+<p>If FALSE, sheet is hidden else visible.</p>
+</td></tr>
+<tr valign="top"><td><code>paperSize</code></td>
+<td>
+<p>An integer corresponding to a paper size. See ?pageSetup for details.</p>
+</td></tr>
+<tr valign="top"><td><code>orientation</code></td>
+<td>
+<p>One of &quot;portrait&quot; or &quot;landscape&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>vdpi</code></td>
+<td>
+<p>Vertical DPI. Can be set with options(&quot;openxlsx.dpi&quot; = X) or options(&quot;openxlsx.vdpi&quot; = X)</p>
+</td></tr>
+<tr valign="top"><td><code>hdpi</code></td>
+<td>
+<p>Horizontal DPI. Can be set with options(&quot;openxlsx.dpi&quot; = X) or options(&quot;openxlsx.hdpi&quot; = X)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Headers and footers can contain special tags
+</p>
+
+<ul>
+<li><p><strong>&amp;[Page]</strong> Page number
+</p>
+</li>
+<li><p><strong>&amp;[Pages]</strong> Number of pages
+</p>
+</li>
+<li><p><strong>&amp;[Date]</strong> Current date
+</p>
+</li>
+<li><p><strong>&amp;[Time]</strong> Current time
+</p>
+</li>
+<li><p><strong>&amp;[Path]</strong> File path
+</p>
+</li>
+<li><p><strong>&amp;[File]</strong> File name
+</p>
+</li>
+<li><p><strong>&amp;[Tab]</strong> Worksheet name
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p>XML tree
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook("Fred")
+
+## Add 3 worksheets
+addWorksheet(wb, "Sheet 1")
+addWorksheet(wb, "Sheet 2", gridLines = FALSE)
+addWorksheet(wb, "Sheet 3", tabColour = "red")
+addWorksheet(wb, "Sheet 4", gridLines = FALSE, tabColour = "#4F81BD")
+
+## Headers and Footers
+addWorksheet(wb, "Sheet 5",
+  header = c("ODD HEAD LEFT", "ODD HEAD CENTER", "ODD HEAD RIGHT"),
+  footer = c("ODD FOOT RIGHT", "ODD FOOT CENTER", "ODD FOOT RIGHT"),
+  evenHeader = c("EVEN HEAD LEFT", "EVEN HEAD CENTER", "EVEN HEAD RIGHT"),
+  evenFooter = c("EVEN FOOT RIGHT", "EVEN FOOT CENTER", "EVEN FOOT RIGHT"),
+  firstHeader = c("TOP", "OF FIRST", "PAGE"),
+  firstFooter = c("BOTTOM", "OF FIRST", "PAGE")
+)
+
+addWorksheet(wb, "Sheet 6",
+  header = c("&amp;[Date]", "ALL HEAD CENTER 2", "&amp;[Page] / &amp;[Pages]"),
+  footer = c("&amp;[Path]&amp;[File]", NA, "&amp;[Tab]"),
+  firstHeader = c(NA, "Center Header of First Page", NA),
+  firstFooter = c(NA, "Center Footer of First Page", NA)
+)
+
+addWorksheet(wb, "Sheet 7",
+  header = c("ALL HEAD LEFT 2", "ALL HEAD CENTER 2", "ALL HEAD RIGHT 2"),
+  footer = c("ALL FOOT RIGHT 2", "ALL FOOT CENTER 2", "ALL FOOT RIGHT 2")
+)
+
+addWorksheet(wb, "Sheet 8",
+  firstHeader = c("FIRST ONLY L", NA, "FIRST ONLY R"),
+  firstFooter = c("FIRST ONLY L", NA, "FIRST ONLY R")
+)
+
+## Need data on worksheet to see all headers and footers
+writeData(wb, sheet = 5, 1:400)
+writeData(wb, sheet = 6, 1:400)
+writeData(wb, sheet = 7, 1:400)
+writeData(wb, sheet = 8, 1:400)
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "addWorksheetExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

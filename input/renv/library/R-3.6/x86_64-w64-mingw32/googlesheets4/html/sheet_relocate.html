@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Relocate one or more (work)sheets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_relocate {googlesheets4}"><tr><td>sheet_relocate {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Relocate one or more (work)sheets</h2>
+
+<h3>Description</h3>
+
+<p>Move (work)sheets around within a (spread)Sheet. The outcome is most
+predictable for these common and simple use cases:
+</p>
+
+<ul>
+<li><p> Reorder and move one or more sheets to the front.
+</p>
+</li>
+<li><p> Move a single sheet to a specific (but arbitrary) location.
+</p>
+</li>
+<li><p> Move multiple sheets to the back with <code>.after = 100</code> (<code>.after</code> can be
+any number greater than or equal to the number of sheets).
+</p>
+</li></ul>
+
+<p>If your relocation task is more complicated and you are puzzled by the
+result, break it into a sequence of simpler calls to
+<code>sheet_relocate()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_relocate(ss, sheet, .before = if (is.null(.after)) 1, .after = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to relocate, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. You can pass a vector to move multiple sheets at once or even a list, if you need to mix names and positions.</p>
+</td></tr>
+<tr valign="top"><td><code>.before, .after</code></td>
+<td>
+<p>Specification of where to locate the sheets(s)
+identified by <code>sheet</code>. Exactly one of <code>.before</code> and <code>.after</code> must be
+specified. Refer to an existing sheet by name (via a string) or by position
+(via a number).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Constructs a batch of <code>UpdateSheetPropertiesRequest</code>s (one per sheet):
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest</a>
+</p>
+</li></ul>
+
+<p>Other worksheet functions: 
+<code><a href="sheet_add.html">sheet_add</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_delete.html">sheet_delete</a>()</code>,
+<code><a href="sheet_properties.html">sheet_properties</a>()</code>,
+<code><a href="sheet_rename.html">sheet_rename</a>()</code>,
+<code><a href="sheet_resize.html">sheet_resize</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  sheet_names &lt;- c("alfa", "bravo", "charlie", "delta", "echo", "foxtrot")
+  ss &lt;- gs4_create("sheet-relocate-demo", sheets = sheet_names)
+  sheet_names(ss)
+
+  # move one sheet, forwards then backwards
+  ss %&gt;%
+    sheet_relocate("echo", .before = "bravo") %&gt;%
+    sheet_names()
+  ss %&gt;%
+    sheet_relocate("echo", .after = "delta") %&gt;%
+    sheet_names()
+
+  # reorder and move multiple sheets to the front
+  ss %&gt;%
+    sheet_relocate(list("foxtrot", 4)) %&gt;%
+    sheet_names()
+
+  # put the sheets back in the original order
+  ss %&gt;%
+    sheet_relocate(sheet_names) %&gt;%
+    sheet_names()
+
+  # reorder and move multiple sheets to the back
+  ss %&gt;%
+    sheet_relocate(c("bravo", "alfa", "echo"), .after = 10) %&gt;%
+    sheet_names()
+
+  # clean up
+  gs4_find("sheet-relocate-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

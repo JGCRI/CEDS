@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query a Character Encoding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_info {stringi}"><tr><td>stri_enc_info {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query a Character Encoding</h2>
+
+<h3>Description</h3>
+
+<p>Gets basic information on a character encoding.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_info(enc = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>enc</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for the default encoding,
+or a single string with encoding name</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>An error is raised if the provided encoding is unknown to <span class="pkg">ICU</span>
+(see <code><a href="stri_enc_list.html">stri_enc_list</a></code> for more details).
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a list with the following components:
+</p>
+
+<ul>
+<li> <p><code>Name.friendly</code> &ndash; friendly encoding name:
+MIME Name or JAVA Name or <span class="pkg">ICU</span> Canonical Name
+(the first of provided ones is selected, see below);
+</p>
+</li>
+<li> <p><code>Name.ICU</code> &ndash; encoding name as identified by <span class="pkg">ICU</span>;
+</p>
+</li>
+<li> <p><code>Name.*</code> &ndash; other standardized encoding names,
+e.g., <code>Name.UTR22</code>, <code>Name.IBM</code>, <code>Name.WINDOWS</code>,
+<code>Name.JAVA</code>, <code>Name.IANA</code>, <code>Name.MIME</code> (some of them
+may be unavailable for all the encodings);
+</p>
+</li>
+<li> <p><code>ASCII.subset</code> &ndash; is ASCII a subset of the given encoding?;
+</p>
+</li>
+<li> <p><code>Unicode.1to1</code> &ndash; for 8-bit encodings only: are all characters
+translated to exactly one Unicode code point and is the translation
+scheme reversible?;
+</p>
+</li>
+<li> <p><code>CharSize.8bit</code> &ndash; is this an 8-bit encoding, i.e., do we have
+<code>CharSize.min == CharSize.max</code> and <code>CharSize.min == 1</code>?;
+</p>
+</li>
+<li> <p><code>CharSize.min</code> &ndash; minimal number of bytes used
+to represent a UChar (in UTF-16, this is not the same as UChar32)
+</p>
+</li>
+<li> <p><code>CharSize.max</code> &ndash; maximal number of bytes used
+to represent a UChar (in UTF-16, this is not the same as UChar32,
+i.e., does not reflect the maximal code point representation size)
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_management: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_list.html">stri_enc_list</a>()</code>,
+<code><a href="stri_enc_mark.html">stri_enc_mark</a>()</code>,
+<code><a href="stri_enc_set.html">stri_enc_set</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

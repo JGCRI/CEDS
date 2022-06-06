@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Blocks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for roxy_block {roxygen2}"><tr><td>roxy_block {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Blocks</h2>
+
+<h3>Description</h3>
+
+<p>A <code>roxy_block</code> represents a single roxygen2 block.
+</p>
+<p>The <code style="white-space: pre;">block_*</code> functions provide a few helpers for common operations:
+</p>
+
+<ul>
+<li> <p><code>block_has_tag(blocks, tags)</code>: does <code>block</code> contain any of these <code>tags</code>?
+</p>
+</li>
+<li> <p><code>block_get_tags(block, tags)</code>: get all instances of <code>tags</code>
+</p>
+</li>
+<li> <p><code>block_get_tag(block, tag)</code>: get single tag. Returns <code>NULL</code> if 0,
+throws warning if more than 1.
+</p>
+</li>
+<li> <p><code>block_get_tag_value(block, tag)</code>: gets <code>val</code> field from single tag.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+roxy_block(tags, file, line, call, object = NULL)
+
+block_has_tags(block, tags)
+
+block_get_tags(block, tags)
+
+block_get_tag(block, tag)
+
+block_get_tag_value(block, tag)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tags</code></td>
+<td>
+<p>A list of <a href="roxy_tag.html">roxy_tag</a>s.</p>
+</td></tr>
+<tr valign="top"><td><code>file, line</code></td>
+<td>
+<p>Location of the <code>call</code> (i.e. the line after the last
+line of the block).</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>Expression associated with block.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Optionally, the object associated with the block, found
+by inspecting/evaluating <code>call</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>block</code></td>
+<td>
+<p>A <code>roxy_block</code> to manipulate.</p>
+</td></tr>
+<tr valign="top"><td><code>tag, tags</code></td>
+<td>
+<p>Either a single tag name, or a character vector of tag names.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# The easiest way to see the structure of a roxy_block is to create one
+# using parse_text:
+text &lt;- "
+  #' This is a title
+  #'
+  #' @param x,y A number
+  #' @export
+  f &lt;- function(x, y) x + y
+"
+
+# parse_text() returns a list of blocks, so I extract the first
+block &lt;- parse_text(text)[[1]]
+block
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

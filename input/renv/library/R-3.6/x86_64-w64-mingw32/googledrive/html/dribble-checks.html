@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check facts about a dribble</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dribble-checks {googledrive}"><tr><td>dribble-checks {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check facts about a dribble</h2>
+
+<h3>Description</h3>
+
+<p>Sometimes you need to check things about a <code><a href="dribble.html">dribble</a></code>' or about the files it
+represents, such as:
+</p>
+
+<ul>
+<li><p> Is it even a dribble?
+</p>
+</li>
+<li><p> Size: Does the dribble hold exactly one file? At least one file? No file?
+</p>
+</li>
+<li><p> File type: Is this file a folder?
+</p>
+</li>
+<li><p> File ownership and access: Is it mine? Published? Shared?
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+is_dribble(d)
+
+no_file(d)
+
+single_file(d)
+
+some_files(d)
+
+confirm_dribble(d)
+
+confirm_single_file(d)
+
+confirm_some_files(d)
+
+is_folder(d)
+
+is_shortcut(d)
+
+is_folder_shortcut(d)
+
+is_native(d)
+
+is_parental(d)
+
+is_mine(d)
+
+is_shared_drive(d)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>d</code></td>
+<td>
+<p>A <code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## most of us have multiple files or folders on Google Drive
+d &lt;- drive_find()
+is_dribble(d)
+no_file(d)
+single_file(d)
+some_files(d)
+
+# this will error
+# confirm_single_file(d)
+
+confirm_some_files(d)
+is_folder(d)
+is_mine(d)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

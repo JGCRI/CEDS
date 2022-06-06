@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format dates and times based on human-friendly templates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stamp {lubridate}"><tr><td>stamp {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format dates and times based on human-friendly templates</h2>
+
+<h3>Description</h3>
+
+<p>Stamps are just like <code><a href="../../base/html/format.html">format()</a></code>, but based on human-friendly
+templates like &quot;Recorded at 10 am, September 2002&quot; or &quot;Meeting, Sunday May
+1, 2000, at 10:20 pm&quot;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stamp(
+  x,
+  orders = lubridate_formats,
+  locale = Sys.getlocale("LC_TIME"),
+  quiet = FALSE
+)
+
+stamp_date(x, locale = Sys.getlocale("LC_TIME"), quiet = FALSE)
+
+stamp_time(x, locale = Sys.getlocale("LC_TIME"), quiet = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character vector of templates.</p>
+</td></tr>
+<tr valign="top"><td><code>orders</code></td>
+<td>
+<p>orders are sequences of formatting characters which might be
+used for disambiguation. For example &quot;ymd hms&quot;, &quot;aym&quot; etc. See
+<code><a href="guess_formats.html">guess_formats()</a></code> for a list of available formats.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>locale in which <code>x</code> is encoded. On Linux-like systems use
+<code>locale -a</code> in the terminal to list available locales.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>whether to output informative messages.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>stamp()</code> is a stamping function date-time templates mainly, though it
+correctly handles all date and time formats as long as they are
+unambiguous. <code>stamp_date()</code>, and <code>stamp_time()</code> are the specialized
+stamps for dates and times (MHS). These function might be useful when the
+input template is unambiguous and matches both a time and a date format.
+</p>
+<p>Lubridate tries hard to guess the formats, but often a given format can be
+interpreted in multiple ways. One way to deal with such cases is to provide
+unambiguous formats like 22/05/81 instead of 10/05/81 for d/m/y
+format. Another way is to use a more specialized <code><a href="stamp.html">stamp_date</a></code> and
+<code><a href="stamp.html">stamp_time</a></code>. The core function <code>stamp()</code> prioritizes longer date-time
+formats.
+</p>
+<p>If <code>x</code> is a vector of values <span class="pkg">lubridate</span> will choose the format which
+&quot;fits&quot; <code>x</code> the best. Note that longer formats are preferred. If you have
+&quot;22:23:00 PM&quot; then &quot;HMSp&quot; format will be given priority to shorter &quot;HMS&quot;
+order which also fits the supplied string.
+</p>
+<p>Finally, you can give desired format order directly as <code>orders</code>
+argument.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a function to be applied on a vector of dates
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="guess_formats.html">guess_formats()</a></code>, <code><a href="parse_date_time.html">parse_date_time()</a></code>, <code><a href="../../base/html/strptime.html">strptime()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+D &lt;- ymd("2010-04-05") - days(1:5)
+stamp("March 1, 1999")(D)
+sf &lt;- stamp("Created on Sunday, Jan 1, 1999 3:34 pm")
+sf(D)
+stamp("Jan 01")(D)
+stamp("Sunday, May 1, 2000", locale = "C")(D)
+stamp("Sun Aug 5")(D) #=&gt; "Sun Aug 04" "Sat Aug 04" "Fri Aug 04" "Thu Aug 04" "Wed Aug 03"
+stamp("12/31/99")(D)              #=&gt; "06/09/11"
+stamp("Sunday, May 1, 2000 22:10", locale = "C")(D)
+stamp("2013-01-01T06:00:00Z")(D)
+stamp("2013-01-01T00:00:00-06")(D)
+stamp("2013-01-01T00:00:00-08:00")(force_tz(D, "America/Chicago"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

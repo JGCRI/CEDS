@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Depth of an environment chain</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_depth {rlang}"><tr><td>env_depth {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Depth of an environment chain</h2>
+
+<h3>Description</h3>
+
+<p>This function returns the number of environments between <code>env</code> and
+the <a href="empty_env.html">empty environment</a>, including <code>env</code>. The depth of
+<code>env</code> is also the number of parents of <code>env</code> (since the empty
+environment counts as a parent).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_depth(env)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An integer.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The section on inheritance in <code><a href="env.html">env()</a></code> documentation.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+env_depth(empty_env())
+env_depth(pkg_env("rlang"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

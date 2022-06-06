@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: [DEPRECATED] Detect Locale-Sensitive Character Encoding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_detect2 {stringi}"><tr><td>stri_enc_detect2 {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>[DEPRECATED] Detect Locale-Sensitive Character Encoding</h2>
+
+<h3>Description</h3>
+
+<p>This function tries to detect character encoding
+in case the language of text is known.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_detect2(str, locale = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector, a raw vector, or
+a list of <code>raw</code> vectors</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code>
+for default locale,
+<code>NA</code> for just checking the UTF-* family,
+or a single string with locale identifier.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>.
+</p>
+<p>First, the text is checked whether it is valid
+UTF-32BE, UTF-32LE, UTF-16BE, UTF-16LE, UTF-8
+(as in <code><a href="stri_enc_detect.html">stri_enc_detect</a></code>,
+this is roughly inspired by <span class="pkg">ICU</span>'s <code>i18n/csrucode.cpp</code>) or ASCII.
+</p>
+<p>If <code>locale</code> is not <code>NA</code> and the above fails,
+the text is checked for the number of occurrences
+of language-specific code points (data provided by the <span class="pkg">ICU</span> library)
+converted to all possible 8-bit encodings
+that fully cover the indicated language.
+The encoding is selected based on the greatest number of total
+byte hits.
+</p>
+<p>The guess is of course imprecise,
+as it is obtained using statistics and heuristics.
+Because of this, detection works best if you supply at least a few hundred
+bytes of character data that is in a single language.
+</p>
+<p>If you have no initial guess on the language and encoding, try with
+<code><a href="stri_enc_detect.html">stri_enc_detect</a></code> (uses <span class="pkg">ICU</span> facilities).
+</p>
+
+
+<h3>Value</h3>
+
+<p>Just like <code><a href="stri_enc_detect.html">stri_enc_detect</a></code>,
+this function returns a list of length equal to the length of <code>str</code>.
+Each list element is a data frame with the following three named components:
+</p>
+
+<ul>
+<li> <p><code>Encoding</code> &ndash; string; guessed encodings; <code>NA</code> on failure
+(if and only if <code>encodings</code> is empty),
+</p>
+</li>
+<li> <p><code>Language</code> &ndash; always <code>NA</code>,
+</p>
+</li>
+<li> <p><code>Confidence</code> &ndash; numeric in [0,1]; the higher the value,
+the more confidence there is in the match; <code>NA</code> on failure.
+</p>
+</li></ul>
+
+<p>The guesses are ordered by decreasing confidence.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+<p>Other encoding_detection: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_detect.html">stri_enc_detect</a>()</code>,
+<code><a href="stri_enc_isascii.html">stri_enc_isascii</a>()</code>,
+<code><a href="stri_enc_isutf16.html">stri_enc_isutf16be</a>()</code>,
+<code><a href="stri_enc_isutf8.html">stri_enc_isutf8</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

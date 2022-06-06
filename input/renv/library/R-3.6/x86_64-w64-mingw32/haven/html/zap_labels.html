@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Zap value labels</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for zap_labels {haven}"><tr><td>zap_labels {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Zap value labels</h2>
+
+<h3>Description</h3>
+
+<p>Removes value labels, leaving unlabelled vectors as is. Use this if you
+want to simply drop all <code>labels</code> from a data frame.
+</p>
+<p>Zapping labels from <code><a href="labelled_spss.html">labelled_spss()</a></code> also removes user-defined missing
+values, replacing with standard <code>NA</code>s.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+zap_labels(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector or data frame</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="zap_label.html">zap_label()</a></code> to remove variable labels.
+</p>
+<p>Other zappers: 
+<code><a href="zap_empty.html">zap_empty</a>()</code>,
+<code><a href="zap_formats.html">zap_formats</a>()</code>,
+<code><a href="zap_label.html">zap_label</a>()</code>,
+<code><a href="zap_widths.html">zap_widths</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x1 &lt;- labelled(1:5, c(good = 1, bad = 5))
+x1
+zap_labels(x1)
+
+x2 &lt;- labelled_spss(c(1:4, 9), c(good = 1, bad = 5), na_values = 9)
+x2
+zap_labels(x2)
+
+# zap_labels also works with data frames
+df &lt;- tibble::tibble(x1, x2)
+df
+zap_labels(df)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

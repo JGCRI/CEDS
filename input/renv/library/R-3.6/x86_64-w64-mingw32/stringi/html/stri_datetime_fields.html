@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get Values for Date and Time Fields</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_datetime_fields {stringi}"><tr><td>stri_datetime_fields {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get Values for Date and Time Fields</h2>
+
+<h3>Description</h3>
+
+<p>Computes and returns values for all date and time fields.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_datetime_fields(time, tz = attr(time, "tzone"), locale = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>time</code></td>
+<td>
+<p>an object of class <code><a href="../../base/html/DateTimeClasses.html">POSIXct</a></code>
+(<code>as.POSIXct</code> will be called on character vectors
+and objects of class <code>POSIXlt</code>, <code>Date</code>, and <code>factor</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for the default time zone or
+a single string with time zone identifier, see <code><a href="stri_timezone_list.html">stri_timezone_list</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for the current default locale,
+or a single string with a locale identifier; a non-Gregorian calendar
+may be specified by setting <code>@calendar=name</code> keyword</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>time</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a data frame with the following columns:
+</p>
+
+<ol>
+<li><p> Year (0 is 1BC, -1 is 2BC, etc.)
+</p>
+</li>
+<li><p> Month (1-based, i.e., 1 stands for the first month, e.g., January;
+note that the number of months depends on the selected calendar,
+see <code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a></code>)
+</p>
+</li>
+<li><p> Day
+</p>
+</li>
+<li><p> Hour (24-h clock)
+</p>
+</li>
+<li><p> Minute
+</p>
+</li>
+<li><p> Second
+</p>
+</li>
+<li><p> Millisecond
+</p>
+</li>
+<li><p> WeekOfYear (this is locale-dependent)
+</p>
+</li>
+<li><p> WeekOfMonth (this is locale-dependent)
+</p>
+</li>
+<li><p> DayOfYear
+</p>
+</li>
+<li><p> DayOfWeek (1-based, 1 denotes Sunday; see <code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a></code>)
+</p>
+</li>
+<li><p> Hour12 (12-h clock)
+</p>
+</li>
+<li><p> AmPm (see <code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a></code>)
+</p>
+</li>
+<li><p> Era (see <code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a></code>)
+</p>
+</li></ol>
+
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_datetime_fields(stri_datetime_now())
+stri_datetime_fields(stri_datetime_now(), locale='@calendar=hebrew')
+stri_datetime_symbols(locale='@calendar=hebrew')$Month[
+   stri_datetime_fields(stri_datetime_now(), locale='@calendar=hebrew')$Month
+]
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

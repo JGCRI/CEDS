@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Injection operator !!</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for injection-operator {rlang}"><tr><td>injection-operator {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Injection operator <code style="white-space: pre;">!!</code></h2>
+
+<h3>Description</h3>
+
+<p>The <a href="topic-inject.html">injection</a> operator <code style="white-space: pre;">!!</code> injects a value or
+expression inside another expression. In other words, it modifies a
+piece of code before R evaluates it.
+</p>
+<p>There are two main cases for injection. You can inject constant
+values to work around issues of <a href="topic-data-mask-ambiguity.html">scoping ambiguity</a>, and you can inject <a href="topic-defuse.html">defused expressions</a> like <a href="sym.html">symbolised</a> column names.
+</p>
+
+
+<h3>Where does <code style="white-space: pre;">!!</code> work?</h3>
+
+<p><code style="white-space: pre;">!!</code> does not work everywhere, you can only use it within certain
+special functions:
+</p>
+
+<ul>
+<li><p> Functions taking <a href="topic-defuse.html">defused</a> and
+<a href="topic-data-mask.html">data-masked</a> arguments.
+</p>
+<p>Technically, this means function arguments defused with
+<code><a href="embrace-operator.html">{{</a></code> or <code>en</code>-prefixed operators like
+<code><a href="enquo.html">enquo()</a></code>, <code><a href="defusing-advanced.html">enexpr()</a></code>, etc.
+</p>
+</li>
+<li><p> Inside <code><a href="inject.html">inject()</a></code>.
+</p>
+</li></ul>
+
+<p>All data-masking verbs in the tidyverse support injection operators
+out of the box. With base functions, you need to use <code><a href="inject.html">inject()</a></code> to
+enable <code style="white-space: pre;">!!</code>. Using <code style="white-space: pre;">!!</code> out of context may lead to incorrect
+results, see <a href="topic-inject-out-of-context.html">What happens if I use injection operators out of context?</a>.
+</p>
+<p>The examples below are built around the base function <code><a href="../../base/html/with.html">with()</a></code>.
+Since it's not a tidyverse function we will use <code><a href="inject.html">inject()</a></code> to enable
+<code style="white-space: pre;">!!</code> usage.
+</p>
+
+
+<h3>Injecting values</h3>
+
+<p>Data-masking functions like <code><a href="../../base/html/with.html">with()</a></code> are handy because you can
+refer to column names in your computations. This comes at the price
+of data mask ambiguity: if you have defined an env-variable of the
+same name as a data-variable, you get a name collisions. This
+collision is always resolved by giving precedence to the
+data-variable (it masks the env-variable):<div class="sourceCode r"></p>
+<pre>cyl &lt;- c(100, 110)
+with(mtcars, mean(cyl))
+#&gt; [1] 6.1875
+</pre></div>
+<p>The injection operator offers one way of solving this. Use it to
+inject the env-variable inside the data-masked expression:<div class="sourceCode r"></p>
+<pre>inject(
+  with(mtcars, mean(!!cyl))
+)
+#&gt; [1] 105
+</pre></div>
+<p>Note that the <code><a href="dot-data.html">.env</a></code> pronoun is a simpler way of solving the
+ambiguity. See <a href="topic-data-mask-ambiguity.html">The data mask ambiguity</a> for more about
+this.
+</p>
+
+
+<h3>Injecting expressions</h3>
+
+<p>Injection is also useful for modifying parts of a <a href="topic-defuse.html">defused expression</a>. In the following example we use the
+<a href="topic-metaprogramming.html">symbolise-and-inject pattern</a> to
+inject a column name inside a data-masked expression.<div class="sourceCode r"></p>
+<pre>var &lt;- sym("cyl")
+inject(
+  with(mtcars, mean(!!var))
+)
+#&gt; [1] 6.1875
+</pre></div>
+<p>Since <code><a href="../../base/html/with.html">with()</a></code> is a base function, you can't inject
+<a href="topic-quosure.html">quosures</a>, only naked symbols and calls. This
+isn't a problem here because we're injecting the name of a data
+frame column. If the environment is important, try injecting a
+pre-computed value instead.
+</p>
+
+
+<h3>When do I need <code style="white-space: pre;">!!</code>?</h3>
+
+<p>With tidyverse APIs, injecting expressions with <code style="white-space: pre;">!!</code> is no longer a
+common pattern. First, the <code><a href="dot-data.html">.env</a></code> pronoun solves the
+ambiguity problem in a more intuitive way:<div class="sourceCode r"></p>
+<pre>cyl &lt;- 100
+mtcars %&gt;% dplyr::mutate(cyl = cyl * .env$cyl)
+</pre></div>
+<p>Second, the embrace operator <code><a href="embrace-operator.html">{{</a></code> makes the
+<a href="topic-metaprogramming.html">defuse-and-inject pattern</a> easier to
+learn and use.<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  data %&gt;% dplyr::summarise(mean({{ var }}))
+}
+
+# Equivalent to
+my_mean &lt;- function(data, var) {
+  data %&gt;% dplyr::summarise(mean(!!enquo(var)))
+}
+</pre></div>
+<p><code style="white-space: pre;">!!</code> is a good tool to learn for advanced applications but our
+hope is that it isn't needed for common data analysis cases.
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-inject.html">Injecting with !!, !!!, and glue syntax</a>
+</p>
+</li>
+<li> <p><a href="topic-metaprogramming.html">Metaprogramming patterns</a>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

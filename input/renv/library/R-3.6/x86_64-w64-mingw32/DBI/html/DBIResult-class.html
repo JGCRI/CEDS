@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: DBIResult class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for DBIResult-class {DBI}"><tr><td>DBIResult-class {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>DBIResult class</h2>
+
+<h3>Description</h3>
+
+<p>This virtual class describes the result and state of execution of
+a DBMS statement (any statement, query or non-query).  The result set
+keeps track of whether the statement produces output how many rows were
+affected by the operation, how many rows have been fetched (if statement is
+a query), whether there are more rows to fetch, etc.
+</p>
+
+
+<h3>Implementation notes</h3>
+
+<p>Individual drivers are free to allow single or multiple
+active results per connection.
+</p>
+<p>The default show method displays a summary of the query using other
+DBI generics.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBI classes: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="DBIConnector-class.html">DBIConnector-class</a></code>,
+<code><a href="DBIDriver-class.html">DBIDriver-class</a></code>,
+<code><a href="DBIObject-class.html">DBIObject-class</a></code>
+</p>
+<p>Other DBIResult generics: 
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

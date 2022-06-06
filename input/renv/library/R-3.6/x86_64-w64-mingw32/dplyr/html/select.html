@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset columns using their names and types</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for select {dplyr}"><tr><td>select {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset columns using their names and types</h2>
+
+<h3>Description</h3>
+
+<p>Select (and optionally rename) variables in a data frame, using a concise
+mini-language that makes it easy to refer to variables based on their name
+(e.g. <code>a:f</code> selects all columns from <code>a</code> on the left to <code>f</code> on the
+right). You can also use predicate functions like <a href="../../base/html/numeric.html">is.numeric</a> to select
+variables based on their properties.
+</p>
+
+
+<h4>Overview of selection features</h4>
+
+<p>Tidyverse selections implement a dialect of R where operators make
+it easy to select variables:
+</p>
+
+<ul>
+<li> <p><code>:</code> for selecting a range of consecutive variables.
+</p>
+</li>
+<li> <p><code>!</code> for taking the complement of a set of variables.
+</p>
+</li>
+<li> <p><code>&amp;</code> and <code>|</code> for selecting the intersection or the union of two
+sets of variables.
+</p>
+</li>
+<li> <p><code>c()</code> for combining selections.
+</p>
+</li></ul>
+
+<p>In addition, you can use <strong>selection helpers</strong>. Some helpers select specific
+columns:
+</p>
+
+<ul>
+<li> <p><code><a href="../../tidyselect/html/everything.html">everything()</a></code>: Matches all variables.
+</p>
+</li>
+<li> <p><code><a href="../../tidyselect/html/everything.html">last_col()</a></code>: Select last variable, possibly with an offset.
+</p>
+</li></ul>
+
+<p>These helpers select variables by matching patterns in their names:
+</p>
+
+<ul>
+<li> <p><code><a href="../../tidyselect/html/starts_with.html">starts_with()</a></code>: Starts with a prefix.
+</p>
+</li>
+<li> <p><code><a href="../../tidyselect/html/starts_with.html">ends_with()</a></code>: Ends with a suffix.
+</p>
+</li>
+<li> <p><code><a href="../../tidyselect/html/starts_with.html">contains()</a></code>: Contains a literal string.
+</p>
+</li>
+<li> <p><code><a href="../../tidyselect/html/starts_with.html">matches()</a></code>: Matches a regular expression.
+</p>
+</li>
+<li> <p><code><a href="../../tidyselect/html/starts_with.html">num_range()</a></code>: Matches a numerical range like x01, x02, x03.
+</p>
+</li></ul>
+
+<p>These helpers select variables from a character vector:
+</p>
+
+<ul>
+<li> <p><code><a href="../../tidyselect/html/all_of.html">all_of()</a></code>: Matches variable names in a character vector. All
+names must be present, otherwise an out-of-bounds error is
+thrown.
+</p>
+</li>
+<li> <p><code><a href="../../tidyselect/html/all_of.html">any_of()</a></code>: Same as <code>all_of()</code>, except that no error is thrown
+for names that don't exist.
+</p>
+</li></ul>
+
+<p>This helper selects variables with a function:
+</p>
+
+<ul>
+<li> <p><code><a href="../../tidyselect/html/where.html">where()</a></code>: Applies a function to all variables and selects those
+for which the function returns <code>TRUE</code>.
+</p>
+</li></ul>
+
+
+
+
+<h3>Usage</h3>
+
+<pre>
+select(.data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; One or more unquoted
+expressions separated by commas. Variable names can be used as if they
+were positions in the data frame, so expressions like <code>x:y</code> can
+be used to select a range of variables.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following
+properties:
+</p>
+
+<ul>
+<li><p> Rows are not affected.
+</p>
+</li>
+<li><p> Output columns are a subset of input columns, potentially with a different
+order. Columns will be renamed if <code>new_name = old_name</code> form is used.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li>
+<li><p> Groups are maintained; you can't select off grouping variables.
+</p>
+</li></ul>
+
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>Examples</h3>
+
+<p>Here we show the usage for the basic selection operators. See the
+specific help pages to learn about helpers like <code><a href="reexports.html">starts_with()</a></code>.
+</p>
+<p>The selection language can be used in functions like
+<code>dplyr::select()</code> or <code>tidyr::pivot_longer()</code>. Let's first attach
+the tidyverse:<div class="r"></p>
+<pre>library(tidyverse)
+
+# For better printing
+iris &lt;- as_tibble(iris)
+</pre></div>
+<p>Select variables by name:<div class="r"></p>
+<pre>starwars %&gt;% select(height)
+#&gt; # A tibble: 87 x 1
+#&gt;   height
+#&gt;    &lt;int&gt;
+#&gt; 1    172
+#&gt; 2    167
+#&gt; 3     96
+#&gt; 4    202
+#&gt; # ... with 83 more rows
+
+iris %&gt;% pivot_longer(Sepal.Length)
+#&gt; # A tibble: 150 x 6
+#&gt;   Sepal.Width Petal.Length Petal.Width Species name         value
+#&gt;         &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;fct&gt;   &lt;chr&gt;        &lt;dbl&gt;
+#&gt; 1         3.5          1.4         0.2 setosa  Sepal.Length   5.1
+#&gt; 2         3            1.4         0.2 setosa  Sepal.Length   4.9
+#&gt; 3         3.2          1.3         0.2 setosa  Sepal.Length   4.7
+#&gt; 4         3.1          1.5         0.2 setosa  Sepal.Length   4.6
+#&gt; # ... with 146 more rows
+</pre></div>
+<p>Select multiple variables by separating them with commas. Note how
+the order of columns is determined by the order of inputs:<div class="r"></p>
+<pre>starwars %&gt;% select(homeworld, height, mass)
+#&gt; # A tibble: 87 x 3
+#&gt;   homeworld height  mass
+#&gt;   &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt;
+#&gt; 1 Tatooine     172    77
+#&gt; 2 Tatooine     167    75
+#&gt; 3 Naboo         96    32
+#&gt; 4 Tatooine     202   136
+#&gt; # ... with 83 more rows
+</pre></div>
+<p>Functions like <code>tidyr::pivot_longer()</code> don't take variables with
+dots. In this case use <code>c()</code> to select multiple variables:<div class="r"></p>
+<pre>iris %&gt;% pivot_longer(c(Sepal.Length, Petal.Length))
+#&gt; # A tibble: 300 x 5
+#&gt;   Sepal.Width Petal.Width Species name         value
+#&gt;         &lt;dbl&gt;       &lt;dbl&gt; &lt;fct&gt;   &lt;chr&gt;        &lt;dbl&gt;
+#&gt; 1         3.5         0.2 setosa  Sepal.Length   5.1
+#&gt; 2         3.5         0.2 setosa  Petal.Length   1.4
+#&gt; 3         3           0.2 setosa  Sepal.Length   4.9
+#&gt; 4         3           0.2 setosa  Petal.Length   1.4
+#&gt; # ... with 296 more rows
+</pre></div>
+
+
+<h4>Operators:</h4>
+
+<p>The <code>:</code> operator selects a range of consecutive variables:<div class="r"></p>
+<pre>starwars %&gt;% select(name:mass)
+#&gt; # A tibble: 87 x 3
+#&gt;   name           height  mass
+#&gt;   &lt;chr&gt;           &lt;int&gt; &lt;dbl&gt;
+#&gt; 1 Luke Skywalker    172    77
+#&gt; 2 C-3PO             167    75
+#&gt; 3 R2-D2              96    32
+#&gt; 4 Darth Vader       202   136
+#&gt; # ... with 83 more rows
+</pre></div>
+<p>The <code>!</code> operator negates a selection:<div class="r"></p>
+<pre>starwars %&gt;% select(!(name:mass))
+#&gt; # A tibble: 87 x 11
+#&gt;   hair_color skin_color  eye_color birth_year sex   gender    homeworld species
+#&gt;   &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;  
+#&gt; 1 blond      fair        blue            19   male  masculine Tatooine  Human  
+#&gt; 2 &lt;NA&gt;       gold        yellow         112   none  masculine Tatooine  Droid  
+#&gt; 3 &lt;NA&gt;       white, blue red             33   none  masculine Naboo     Droid  
+#&gt; 4 none       white       yellow          41.9 male  masculine Tatooine  Human  
+#&gt; # ... with 83 more rows, and 3 more variables: films &lt;list&gt;, vehicles &lt;list&gt;,
+#&gt; #   starships &lt;list&gt;
+
+iris %&gt;% select(!c(Sepal.Length, Petal.Length))
+#&gt; # A tibble: 150 x 3
+#&gt;   Sepal.Width Petal.Width Species
+#&gt;         &lt;dbl&gt;       &lt;dbl&gt; &lt;fct&gt;  
+#&gt; 1         3.5         0.2 setosa 
+#&gt; 2         3           0.2 setosa 
+#&gt; 3         3.2         0.2 setosa 
+#&gt; 4         3.1         0.2 setosa 
+#&gt; # ... with 146 more rows
+
+iris %&gt;% select(!ends_with("Width"))
+#&gt; # A tibble: 150 x 3
+#&gt;   Sepal.Length Petal.Length Species
+#&gt;          &lt;dbl&gt;        &lt;dbl&gt; &lt;fct&gt;  
+#&gt; 1          5.1          1.4 setosa 
+#&gt; 2          4.9          1.4 setosa 
+#&gt; 3          4.7          1.3 setosa 
+#&gt; 4          4.6          1.5 setosa 
+#&gt; # ... with 146 more rows
+</pre></div>
+<p><code>&amp;</code> and <code>|</code> take the intersection or the union of two selections:<div class="r"></p>
+<pre>iris %&gt;% select(starts_with("Petal") &amp; ends_with("Width"))
+#&gt; # A tibble: 150 x 1
+#&gt;   Petal.Width
+#&gt;         &lt;dbl&gt;
+#&gt; 1         0.2
+#&gt; 2         0.2
+#&gt; 3         0.2
+#&gt; 4         0.2
+#&gt; # ... with 146 more rows
+
+iris %&gt;% select(starts_with("Petal") | ends_with("Width"))
+#&gt; # A tibble: 150 x 3
+#&gt;   Petal.Length Petal.Width Sepal.Width
+#&gt;          &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+#&gt; 1          1.4         0.2         3.5
+#&gt; 2          1.4         0.2         3  
+#&gt; 3          1.3         0.2         3.2
+#&gt; 4          1.5         0.2         3.1
+#&gt; # ... with 146 more rows
+</pre></div>
+<p>To take the difference between two selections, combine the <code>&amp;</code> and
+<code>!</code> operators:<div class="r"></p>
+<pre>iris %&gt;% select(starts_with("Petal") &amp; !ends_with("Width"))
+#&gt; # A tibble: 150 x 1
+#&gt;   Petal.Length
+#&gt;          &lt;dbl&gt;
+#&gt; 1          1.4
+#&gt; 2          1.4
+#&gt; 3          1.3
+#&gt; 4          1.5
+#&gt; # ... with 146 more rows
+</pre></div>
+
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="arrange.html">arrange</a>()</code>,
+<code><a href="filter.html">filter</a>()</code>,
+<code><a href="mutate.html">mutate</a>()</code>,
+<code><a href="rename.html">rename</a>()</code>,
+<code><a href="slice.html">slice</a>()</code>,
+<code><a href="summarise.html">summarise</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get properties of the current or caller frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stack {rlang}"><tr><td>stack {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get properties of the current or caller frame</h2>
+
+<h3>Description</h3>
+
+<p>These accessors retrieve properties of frames on the call stack.
+The prefix indicates for which frame a property should be accessed:
+</p>
+
+<ul>
+<li><p> From the current frame with <code>current_</code> accessors.
+</p>
+</li>
+<li><p> From a calling frame with <code>caller_</code> accessors.
+</p>
+</li>
+<li><p> From a matching frame with <code>frame_</code> accessors.
+</p>
+</li></ul>
+
+<p>The suffix indicates which property to retrieve:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">_fn</code> accessors return the function running in the frame.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">_call</code> accessors return the defused call with which the function
+running in the frame was invoked.
+</p>
+</li>
+<li> <p><code style="white-space: pre;">_env</code> accessors return the execution environment of the function
+running in the frame.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+current_call()
+
+current_fn()
+
+current_env()
+
+caller_call(n = 1)
+
+caller_fn(n = 1)
+
+caller_env(n = 1)
+
+frame_call(frame = caller_env())
+
+frame_fn(frame = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>The number of callers to go back.</p>
+</td></tr>
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>A frame environment of a currently running function,
+as returned by <code><a href="stack.html">caller_env()</a></code>. <code>NULL</code> is returned if the
+environment does not exist on the stack.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="stack.html">caller_env()</a></code> and <code><a href="stack.html">current_env()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

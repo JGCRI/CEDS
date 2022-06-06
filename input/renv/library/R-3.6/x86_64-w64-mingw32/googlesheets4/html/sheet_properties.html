@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get data about (work)sheets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_properties {googlesheets4}"><tr><td>sheet_properties {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get data about (work)sheets</h2>
+
+<h3>Description</h3>
+
+<p>Reveals full metadata or just the names for the (work)sheets inside a
+(spread)Sheet.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_properties(ss)
+
+sheet_names(ss)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code>sheet_properties()</code>: A tibble with one row per (work)sheet.
+</p>
+</li>
+<li> <p><code>sheet_names()</code>: A character vector of (work)sheet names.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other worksheet functions: 
+<code><a href="sheet_add.html">sheet_add</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_delete.html">sheet_delete</a>()</code>,
+<code><a href="sheet_relocate.html">sheet_relocate</a>()</code>,
+<code><a href="sheet_rename.html">sheet_rename</a>()</code>,
+<code><a href="sheet_resize.html">sheet_resize</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  ss &lt;- gs4_example("gapminder")
+  sheet_properties(ss)
+  sheet_names(ss)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

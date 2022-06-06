@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code print output to the console?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_output {testthat}"><tr><td>expect_output {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code print output to the console?</h2>
+
+<h3>Description</h3>
+
+<p>Test for output produced by <code>print()</code> or <code>cat()</code>. This is best used for
+very simple output; for more complex cases use <code><a href="verify_output.html">verify_output()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_output(
+  object,
+  regexp = NULL,
+  ...,
+  info = NULL,
+  label = NULL,
+  width = 80
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>regexp</code></td>
+<td>
+<p>Regular expression to test against.
+</p>
+
+<ul>
+<li><p> A character vector giving a regular expression that must match the output.
+</p>
+</li>
+<li><p> If <code>NULL</code>, the default, asserts that there should output,
+but doesn't check for a specific value.
+</p>
+</li>
+<li><p> If <code>NA</code>, asserts that there should be no output.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Arguments passed on to <code><a href="expect_match.html">expect_match</a></code>
+</p>
+
+<dl>
+<dt><code>all</code></dt><dd><p>Should all elements of actual value match <code>regexp</code> (TRUE),
+or does only one need to match (FALSE).</p>
+</dd>
+<dt><code>perl</code></dt><dd><p>logical.  Should Perl-compatible regexps be used?</p>
+</dd>
+<dt><code>fixed</code></dt><dd><p>logical.  If <code>TRUE</code>, <code>pattern</code> is a string to be
+matched as is.  Overrides all conflicting arguments.</p>
+</dd>
+</dl>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert use only.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Number of characters per line of output. This does not
+inherit from <code>getOption("width")</code> so that tests always use the same
+output width, minimising spurious differences.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The first argument, invisibly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+str(mtcars)
+expect_output(str(mtcars), "32 obs")
+expect_output(str(mtcars), "11 variables")
+
+# You can use the arguments of grepl to control the matching
+expect_output(str(mtcars), "11 VARIABLES", ignore.case = TRUE)
+expect_output(str(mtcars), "$ mpg", fixed = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

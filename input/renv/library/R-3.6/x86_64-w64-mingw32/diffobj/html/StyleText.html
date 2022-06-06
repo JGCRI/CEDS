@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Character Tokens Used in Diffs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for StyleText-class {diffobj}"><tr><td>StyleText-class {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Character Tokens Used in Diffs</h2>
+
+<h3>Description</h3>
+
+<p>Various character tokens are used throughout diffs to provide visual cues.
+For example, gutters will contain characters that denote deletions and
+insertions (<code>&lt;</code> and <code>&gt;</code> by default).
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>gutter.insert</code></td>
+<td>
+<p>character(1L) text to use as visual cue to indicate
+whether a diff line is an insertion, defaults to &ldquo;&gt; &rdquo;</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.insert.ctd</code></td>
+<td>
+<p>character(1L) if a diff line is wrapped, the
+visual cue shifts to this character to indicate wrapping occured</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.delete</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.delete.ctd</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert.ctd</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.match</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.match.ctd</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert.ctd</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.guide</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.guide.ctd</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert.ctd</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.fill</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.fill.ctd</code></td>
+<td>
+<p>character(1L) see <code>gutter.insert.ctd</code> above</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.pad</code></td>
+<td>
+<p>character(1L) separator between gutter characters and the
+rest of a line in a diff</p>
+</td></tr>
+<tr valign="top"><td><code>pad.col</code></td>
+<td>
+<p>character(1L) separator between columns in side by side mode</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a StyleText S4 object
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="Style.html">Style</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

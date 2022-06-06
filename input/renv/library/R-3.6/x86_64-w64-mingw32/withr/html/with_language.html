@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Language</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_language {withr}"><tr><td>with_language {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Language</h2>
+
+<h3>Description</h3>
+
+<p>Temporarily change the language used for translations.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_language(lang, code)
+
+local_language(lang, .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lang</code></td>
+<td>
+<p>A BCP47 language code like &quot;en&quot; (English), &quot;fr&quot; (French),
+&quot;fr_CA&quot; (French Canadian). Formally, this is a lower case two letter
+<a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">ISO 639 country code</a>,
+optionally followed by &quot;_&quot; or &quot;-&quot; and an upper case two letter
+<a href="https://en.wikipedia.org/wiki/ISO_3166-2">ISO 3166 region code</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+with_language("en", try(mean[[1]]))
+with_language("fr", try(mean[[1]]))
+with_language("es", try(mean[[1]]))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

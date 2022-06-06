@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Copy an HTML dependency to a directory</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for copyDependencyToDir {htmltools}"><tr><td>copyDependencyToDir {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Copy an HTML dependency to a directory</h2>
+
+<h3>Description</h3>
+
+<p>Copies an HTML dependency to a subdirectory of the given directory. The
+subdirectory name will be <em>name</em>-<em>version</em> (for example,
+&quot;outputDir/jquery-1.11.0&quot;). You may set <code>options(htmltools.dir.version = FALSE)</code> to suppress the version number in the subdirectory name.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+copyDependencyToDir(dependency, outputDir, mustWork = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dependency</code></td>
+<td>
+<p>A single HTML dependency object.</p>
+</td></tr>
+<tr valign="top"><td><code>outputDir</code></td>
+<td>
+<p>The directory in which a subdirectory should be created for
+this dependency.</p>
+</td></tr>
+<tr valign="top"><td><code>mustWork</code></td>
+<td>
+<p>If <code>TRUE</code> and <code>dependency</code> does not point to a
+directory on disk (but rather a URL location), an error is raised. If
+<code>FALSE</code> then non-disk dependencies are returned without modification.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In order for disk-based dependencies to work with static HTML files, it's
+generally necessary to copy them to either the directory of the referencing
+HTML file, or to a subdirectory of that directory. This function makes it
+easier to perform that copy.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The dependency with its <code>src</code> value updated to the new
+location's absolute path.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="makeDependencyRelative.html">makeDependencyRelative()</a></code> can be used with the returned
+value to make the path relative to a specific directory.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

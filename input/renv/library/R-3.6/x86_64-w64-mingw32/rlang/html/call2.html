@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a call</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for call2 {rlang}"><tr><td>call2 {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a call</h2>
+
+<h3>Description</h3>
+
+<p>Quoted function calls are one of the two types of
+<a href="is_expression.html">symbolic</a> objects in R. They represent the action of
+calling a function, possibly with arguments. There are two ways of
+creating a quoted call:
+</p>
+
+<ul>
+<li><p> By <a href="topic-defuse.html">quoting</a> it. Quoting prevents functions from being
+called. Instead, you get the description of the function call as
+an R object. That is, a quoted function call.
+</p>
+</li>
+<li><p> By constructing it with <code><a href="../../base/html/call.html">base::call()</a></code>, <code><a href="../../base/html/call.html">base::as.call()</a></code>, or
+<code>call2()</code>. In this case, you pass the call elements (the function
+to call and the arguments to call it with) separately.
+</p>
+</li></ul>
+
+<p>See section below for the difference between <code>call2()</code> and the base
+constructors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+call2(.fn, ..., .ns = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.fn</code></td>
+<td>
+<p>Function to call. Must be a callable object: a string,
+symbol, call, or a function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="dyn-dots.html">dynamic</a>&gt; Arguments for the function
+call. Empty arguments are preserved.</p>
+</td></tr>
+<tr valign="top"><td><code>.ns</code></td>
+<td>
+<p>Namespace with which to prefix <code>.fn</code>. Must be a string
+or symbol.</p>
+</td></tr>
+</table>
+
+
+<h3>Difference with base constructors</h3>
+
+<p><code>call2()</code> is more flexible than <code>base::call()</code>:
+</p>
+
+<ul>
+<li><p> The function to call can be a string or a <a href="is_callable.html">callable</a>
+object: a symbol, another call (e.g. a <code>$</code> or <code>[[</code> call), or a
+function to inline. <code>base::call()</code> only supports strings and you
+need to use <code>base::as.call()</code> to construct a call with a callable
+object.</p>
+<pre>call2(list, 1, 2)
+
+as.call(list(list, 1, 2))
+</pre>
+</li>
+<li><p> The <code>.ns</code> argument is convenient for creating namespaced calls.</p>
+<pre>call2("list", 1, 2, .ns = "base")
+
+# Equivalent to
+ns_call &lt;- call("::", as.symbol("list"), as.symbol("base"))
+as.call(list(ns_call, 1, 2))
+</pre>
+</li>
+<li> <p><code>call2()</code> has <a href="list2.html">dynamic dots</a> support. You can splice lists
+of arguments with <code style="white-space: pre;">!!!</code> or unquote an argument name with glue
+syntax.</p>
+<pre>args &lt;- list(na.rm = TRUE, trim = 0)
+
+call2("mean", 1:10, !!!args)
+
+# Equivalent to
+as.call(c(list(as.symbol("mean"), 1:10), args))
+</pre>
+</li></ul>
+
+
+
+<h3>Caveats of inlining objects in calls</h3>
+
+<p><code>call2()</code> makes it possible to inline objects in calls, both in
+function and argument positions. Inlining an object or a function
+has the advantage that the correct object is used in all
+environments. If all components of the code are inlined, you can
+even evaluate in the <a href="empty_env.html">empty environment</a>.
+</p>
+<p>However inlining also has drawbacks. It can cause issues with NSE
+functions that expect symbolic arguments. The objects may also leak
+in representations of the call stack, such as <code><a href="../../base/html/traceback.html">traceback()</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>call_modify
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# fn can either be a string, a symbol or a call
+call2("f", a = 1)
+call2(quote(f), a = 1)
+call2(quote(f()), a = 1)
+
+#' Can supply arguments individually or in a list
+call2(quote(f), a = 1, b = 2)
+call2(quote(f), !!!list(a = 1, b = 2))
+
+# Creating namespaced calls is easy:
+call2("fun", arg = quote(baz), .ns = "mypkg")
+
+# Empty arguments are preserved:
+call2("[", quote(x), , drop = )
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

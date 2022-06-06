@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is an object callable?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_callable {rlang}"><tr><td>is_callable {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is an object callable?</h2>
+
+<h3>Description</h3>
+
+<p>A callable object is an object that can appear in the function
+position of a call (as opposed to argument position). This includes
+<a href="is_expression.html">symbolic objects</a> that evaluate to a function or
+literal functions embedded in the call.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_callable(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that strings may look like callable objects because
+expressions of the form <code>"list"()</code> are valid R code. However,
+that's only because the R parser transforms strings to symbols. It
+is not legal to manually set language heads to strings.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Symbolic objects and functions are callable:
+is_callable(quote(foo))
+is_callable(base::identity)
+
+# node_poke_car() lets you modify calls without any checking:
+lang &lt;- quote(foo(10))
+node_poke_car(lang, current_env())
+
+# Use is_callable() to check an input object is safe to put as CAR:
+obj &lt;- base::identity
+
+if (is_callable(obj)) {
+  lang &lt;- node_poke_car(lang, obj)
+} else {
+  abort("`obj` must be callable")
+}
+
+eval_bare(lang)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cherry-Pick and Rebase</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_rebase {gert}"><tr><td>git_rebase {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cherry-Pick and Rebase</h2>
+
+<h3>Description</h3>
+
+<p>A cherry-pick applies the changes from a given commit (from another branch)
+onto the current branch. A rebase resets the branch to the state of another
+branch (upstream) and then re-applies your local changes by cherry-picking
+each of your local commits onto the upstream commit history.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_rebase_list(upstream = NULL, repo = ".")
+
+git_rebase_commit(upstream = NULL, repo = ".")
+
+git_reset_hard(ref = "HEAD", repo = ".")
+
+git_reset_soft(ref = "HEAD", repo = ".")
+
+git_reset_mixed(ref = "HEAD", repo = ".")
+
+git_cherry_pick(commit, repo = ".")
+
+git_ahead_behind(upstream = NULL, ref = "HEAD", repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>upstream</code></td>
+<td>
+<p>branch to which you want to rewind and re-apply your
+local commits. The default uses the remote upstream branch with the
+current state on the git server, simulating <a href="git_fetch.html">git_pull</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>string with a branch/tag/commit</p>
+</td></tr>
+<tr valign="top"><td><code>commit</code></td>
+<td>
+<p>id of the commit to cherry pick</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>git_rebase_list</code> shows your local commits that are missing from the <code>upstream</code>
+history, and if they conflict with upstream changes. It does so by performing
+a rebase dry-run, without committing anything. If there are no conflicts, you
+can use <code>git_rebase_commit</code> to rewind and rebase your branch onto <code>upstream</code>.
+Gert only support a clean rebase; it never leaves the repository in unfinished
+&quot;rebasing&quot; state. If conflicts arise, <code>git_rebase_commit</code> will raise an error
+without making changes.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

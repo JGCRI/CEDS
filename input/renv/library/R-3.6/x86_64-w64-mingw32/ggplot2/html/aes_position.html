@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Position related aesthetics: x, y, xmin, xmax, ymin, ymax,...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for aes_position {ggplot2}"><tr><td>aes_position {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Position related aesthetics: x, y, xmin, xmax, ymin, ymax, xend, yend</h2>
+
+<h3>Description</h3>
+
+<p>The following aesthetics can be used to specify the position of elements:
+<code>x</code>, <code>y</code>, <code>xmin</code>, <code>xmax</code>, <code>ymin</code>, <code>ymax</code>, <code>xend</code>, <code>yend</code>.
+</p>
+
+
+<h3>Details</h3>
+
+<p><code>x</code> and <code>y</code> define the locations of points or of positions along a line
+or path.
+</p>
+<p><code>x</code>, <code>y</code> and <code>xend</code>, <code>yend</code> define the starting and ending points of
+segment and curve geometries.
+</p>
+<p><code>xmin</code>, <code>xmax</code>, <code>ymin</code>  and <code>ymax</code> can be used to specify the position of
+annotations and to represent rectangular areas.
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li><p> Geoms that commonly use these aesthetics: <code><a href="geom_linerange.html">geom_crossbar()</a></code>,
+<code><a href="geom_segment.html">geom_curve()</a></code>, <code><a href="geom_linerange.html">geom_errorbar()</a></code>, <code><a href="geom_path.html">geom_line()</a></code>, <code><a href="geom_linerange.html">geom_linerange()</a></code>,
+<code><a href="geom_path.html">geom_path()</a></code>, <code><a href="geom_point.html">geom_point()</a></code>, <code><a href="geom_linerange.html">geom_pointrange()</a></code>, <code><a href="geom_tile.html">geom_rect()</a></code>,
+<code><a href="geom_segment.html">geom_segment()</a></code>
+</p>
+</li>
+<li><p> See also <code><a href="annotate.html">annotate()</a></code> for placing annotations.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Generate data: means and standard errors of means for prices
+# for each type of cut
+dmod &lt;- lm(price ~ cut, data = diamonds)
+cut &lt;- unique(diamonds$cut)
+cuts_df &lt;- data.frame(
+  cut,
+  predict(dmod, data.frame(cut), se = TRUE)[c("fit", "se.fit")]
+)
+ggplot(cuts_df) +
+  aes(
+   x = cut,
+   y = fit,
+   ymin = fit - se.fit,
+   ymax = fit + se.fit,
+   colour = cut
+  ) +
+  geom_pointrange()
+
+# Using annotate
+p &lt;- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+p
+p + annotate(
+  "rect", xmin = 2, xmax = 3.5, ymin = 2, ymax = 25,
+  fill = "dark grey", alpha = .5
+)
+
+# Geom_segment examples
+p + geom_segment(
+  aes(x = 2, y = 15, xend = 2, yend = 25),
+  arrow = arrow(length = unit(0.5, "cm"))
+)
+p + geom_segment(
+  aes(x = 2, y = 15, xend = 3, yend = 15),
+  arrow = arrow(length = unit(0.5, "cm"))
+)
+p + geom_segment(
+  aes(x = 5, y = 30, xend = 3.5, yend = 25),
+  arrow = arrow(length = unit(0.5, "cm"))
+)
+
+# You can also use geom_segment() to recreate plot(type = "h")
+# from base R:
+counts &lt;- as.data.frame(table(x = rpois(100, 5)))
+counts$x &lt;- as.numeric(as.character(counts$x))
+with(counts, plot(x, Freq, type = "h", lwd = 10))
+
+ggplot(counts, aes(x = x, y = Freq)) +
+  geom_segment(aes(yend = 0, xend = x), size = 10)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

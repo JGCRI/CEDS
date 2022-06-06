@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Select Elements that Match a Given Pattern</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_subset {stringi}"><tr><td>stri_subset {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Select Elements that Match a Given Pattern</h2>
+
+<h3>Description</h3>
+
+<p>These functions return or modify a sub-vector where there is a match to
+a given pattern. In other words, they
+are roughly equivalent (but faster and easier to use) to a call to
+<code>str[<a href="stri_detect.html">stri_detect</a>(str, ...)]</code> or
+<code>str[<a href="stri_detect.html">stri_detect</a>(str, ...)] &lt;- value</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_subset(str, ..., regex, fixed, coll, charclass)
+
+stri_subset(str, ..., regex, fixed, coll, charclass) &lt;- value
+
+stri_subset_fixed(
+  str,
+  pattern,
+  omit_na = FALSE,
+  negate = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_subset_fixed(str, pattern, negate=FALSE, ..., opts_fixed=NULL) &lt;- value
+
+stri_subset_charclass(str, pattern, omit_na = FALSE, negate = FALSE)
+
+stri_subset_charclass(str, pattern, negate=FALSE) &lt;- value
+
+stri_subset_coll(
+  str,
+  pattern,
+  omit_na = FALSE,
+  negate = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_subset_coll(str, pattern, negate=FALSE, ..., opts_collator=NULL) &lt;- value
+
+stri_subset_regex(
+  str,
+  pattern,
+  omit_na = FALSE,
+  negate = FALSE,
+  ...,
+  opts_regex = NULL
+)
+
+stri_subset_regex(str, pattern, negate=FALSE, ..., opts_regex=NULL) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search within</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>, <code>opts_regex</code>,
+<code>opts_fixed</code>, and so on</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>non-empty character vector of replacement strings;
+replacement function only</p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex, fixed, coll, charclass</code></td>
+<td>
+<p>character vector;
+search patterns (no more than the length of <code>str</code>);
+for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>omit_na</code></td>
+<td>
+<p>single logical value; should missing values be excluded
+from the result?</p>
+</td></tr>
+<tr valign="top"><td><code>negate</code></td>
+<td>
+<p>single logical value; whether a no-match is rather of interest</p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed, opts_regex</code></td>
+<td>
+<p>a named list used to tune up
+the search engine's settings; see
+<code><a href="stri_opts_collator.html">stri_opts_collator</a></code>, <code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>,
+and <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>, respectively; <code>NULL</code>
+for the defaults</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> as well as partially over <code>pattern</code>
+and <code>value</code>,
+with recycling of the elements in the shorter vector if necessary.
+As the aim here is to subset <code>str</code>, <code>pattern</code>
+cannot be longer than the former. Moreover, if the number of
+items to replace is not a multiple of length of <code>value</code>,
+a warning is emitted and the unused elements are ignored.
+Hence, the length of the output will be the same as length of <code>str</code>.
+</p>
+<p><code>stri_subset</code> and <code>stri_subset&lt;-</code> are convenience functions.
+They call either <code>stri_subset_regex</code>,
+<code>stri_subset_fixed</code>, <code>stri_subset_coll</code>,
+or <code>stri_subset_charclass</code>,
+depending on the argument used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The <code>stri_subset_*</code> functions return a character vector.
+As usual, the output encoding is UTF-8.
+</p>
+<p>The <code>stri_subset_*&lt;-</code> functions modifies <code>str</code> 'in-place'.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_subset: 
+<code><a href="about_search.html">about_search</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_subset_regex(c('stringi R', '123', 'ID456', ''), '^[0-9]+$')
+
+x &lt;- c('stringi R', '123', 'ID456', '')
+`stri_subset_regex&lt;-`(x, '[0-9]+$', negate=TRUE, value=NA)  # returns a copy
+stri_subset_regex(x, '[0-9]+$') &lt;- NA  # modifies `x` in-place
+print(x)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

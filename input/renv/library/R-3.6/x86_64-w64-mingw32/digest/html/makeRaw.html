@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a raw object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for makeRaw {digest}"><tr><td>makeRaw {digest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a raw object</h2>
+
+<h3>Description</h3>
+
+<p>A helper function used to create <code>raw</code> methods.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+makeRaw(object)
+
+## S3 method for class 'raw'
+makeRaw(object)
+
+## S3 method for class 'character'
+makeRaw(object)
+
+## S3 method for class 'digest'
+makeRaw(object)
+
+## S3 method for class 'raw'
+makeRaw(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>The object to convert into a <code>raw</code> vector</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>raw</code> vector is returned.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Dirk Eddelbuettel</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+makeRaw("1234567890ABCDE")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>digest</em> version 0.6.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

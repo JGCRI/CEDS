@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compare Strings with or without Collation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %s&amp;lt;% {stringi}"><tr><td>%s&lt;% {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compare Strings with or without Collation</h2>
+
+<h3>Description</h3>
+
+<p>Relational operators for comparing corresponding strings in
+two character vectors, with a typical R look-and-feel.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+e1 %s&lt;% e2
+
+e1 %s&lt;=% e2
+
+e1 %s&gt;% e2
+
+e1 %s&gt;=% e2
+
+e1 %s==% e2
+
+e1 %s!=% e2
+
+e1 %s===% e2
+
+e1 %s!==% e2
+
+e1 %stri&lt;% e2
+
+e1 %stri&lt;=% e2
+
+e1 %stri&gt;% e2
+
+e1 %stri&gt;=% e2
+
+e1 %stri==% e2
+
+e1 %stri!=% e2
+
+e1 %stri===% e2
+
+e1 %stri!==% e2
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>e1, e2</code></td>
+<td>
+<p>character vectors or objects coercible to character vectors</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions call <code><a href="stri_compare.html">stri_cmp_le</a></code> or its
+friends, using the default collator options.
+As a consequence, they are vectorized over <code>e1</code> and <code>e2</code>.
+</p>
+<p><code>%stri==%</code> tests for canonical equivalence of strings
+(see <code><a href="stri_compare.html">stri_cmp_equiv</a></code>) and is a locale-dependent operation.
+</p>
+<p><code>%stri===%</code> performs a locale-independent,
+code point-based comparison.
+</p>
+
+
+<h3>Value</h3>
+
+<p>All the functions return a logical vector
+indicating the result of a pairwise comparison.
+As usual, the elements of shorter vectors are recycled if necessary.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+'a' %stri&lt;% 'b'
+c('a', 'b', 'c') %stri&gt;=% 'b'
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

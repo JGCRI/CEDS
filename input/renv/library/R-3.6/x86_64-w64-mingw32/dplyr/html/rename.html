@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rename columns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rename {dplyr}"><tr><td>rename {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rename columns</h2>
+
+<h3>Description</h3>
+
+<p><code>rename()</code> changes the names of individual variables using
+<code>new_name = old_name</code> syntax; <code>rename_with()</code> renames columns using a
+function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rename(.data, ...)
+
+rename_with(.data, .fn, .cols = everything(), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>rename()</code>: &lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; Use
+<code>new_name = old_name</code> to rename selected variables.
+</p>
+<p>For <code>rename_with()</code>: additional arguments passed onto <code>.fn</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.fn</code></td>
+<td>
+<p>A function used to transform the selected <code>.cols</code>. Should
+return a character vector the same length as the input.</p>
+</td></tr>
+<tr valign="top"><td><code>.cols</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; Columns to rename;
+defaults to all columns.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following
+properties:
+</p>
+
+<ul>
+<li><p> Rows are not affected.
+</p>
+</li>
+<li><p> Column names are changed; column order is preserved.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li>
+<li><p> Groups are updated to reflect new names.
+</p>
+</li></ul>
+
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="arrange.html">arrange</a>()</code>,
+<code><a href="filter.html">filter</a>()</code>,
+<code><a href="mutate.html">mutate</a>()</code>,
+<code><a href="select.html">select</a>()</code>,
+<code><a href="slice.html">slice</a>()</code>,
+<code><a href="summarise.html">summarise</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+iris &lt;- as_tibble(iris) # so it prints a little nicer
+rename(iris, petal_length = Petal.Length)
+
+rename_with(iris, toupper)
+rename_with(iris, toupper, starts_with("Petal"))
+rename_with(iris, ~ tolower(gsub(".", "_", .x, fixed = TRUE)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

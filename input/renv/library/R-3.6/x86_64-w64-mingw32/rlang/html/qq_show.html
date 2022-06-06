@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Show injected expression</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for qq_show {rlang}"><tr><td>qq_show {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Show injected expression</h2>
+
+<h3>Description</h3>
+
+<p><code>qq_show()</code> helps examining <a href="topic-inject.html">injected expressions</a>
+inside a function. This is useful for learning about injection and
+for debugging injection code.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An expression involving <a href="topic-inject.html">injection operators</a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<p><code>qq_show()</code> shows the intermediary expression before it is
+evaluated by R:<div class="sourceCode r"></p>
+<pre>list2(!!!1:3)
+#&gt; [[1]]
+#&gt; [1] 1
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 2
+#&gt; 
+#&gt; [[3]]
+#&gt; [1] 3
+
+qq_show(list2(!!!1:3))
+#&gt; list2(1L, 2L, 3L)
+</pre></div>
+<p>It is especially useful inside functions to reveal what an injected
+expression looks like:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  qq_show(data %&gt;% dplyr::summarise(mean({{ var }})))
+}
+
+mtcars %&gt;% my_mean(cyl)
+#&gt; data %&gt;% dplyr::summarise(mean(^cyl))
+</pre></div>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-inject.html">Injecting with !!, !!!, and glue syntax</a>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find files on Google Drive</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_find {googledrive}"><tr><td>drive_find {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find files on Google Drive</h2>
+
+<h3>Description</h3>
+
+<p>This is the closest googledrive function to what you can do at
+<a href="https://drive.google.com">https://drive.google.com</a>: by default, you just get a listing of your files.
+You can also search in various ways, e.g., filter by file type or ownership
+or work with <a href="shared_drives.html">shared drives</a>. This is a very powerful
+function. Together with the more specific <code><a href="drive_get.html">drive_get()</a></code>, this is the main way
+to identify files to target for downstream work. If you know you want to
+search within a specific folder or shared drive, use <code><a href="drive_ls.html">drive_ls()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_find(
+  pattern = NULL,
+  trashed = FALSE,
+  type = NULL,
+  n_max = Inf,
+  shared_drive = NULL,
+  corpus = NULL,
+  ...,
+  verbose = deprecated(),
+  team_drive = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>Character. If provided, only the items whose names match this
+regular expression are returned. This is implemented locally on the results
+returned by the API.</p>
+</td></tr>
+<tr valign="top"><td><code>trashed</code></td>
+<td>
+<p>Logical. Whether to search files that are not in the trash
+(<code>trashed = FALSE</code>, the default), only files that are in the trash
+(<code>trashed = TRUE</code>), or to search regardless of trashed status (<code>trashed = NA</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. If provided, only files of this type will be returned.
+Can be anything that <code><a href="drive_mime_type.html">drive_mime_type()</a></code> knows how to handle. This is
+processed by googledrive and sent as a query parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Integer. An upper bound on the number of items to return. This
+applies to the results requested from the API, which may be further
+filtered locally, via the <code>pattern</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>shared_drive</code></td>
+<td>
+<p>Anything that identifies one specific shared drive: its
+name, its id or URL marked with <code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>. The value
+provided to <code>shared_drive</code> is pre-processed with <code><a href="as_shared_drive.html">as_shared_drive()</a></code>. Read
+more about <a href="shared_drives.html">shared drives</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>corpus</code></td>
+<td>
+<p>Character, specifying which collections of items to search.
+Relevant to those who work with shared drives and/or Google Workspace
+domains. If specified, must be one of <code>"user"</code>, <code>"drive"</code> (requires that
+<code>shared_drive</code> also be specified), <code>"allDrives"</code>, or <code>"domain"</code>. Read more
+about <a href="shared_drives.html">shared drives</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters to pass along in the request. The most likely
+candidate is <code>q</code>. See below and the API's
+<a href="https://developers.google.com/drive/api/v3/search-files">Search for files and folders guide</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>team_drive</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> Google Drive and the
+Drive API have replaced Team Drives with shared drives.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>File type</h3>
+
+<p>The <code>type</code> argument is pre-processed with <code><a href="drive_mime_type.html">drive_mime_type()</a></code>, so you can
+use a few shortcuts and file extensions, in addition to full-blown MIME
+types. googledrive forms a search clause to pass to <code>q</code>.
+</p>
+
+
+<h3>Search parameters</h3>
+
+<p>Do advanced search on file properties by providing search clauses to the
+<code>q</code> parameter that is passed to the API via <code>...</code>. Multiple <code>q</code> clauses or
+vector-valued <code>q</code> are combined via 'and'.
+</p>
+
+
+<h3>Trash</h3>
+
+<p>By default, <code>drive_find()</code> sets <code>trashed = FALSE</code> and does not include
+files in the trash. Literally, it adds <code>q = "trashed = false"</code> to the
+query. To search <em>only</em> the trash, set <code>trashed = TRUE</code>. To see files
+regardless of trash status, set <code>trashed = NA</code>, which adds
+<code>q = "(trashed = true or trashed = false)"</code> to the query.
+</p>
+
+
+<h3>Sort order</h3>
+
+<p>By default, <code>drive_find()</code> sends <code>orderBy = "recency desc"</code>, so the top
+files in your result have high &quot;recency&quot; (whatever that means). To suppress
+sending <code>orderBy</code> at all, do <code>drive_find(orderBy = NULL)</code>. The <code>orderBy</code>
+parameter accepts sort keys in addition to <code>recency</code>, which are documented
+in the <a href="https://developers.google.com/drive/api/v3/reference/files/list"><code>files.list</code> endpoint</a>.
+googledrive translates a snake_case specification of <code>order_by</code> into the
+lowerCamel form, <code>orderBy</code>.
+</p>
+
+
+<h3>Shared drives and domains</h3>
+
+<p>If you work with shared drives and/or Google Workspace, you can apply your
+search query to collections of items beyond those associated with &quot;My
+Drive&quot;. Use the <code>shared_drive</code> or <code>corpus</code> arguments to control this.
+Read more about <a href="shared_drives.html">shared drives</a>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>files.list</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/files/list">https://developers.google.com/drive/api/v3/reference/files/list</a>
+</p>
+</li></ul>
+
+<p>Helpful resource for forming your own queries:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/search-files">https://developers.google.com/drive/api/v3/search-files</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# list "My Drive" w/o regard for folder hierarchy
+drive_find()
+
+# filter for folders, the easy way and the hard way
+drive_find(type = "folder")
+drive_find(q = "mimeType = 'application/vnd.google-apps.folder'")
+
+# filter for Google Sheets, the easy way and the hard way
+drive_find(type = "spreadsheet")
+drive_find(q = "mimeType='application/vnd.google-apps.spreadsheet'")
+
+# files whose names match a regex
+# the local, general, sometimes-slow-to-execute version
+drive_find(pattern = "ick")
+# the server-side, executes-faster version
+# NOTE: works only for a pattern at the beginning of file name
+drive_find(q = "name contains 'chick'")
+
+# search for files located directly in your root folder
+drive_find(q = "'root' in parents")
+# FYI: this is equivalent to
+drive_ls("~/")
+
+# control page size or cap the number of files returned
+drive_find(pageSize = 50)
+# all params passed through `...` can be camelCase or snake_case
+drive_find(page_size = 50)
+drive_find(n_max = 58)
+drive_find(page_size = 5, n_max = 15)
+
+# various ways to specify q search clauses
+# multiple q's
+drive_find(q = "name contains 'TEST'",
+           q = "modifiedTime &gt; '2020-07-21T12:00:00'")
+# vector q
+drive_find(q = c("starred = true", "visibility = 'anyoneWithLink'"))
+
+# default `trashed = FALSE` excludes files in the trash
+# `trashed = TRUE` consults ONLY file in the trash
+drive_find(trashed = TRUE)
+# `trashed = NA` disregards trash status completely
+drive_find(trashed = NA)
+
+# suppress the default sorting on recency
+drive_find(order_by = NULL, n_max = 5)
+
+# sort on various keys
+drive_find(order_by = "modifiedByMeTime", n_max = 5)
+# request descending order
+drive_find(order_by = "quotaBytesUsed desc", n_max = 5)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

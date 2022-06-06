@@ -1,0 +1,554 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create an R6 reference object generator</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for R6Class {R6}"><tr><td>R6Class {R6}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create an R6 reference object generator</h2>
+
+<h3>Description</h3>
+
+<p>R6 objects are essentially environments, structured in a way that makes them
+look like an object in a more typical object-oriented language than R. They
+support public and private members, as well as inheritance across different
+packages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+R6Class(
+  classname = NULL,
+  public = list(),
+  private = NULL,
+  active = NULL,
+  inherit = NULL,
+  lock_objects = TRUE,
+  class = TRUE,
+  portable = TRUE,
+  lock_class = FALSE,
+  cloneable = TRUE,
+  parent_env = parent.frame(),
+  lock
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>classname</code></td>
+<td>
+<p>Name of the class. The class name is useful primarily for S3
+method dispatch.</p>
+</td></tr>
+<tr valign="top"><td><code>public</code></td>
+<td>
+<p>A list of public members, which can be functions (methods) and
+non-functions (fields).</p>
+</td></tr>
+<tr valign="top"><td><code>private</code></td>
+<td>
+<p>An optional list of private members, which can be functions
+and non-functions.</p>
+</td></tr>
+<tr valign="top"><td><code>active</code></td>
+<td>
+<p>An optional list of active binding functions.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>A R6ClassGenerator object to inherit from; in other words, a
+superclass. This is captured as an unevaluated expression which is
+evaluated in <code>parent_env</code> each time an object is instantiated.</p>
+</td></tr>
+<tr valign="top"><td><code>lock_objects</code></td>
+<td>
+<p>Should the environments of the generated objects be
+locked? If locked, new members can't be added to the objects.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>Should a class attribute be added to the object? Default is
+<code>TRUE</code>. If <code>FALSE</code>, the objects will simply look like
+environments, which is what they are.</p>
+</td></tr>
+<tr valign="top"><td><code>portable</code></td>
+<td>
+<p>If <code>TRUE</code> (the default), this class will work with
+inheritance across different packages. Note that when this is enabled,
+fields and members must be accessed with  <code>self$x</code> or
+<code>private$x</code>; they can't be accessed with just <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lock_class</code></td>
+<td>
+<p>If <code>TRUE</code>, it won't be possible to add more members to
+the generator object with <code>$set</code>. If <code>FALSE</code> (the default), then
+it will be possible to add more members with <code>$set</code>. The methods
+<code>$is_locked</code>, <code>$lock</code>, and <code>$unlock</code> can be used to query
+and change the locked state of the class.</p>
+</td></tr>
+<tr valign="top"><td><code>cloneable</code></td>
+<td>
+<p>If <code>TRUE</code> (the default), the generated objects will
+have method named <code>$clone</code>, which makes a copy of the object.</p>
+</td></tr>
+<tr valign="top"><td><code>parent_env</code></td>
+<td>
+<p>An environment to use as the parent of newly-created
+objects.</p>
+</td></tr>
+<tr valign="top"><td><code>lock</code></td>
+<td>
+<p>Deprecated as of version 2.1; use <code>lock_class</code> instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>An R6 object consists of a public environment, and may also contain a private
+environment, as well as environments for superclasses. In one sense, the
+object and the public environment are the same; a reference to the object is
+identical to a reference to the public environment. But in another sense, the
+object also consists of the fields, methods, private environment and so on.
+</p>
+<p>The <code>active</code> argument is a list of active binding functions. These
+functions take one argument. They look like regular variables, but when
+accessed, a function is called with an optional argument. For example, if
+<code>obj$x2</code> is an active binding, then when accessed as <code>obj$x2</code>, it
+calls the <code>x2()</code> function that was in the <code>active</code> list, with no
+arguments. However, if a value is assigned to it, as in <code>obj$x2 &lt;- 50</code>,
+then the function is called with the right-side value as its argument, as in
+<code>x2(50)</code>. See <code><a href="../../base/html/bindenv.html">makeActiveBinding</a></code> for more information.
+</p>
+<p>If the public or private lists contain any items that have reference
+semantics (for example, an environment), those items will be shared across
+all instances of the class. To avoid this, add an entry for that item with a
+<code>NULL</code> initial value, and then in the <code>initialize</code> method,
+instantiate the object and assign it.
+</p>
+
+
+<h3>The <code>print</code> method</h3>
+
+<p>R6 object generators and R6 objects have a default <code>print</code> method to
+show them on the screen: they simply list the members and parameters (e.g.
+lock_objects, portable, etc., see above) of the object.
+</p>
+<p>The default <code>print</code> method of R6 objects can be redefined, by
+supplying a public <code>print</code> method. (<code>print</code> members that are not
+functions are ignored.) This method is automatically called whenever the
+object is printed, e.g. when the object's name is typed at the command
+prompt, or when <code>print(obj)</code> is called. It can also be called directly
+via <code>obj$print()</code>. All extra arguments from a <code>print(obj, ...)</code>
+call are passed on to the <code>obj$print(...)</code> method.
+</p>
+
+
+<h3>Portable and non-portable classes</h3>
+
+<p>When R6 classes are portable (the default), they can be inherited across
+packages without complication. However, when in portable mode, members must
+be accessed with <code>self</code> and <code>private</code>, as in <code>self$x</code> and
+<code>private$y</code>.
+</p>
+<p>When used in non-portable mode, R6 classes behave more like reference
+classes: inheritance across packages will not work well, and <code>self</code>
+and <code>private</code> are not necessary for accessing fields.
+</p>
+
+
+<h3>Cloning objects</h3>
+
+<p>R6 objects have a method named <code>clone</code> by default. To disable this,
+use <code>cloneable=FALSE</code>. Having the <code>clone</code> method present will
+slightly increase the memory footprint of R6 objects, but since the method
+will be shared across all R6 objects, the memory use will be negligible.
+</p>
+<p>By default, calling <code>x$clone()</code> on an R6 object will result in a
+shallow clone. That is, if any fields have reference semantics
+(environments, R6, or reference class objects), they will not be copied;
+instead, the clone object will have a field that simply refers to the same
+object.
+</p>
+<p>To make a deep copy, you can use <code>x$clone(deep=TRUE)</code>. With this
+option, any fields that are R6 objects will also be cloned; however,
+environments and reference class objects will not be.
+</p>
+<p>If you want different deep copying behavior, you can supply your own
+private method called <code>deep_clone</code>. This method will be called for
+each field in the object, with two arguments: <code>name</code>, which is the
+name of the field, and <code>value</code>, which is the value. Whatever the
+method returns will be used as the value for the field in the new clone
+object. You can write a <code>deep_clone</code> method that makes copies of
+specific fields, whether they are environments, R6 objects, or reference
+class objects.
+</p>
+
+
+<h3>S3 details</h3>
+
+<p>Normally the public environment will have two classes: the one supplied in
+the <code>classname</code> argument, and <code>"R6"</code>. It is possible to get the
+public environment with no classes, by using <code>class=FALSE</code>. This will
+result in faster access speeds by avoiding class-based dispatch of
+<code>$</code>. The benefit is negligible in most cases.
+</p>
+<p>If a class is a subclass of another, the object will have as its classes
+the <code>classname</code>, the superclass's <code>classname</code>, and <code>"R6"</code>
+</p>
+<p>The primary difference in behavior when <code>class=FALSE</code> is that, without
+a class attribute, it won't be possible to use S3 methods with the objects.
+So, for example, pretty printing (with <code>print.R6Class</code>) won't be used.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# A queue ---------------------------------------------------------
+Queue &lt;- R6Class("Queue",
+  public = list(
+    initialize = function(...) {
+      for (item in list(...)) {
+        self$add(item)
+      }
+    },
+    add = function(x) {
+      private$queue &lt;- c(private$queue, list(x))
+      invisible(self)
+    },
+    remove = function() {
+      if (private$length() == 0) return(NULL)
+      # Can use private$queue for explicit access
+      head &lt;- private$queue[[1]]
+      private$queue &lt;- private$queue[-1]
+      head
+    }
+  ),
+  private = list(
+    queue = list(),
+    length = function() base::length(private$queue)
+  )
+)
+
+q &lt;- Queue$new(5, 6, "foo")
+
+# Add and remove items
+q$add("something")
+q$add("another thing")
+q$add(17)
+q$remove()
+#&gt; [1] 5
+q$remove()
+#&gt; [1] 6
+
+# Private members can't be accessed directly
+q$queue
+#&gt; NULL
+# q$length()
+#&gt; Error: attempt to apply non-function
+
+# add() returns self, so it can be chained
+q$add(10)$add(11)$add(12)
+
+# remove() returns the value removed, so it's not chainable
+q$remove()
+#&gt; [1] "foo"
+q$remove()
+#&gt; [1] "something"
+q$remove()
+#&gt; [1] "another thing"
+q$remove()
+#&gt; [1] 17
+
+
+# Active bindings -------------------------------------------------
+Numbers &lt;- R6Class("Numbers",
+  public = list(
+    x = 100
+  ),
+  active = list(
+    x2 = function(value) {
+      if (missing(value)) return(self$x * 2)
+      else self$x &lt;- value/2
+    },
+    rand = function() rnorm(1)
+  )
+)
+
+n &lt;- Numbers$new()
+n$x
+#&gt; [1] 100
+n$x2
+#&gt; [1] 200
+n$x2 &lt;- 1000
+n$x
+#&gt; [1] 500
+
+# If the function takes no arguments, it's not possible to use it with &lt;-:
+n$rand
+#&gt; [1] 0.2648
+n$rand
+#&gt; [1] 2.171
+# n$rand &lt;- 3
+#&gt; Error: unused argument (quote(3))
+
+
+# Inheritance -----------------------------------------------------
+# Note that this isn't very efficient - it's just for illustrating inheritance.
+HistoryQueue &lt;- R6Class("HistoryQueue",
+  inherit = Queue,
+  public = list(
+    show = function() {
+      cat("Next item is at index", private$head_idx + 1, "\n")
+      for (i in seq_along(private$queue)) {
+        cat(i, ": ", private$queue[[i]], "\n", sep = "")
+      }
+    },
+    remove = function() {
+      if (private$length() - private$head_idx == 0) return(NULL)
+      private$head_idx &lt;&lt;- private$head_idx + 1
+      private$queue[[private$head_idx]]
+    }
+  ),
+  private = list(
+    head_idx = 0
+  )
+)
+
+hq &lt;- HistoryQueue$new(5, 6, "foo")
+hq$show()
+#&gt; Next item is at index 1
+#&gt; 1: 5
+#&gt; 2: 6
+#&gt; 3: foo
+hq$remove()
+#&gt; [1] 5
+hq$show()
+#&gt; Next item is at index 2
+#&gt; 1: 5
+#&gt; 2: 6
+#&gt; 3: foo
+hq$remove()
+#&gt; [1] 6
+
+
+
+# Calling superclass methods with super$ --------------------------
+CountingQueue &lt;- R6Class("CountingQueue",
+  inherit = Queue,
+  public = list(
+    add = function(x) {
+      private$total &lt;&lt;- private$total + 1
+      super$add(x)
+    },
+    get_total = function() private$total
+  ),
+  private = list(
+    total = 0
+  )
+)
+
+cq &lt;- CountingQueue$new("x", "y")
+cq$get_total()
+#&gt; [1] 2
+cq$add("z")
+cq$remove()
+#&gt; [1] "x"
+cq$remove()
+#&gt; [1] "y"
+cq$get_total()
+#&gt; [1] 3
+
+
+# Non-portable classes --------------------------------------------
+# By default, R6 classes are portable, which means they can be inherited
+# across different packages. Portable classes require using self$ and
+# private$ to access members.
+# When used in non-portable mode, members can be accessed without self$,
+# and assignments can be made with &lt;&lt;-.
+
+NP &lt;- R6Class("NP",
+  portable = FALSE,
+  public = list(
+    x = NA,
+    getx = function() x,
+    setx = function(value) x &lt;&lt;- value
+  )
+)
+
+np &lt;- NP$new()
+np$setx(10)
+np$getx()
+#&gt; [1] 10
+
+# Setting new values ----------------------------------------------
+# It is possible to add new members to the class after it has been created,
+# by using the $set() method on the generator.
+
+Simple &lt;- R6Class("Simple",
+  public = list(
+    x = 1,
+    getx = function() self$x
+  )
+)
+
+Simple$set("public", "getx2", function() self$x*2)
+
+# Use overwrite = TRUE to overwrite existing values
+Simple$set("public", "x", 10, overwrite = TRUE)
+
+s &lt;- Simple$new()
+s$x
+s$getx2()
+
+
+# Cloning objects -------------------------------------------------
+a &lt;- Queue$new(5, 6)
+a$remove()
+#&gt; [1] 5
+
+# Clone a. New object gets a's state.
+b &lt;- a$clone()
+
+# Can add to each queue separately now.
+a$add(10)
+b$add(20)
+
+a$remove()
+#&gt; [1] 6
+a$remove()
+#&gt; [1] 10
+
+b$remove()
+#&gt; [1] 6
+b$remove()
+#&gt; [1] 20
+
+
+# Deep clones -----------------------------------------------------
+
+Simple &lt;- R6Class("Simple",
+ public = list(
+   x = NULL,
+   initialize = function(val) self$x &lt;- val
+ )
+)
+
+Cloner &lt;- R6Class("Cloner",
+  public = list(
+    s = NULL,
+    y = 1,
+    initialize = function() self$s &lt;- Simple$new(1)
+  )
+)
+
+a &lt;- Cloner$new()
+b &lt;- a$clone()
+c &lt;- a$clone(deep = TRUE)
+
+# Modify a
+a$s$x &lt;- 2
+a$y &lt;- 2
+
+# b is a shallow clone. b$s is the same as a$s because they are R6 objects.
+b$s$x
+#&gt; [1] 2
+# But a$y and b$y are different, because y is just a value.
+b$y
+#&gt; [1] 1
+
+# c is a deep clone, so c$s is not the same as a$s.
+c$s$x
+#&gt; [1] 1
+c$y
+#&gt; [1] 1
+
+
+# Deep clones with custom deep_clone method -----------------------
+
+CustomCloner &lt;- R6Class("CustomCloner",
+  public = list(
+    e = NULL,
+    s1 = NULL,
+    s2 = NULL,
+    s3 = NULL,
+    initialize = function() {
+      self$e &lt;- new.env(parent = emptyenv())
+      self$e$x &lt;- 1
+      self$s1 &lt;- Simple$new(1)
+      self$s2 &lt;- Simple$new(1)
+      self$s3 &lt;- Simple$new(1)
+    }
+  ),
+  private = list(
+    # When x$clone(deep=TRUE) is called, the deep_clone gets invoked once for
+    # each field, with the name and value.
+    deep_clone = function(name, value) {
+      if (name == "e") {
+        # e1 is an environment, so use this quick way of copying
+        list2env(as.list.environment(value, all.names = TRUE),
+                 parent = emptyenv())
+
+      } else if (name %in% c("s1", "s2")) {
+        # s1 and s2 are R6 objects which we can clone
+        value$clone()
+
+      } else {
+        # For everything else, just return it. This results in a shallow
+        # copy of s3.
+        value
+      }
+    }
+  )
+)
+
+a &lt;- CustomCloner$new()
+b &lt;- a$clone(deep = TRUE)
+
+# Change some values in a's fields
+a$e$x &lt;- 2
+a$s1$x &lt;- 3
+a$s2$x &lt;- 4
+a$s3$x &lt;- 5
+
+# b has copies of e, s1, and s2, but shares the same s3
+b$e$x
+#&gt; [1] 1
+b$s1$x
+#&gt; [1] 1
+b$s2$x
+#&gt; [1] 1
+b$s3$x
+#&gt; [1] 5
+
+
+# Debugging -------------------------------------------------------
+## Not run: 
+# This will enable debugging the getx() method for objects of the 'Simple'
+# class that are instantiated in the future.
+Simple$debug("getx")
+s &lt;- Simple$new()
+s$getx()
+
+# Disable debugging for future instances:
+Simple$undebug("getx")
+s &lt;- Simple$new()
+s$getx()
+
+# To enable and disable debugging for a method in a single instance of an
+# R6 object (this will not affect other objects):
+s &lt;- Simple$new()
+debug(s$getx)
+s$getx()
+undebug(s$getx)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>R6</em> version 2.5.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write Text Lines to a Text File</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_write_lines {stringi}"><tr><td>stri_write_lines {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write Text Lines to a Text File</h2>
+
+<h3>Description</h3>
+
+<p>Writes a text file is such a way that each element of a given
+character vector becomes a separate text line.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_write_lines(
+  str,
+  con,
+  encoding = "UTF-8",
+  sep = ifelse(.Platform$OS.type == "windows", "\r\n", "\n"),
+  fname = con
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector with data to write</p>
+</td></tr>
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>name of the output file or a connection object
+(opened in the binary mode)</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>output encoding, <code>NULL</code> or <code>''</code> for
+the current default one</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>newline separator</p>
+</td></tr>
+<tr valign="top"><td><code>fname</code></td>
+<td>
+<p>deprecated alias of <code>con</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It is a substitute for the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> <code><a href="../../base/html/writeLines.html">writeLines</a></code> function,
+with the ability to easily re-encode the output.
+</p>
+<p>We suggest using the UTF-8 encoding for all text files:
+thus, it is the default one for the output.
+</p>
+
+
+<h3>Value</h3>
+
+<p>This function returns nothing noteworthy.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other files: 
+<code><a href="stri_read_lines.html">stri_read_lines</a>()</code>,
+<code><a href="stri_read_raw.html">stri_read_raw</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

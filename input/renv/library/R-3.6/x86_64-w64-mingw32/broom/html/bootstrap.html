@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set up bootstrap replicates of a dplyr operation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bootstrap {broom}"><tr><td>bootstrap {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set up bootstrap replicates of a dplyr operation</h2>
+
+<h3>Description</h3>
+
+<p>The <code>bootstrap()</code> function is deprecated and will be removed from
+an upcoming release of broom. For tidy resampling, please use the rsample
+package instead. Functionality is no longer supported for this method.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bootstrap(df, m, by_group = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>a data frame</p>
+</td></tr>
+<tr valign="top"><td><code>m</code></td>
+<td>
+<p>number of bootstrap replicates to perform</p>
+</td></tr>
+<tr valign="top"><td><code>by_group</code></td>
+<td>
+<p>If <code>TRUE</code>, then bootstrap within each group if <code>df</code> is
+a grouped tibble.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This code originates from Hadley Wickham (with a few small
+corrections) here:
+<a href="https://github.com/tidyverse/dplyr/issues/269">https://github.com/tidyverse/dplyr/issues/269</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other deprecated: 
+<code><a href="confint_tidy.html">confint_tidy</a>()</code>,
+<code><a href="data.frame_tidiers.html">data.frame_tidiers</a></code>,
+<code><a href="finish_glance.html">finish_glance</a>()</code>,
+<code><a href="fix_data_frame.html">fix_data_frame</a>()</code>,
+<code><a href="summary_tidiers.html">summary_tidiers</a></code>,
+<code><a href="tidy.density.html">tidy.density</a>()</code>,
+<code><a href="tidy.dist.html">tidy.dist</a>()</code>,
+<code><a href="tidy.ftable.html">tidy.ftable</a>()</code>,
+<code><a href="vector_tidiers.html">tidy.numeric</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Aesthetics: grouping</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for aes_group_order {ggplot2}"><tr><td>aes_group_order {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Aesthetics: grouping</h2>
+
+<h3>Description</h3>
+
+<p>The <code>group</code> aesthetic is by default set to the interaction of all discrete variables
+in the plot. This choice often partitions the data correctly, but when it does not,
+or when no discrete variable is used in the plot, you will need to explicitly define the
+grouping structure by mapping <code>group</code> to a variable that has a different value
+for each group.
+</p>
+
+
+<h3>Details</h3>
+
+<p>For most applications the grouping is set implicitly by mapping one or more
+discrete variables to <code>x</code>, <code>y</code>, <code>colour</code>, <code>fill</code>, <code>alpha</code>, <code>shape</code>, <code>size</code>,
+and/or <code>linetype</code>. This is demonstrated in the examples below.
+</p>
+<p>There are three common cases where the default does not display the data correctly.
+The examples below use a longitudinal dataset, <code>Oxboys</code>, from the nlme package to demonstrate
+these cases. <code>Oxboys</code> records the heights (height) and centered ages (age) of 26 boys (Subject),
+measured on nine occasions (Occasion).
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li><p> Geoms commonly used with groups: <code><a href="geom_bar.html">geom_bar()</a></code>, <code><a href="geom_histogram.html">geom_histogram()</a></code>, <code><a href="geom_path.html">geom_line()</a></code>
+</p>
+</li>
+<li><p> Run <code>vignette("ggplot2-specs")</code> to see an overview of other aesthestics that
+can be modified.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+
+p &lt;- ggplot(mtcars, aes(wt, mpg))
+# A basic scatter plot
+p + geom_point(size = 4)
+# Using the colour aesthetic
+p + geom_point(aes(colour = factor(cyl)), size = 4)
+# Using the shape aesthetic
+p + geom_point(aes(shape = factor(cyl)), size = 4)
+
+# Using fill
+p &lt;- ggplot(mtcars, aes(factor(cyl)))
+p + geom_bar()
+p + geom_bar(aes(fill = factor(cyl)))
+p + geom_bar(aes(fill = factor(vs)))
+
+# Using linetypes
+ggplot(economics_long, aes(date, value01)) +
+  geom_line(aes(linetype = variable))
+
+# Multiple groups with one aesthetic
+p &lt;- ggplot(nlme::Oxboys, aes(age, height))
+# The default is not sufficient here. A single line tries to connect all
+# the observations.
+p + geom_line()
+# To fix this, use the group aesthetic to map a different line for each
+# subject.
+p + geom_line(aes(group = Subject))
+
+# Different groups on different layers
+p &lt;- p + geom_line(aes(group = Subject))
+# Using the group aesthetic with both geom_line() and geom_smooth()
+# groups the data the same way for both layers
+p + geom_smooth(aes(group = Subject), method = "lm", se = FALSE)
+# Changing the group aesthetic for the smoother layer
+# fits a single line of best fit across all boys
+p + geom_smooth(aes(group = 1), size = 2, method = "lm", se = FALSE)
+
+# Overriding the default grouping
+# Sometimes the plot has a discrete scale but you want to draw lines
+# that connect across groups. This is the strategy used in interaction
+# plots, profile plots, and parallel coordinate plots, among others.
+# For example, we draw boxplots of height at each measurement occasion.
+p &lt;- ggplot(nlme::Oxboys, aes(Occasion, height)) + geom_boxplot()
+p
+# There is no need to specify the group aesthetic here; the default grouping
+# works because occasion is a discrete variable. To overlay individual
+# trajectories, we again need to override the default grouping for that layer
+# with aes(group = Subject)
+p + geom_line(aes(group = Subject), colour = "blue")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

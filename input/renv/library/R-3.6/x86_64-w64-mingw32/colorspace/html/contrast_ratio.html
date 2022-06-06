@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: W3C Contrast Ratio</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for contrast_ratio {colorspace}"><tr><td>contrast_ratio {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>W3C Contrast Ratio</h2>
+
+<h3>Description</h3>
+
+<p>Compute (and visualize) the contrast ratio of pairs of colors, as defined by the World Wide
+Web Consortium (W3C).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+contrast_ratio(
+  col,
+  col2 = "white",
+  plot = FALSE,
+  border = FALSE,
+  cex = 2,
+  off = 0.05,
+  mar = rep(0.5, 4),
+  digits = 2L,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>col, col2</code></td>
+<td>
+<p>vectors of any of the three kind of R colors, i.e., either a color
+name (an element of <code><a href="../../grDevices/html/colors.html">colors</a></code>), a hexadecimal string
+of the form <code>"#rrggbb"</code> or <code>"#rrggbbaa"</code> (see
+<code><a href="../../grDevices/html/rgb.html">rgb</a></code>), or an integer <code>i</code> meaning
+<code>palette()[i]</code>. Both can be vectors and are recycled as necessary.</p>
+</td></tr>
+<tr valign="top"><td><code>plot</code></td>
+<td>
+<p>logical indicating whether the contrast ratios should also be
+visualized by simple color swatches. Can also be a vector of length 2, indicating
+whether the foreground color should be visualized on the background color and/or
+the background color on the foreground color.</p>
+</td></tr>
+<tr valign="top"><td><code>border</code></td>
+<td>
+<p>logical or color specification for the borders around the color swatches (only
+used if <code>plot = TRUE</code>). The default is <code>FALSE</code> which is equivalent to
+<code>"transparent"</code>. If <code>TRUE</code> the border is drawn in the same color as the text in the
+rectangle.</p>
+</td></tr>
+<tr valign="top"><td><code>cex</code></td>
+<td>
+<p>numeric. Size of the text in the color color swatches (only if <code>plot = TRUE</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>off</code></td>
+<td>
+<p>numeric. Vertical offset between the different color swatches (only if <code>plot = TRUE</code>).
+Can also be of length 2 giving both vertical and horizontal offsets, respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>mar</code></td>
+<td>
+<p>numeric. Size of the margins around the color swatches (only if <code>plot = TRUE</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>digits</code></td>
+<td>
+<p>numeric. Number of digits for the contrast ratios displayed in the color swatches
+(only if <code>plot = TRUE</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments passed to the plot of the color swatches (only if <code>plot = TRUE</code>).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The W3C Content Accessibility Guidelines (WCAG) recommend a contrast
+ratio of at least 4.5 for the color of regular text on the background color, and
+a ratio of at least 3 for large text. See <a href="https://www.w3.org/TR/WCAG21/#contrast-minimum">https://www.w3.org/TR/WCAG21/#contrast-minimum</a>.
+</p>
+<p>The contrast ratio is defined in <a href="https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio">https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio</a>
+as <code>(L1 + 0.05) / (L2 + 0.05)</code> where <code>L1</code> and <code>L2</code> are the relative luminances
+(see <a href="https://www.w3.org/TR/WCAG21/#dfn-relative-luminance">https://www.w3.org/TR/WCAG21/#dfn-relative-luminance</a>) of the lighter and darker
+colors, respectively. The relative luminances are weighted sums of scaled sRGB coordinates:
+<code>0.2126 * R + 0.7152 * G + 0.0722 * B</code> where each of <code>R</code>, <code>G</code>, and <code>B</code>
+is defined as <code>ifelse(RGB &lt;= 0.03928, RGB/12.92, ((RGB + 0.055)/1.055)^2.4)</code> based on
+the <code>RGB</code> coordinates between 0 and 1.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector with the contrast ratios is returned (invisibly, if <code>plot</code> is <code>TRUE</code>).
+</p>
+
+
+<h3>References</h3>
+
+<p>W3C (2018). &ldquo;Web Content Accessibility Guidelines (WCAG) 2.1.&rdquo;
+<a href="https://www.w3.org/TR/WCAG21/">https://www.w3.org/TR/WCAG21/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="desaturate.html">desaturate</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# check contrast ratio of default palette on white background
+contrast_ratio(palette(), "white")
+
+# visualize contrast ratio of default palette on white and black background
+contrast_ratio(palette(), "white", plot = TRUE)
+contrast_ratio(palette()[-1], "black", plot = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add a progress bar to a mapping function or for loop</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_progress_along {cli}"><tr><td>cli_progress_along {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add a progress bar to a mapping function or for loop</h2>
+
+<h3>Description</h3>
+
+<p>Note that this function is currently experimental!
+</p>
+<p>Use <code>cli_progress_along()</code> in a mapping function or in a for loop, to add a
+progress bar. It uses <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code> internally.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_progress_along(
+  x,
+  name = NULL,
+  total = length(x),
+  ...,
+  .envir = parent.frame()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Sequence to add the progress bar to.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of the progress bar, a label, passed to
+<code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>total</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4><code>for</code> loop</h4>
+
+<p>A <code>for</code> loop with <code>cli_progress_along()</code> looks like this:<div class="sourceCode r"></p>
+<pre>for (i in cli_progress_along(seq)) {
+  ...
+}
+</pre></div>
+<p>A complete example:<div class="sourceCode r"></p>
+<pre>clifun &lt;- function() {
+  for (i in cli_progress_along(1:100, "Downloading")) {
+     Sys.sleep(4/100)
+  }
+}
+clifun()
+</pre></div>
+<p><img src="../help/figures/progress-along-1.svg" alt="progress-along-1.svg" />
+</p>
+
+
+
+<h4><code>lapply()</code> and other mapping functions</h4>
+
+<p>They will look like this:<div class="sourceCode r"></p>
+<pre>lapply(cli_progress_along(X), function(i) ...)
+</pre></div>
+<p>A complete example:<div class="sourceCode r"></p>
+<pre>res &lt;- lapply(cli_progress_along(1:100, "Downloading"), function(i) {
+  Sys.sleep(4/100)
+})
+</pre></div>
+<p><img src="../help/figures/progress-along-2.svg" alt="progress-along-2.svg" />
+</p>
+
+
+
+<h4>Custom format string</h4>
+
+<div class="sourceCode r"><pre>clifun &lt;- function() {
+  for (i in cli_progress_along(1:100,
+      format = "Downloading data file {cli::pb_current}")) {
+     Sys.sleep(4/100)
+  }
+}
+clifun()
+</pre></div>
+<p><img src="../help/figures/progress-along-3.svg" alt="progress-along-3.svg" />
+</p>
+
+
+
+<h4>Breaking out of loops</h4>
+
+<p>Note that if you use <code>break</code> in the <code>for</code> loop, you probably want to
+terminate the progress bar explicitly when breaking out of the loop,
+or right after the loop:<div class="sourceCode r"></p>
+<pre>for (i in cli_progress_along(seq)) {
+  ...
+  if (cond) cli_progress_done() &amp;&amp; break
+  ...
+}
+</pre></div>
+
+
+
+<h3>Value</h3>
+
+<p>An index vector from 1 to <code>length(x)</code> that triggers progress
+updates as you iterate over it.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="cli_progress_bar.html">cli_progress_bar()</a></code> and the traditional progress bar API.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

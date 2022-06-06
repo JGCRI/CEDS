@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_function {rlang}"><tr><td>new_function {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a function</h2>
+
+<h3>Description</h3>
+
+<p>This constructs a new function given its three components:
+list of arguments, body code and parent environment.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_function(args, body, env = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>args</code></td>
+<td>
+<p>A named list or pairlist of default arguments. Note
+that if you want arguments that don't have defaults, you'll need
+to use the special function <code><a href="pairlist2.html">pairlist2()</a></code>. If you need quoted
+defaults, use <code><a href="defusing-advanced.html">exprs()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>body</code></td>
+<td>
+<p>A language object representing the code inside the
+function. Usually this will be most easily generated with
+<code><a href="../../base/html/substitute.html">base::quote()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The parent environment of the function, defaults to the
+calling environment of <code>new_function()</code></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function() letters
+g &lt;- new_function(NULL, quote(letters))
+identical(f, g)
+
+# Pass a list or pairlist of named arguments to create a function
+# with parameters. The name becomes the parameter name and the
+# argument the default value for this parameter:
+new_function(list(x = 10), quote(x))
+new_function(pairlist2(x = 10), quote(x))
+
+# Use `exprs()` to create quoted defaults. Compare:
+new_function(pairlist2(x = 5 + 5), quote(x))
+new_function(exprs(x = 5 + 5), quote(x))
+
+# Pass empty arguments to omit defaults. `list()` doesn't allow
+# empty arguments but `pairlist2()` does:
+new_function(pairlist2(x = , y = 5 + 5), quote(x + y))
+new_function(exprs(x = , y = 5 + 5), quote(x + y))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

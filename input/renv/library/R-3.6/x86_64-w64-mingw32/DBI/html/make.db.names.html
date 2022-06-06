@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make R identifiers into legal SQL identifiers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for make.db.names.default {DBI}"><tr><td>make.db.names.default {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make R identifiers into legal SQL identifiers</h2>
+
+<h3>Description</h3>
+
+<p>These methods are DEPRECATED. Please use <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code>
+(or possibly <code><a href="dbQuoteString.html">dbQuoteString()</a></code>) instead.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+make.db.names.default(
+  snames,
+  keywords = .SQL92Keywords,
+  unique = TRUE,
+  allow.keywords = TRUE
+)
+
+isSQLKeyword.default(
+  name,
+  keywords = .SQL92Keywords,
+  case = c("lower", "upper", "any")[3]
+)
+
+isSQLKeyword(
+  dbObj,
+  name,
+  keywords = .SQL92Keywords,
+  case = c("lower", "upper", "any")[3],
+  ...
+)
+
+make.db.names(
+  dbObj,
+  snames,
+  keywords = .SQL92Keywords,
+  unique = TRUE,
+  allow.keywords = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>snames</code></td>
+<td>
+<p>a character vector of R identifiers (symbols) from which we
+need to make SQL identifiers.</p>
+</td></tr>
+<tr valign="top"><td><code>keywords</code></td>
+<td>
+<p>a character vector with SQL keywords, by default it's
+<code>.SQL92Keywords</code> defined by the DBI.</p>
+</td></tr>
+<tr valign="top"><td><code>unique</code></td>
+<td>
+<p>logical describing whether the resulting set of SQL names
+should be unique.  Its default is <code>TRUE</code>.  Following the SQL 92
+standard, uniqueness of SQL identifiers is determined regardless of whether
+letters are upper or lower case.</p>
+</td></tr>
+<tr valign="top"><td><code>allow.keywords</code></td>
+<td>
+<p>logical describing whether SQL keywords should be
+allowed in the resulting set of SQL names.  Its default is <code>TRUE</code></p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>a character vector with database identifier candidates we need
+to determine whether they are legal SQL identifiers or not.</p>
+</td></tr>
+<tr valign="top"><td><code>case</code></td>
+<td>
+<p>a character string specifying whether to make the comparison as
+lower case, upper case, or any of the two.  it defaults to <code>any</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>dbObj</code></td>
+<td>
+<p>any DBI object (e.g., <code>DBIDriver</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>any other argument are passed to the driver implementation.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The algorithm in <code>make.db.names</code> first invokes <code>make.names</code> and
+then replaces each occurrence of a dot <code>.</code> by an underscore <code style="white-space: pre;">_</code>.  If
+<code>allow.keywords</code> is <code>FALSE</code> and identifiers collide with SQL
+keywords, a small integer is appended to the identifier in the form of
+<code>"_n"</code>.
+</p>
+<p>The set of SQL keywords is stored in the character vector
+<code>.SQL92Keywords</code> and reflects the SQL ANSI/ISO standard as documented
+in &quot;X/Open SQL and RDA&quot;, 1994, ISBN 1-872630-68-8.  Users can easily
+override or update this vector.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>make.db.names</code> returns a character vector of legal SQL
+identifiers corresponding to its <code>snames</code> argument.
+</p>
+<p><code>SQLKeywords</code> returns a character vector of all known keywords for the
+database-engine associated with <code>dbObj</code>.
+</p>
+<p><code>isSQLKeyword</code> returns a logical vector parallel to <code>name</code>.
+</p>
+
+
+<h3>Bugs</h3>
+
+<p>The current mapping is not guaranteed to be fully reversible: some SQL
+identifiers that get mapped into R identifiers with <code>make.names</code> and
+then back to SQL with <code><a href="make.db.names.html">make.db.names()</a></code> will not be equal to the
+original SQL identifiers (e.g., compound SQL identifiers of the form
+<code>username.tablename</code> will loose the dot &ldquo;.&rdquo;).
+</p>
+
+
+<h3>References</h3>
+
+<p>The set of SQL keywords is stored in the character vector
+<code>.SQL92Keywords</code> and reflects the SQL ANSI/ISO standard as documented
+in &quot;X/Open SQL and RDA&quot;, 1994, ISBN 1-872630-68-8.  Users can easily
+override or update this vector.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

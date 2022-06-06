@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Palette Swatch Plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for swatchplot {colorspace}"><tr><td>swatchplot {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Palette Swatch Plot</h2>
+
+<h3>Description</h3>
+
+<p>Visualization of color palettes in columns of color swatches.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+swatchplot(
+  x,
+  ...,
+  nrow = 20,
+  border = NULL,
+  sborder = NULL,
+  off = NULL,
+  mar = NULL,
+  line = NULL,
+  cex = NULL,
+  font = 1:2,
+  cvd = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector/matrix (or list of character vectors/matrices)
+containing color hex codes.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further (possibly named) character vectors/matrices with color
+hex codes.</p>
+</td></tr>
+<tr valign="top"><td><code>nrow</code></td>
+<td>
+<p>integer specifying the maximal number of rows of swatches.
+(The actual number might be lower in order to balance the rows used in each column.)</p>
+</td></tr>
+<tr valign="top"><td><code>border</code></td>
+<td>
+<p>color for border of individual color rectangles. By default
+<code>"lightgray"</code> for up to 9 colors, <code>"transparent"</code> otherwise.</p>
+</td></tr>
+<tr valign="top"><td><code>sborder</code></td>
+<td>
+<p>color for border of the entire palette swatch. By default
+<code>"lightgray"</code> if <code>border</code> is <code>"transparent"</code> and <code>"lightgray"</code>
+otherwise (if <code>off = 0</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>off</code></td>
+<td>
+<p>numeric vector of length 2. Offset in horizontal and vertical direction
+(specified as a fraction of the rectangle for one color). By default, the
+horizontal offset is <code>0.3</code> for up to 5 colors and <code>0</code> otherwise,
+and the vertical offset is <code>0.1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mar</code></td>
+<td>
+<p>numeric vector of length 4, specifying the margins of column
+of color swatches.</p>
+</td></tr>
+<tr valign="top"><td><code>line</code></td>
+<td>
+<p>numeric. Line in which the palette names (if any) are printed
+in the margin.</p>
+</td></tr>
+<tr valign="top"><td><code>cex, font</code></td>
+<td>
+<p>numeric vectors of length 1 or 2. Specifications for the
+annotation text for the individual palettes and lists of palettes, respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>cvd</code></td>
+<td>
+<p>logical or character indicating whether color vision deficiencies
+should be emulated with <code><a href="desaturate.html">desaturate</a></code>, <code><a href="simulate_cvd.html">deutan</a></code>,
+<code><a href="simulate_cvd.html">protan</a></code>, <code><a href="simulate_cvd.html">tritan</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function <code>swatchplot</code> is a convenience function for displaying
+collections of palettes that can be specified as lists or matrices of
+character color specifications. Essentially, the function just calls
+<code><a href="../../graphics/html/rect.html">rect</a></code> but the value-added are the heuristics used
+for choosing default labels, margins, spacings, borders. These are selected
+to work well for <code><a href="hcl_palettes.html">hcl_palettes</a></code> and might need further tweaking
+in future versions.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>swatchplot</code> invisibly returns a matrix with colors and annotations.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## swatches of several palette vectors
+swatchplot(
+  "Hue"       = sequential_hcl(5, h = c(0, 300), c = c(60, 60), l = 65),
+  "Chroma"    = sequential_hcl(5, h = 0, c = c(100, 0), l = 65, rev = TRUE, power = 1),
+  "Luminance" = sequential_hcl(5, h = 260, c = c(25, 25), l = c(25, 90), rev = TRUE, power = 1),
+  off = 0
+)
+
+## swatches of named palette matrices
+bprg &lt;- c("Blues", "Purples", "Reds", "Greens")
+swatchplot(
+  "Single-hue"            = t(sapply(paste(bprg, 2), sequential_hcl, n = 7)),
+  "Single-hue (advanced)" = t(sapply(paste(bprg, 3), sequential_hcl, n = 7)),
+  "Multi-hue (advanced)"  = t(sapply(bprg,           sequential_hcl, n = 7)),
+  nrow = 5
+)
+
+## swatches with color vision deficiency emulation
+swatchplot(sequential_hcl(7, "Viridis"), cvd = TRUE)
+swatchplot(
+  "YlGnBu"  = sequential_hcl(7, "YlGnBu"),
+  "Viridis" = sequential_hcl(7, "Viridis"),
+  cvd = c("deutan", "desaturate")
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

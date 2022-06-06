@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Safe version of median</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for safe_median {ellipsis}"><tr><td>safe_median {ellipsis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Safe version of median</h2>
+
+<h3>Description</h3>
+
+<p><code>safe_median()</code> works <code><a href="../../stats/html/median.html">stats::median()</a></code> but warns if some elements of <code>...</code>
+are never used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+safe_median(x, ...)
+
+## S3 method for class 'numeric'
+safe_median(x, ..., na.rm = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Numeric vector</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed on to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>For numeric method, should missing values be removed?</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- c(1:10, NA)
+safe_median(x, na.rm = TRUE)
+median(x, na.rm = TRUE)
+
+try(median(x, na.mr = TRUE))
+try(safe_median(x, na.mr = TRUE))
+
+try(median(1, 2, 3))
+try(safe_median(1, 2, 3))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ellipsis</em> version 0.3.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

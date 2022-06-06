@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Fetch records from a previously executed query</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbFetch {DBI}"><tr><td>dbFetch {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Fetch records from a previously executed query</h2>
+
+<h3>Description</h3>
+
+<p>Fetch the next <code>n</code> elements (rows) from the result set and return them
+as a data.frame.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbFetch(res, n = -1, ...)
+
+fetch(res, n = -1, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>res</code></td>
+<td>
+<p>An object inheriting from <a href="DBIResult-class.html">DBIResult</a>, created by
+<code><a href="dbSendQuery.html">dbSendQuery()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>maximum number of records to retrieve per fetch. Use <code>n = -1</code>
+or <code>n = Inf</code>
+to retrieve all pending records.  Some implementations may recognize other
+special values.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>fetch()</code> is provided for compatibility with older DBI clients - for all
+new code you are strongly encouraged to use <code>dbFetch()</code>. The default
+implementation for <code>dbFetch()</code> calls <code>fetch()</code> so that it is compatible with
+existing code. Modern backends should implement for <code>dbFetch()</code> only.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>dbFetch()</code> always returns a <a href="../../base/html/data.frame.html">data.frame</a>
+with as many rows as records were fetched and as many
+columns as fields in the result set,
+even if the result is a single value
+or has one
+or zero rows.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>An attempt to fetch from a closed result set raises an error.
+If the <code>n</code> argument is not an atomic whole number
+greater or equal to -1 or Inf, an error is raised,
+but a subsequent call to <code>dbFetch()</code> with proper <code>n</code> argument succeeds.
+Calling <code>dbFetch()</code> on a result set from a data manipulation query
+created by <code><a href="dbSendStatement.html">dbSendStatement()</a></code>
+can be fetched and return an empty data frame, with a warning.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>Fetching multi-row queries with one
+or more columns by default returns the entire result.
+Multi-row queries can also be fetched progressively
+by passing a whole number (<a href="../../base/html/integer.html">integer</a>
+or <a href="../../base/html/numeric.html">numeric</a>)
+as the <code>n</code> argument.
+A value of <a href="../../base/html/is.finite.html">Inf</a> for the <code>n</code> argument is supported
+and also returns the full result.
+If more rows than available are fetched, the result is returned in full
+without warning.
+If fewer rows than requested are returned, further fetches will
+return a data frame with zero rows.
+If zero rows are fetched, the columns of the data frame are still fully
+typed.
+Fetching fewer rows than available is permitted,
+no warning is issued when clearing the result set.
+</p>
+<p>A column named <code>row_names</code> is treated like any other column.
+</p>
+<p>The column types of the returned data frame depend on the data returned:
+</p>
+
+<ul>
+<li> <p><a href="../../base/html/integer.html">integer</a> (or coercible to an integer) for integer values between -2^31 and 2^31 - 1,
+with <a href="../../base/html/NA.html">NA</a> for SQL <code>NULL</code> values
+</p>
+</li>
+<li> <p><a href="../../base/html/numeric.html">numeric</a> for numbers with a fractional component,
+with NA for SQL <code>NULL</code> values
+</p>
+</li>
+<li> <p><a href="../../base/html/logical.html">logical</a> for Boolean values (some backends may return an integer);
+with NA for SQL <code>NULL</code> values
+</p>
+</li>
+<li> <p><a href="../../base/html/character.html">character</a> for text,
+with NA for SQL <code>NULL</code> values
+</p>
+</li>
+<li><p> lists of <a href="../../base/html/raw.html">raw</a> for blobs
+with <a href="../../base/html/NULL.html">NULL</a> entries for SQL NULL values
+</p>
+</li>
+<li><p> coercible using <code><a href="../../base/html/as.Date.html">as.Date()</a></code> for dates,
+with NA for SQL <code>NULL</code> values
+(also applies to the return value of the SQL function <code>current_date</code>)
+</p>
+</li>
+<li><p> coercible using <code><a href="../../hms/html/hms.html">hms::as_hms()</a></code> for times,
+with NA for SQL <code>NULL</code> values
+(also applies to the return value of the SQL function <code>current_time</code>)
+</p>
+</li>
+<li><p> coercible using <code><a href="../../base/html/as.POSIXlt.html">as.POSIXct()</a></code> for timestamps,
+with NA for SQL <code>NULL</code> values
+(also applies to the return value of the SQL function <code>current_timestamp</code>)
+</p>
+</li></ul>
+
+<p>If dates and timestamps are supported by the backend, the following R types are
+used:
+</p>
+
+<ul>
+<li> <p><a href="../../base/html/Dates.html">Date</a> for dates
+(also applies to the return value of the SQL function <code>current_date</code>)
+</p>
+</li>
+<li> <p><a href="../../base/html/DateTimeClasses.html">POSIXct</a> for timestamps
+(also applies to the return value of the SQL function <code>current_timestamp</code>)
+</p>
+</li></ul>
+
+<p>R has no built-in type with lossless support for the full range of 64-bit
+or larger integers. If 64-bit integers are returned from a query,
+the following rules apply:
+</p>
+
+<ul>
+<li><p> Values are returned in a container with support for the full range of
+valid 64-bit values (such as the <code>integer64</code> class of the <span class="pkg">bit64</span>
+package)
+</p>
+</li>
+<li><p> Coercion to numeric always returns a number that is as close as possible
+to the true value
+</p>
+</li>
+<li><p> Loss of precision when converting to numeric gives a warning
+</p>
+</li>
+<li><p> Conversion to character always returns a lossless decimal representation
+of the data
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Close the result set with <code><a href="dbClearResult.html">dbClearResult()</a></code> as soon as you
+finish retrieving the records you want.
+</p>
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbWriteTable(con, "mtcars", mtcars)
+
+# Fetch all results
+rs &lt;- dbSendQuery(con, "SELECT * FROM mtcars WHERE cyl = 4")
+dbFetch(rs)
+dbClearResult(rs)
+
+# Fetch in chunks
+rs &lt;- dbSendQuery(con, "SELECT * FROM mtcars")
+while (!dbHasCompleted(rs)) {
+  chunk &lt;- dbFetch(rs, 10)
+  print(nrow(chunk))
+}
+
+dbClearResult(rs)
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

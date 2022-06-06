@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: HTML dependency metadata</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for htmlDependencies {htmltools}"><tr><td>htmlDependencies {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>HTML dependency metadata</h2>
+
+<h3>Description</h3>
+
+<p>Gets or sets the HTML dependencies associated with an object (such as a tag).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+htmlDependencies(x)
+
+htmlDependencies(x) &lt;- value
+
+attachDependencies(x, value, append = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object which has (or should have) HTML dependencies.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>An HTML dependency, or a list of HTML dependencies.</p>
+</td></tr>
+<tr valign="top"><td><code>append</code></td>
+<td>
+<p>If FALSE (the default), replace any existing dependencies. If
+TRUE, add the new dependencies to the existing ones.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>attachDependencies</code> provides an alternate syntax for setting
+dependencies. It is similar to <code>local({htmlDependencies(x) &lt;- value;
+x})</code>, except that if there are any existing dependencies,
+<code>attachDependencies</code> will add to them, instead of replacing them.
+</p>
+<p>As of htmltools 0.3.4, HTML dependencies can be attached without using
+<code>attachDependencies</code>. Instead, they can be added inline, like a child
+object of a tag or <code><a href="tagList.html">tagList()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Create a JavaScript dependency
+dep &lt;- htmlDependency("jqueryui", "1.11.4", c(href="shared/jqueryui"),
+                      script = "jquery-ui.min.js")
+
+# A CSS dependency
+htmlDependency(
+  "font-awesome", "4.5.0", c(href="shared/font-awesome"),
+  stylesheet = "css/font-awesome.min.css"
+)
+
+# A few different ways to add the dependency to tag objects:
+# Inline as a child of the div()
+div("Code here", dep)
+# Inline in a tagList
+tagList(div("Code here"), dep)
+# With attachDependencies
+attachDependencies(div("Code here"), dep)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

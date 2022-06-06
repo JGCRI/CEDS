@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy a(n) optim object masquerading as list</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glance_optim {broom}"><tr><td>glance_optim {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy a(n) optim object masquerading as list</h2>
+
+<h3>Description</h3>
+
+<p>Broom tidies a number of lists that are effectively S3
+objects without a class attribute. For example, <code><a href="../../stats/html/optim.html">stats::optim()</a></code>,
+<a href="../../base/html/svd.html">svd()</a> and <code><a href="../../akima/html/interp.html">akima::interp()</a></code> produce consistent output, but
+because they do not have a class attribute, they cannot be handled by S3
+dispatch.
+</p>
+<p>These functions look at the elements of a list and determine if there is
+an appropriate tidying method to apply to the list. Those tidiers are
+themselves are implemented as functions of the form <code style="white-space: pre;">tidy_&lt;function&gt;</code>
+or <code style="white-space: pre;">glance_&lt;function&gt;</code> and are not exported (but they are documented!).
+</p>
+<p>If no appropriate tidying method is found, throws an error.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+glance_optim(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A list returned from <code><a href="../../stats/html/optim.html">stats::optim()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with exactly one row and columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>convergence</code></td>
+<td>
+<p>Convergence code.</p>
+</td></tr>
+<tr valign="top"><td><code>function.count</code></td>
+<td>
+<p>Number of calls to 'fn'.</p>
+</td></tr>
+<tr valign="top"><td><code>gradient.count</code></td>
+<td>
+<p>Number of calls to 'gr'.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>Minimized or maximized output value.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">glance()</a></code>, <code><a href="../../stats/html/optim.html">stats::optim()</a></code>
+</p>
+<p>Other list tidiers: 
+<code><a href="list_tidiers.html">list_tidiers</a></code>,
+<code><a href="tidy_irlba.html">tidy_irlba</a>()</code>,
+<code><a href="tidy_optim.html">tidy_optim</a>()</code>,
+<code><a href="tidy_svd.html">tidy_svd</a>()</code>,
+<code><a href="tidy_xyz.html">tidy_xyz</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+f &lt;- function(x) (x[1] - 2)^2 + (x[2] - 3)^2 + (x[3] - 8)^2
+o &lt;- optim(c(1, 1, 1), f)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is an object referencing another?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_reference {rlang}"><tr><td>is_reference {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is an object referencing another?</h2>
+
+<h3>Description</h3>
+
+<p>There are typically two situations where two symbols may refer to
+the same object.
+</p>
+
+<ul>
+<li><p> R objects usually have copy-on-write semantics. This is an
+optimisation that ensures that objects are only copied if
+needed. When you copy a vector, no memory is actually copied
+until you modify either the original object or the copy is
+modified.
+</p>
+<p>Note that the copy-on-write optimisation is an implementation
+detail that is not guaranteed by the specification of the R
+language.
+</p>
+</li>
+<li><p> Assigning an <a href="is_copyable.html">uncopyable</a> object (like an
+environment) creates a reference. These objects are never copied
+even if you modify one of the references.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+is_reference(x, y)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>R objects.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Reassigning an uncopyable object such as an environment creates a
+# reference:
+env &lt;- env()
+ref &lt;- env
+is_reference(ref, env)
+
+# Due to copy-on-write optimisation, a copied vector can
+# temporarily reference the original vector:
+vec &lt;- 1:10
+copy &lt;- vec
+is_reference(copy, vec)
+
+# Once you modify on of them, the copy is triggered in the
+# background and the objects cease to reference each other:
+vec[[1]] &lt;- 100
+is_reference(copy, vec)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

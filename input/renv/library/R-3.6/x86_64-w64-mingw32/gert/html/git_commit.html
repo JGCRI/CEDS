@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Stage and commit changes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_commit {gert}"><tr><td>git_commit {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Stage and commit changes</h2>
+
+<h3>Description</h3>
+
+<p>To commit changes, start by <em>staging</em> the files to be included in the commit
+using <code>git_add()</code> or <code>git_rm()</code>. Use <code>git_status()</code> to see an overview of
+staged and unstaged changes, and finally <code>git_commit()</code> creates a new commit
+with currently staged files.
+</p>
+<p><code>git_commit_all()</code> is a convenience function that automatically stages and
+commits all modified files. Note that <code>git_commit_all()</code> does <strong>not</strong> add
+new, untracked files to the repository. You need to make an explicit call to
+<code>git_add()</code> to start tracking new files.
+</p>
+<p><code>git_log()</code> shows the most recent commits and <code>git_ls()</code> lists all the files
+that are being tracked in the repository. <code>git_stat_files()</code>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_commit(message, author = NULL, committer = NULL, repo = ".")
+
+git_commit_all(message, author = NULL, committer = NULL, repo = ".")
+
+git_commit_info(ref = "HEAD", repo = ".")
+
+git_commit_id(ref = "HEAD", repo = ".")
+
+git_commit_descendant_of(ancestor, ref = "HEAD", repo = ".")
+
+git_add(files, force = FALSE, repo = ".")
+
+git_rm(files, repo = ".")
+
+git_status(staged = NULL, repo = ".")
+
+git_conflicts(repo = ".")
+
+git_ls(repo = ".")
+
+git_log(ref = "HEAD", max = 100, repo = ".")
+
+git_stat_files(files, ref = "HEAD", repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>a commit message</p>
+</td></tr>
+<tr valign="top"><td><code>author</code></td>
+<td>
+<p>A <a href="git_signature.html">git_signature</a> value, default is <code><a href="git_signature.html">git_signature_default()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>committer</code></td>
+<td>
+<p>A <a href="git_signature.html">git_signature</a> value, default is same as <code>author</code></p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>revision string with a branch/tag/commit value</p>
+</td></tr>
+<tr valign="top"><td><code>ancestor</code></td>
+<td>
+<p>a reference to a potential ancestor commit</p>
+</td></tr>
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>vector of paths relative to the git root directory.
+Use <code>"."</code> to stage all changed files.</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>add files even if in gitignore</p>
+</td></tr>
+<tr valign="top"><td><code>staged</code></td>
+<td>
+<p>return only staged (TRUE) or unstaged files (FALSE).
+Use <code>NULL</code> or <code>NA</code> to show both (default).</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p>lookup at most latest n parent commits</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code>git_status()</code>, <code>git_ls()</code>: A data frame with one row per file
+</p>
+</li>
+<li> <p><code>git_log()</code>: A data frame with one row per commit
+</p>
+</li>
+<li> <p><code>git_commit()</code>, <code>git_commit_all()</code>: A SHA
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+oldwd &lt;- getwd()
+repo &lt;- file.path(tempdir(), "myrepo")
+git_init(repo)
+setwd(repo)
+
+# Set a user if no default
+if(!user_is_configured()){
+  git_config_set("user.name", "Jerry")
+  git_config_set("user.email", "jerry@gmail.com")
+}
+
+writeLines(letters[1:6], "alphabet.txt")
+git_status()
+
+git_add("alphabet.txt")
+git_status()
+
+git_commit("Start alphabet file")
+git_status()
+
+git_ls()
+
+git_log()
+
+cat(letters[7:9], file = "alphabet.txt", sep = "\n", append = TRUE)
+git_status()
+
+git_commit_all("Add more letters")
+
+# cleanup
+setwd(oldwd)
+unlink(repo, recursive = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

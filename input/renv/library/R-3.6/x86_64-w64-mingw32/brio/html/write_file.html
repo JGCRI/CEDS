@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write data to a file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write_file {brio}"><tr><td>write_file {brio}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write data to a file</h2>
+
+<h3>Description</h3>
+
+<p>This function differs from <code><a href="write_lines.html">write_lines()</a></code> in that it writes the data in
+<code>text</code> directly, without any checking or adding any newlines.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+write_file(text, path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>A character vector of length 1 with data to write.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character string giving the file path to write to.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The UTF-8 encoded input text (invisibly).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+tf &lt;- tempfile()
+
+write_file("some data\n", tf)
+
+unlink(tf)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>brio</em> version 1.1.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

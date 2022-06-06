@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List Available Time Zone Identifiers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_timezone_list {stringi}"><tr><td>stri_timezone_list {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List Available Time Zone Identifiers</h2>
+
+<h3>Description</h3>
+
+<p>Returns a list of available time zone identifiers.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_timezone_list(region = NA_character_, offset = NA_integer_)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>region</code></td>
+<td>
+<p>single string;
+a ISO 3166 two-letter country code or UN M.49 three-digit area code;
+<code>NA</code> for all regions</p>
+</td></tr>
+<tr valign="top"><td><code>offset</code></td>
+<td>
+<p>single numeric value;
+a given raw offset from GMT, in hours;
+<code>NA</code> for all offsets</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If <code>offset</code> and <code>region</code> are <code>NA</code> (the default), then
+all time zones are returned. Otherwise,
+only time zone identifiers with a given raw offset from GMT
+and/or time zones corresponding to a given region are provided.
+Note that the effect of daylight savings time is ignored.
+</p>
+<p>A time zone represents an offset applied to the Greenwich Mean Time (GMT)
+to obtain local time (Universal Coordinated Time, or UTC, is similar,
+but not precisely identical, to GMT; in <span class="pkg">ICU</span> the two terms
+are used interchangeably since <span class="pkg">ICU</span> does not concern itself with
+either leap seconds or historical behavior).
+The offset might vary throughout the year, if daylight savings time (DST)
+is used, or might be the same all year long.
+Typically, regions closer to the equator do not use DST.
+If DST is in use, then specific rules define the point where
+the offset changes and the amount by which it changes.
+</p>
+<p>If DST is observed, then three additional bits of information are needed:
+</p>
+
+<ol>
+<li><p> The precise date and time during the year when DST begins.
+In the first half of the year it is in the northern hemisphere,
+and in the second half of the year it is in the southern hemisphere.
+</p>
+</li>
+<li><p> The precise date and time during the year when DST ends.
+In the first half of the year it is in the southern hemisphere,
+and in the second half of the year it is in the northern hemisphere.
+</p>
+</li>
+<li><p> The amount by which the GMT offset changes when DST is in effect.
+This is almost always one hour.
+</p>
+</li></ol>
+
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>TimeZone</em> class &ndash; ICU API Documentation,
+<a href="https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1TimeZone.html">https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1TimeZone.html</a>
+</p>
+<p><em>ICU TimeZone classes</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/datetime/timezone/">https://unicode-org.github.io/icu/userguide/datetime/timezone/</a>
+</p>
+<p><em>Date/Time Services</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/datetime/">https://unicode-org.github.io/icu/userguide/datetime/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>
+</p>
+<p>Other timezone: 
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_timezone_list()
+stri_timezone_list(offset=1)
+stri_timezone_list(offset=5.5)
+stri_timezone_list(offset=5.75)
+stri_timezone_list(region='PL')
+stri_timezone_list(region='US', offset=-10)
+
+# Fetch information on all time zones
+do.call(rbind.data.frame,
+   lapply(stri_timezone_list(), function(tz) stri_timezone_info(tz)))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

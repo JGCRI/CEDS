@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set an Output Hook Convert Control Sequences to HTML in...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for set_knit_hooks {fansi}"><tr><td>set_knit_hooks {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set an Output Hook Convert Control Sequences to HTML in Rmarkdown</h2>
+
+<h3>Description</h3>
+
+<p>This is a convenience function designed for use within an <code>rmarkdown</code>
+document.  It overrides the <code>knitr</code> output hooks by using
+<code>knitr::knit_hooks$set</code>.  It replaces the hooks with ones that convert
+<em>Control Sequences</em> into HTML.  In addition to replacing the hook functions,
+this will output a &lt;STYLE&gt; HTML block to stdout.  These two actions are
+side effects as a result of which R chunks in the <code>rmarkdown</code> document that
+contain CSI SGR are shown in their HTML equivalent form.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+set_knit_hooks(
+  hooks,
+  which = "output",
+  proc.fun = function(x, class) html_code_block(to_html(html_esc(x)), class = class),
+  class = sprintf("fansi fansi-%s", which),
+  style = getOption("fansi.css", dflt_css()),
+  split.nl = FALSE,
+  .test = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>hooks</code></td>
+<td>
+<p>list, this should the be <code>knitr::knit_hooks</code> object; we
+require you pass this to avoid a run-time dependency on <code>knitr</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>character vector with the names of the hooks that should be
+replaced, defaults to 'output', but can also contain values
+'message', 'warning', and 'error'.</p>
+</td></tr>
+<tr valign="top"><td><code>proc.fun</code></td>
+<td>
+<p>function that will be applied to output that contains
+CSI SGR sequences.  Should accept parameters <code>x</code> and <code>class</code>, where <code>x</code> is
+the output, and <code>class</code> is the CSS class that should be applied to
+the &lt;PRE&gt;&lt;CODE&gt; blocks the output will be placed in.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>character the CSS class to give the output chunks.  Each type of
+output chunk specified in <code>which</code> will be matched position-wise to the
+classes specified here.  This vector should be the same length as <code>which</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>character a vector of CSS styles; these will be output inside
+HTML &gt;STYLE&lt; tags as a side effect.  The default value is designed to
+ensure that there is no visible gap in background color with lines with
+height 1.5 (as is the default setting in <code>rmarkdown</code> documents v1.1).</p>
+</td></tr>
+<tr valign="top"><td><code>split.nl</code></td>
+<td>
+<p>TRUE or FALSE (default), set to TRUE to split input strings
+by any newlines they may contain to avoid any newlines inside SPAN tags
+created by <code><a href="to_html.html">to_html()</a></code>.  Some markdown-&gt;html renders can be configured
+to convert embedded newlines into line breaks, which may lead to a doubling
+of line breaks.  With the default <code>proc.fun</code> the split strings are
+recombined by <code><a href="html_code_block.html">html_code_block()</a></code>, but if you provide your own <code>proc.fun</code>
+you'll need to account for the possibility that the character vector it
+receives will have a different number of elements than the chunk output.
+This argument only has an effect if chunk output contains CSI SGR
+sequences.</p>
+</td></tr>
+<tr valign="top"><td><code>.test</code></td>
+<td>
+<p>TRUE or FALSE, for internal testing use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The replacement hook function tests for the presence of CSI SGR
+sequences in chunk output with <code><a href="has_ctl.html">has_ctl</a></code>, and if it is detected then
+processes it with the user provided <code>proc.fun</code>.  Chunks that do not contain
+CSI SGR are passed off to the previously set hook function.  The default
+<code>proc.fun</code> will run the output through <code><a href="html_esc.html">html_esc</a></code>, <code><a href="to_html.html">to_html</a></code>, and
+finally <code><a href="html_code_block.html">html_code_block</a></code>.
+</p>
+<p>If you require more control than this function provides you can set the
+<code>knitr</code> hooks manually with <code>knitr::knit_hooks$set</code>.  If you are seeing your
+output gaining extra line breaks, look at the <code>split.nl</code> option.
+</p>
+
+
+<h3>Value</h3>
+
+<p>named list with the prior output hooks for each of <code>which</code>.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Since we do not formally import the <code>knitr</code> functions we do not
+guarantee that this function will always work properly with <code>knitr</code> /
+<code>rmarkdown</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="has_ctl.html">has_ctl</a></code>, <code><a href="to_html.html">to_html</a></code>, <code><a href="html_esc.html">html_esc</a></code>, <code><a href="html_code_block.html">html_code_block</a></code>,
+<a href="https://yihui.org/knitr/hooks/#output-hooks"><code>knitr</code> output hooks</a>,
+<a href="https://bookdown.org/yihui/rmarkdown/language-engines.html#javascript-and-css">embedding CSS in Rmd</a>,
+and the vignette <code>vignette(package='fansi', 'sgr-in-rmd')</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+## The following should be done within an `rmarkdown` document chunk with
+## chunk option `results` set to 'asis' and the chunk option `comment` set
+## to ''.
+
+```{r comment="", results='asis', echo=FALSE}
+## Change the "output" hook to handle ANSI CSI SGR
+
+old.hooks &lt;- set_knit_hooks(knitr::knit_hooks)
+
+## Do the same with the warning, error, and message, and add styles for
+## them (alternatively we could have done output as part of this call too)
+
+styles &lt;- c(
+  getOption('fansi.style', dflt_css()),  # default style
+  "PRE.fansi CODE {background-color: transparent;}",
+  "PRE.fansi-error {background-color: #DD5555;}",
+  "PRE.fansi-warning {background-color: #DDDD55;}",
+  "PRE.fansi-message {background-color: #EEEEEE;}"
+)
+old.hooks &lt;- c(
+  old.hooks,
+  fansi::set_knit_hooks(
+    knitr::knit_hooks,
+    which=c('warning', 'error', 'message'),
+    style=styles
+) )
+```
+## You may restore old hooks with the following chunk
+
+## Restore Hooks
+```{r}
+do.call(knitr::knit_hooks$set, old.hooks)
+```
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

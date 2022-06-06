@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Switch on or off a style</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for start.crayon {crayon}"><tr><td>start.crayon {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Switch on or off a style</h2>
+
+<h3>Description</h3>
+
+<p>Make a style active. The text printed to the screen from now
+on will use this style.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'crayon'
+start(x, ...)
+
+finish(x, ...)
+
+## S3 method for class 'crayon'
+finish(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Style.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function is very rarely needed, e.g. for colored user
+input. For other reasons, just call the style as a function on
+the string.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## The input is red (if color is supported)
+get_name &lt;- function() {
+  cat("Enter your name:", start(red))
+  input &lt;- readline()
+  cat(finish(red))
+  input
+}
+name &lt;- get_name()
+name
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

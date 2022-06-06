@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute normal data ellipses</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stat_ellipse {ggplot2}"><tr><td>stat_ellipse {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute normal data ellipses</h2>
+
+<h3>Description</h3>
+
+<p>The method for calculating the ellipses has been modified from
+<code>car::dataEllipse</code> (Fox and Weisberg, 2011)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stat_ellipse(
+  mapping = NULL,
+  data = NULL,
+  geom = "path",
+  position = "identity",
+  ...,
+  type = "t",
+  level = 0.95,
+  segments = 51,
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>geom</code></td>
+<td>
+<p>The geometric object to use display the data</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>The type of ellipse.
+The default <code>"t"</code> assumes a multivariate t-distribution, and
+<code>"norm"</code> assumes a multivariate normal distribution.
+<code>"euclid"</code> draws a circle with the radius equal to <code>level</code>,
+representing the euclidean distance from the center.
+This ellipse probably won't appear circular unless <code>coord_fixed()</code> is applied.</p>
+</td></tr>
+<tr valign="top"><td><code>level</code></td>
+<td>
+<p>The level at which to draw an ellipse,
+or, if <code>type="euclid"</code>, the radius of the circle to be drawn.</p>
+</td></tr>
+<tr valign="top"><td><code>segments</code></td>
+<td>
+<p>The number of segments to be used in drawing the ellipse.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>References</h3>
+
+<p>John Fox and Sanford Weisberg (2011). An <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> Companion to
+Applied Regression, Second Edition. Thousand Oaks CA: Sage. URL:
+<a href="https://socialsciences.mcmaster.ca/jfox/Books/Companion/">https://socialsciences.mcmaster.ca/jfox/Books/Companion/</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ggplot(faithful, aes(waiting, eruptions)) +
+  geom_point() +
+  stat_ellipse()
+
+ggplot(faithful, aes(waiting, eruptions, color = eruptions &gt; 3)) +
+  geom_point() +
+  stat_ellipse()
+
+ggplot(faithful, aes(waiting, eruptions, color = eruptions &gt; 3)) +
+  geom_point() +
+  stat_ellipse(type = "norm", linetype = 2) +
+  stat_ellipse(type = "t")
+
+ggplot(faithful, aes(waiting, eruptions, color = eruptions &gt; 3)) +
+  geom_point() +
+  stat_ellipse(type = "norm", linetype = 2) +
+  stat_ellipse(type = "euclid", level = 3) +
+  coord_fixed()
+
+ggplot(faithful, aes(waiting, eruptions, fill = eruptions &gt; 3)) +
+  stat_ellipse(geom = "polygon")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Align an ANSI colored string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for col_align {crayon}"><tr><td>col_align {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Align an ANSI colored string</h2>
+
+<h3>Description</h3>
+
+<p>Align an ANSI colored string
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+col_align(
+  text,
+  width = getOption("width"),
+  align = c("left", "center", "right"),
+  type = "width"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>The character vector to align.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of the field to align in.</p>
+</td></tr>
+<tr valign="top"><td><code>align</code></td>
+<td>
+<p>Whether to align <code>"left"</code>, <code>"center"</code> or <code>"right"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Passed on to <code><a href="col_nchar.html">col_nchar()</a></code> and there to <code><a href="../../base/html/nchar.html">nchar()</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The aligned character vector.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other ANSI string operations: 
+<code><a href="col_nchar.html">col_nchar</a>()</code>,
+<code><a href="col_strsplit.html">col_strsplit</a>()</code>,
+<code><a href="col_substring.html">col_substring</a>()</code>,
+<code><a href="col_substr.html">col_substr</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+col_align(red("foobar"), 20, "left")
+col_align(red("foobar"), 20, "center")
+col_align(red("foobar"), 20, "right")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

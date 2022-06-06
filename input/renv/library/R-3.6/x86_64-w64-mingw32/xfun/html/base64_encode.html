@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Encode/decode data into/from base64 encoding.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for base64_encode {xfun}"><tr><td>base64_encode {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Encode/decode data into/from base64 encoding.</h2>
+
+<h3>Description</h3>
+
+<p>The function <code>base64_encode()</code> encodes a file or a raw vector into the
+base64 encoding. The function <code>base64_decode()</code> decodes data from the
+base64 encoding.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+base64_encode(x)
+
+base64_decode(x, from = NA)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For <code>base64_encode()</code>, a raw vector. If not raw, it is assumed
+to be a file or a connection to be read via <code>readBin()</code>. For
+<code>base64_decode()</code>, a string.</p>
+</td></tr>
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>If provided (and <code>x</code> is not provided), a connection or file
+to be read via <code>readChar()</code>, and the result will be passed to the
+argument <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>base64_encode()</code> returns a character string.
+<code>base64_decode()</code> returns a raw vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::base64_encode(as.raw(1:10))
+logo = xfun:::R_logo()
+xfun::base64_encode(logo)
+xfun::base64_decode("AQIDBAUGBwgJCg==")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

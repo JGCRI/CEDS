@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Begin/commit/rollback SQL transactions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbBegin {DBI}"><tr><td>dbBegin {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Begin/commit/rollback SQL transactions</h2>
+
+<h3>Description</h3>
+
+<p>A transaction encapsulates several SQL statements in an atomic unit.
+It is initiated with <code>dbBegin()</code> and either made persistent with <code>dbCommit()</code>
+or undone with <code>dbRollback()</code>.
+In any case, the DBMS guarantees that either all or none of the statements
+have a permanent effect.
+This helps ensuring consistency of write operations to multiple tables.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbBegin(conn, ...)
+
+dbCommit(conn, ...)
+
+dbRollback(conn, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Not all database engines implement transaction management, in which case
+these methods should not be implemented for the specific
+<a href="DBIConnection-class.html">DBIConnection</a> subclass.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>dbBegin()</code>, <code>dbCommit()</code> and <code>dbRollback()</code> return <code>TRUE</code>, invisibly.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>The implementations are expected to raise an error in case of failure,
+but this is not tested.
+In any way, all generics throw an error with a closed
+or invalid connection.
+In addition, a call to <code>dbCommit()</code>
+or <code>dbRollback()</code>
+without a prior call to <code>dbBegin()</code> raises an error.
+Nested transactions are not supported by DBI,
+an attempt to call <code>dbBegin()</code> twice
+yields an error.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>Actual support for transactions may vary between backends.
+A transaction is initiated by a call to <code>dbBegin()</code>
+and committed by a call to <code>dbCommit()</code>.
+Data written in a transaction must persist after the transaction is committed.
+For example, a record that is missing when the transaction is started
+but is created during the transaction
+must exist
+both during
+and after the transaction,
+and also in a new connection.
+</p>
+<p>A transaction
+can also be aborted with <code>dbRollback()</code>.
+All data written in such a transaction must be removed after the
+transaction is rolled back.
+For example, a record that is missing when the transaction is started
+but is created during the transaction
+must not exist anymore after the rollback.
+</p>
+<p>Disconnection from a connection with an open transaction
+effectively rolls back the transaction.
+All data written in such a transaction must be removed after the
+transaction is rolled back.
+</p>
+<p>The behavior is not specified if other arguments are passed to these
+functions. In particular, <span class="pkg">RSQLite</span> issues named transactions
+with support for nesting
+if the <code>name</code> argument is set.
+</p>
+<p>The transaction isolation level is not specified by DBI.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Self-contained transactions: <code><a href="dbWithTransaction.html">dbWithTransaction()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbWriteTable(con, "cash", data.frame(amount = 100))
+dbWriteTable(con, "account", data.frame(amount = 2000))
+
+# All operations are carried out as logical unit:
+dbBegin(con)
+withdrawal &lt;- 300
+dbExecute(con, "UPDATE cash SET amount = amount + ?", list(withdrawal))
+dbExecute(con, "UPDATE account SET amount = amount - ?", list(withdrawal))
+dbCommit(con)
+
+dbReadTable(con, "cash")
+dbReadTable(con, "account")
+
+# Rolling back after detecting negative value on account:
+dbBegin(con)
+withdrawal &lt;- 5000
+dbExecute(con, "UPDATE cash SET amount = amount + ?", list(withdrawal))
+dbExecute(con, "UPDATE account SET amount = amount - ?", list(withdrawal))
+if (dbReadTable(con, "account")$amount &gt;= 0) {
+  dbCommit(con)
+} else {
+  dbRollback(con)
+}
+
+dbReadTable(con, "cash")
+dbReadTable(con, "account")
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

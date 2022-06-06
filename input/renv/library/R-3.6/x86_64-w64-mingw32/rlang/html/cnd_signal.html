@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Signal a condition object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cnd_signal {rlang}"><tr><td>cnd_signal {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Signal a condition object</h2>
+
+<h3>Description</h3>
+
+<p><code>cnd_signal()</code> takes a condition as argument and emits the
+corresponding signal. The type of signal depends on the class of
+the condition:
+</p>
+
+<ul>
+<li><p> A message is signalled if the condition inherits from
+<code>"message"</code>. This is equivalent to signalling with <code><a href="abort.html">inform()</a></code> or
+<code><a href="../../base/html/message.html">base::message()</a></code>.
+</p>
+</li>
+<li><p> A warning is signalled if the condition inherits from
+<code>"warning"</code>. This is equivalent to signalling with <code><a href="abort.html">warn()</a></code> or
+<code><a href="../../base/html/warning.html">base::warning()</a></code>.
+</p>
+</li>
+<li><p> An error is signalled if the condition inherits from
+<code>"error"</code>. This is equivalent to signalling with <code><a href="abort.html">abort()</a></code> or
+<code><a href="../../base/html/stop.html">base::stop()</a></code>.
+</p>
+</li>
+<li><p> An interrupt is signalled if the condition inherits from
+<code>"interrupt"</code>. This is equivalent to signalling with
+<code><a href="interrupt.html">interrupt()</a></code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+cnd_signal(cnd, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cnd</code></td>
+<td>
+<p>A condition object (see <code><a href="cnd.html">cnd()</a></code>). If <code>NULL</code>,
+<code>cnd_signal()</code> returns without signalling a condition.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots are for future extensions and must be empty.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="cnd_type.html">cnd_type()</a></code> to determine the type of a condition.
+</p>
+</li>
+<li> <p><code><a href="abort.html">abort()</a></code>, <code><a href="abort.html">warn()</a></code> and <code><a href="abort.html">inform()</a></code> for creating and signalling
+structured R conditions in one go.
+</p>
+</li>
+<li> <p><code><a href="try_fetch.html">try_fetch()</a></code> for establishing condition handlers for
+particular condition classes.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# The type of signal depends on the class. If the condition
+# inherits from "warning", a warning is issued:
+cnd &lt;- warning_cnd("my_warning_class", message = "This is a warning")
+cnd_signal(cnd)
+
+# If it inherits from "error", an error is raised:
+cnd &lt;- error_cnd("my_error_class", message = "This is an error")
+try(cnd_signal(cnd))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

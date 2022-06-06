@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine pages into a single data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rbind_pages {jsonlite}"><tr><td>rbind_pages {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine pages into a single data frame</h2>
+
+<h3>Description</h3>
+
+<p>The <code>rbind_pages</code> function is used to combine a list of data frames into a single
+data frame. This is often needed when working with a JSON API that limits the amount
+of data per request. If we need more data than what fits in a single request, we need to
+perform multiple requests that each retrieve a fragment of data, not unlike pages in a
+book. In practice this is often implemented using a <code>page</code> parameter in the API. The
+<code>rbind_pages</code> function can be used to combine these pages back into a single dataset.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rbind_pages(pages)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pages</code></td>
+<td>
+<p>a list of data frames, each representing a <em>page</em> of data</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>rbind_pages</code> function uses <code><a href="../../vctrs/html/vec_bind.html">vctrs::vec_rbind()</a></code>
+to bind the pages together. This generalizes <code><a href="../../base/html/cbind.html">base::rbind()</a></code> in two
+ways:
+</p>
+
+<ul>
+<li><p> Not each column has to be present in each of the individual data frames; missing
+columns will be filled up in <code>NA</code> values.
+</p>
+</li>
+<li><p> Data frames can be nested (can contain other data frames).
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# Basic example
+x &lt;- data.frame(foo = rnorm(3), bar = c(TRUE, FALSE, TRUE))
+y &lt;- data.frame(foo = rnorm(2), col = c("blue", "red"))
+rbind_pages(list(x, y))
+
+
+baseurl &lt;- "https://projects.propublica.org/nonprofits/api/v2/search.json"
+pages &lt;- list()
+for(i in 0:20){
+  mydata &lt;- fromJSON(paste0(baseurl, "?order=revenue&amp;sort_order=desc&amp;page=", i))
+  message("Retrieving page ", i)
+  pages[[i+1]] &lt;- mydata$organizations
+}
+organizations &lt;- rbind_pages(pages)
+nrow(organizations)
+colnames(organizations)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

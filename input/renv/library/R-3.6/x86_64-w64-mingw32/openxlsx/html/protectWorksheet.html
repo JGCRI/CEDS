@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Protect a worksheet from modifications</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for protectWorksheet {openxlsx}"><tr><td>protectWorksheet {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Protect a worksheet from modifications</h2>
+
+<h3>Description</h3>
+
+<p>Protect or unprotect a worksheet from modifications by the user in the graphical user interface. Replaces an existing protection.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+protectWorksheet(
+  wb,
+  sheet,
+  protect = TRUE,
+  password = NULL,
+  lockSelectingLockedCells = NULL,
+  lockSelectingUnlockedCells = NULL,
+  lockFormattingCells = NULL,
+  lockFormattingColumns = NULL,
+  lockFormattingRows = NULL,
+  lockInsertingColumns = NULL,
+  lockInsertingRows = NULL,
+  lockInsertingHyperlinks = NULL,
+  lockDeletingColumns = NULL,
+  lockDeletingRows = NULL,
+  lockSorting = NULL,
+  lockAutoFilter = NULL,
+  lockPivotTables = NULL,
+  lockObjects = NULL,
+  lockScenarios = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>protect</code></td>
+<td>
+<p>Whether to protect or unprotect the sheet (default=TRUE)</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>(optional) password required to unprotect the worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>lockSelectingLockedCells</code></td>
+<td>
+<p>Whether selecting locked cells is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockSelectingUnlockedCells</code></td>
+<td>
+<p>Whether selecting unlocked cells is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockFormattingCells</code></td>
+<td>
+<p>Whether formatting cells is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockFormattingColumns</code></td>
+<td>
+<p>Whether formatting columns is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockFormattingRows</code></td>
+<td>
+<p>Whether formatting rows is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockInsertingColumns</code></td>
+<td>
+<p>Whether inserting columns is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockInsertingRows</code></td>
+<td>
+<p>Whether inserting rows is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockInsertingHyperlinks</code></td>
+<td>
+<p>Whether inserting hyperlinks is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockDeletingColumns</code></td>
+<td>
+<p>Whether deleting columns is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockDeletingRows</code></td>
+<td>
+<p>Whether deleting rows is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockSorting</code></td>
+<td>
+<p>Whether sorting is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockAutoFilter</code></td>
+<td>
+<p>Whether auto-filter is locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockPivotTables</code></td>
+<td>
+<p>Whether pivot tables are locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockObjects</code></td>
+<td>
+<p>Whether objects are locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockScenarios</code></td>
+<td>
+<p>Whether scenarios are locked</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Reinhold Kainhofer
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+addWorksheet(wb, "S1")
+writeDataTable(wb, 1, x = iris[1:30, ])
+# Formatting cells / columns is allowed , but inserting / deleting columns is protected:
+protectWorksheet(wb, "S1",
+  protect = TRUE,
+  lockFormattingCells = FALSE, lockFormattingColumns = FALSE,
+  lockInsertingColumns = TRUE, lockDeletingColumns = TRUE
+)
+
+# Remove the protection
+protectWorksheet(wb, "S1", protect = FALSE)
+## Not run: 
+saveWorkbook(wb, "pageSetupExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

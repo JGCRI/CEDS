@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create and modify columns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mutate.dtplyr_step {dtplyr}"><tr><td>mutate.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create and modify columns</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the dplyr <code><a href="../../dplyr/html/mutate.html">mutate()</a></code> generic. It is translated to
+the <code>j</code> argument of <code style="white-space: pre;">[.data.table</code>, using <code style="white-space: pre;">:=</code> to modify &quot;in place&quot;. If
+<code>.before</code> or <code>.after</code> is provided, the new columns are relocated with a call
+to <code><a href="../../data.table/html/setcolorder.html">data.table::setcolorder()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+mutate(.data, ..., .before = NULL, .after = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="../../dplyr/html/dplyr_data_masking.html">data-masking</a>&gt; Name-value pairs.
+The name gives the name of the column in the output, and the value should
+evaluate to a vector.</p>
+</td></tr>
+<tr valign="top"><td><code>.before, .after</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+&lt;<code><a href="../../dplyr/html/dplyr_tidy_select.html">tidy-select</a></code>&gt; Optionally, control where new columns
+should appear (the default is to add to the right hand side). See
+<code><a href="../../dplyr/html/relocate.html">relocate()</a></code> for more details.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+dt &lt;- lazy_dt(data.frame(x = 1:5, y = 5:1))
+dt %&gt;%
+  mutate(a = (x + y) / 2, b = sqrt(x^2 + y^2))
+
+# It uses a more sophisticated translation when newly created variables
+# are used in the same expression
+dt %&gt;%
+  mutate(x1 = x + 1, x2 = x1 + 1)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

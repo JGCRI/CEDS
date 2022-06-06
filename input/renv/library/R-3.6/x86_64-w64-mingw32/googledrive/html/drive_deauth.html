@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Suspend authorization</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_deauth {googledrive}"><tr><td>drive_deauth {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Suspend authorization</h2>
+
+<h3>Description</h3>
+
+<p>Put googledrive into a de-authorized state. Instead of sending a token,
+googledrive will send an API key. This can be used to access public
+resources for which no Google sign-in is required. This is handy for using
+googledrive in a non-interactive setting to make requests that do not
+require a token. It will prevent the attempt to obtain a token
+interactively in the browser. The user can configure their own API key
+via <code><a href="drive_auth_configure.html">drive_auth_configure()</a></code> and retrieve that key via
+<code><a href="drive_auth_configure.html">drive_api_key()</a></code>.
+In the absence of a user-configured key, a built-in default key is used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_deauth()
+</pre>
+
+
+<h3>See Also</h3>
+
+<p>Other auth functions: 
+<code><a href="drive_auth_configure.html">drive_auth_configure</a>()</code>,
+<code><a href="drive_auth.html">drive_auth</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+drive_deauth()
+drive_user()
+public_file &lt;-
+  drive_get(as_id("1Hj-k7NpPSyeOR3R7j4KuWnru6kZaqqOAE8_db5gowIM"))
+drive_download(public_file)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

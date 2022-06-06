@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Coerce to a 'dribble'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_dribble {googledrive}"><tr><td>as_dribble {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Coerce to a <code>dribble</code></h2>
+
+<h3>Description</h3>
+
+<p>Converts various representations of Google Drive files into a <code><a href="dribble.html">dribble</a></code>,
+the object used by googledrive to hold Drive file metadata. Files can be
+specified via:
+</p>
+
+<ul>
+<li><p> File path. File name is an important special case.
+</p>
+</li>
+<li><p> File id. Mark with <code><a href="as_id.html">as_id()</a></code> to distinguish from file path.
+</p>
+</li>
+<li><p> Data frame or <code><a href="dribble.html">dribble</a></code>. Once you've successfully used googledrive to
+identify the files of interest, you'll have a <code><a href="dribble.html">dribble</a></code>. Pass it into
+downstream functions.
+</p>
+</li>
+<li><p> List representing <a href="https://developers.google.com/drive/api/v3/reference/files">Files resource</a>
+objects. Mostly for internal use.
+</p>
+</li></ul>
+
+<p>This is a generic function.
+</p>
+<p>For maximum clarity, get your files into a <code><a href="dribble.html">dribble</a></code> (or capture file id)
+as early as possible. When specifying via path, it's best to include the
+trailing slash when you're targetting a folder. If you want the folder <code>foo</code>,
+say <code style="white-space: pre;">foo/</code>, not <code>foo</code>.
+</p>
+<p>Some functions, such as <code><a href="drive_cp.html">drive_cp()</a></code>, <code><a href="drive_mkdir.html">drive_mkdir()</a></code>, <code><a href="drive_mv.html">drive_mv()</a></code>, and
+<code><a href="drive_upload.html">drive_upload()</a></code>, can accept the new file or folder name as the last part of
+<code>path</code>, when <code>name</code> is not given. But if you say <code>a/b/c</code> (no trailing slash)
+and a folder <code style="white-space: pre;">a/b/c/</code> already exists, it's unclear what you want. A file
+named <code>c</code> in <code style="white-space: pre;">a/b/</code> or a file with default name in <code style="white-space: pre;">a/b/c/</code>? You get an
+error and must make your intent clear.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_dribble(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector of Drive file paths, a vector of file ids marked
+with <code><a href="as_id.html">as_id()</a></code>, a list of Files Resource objects, or a suitable data
+frame.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed down to methods. (Not used.)</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# create some files for us to re-discover by name or filepath
+alfa &lt;- drive_create("alfa", type = "folder")
+bravo &lt;- drive_create("bravo", path = alfa)
+
+# as_dribble() can work with file names or paths
+as_dribble("alfa")
+as_dribble("bravo")
+as_dribble("alfa/bravo")
+as_dribble(c("alfa", "alfa/bravo"))
+
+# specify the file id (substitute a real file id of your own!)
+# as_dribble(as_id("0B0Gh-SuuA2nTOGZVTXZTREgwZ2M"))
+
+# cleanup
+drive_find("alfa") %&gt;% drive_rm()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

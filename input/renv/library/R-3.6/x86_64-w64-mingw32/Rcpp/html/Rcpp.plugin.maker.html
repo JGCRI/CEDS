@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Facilitating making package plugins</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Rcpp.plugin.maker {Rcpp}"><tr><td>Rcpp.plugin.maker {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Facilitating making package plugins
+</h2>
+
+<h3>Description</h3>
+
+<p>This function helps packages making inline plugins. 
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Rcpp.plugin.maker(
+  include.before = "", 
+  include.after = "", 
+  LinkingTo = unique(c(package, "Rcpp")), 
+  Depends = unique(c(package, "Rcpp")), 
+  Imports = unique(c(package, "Rcpp")), 
+  libs = "", 
+  Makevars = NULL, 
+  Makevars.win = NULL, 
+  package = "Rcpp"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>include.before</code></td>
+<td>
+<p>Code to be included before the <span class="samp">Rcpp.h</span> file</p>
+</td></tr>
+<tr valign="top"><td><code>include.after</code></td>
+<td>
+<p>Code to be included after the <span class="samp">Rcpp.h</span> file </p>
+</td></tr>
+<tr valign="top"><td><code>LinkingTo</code></td>
+<td>
+<p>Packages to be added to the <span class="samp">LinkingTo</span> field </p>
+</td></tr>
+<tr valign="top"><td><code>Depends</code></td>
+<td>
+<p>Packages to be added to the <span class="samp">Depends</span> field [deprecated] </p>
+</td></tr>
+<tr valign="top"><td><code>Imports</code></td>
+<td>
+<p>Packages to be added to the <span class="samp">Depends</span> field </p>
+</td></tr>
+<tr valign="top"><td><code>libs</code></td>
+<td>
+<p>library flags</p>
+</td></tr>
+<tr valign="top"><td><code>Makevars</code></td>
+<td>
+<p>content for a <span class="samp">Makevars</span> file, or <code>NULL</code></p>
+</td></tr>
+<tr valign="top"><td><code>Makevars.win</code></td>
+<td>
+<p>content for a <span class="samp">Makevars.win</span> file, or <code>NULL</code></p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>The package this plugin is for. </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A function that is suitable as a plugin. See for example the 
+<span class="samp">RcppArmadillo</span> package that uses this to create its inline plugin. 
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

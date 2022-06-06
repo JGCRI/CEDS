@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Automatically rename paired R/ and test/ files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rename_files {usethis}"><tr><td>rename_files {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Automatically rename paired <code style="white-space: pre;">R/</code> and <code style="white-space: pre;">test/</code> files</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li><p> Moves <code style="white-space: pre;">R/{old}.R</code> to <code style="white-space: pre;">R/{new}.R</code>
+</p>
+</li>
+<li><p> Moves <code style="white-space: pre;">tests/testthat/test-{old}.R</code> to <code style="white-space: pre;">tests/testthat/test-{new}.R</code>
+</p>
+</li>
+<li><p> Moves <code style="white-space: pre;">tests/testthat/test-{old}-*.*</code> to <code style="white-space: pre;">tests/testthat/test-{new}-*.*</code>
+and updates paths in the test file.
+</p>
+</li>
+<li><p> Removes <code>context()</code> calls from the test file, which are unnecessary
+(and discouraged) as of testthat v2.1.0.
+</p>
+</li></ul>
+
+<p>This is a potentially dangerous operation, so you must be using Git in
+order to use this function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rename_files(old, new)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>old, new</code></td>
+<td>
+<p>Old and new file names (with or without extensions).</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

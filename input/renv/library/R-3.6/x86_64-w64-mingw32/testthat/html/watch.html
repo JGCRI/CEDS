@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Watch a directory for changes (additions, deletions &amp;...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for watch {testthat}"><tr><td>watch {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Watch a directory for changes (additions, deletions &amp; modifications).</h2>
+
+<h3>Description</h3>
+
+<p>This is used to power the <code><a href="auto_test.html">auto_test()</a></code> and
+<code><a href="auto_test_package.html">auto_test_package()</a></code> functions which are used to rerun tests
+whenever source code changes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+watch(path, callback, pattern = NULL, hash = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>character vector of paths to watch.  Omit trailing backslash.</p>
+</td></tr>
+<tr valign="top"><td><code>callback</code></td>
+<td>
+<p>function called everytime a change occurs.  It should
+have three parameters: added, deleted, modified, and should return
+TRUE to keep watching, or FALSE to stop.</p>
+</td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>file pattern passed to <code><a href="../../base/html/list.files.html">dir()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>hash</code></td>
+<td>
+<p>hashes are more accurate at detecting changes, but are slower
+for large files.  When FALSE, uses modification time stamps</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Use Ctrl + break (windows), Esc (mac gui) or Ctrl + C (command line) to
+stop the watcher.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

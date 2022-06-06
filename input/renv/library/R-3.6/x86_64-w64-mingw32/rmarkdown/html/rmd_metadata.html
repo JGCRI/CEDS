@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: R Markdown Metadata</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rmd_metadata {rmarkdown}"><tr><td>rmd_metadata {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>R Markdown Metadata</h2>
+
+<h3>Description</h3>
+
+<p>Rmd files include a metadata section (typically located at the top of the
+file) that can specify (among other things) the title, author, and date of
+the document. Metadata adheres to the <a href="https://yaml.org">YAML</a> format
+and is delimited by lines containing three dashes (<code>---</code>). Here is an
+example metadata section:
+</p>
+<pre>---
+title: "Crop Analysis Q3 2013"
+author: Martha Smith
+date: October 23rd, 2013
+---
+</pre>
+<p>Note that the <code>title</code> field is quoted. This is because titles often
+contained embedded colons (<code>:</code>) and colons followed by a space need to
+be quoted in YAML.
+</p>
+
+
+<h3>Details</h3>
+
+<p>When title, author, and date metadata is provided it's used to
+automatically create a title section within output documents. If you don't
+want this section included in your document then you should remove the
+corresponding metadata fields.
+</p>
+<p>When generating PDF and Beamer output there are also a number of other
+metadata fields that can be included to customize the appearance and theme
+of PDF output. For more details see the documentation for
+<code><a href="pdf_document.html">pdf_document</a></code> and <code><a href="beamer_presentation.html">beamer_presentation</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

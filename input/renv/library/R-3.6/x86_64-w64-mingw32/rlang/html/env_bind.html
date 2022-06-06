@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bind symbols to objects in an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_bind {rlang}"><tr><td>env_bind {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bind symbols to objects in an environment</h2>
+
+<h3>Description</h3>
+
+<p>These functions create bindings in an environment. The bindings are
+supplied through <code>...</code> as pairs of names and values or expressions.
+<code>env_bind()</code> is equivalent to evaluating a <code style="white-space: pre;">&lt;-</code> expression within
+the given environment. This function should take care of the
+majority of use cases but the other variants can be useful for
+specific problems.
+</p>
+
+<ul>
+<li> <p><code>env_bind()</code> takes named <em>values</em> which are bound in <code>.env</code>.
+<code>env_bind()</code> is equivalent to <code><a href="../../base/html/assign.html">base::assign()</a></code>.
+</p>
+</li>
+<li> <p><code>env_bind_active()</code> takes named <em>functions</em> and creates active
+bindings in <code>.env</code>. This is equivalent to
+<code><a href="../../base/html/bindenv.html">base::makeActiveBinding()</a></code>. An active binding executes a
+function each time it is evaluated. The arguments are passed to
+<code><a href="as_function.html">as_function()</a></code> so you can supply formulas instead of functions.
+</p>
+<p>Remember that functions are scoped in their own environment.
+These functions can thus refer to symbols from this enclosure
+that are not actually in scope in the dynamic environment where
+the active bindings are invoked. This allows creative solutions
+to difficult problems (see the implementations of <code>dplyr::do()</code>
+methods for an example).
+</p>
+</li>
+<li> <p><code>env_bind_lazy()</code> takes named <em>expressions</em>. This is equivalent
+to <code><a href="../../base/html/delayedAssign.html">base::delayedAssign()</a></code>. The arguments are captured with
+<code><a href="defusing-advanced.html">exprs()</a></code> (and thus support call-splicing and unquoting) and
+assigned to symbols in <code>.env</code>. These expressions are not
+evaluated immediately but lazily. Once a symbol is evaluated, the
+corresponding expression is evaluated in turn and its value is
+bound to the symbol (the expressions are thus evaluated only
+once, if at all).
+</p>
+</li>
+<li> <p><code style="white-space: pre;">%&lt;~%</code> is a shortcut for <code>env_bind_lazy()</code>. It works like <code style="white-space: pre;">&lt;-</code>
+but the RHS is evaluated lazily.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+env_bind(.env, ...)
+
+env_bind_lazy(.env, ..., .eval_env = caller_env())
+
+env_bind_active(.env, ...)
+
+lhs %&lt;~% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="dyn-dots.html">dynamic</a>&gt; Named objects (<code>env_bind()</code>),
+expressions <code>env_bind_lazy()</code>, or functions (<code>env_bind_active()</code>).
+Use <code><a href="zap.html">zap()</a></code> to remove bindings.</p>
+</td></tr>
+<tr valign="top"><td><code>.eval_env</code></td>
+<td>
+<p>The environment where the expressions will be
+evaluated when the symbols are forced.</p>
+</td></tr>
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>The variable name to which <code>rhs</code> will be lazily assigned.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>An expression lazily evaluated and assigned to <code>lhs</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input object <code>.env</code>, with its associated environment
+modified in place, invisibly.
+</p>
+
+
+<h3>Side effects</h3>
+
+<p>Since environments have reference semantics (see relevant section
+in <code><a href="env.html">env()</a></code> documentation), modifying the bindings of an environment
+produces effects in all other references to that environment. In
+other words, <code>env_bind()</code> and its variants have side effects.
+</p>
+<p>Like other side-effecty functions like <code>par()</code> and <code>options()</code>,
+<code>env_bind()</code> and variants return the old values invisibly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="env_poke.html">env_poke()</a></code> for binding a single element.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# env_bind() is a programmatic way of assigning values to symbols
+# with `&lt;-`. We can add bindings in the current environment:
+env_bind(current_env(), foo = "bar")
+foo
+
+# Or modify those bindings:
+bar &lt;- "bar"
+env_bind(current_env(), bar = "BAR")
+bar
+
+# You can remove bindings by supplying zap sentinels:
+env_bind(current_env(), foo = zap())
+try(foo)
+
+# Unquote-splice a named list of zaps
+zaps &lt;- rep_named(c("foo", "bar"), list(zap()))
+env_bind(current_env(), !!!zaps)
+try(bar)
+
+# It is most useful to change other environments:
+my_env &lt;- env()
+env_bind(my_env, foo = "foo")
+my_env$foo
+
+# A useful feature is to splice lists of named values:
+vals &lt;- list(a = 10, b = 20)
+env_bind(my_env, !!!vals, c = 30)
+my_env$b
+my_env$c
+
+# You can also unquote a variable referring to a symbol or a string
+# as binding name:
+var &lt;- "baz"
+env_bind(my_env, !!var := "BAZ")
+my_env$baz
+
+
+# The old values of the bindings are returned invisibly:
+old &lt;- env_bind(my_env, a = 1, b = 2, baz = "baz")
+old
+
+# You can restore the original environment state by supplying the
+# old values back:
+env_bind(my_env, !!!old)
+
+# env_bind_lazy() assigns expressions lazily:
+env &lt;- env()
+env_bind_lazy(env, name = { cat("forced!\n"); "value" })
+
+# Referring to the binding will cause evaluation:
+env$name
+
+# But only once, subsequent references yield the final value:
+env$name
+
+# You can unquote expressions:
+expr &lt;- quote(message("forced!"))
+env_bind_lazy(env, name = !!expr)
+env$name
+
+
+# By default the expressions are evaluated in the current
+# environment. For instance we can create a local binding and refer
+# to it, even though the variable is bound in a different
+# environment:
+who &lt;- "mickey"
+env_bind_lazy(env, name = paste(who, "mouse"))
+env$name
+
+# You can specify another evaluation environment with `.eval_env`:
+eval_env &lt;- env(who = "minnie")
+env_bind_lazy(env, name = paste(who, "mouse"), .eval_env = eval_env)
+env$name
+
+# Or by unquoting a quosure:
+quo &lt;- local({
+  who &lt;- "fievel"
+  quo(paste(who, "mouse"))
+})
+env_bind_lazy(env, name = !!quo)
+env$name
+
+# You can create active bindings with env_bind_active(). Active
+# bindings execute a function each time they are evaluated:
+fn &lt;- function() {
+  cat("I have been called\n")
+  rnorm(1)
+}
+
+env &lt;- env()
+env_bind_active(env, symbol = fn)
+
+# `fn` is executed each time `symbol` is evaluated or retrieved:
+env$symbol
+env$symbol
+eval_bare(quote(symbol), env)
+eval_bare(quote(symbol), env)
+
+# All arguments are passed to as_function() so you can use the
+# formula shortcut:
+env_bind_active(env, foo = ~ runif(1))
+env$foo
+env$foo
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

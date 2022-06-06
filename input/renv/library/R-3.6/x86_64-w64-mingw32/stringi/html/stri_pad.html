@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Pad (Center/Left/Right Align) a String</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_pad_both {stringi}"><tr><td>stri_pad_both {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Pad (Center/Left/Right Align) a String</h2>
+
+<h3>Description</h3>
+
+<p>Add multiple <code>pad</code> characters at the given <code>side</code>(s) of each string
+so that each output string is of total width of at least <code>width</code>.
+These functions may be used to center or left/right-align each string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_pad_both(
+  str,
+  width = floor(0.9 * getOption("width")),
+  pad = " ",
+  use_length = FALSE
+)
+
+stri_pad_left(
+  str,
+  width = floor(0.9 * getOption("width")),
+  pad = " ",
+  use_length = FALSE
+)
+
+stri_pad_right(
+  str,
+  width = floor(0.9 * getOption("width")),
+  pad = " ",
+  use_length = FALSE
+)
+
+stri_pad(
+  str,
+  width = floor(0.9 * getOption("width")),
+  side = c("left", "right", "both"),
+  pad = " ",
+  use_length = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>integer vector giving minimal output string lengths</p>
+</td></tr>
+<tr valign="top"><td><code>pad</code></td>
+<td>
+<p>character vector giving padding code points</p>
+</td></tr>
+<tr valign="top"><td><code>use_length</code></td>
+<td>
+<p>single logical value; should the number of code
+points be used instead of the total code point width
+(see <code><a href="stri_width.html">stri_width</a></code>)?</p>
+</td></tr>
+<tr valign="top"><td><code>side</code></td>
+<td>
+<p>[<code>stri_pad</code> only] single character string;
+sides on which padding character is added
+(<code>left</code> (default), <code>right</code>, or <code>both</code>)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>, <code>width</code>, and <code>pad</code>.
+Each string in <code>pad</code> should consist of a code points of total width
+equal to 1 or, if <code>use_length</code> is <code>TRUE</code>, exactly one code point.
+</p>
+<p><code>stri_pad</code> is a convenience function, which dispatches
+to <code>stri_pad_*</code>.
+</p>
+<p>Note that Unicode code points may have various widths when
+printed on the console and that, by default, the function takes that
+into account. By changing the state of the <code>use_length</code>
+argument, this function starts acting like each code point
+was of width 1. This feature should rather be used with
+text in Latin script.
+</p>
+<p>See <code><a href="stri_trim.html">stri_trim_left</a></code> (among others) for reverse operation.
+Also check out <code><a href="stri_wrap.html">stri_wrap</a></code> for line wrapping.
+</p>
+
+
+<h3>Value</h3>
+
+<p>These functions return a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other length: 
+<code><a href="operator_dollar.html">%s$%</a>()</code>,
+<code><a href="stri_isempty.html">stri_isempty</a>()</code>,
+<code><a href="stri_length.html">stri_length</a>()</code>,
+<code><a href="stri_numbytes.html">stri_numbytes</a>()</code>,
+<code><a href="stri_sprintf.html">stri_sprintf</a>()</code>,
+<code><a href="stri_width.html">stri_width</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_pad_left('stringi', 10, pad='#')
+stri_pad_both('stringi', 8:12, pad='*')
+# center on screen:
+cat(stri_pad_both(c('the', 'string', 'processing', 'package'),
+   getOption('width')*0.9), sep='\n')
+cat(stri_pad_both(c('\ud6c8\ubbfc\uc815\uc74c', # takes width into account
+   stri_trans_nfkd('\ud6c8\ubbfc\uc815\uc74c'), 'abcd'),
+   width=10), sep='\n')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

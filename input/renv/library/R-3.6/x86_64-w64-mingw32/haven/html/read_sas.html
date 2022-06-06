@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read and write SAS files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read_sas {haven}"><tr><td>read_sas {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read and write SAS files</h2>
+
+<h3>Description</h3>
+
+<p><code>read_sas()</code> supports both sas7bdat files and the accompanying sas7bcat files
+that SAS uses to record value labels. <code>write_sas()</code> is currently experimental
+and only works for limited datasets.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_sas(
+  data_file,
+  catalog_file = NULL,
+  encoding = NULL,
+  catalog_encoding = encoding,
+  col_select = NULL,
+  skip = 0L,
+  n_max = Inf,
+  cols_only = "DEPRECATED",
+  .name_repair = "unique"
+)
+
+write_sas(data, path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data_file, catalog_file</code></td>
+<td>
+<p>Path to data and catalog files. The files are
+processed with <code><a href="../../readr/html/datasource.html">readr::datasource()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>encoding, catalog_encoding</code></td>
+<td>
+<p>The character encoding used for the
+<code>data_file</code> and <code>catalog_encoding</code> respectively. A value of <code>NULL</code> uses the
+encoding specified in the file; use this argument to override it if it is
+incorrect.</p>
+</td></tr>
+<tr valign="top"><td><code>col_select</code></td>
+<td>
+<p>One or more selection expressions, like in
+<code><a href="../../dplyr/html/select.html">dplyr::select()</a></code>. Use <code>c()</code> or <code>list()</code> to use more than one expression.
+See <code>?dplyr::select</code> for details on available selection options. Only the
+specified columns will be read from <code>data_file</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>skip</code></td>
+<td>
+<p>Number of lines to skip before reading data.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Maximum number of lines to read.</p>
+</td></tr>
+<tr valign="top"><td><code>cols_only</code></td>
+<td>
+<p><strong>Deprecated</strong>: Use <code>col_select</code> instead.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Treatment of problematic column names:
+</p>
+
+<ul>
+<li> <p><code>"minimal"</code>: No name repair or checks, beyond basic existence,
+</p>
+</li>
+<li> <p><code>"unique"</code>: Make sure names are unique and not empty,
+</p>
+</li>
+<li> <p><code>"check_unique"</code>: (default value), no name repair, but check they are
+<code>unique</code>,
+</p>
+</li>
+<li> <p><code>"universal"</code>: Make the names <code>unique</code> and syntactic
+</p>
+</li>
+<li><p> a function: apply custom name repair (e.g., <code>.name_repair = make.names</code>
+for names in the style of base R).
+</p>
+</li>
+<li><p> A purrr-style anonymous function, see <code><a href="../../rlang/html/as_function.html">rlang::as_function()</a></code>
+</p>
+</li></ul>
+
+<p>This argument is passed on as <code>repair</code> to <code><a href="../../vctrs/html/vec_as_names.html">vctrs::vec_as_names()</a></code>.
+See there for more details on these terms and the strategies used
+to enforce them.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Data frame to write.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to file where the data will be written.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tibble, data frame variant with nice defaults.
+</p>
+<p>Variable labels are stored in the &quot;label&quot; attribute of each variable. It is
+not printed on the console, but the RStudio viewer will show it.
+</p>
+<p><code>write_sas()</code> returns the input <code>data</code> invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+path &lt;- system.file("examples", "iris.sas7bdat", package = "haven")
+read_sas(path)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

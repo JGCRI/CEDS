@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Metaprogramming patterns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-metaprogramming {rlang}"><tr><td>topic-metaprogramming {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Metaprogramming patterns</h2>
+
+<h3>Description</h3>
+
+<p>The patterns covered in this article rely on <em>metaprogramming</em>, the ability to defuse, create, expand, and inject R expressions. A good place to start if you're new to programming on the language is the <a href="https://adv-r.hadley.nz/metaprogramming.html">Metaprogramming chapter</a> of the <a href="https://adv-r.hadley.nz">Advanced R</a> book.
+</p>
+<p>If you haven't already, read <a href="topic-data-mask-programming.html">Data mask programming patterns</a> which covers simpler patterns that do not require as much theory to get up to speed. It covers concepts like argument behaviours and the various patterns you can add to your toolbox (forwarding, names, bridge, and transformative patterns).
+</p>
+
+
+<h3>Forwarding patterns</h3>
+
+
+
+<h4>Defuse and inject</h4>
+
+<p><code><a href="embrace-operator.html">{{</a></code> and <code>...</code> are sufficient for most purposes. Sometimes however, it is necessary to decompose the forwarding action into its two constitutive steps, <a href="topic-defuse.html">defusing</a> and <a href="topic-inject.html">injecting</a>.
+</p>
+<p><code style="white-space: pre;">{{</code> is the combination of <code><a href="enquo.html">enquo()</a></code> and <code><a href="injection-operator.html">!!</a></code>. These functions are completely equivalent:<div class="sourceCode r"></p>
+<pre>my_summarise &lt;- function(data, var) {
+  data %&gt;% dplyr::summarise({{ var }})
+}
+my_summarise &lt;- function(data, var) {
+  data %&gt;% dplyr::summarise(!!enquo(var))
+}
+</pre></div>
+<p>Passing <code>...</code> is equivalent to the combination of <code><a href="enquo.html">enquos()</a></code> and <code><a href="splice-operator.html">!!!</a></code>:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(.data, ...) {
+  .data %&gt;% dplyr::group_by(...)
+}
+my_group_by &lt;- function(.data, ...) {
+  .data %&gt;% dplyr::group_by(!!!enquos(...))
+}
+</pre></div>
+<p>The advantage of decomposing the steps is that you gain access to the <a href="topic-defuse.html">defused expressions</a>. Once defused, you can inspect or modify the expressions before injecting them in their target context.
+</p>
+
+
+
+<h4>Inspecting input labels</h4>
+
+<p>For instance, here is how to create an automatic name for a defused argument using <code><a href="as_label.html">as_label()</a></code>:<div class="sourceCode r"></p>
+<pre>f &lt;- function(var) {
+  var &lt;- enquo(var)
+  as_label(var)
+}
+
+f(cyl)
+#&gt; [1] "cyl"
+
+f(1 + 1)
+#&gt; [1] "1 + 1"
+</pre></div>
+<p>This is essentially equivalent to formatting an argument using <code><a href="englue.html">englue()</a></code>:<div class="sourceCode r"></p>
+<pre>f2 &lt;- function(var) {
+  englue("{{ var }}")
+}
+
+f2(1 + 1)
+#&gt; [1] "1 + 1"
+</pre></div>
+<p>With multiple arguments, use the plural variant <code><a href="enquo.html">enquos()</a></code>. Set <code>.named</code> to <code>TRUE</code> to automatically call <code><a href="as_label.html">as_label()</a></code> on the inputs for which the user has not provided a name (the same behaviour as in most dplyr verbs):<div class="sourceCode r"></p>
+<pre>g &lt;- function(...) {
+  vars &lt;- enquos(..., .named = TRUE)
+  names(vars)
+}
+
+g(cyl, 1 + 1)
+#&gt; [1] "cyl"   "1 + 1"
+</pre></div>
+<p>Just like with <code>dplyr::mutate()</code>, the user can override automatic names by supplying explicit names:<div class="sourceCode r"></p>
+<pre>g(foo = cyl, bar = 1 + 1)
+#&gt; [1] "foo" "bar"
+</pre></div>
+<p>Defuse-and-inject patterns are most useful for transforming inputs. Some applications are explored in the Transformation patterns section.
+</p>
+
+
+
+<h3>Names patterns</h3>
+
+
+
+<h4>Symbolise and inject</h4>
+
+<p>The symbolise-and-inject pattern is a <em>names pattern</em> that you can use when <code>across(all_of())</code> is not supported. It consists in creating <a href="topic-defuse.html">defused expressions</a> that refer to the data-variables represented in the names vector. These are then injected in the data mask context.
+</p>
+<p>Symbolise a single string with <code><a href="sym.html">sym()</a></code> or <code><a href="sym.html">data_sym()</a></code>:<div class="sourceCode r"></p>
+<pre>var &lt;- "cyl"
+
+sym(var)
+#&gt; cyl
+
+data_sym(var)
+#&gt; .data$cyl
+</pre></div>
+<p>Symbolise a character vector with <code><a href="sym.html">syms()</a></code> or <code><a href="sym.html">data_syms()</a></code>.<div class="sourceCode r"></p>
+<pre>vars &lt;- c("cyl", "am")
+
+syms(vars)
+#&gt; [[1]]
+#&gt; cyl
+#&gt; 
+#&gt; [[2]]
+#&gt; am
+
+data_syms(vars)
+#&gt; [[1]]
+#&gt; .data$cyl
+#&gt; 
+#&gt; [[2]]
+#&gt; .data$am
+</pre></div>
+<p>Simple symbols returned by <code>sym()</code> and <code>syms()</code> work in a wider variety of cases (with base functions in particular) but we'll use mostly use <code>data_sym()</code> and <code>data_syms()</code> because they are more robust (see <a href="topic-data-mask-ambiguity.html">The data mask ambiguity</a>). Note that these do not return <em>symbols</em> per se, instead they create <em>calls</em> to <code>$</code> that subset the <code><a href="dot-data.html">.data</a></code> pronoun.
+</p>
+<p>Since the <code>.data</code> pronoun is a tidy eval feature, you can't use it in base functions. As a rule, prefer the <code>data_</code>-prefixed variants when you're injecting in tidy eval functions and the unprefixed functions for base functions.
+</p>
+<p>A list of symbols can be injected in data-masked dots with the splice operator <code><a href="splice-operator.html">!!!</a></code>, which injects each element of the list as a separate argument. For instance, to implement a <code>group_by()</code> variant that takes a character vector of column names, you might write:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, vars) {
+  data %&gt;% dplyr::group_by(!!!data_syms(vars))
+}
+
+my_group_by(vars)
+</pre></div>
+<p>In more complex case, you might want to add R code around the symbols. This requires <em>transformation</em> patterns, see the section below.
+</p>
+
+
+
+<h3>Bridge patterns</h3>
+
+
+
+<h4><code>mutate()</code> as a data-mask to selection bridge</h4>
+
+<p>This is a variant of the <code>transmute()</code> bridge pattern described in <a href="topic-data-mask-programming.html">Data mask programming patterns</a> that does not materialise <code>...</code> in the intermediate step. Instead, the <code>...</code> expressions are defused and inspected. Then the expressions, rather than the columns, are spliced in <code>mutate()</code>.<div class="sourceCode r"></p>
+<pre>my_pivot_longer &lt;- function(data, ...) {
+  # Defuse the dots and inspect the names
+  dots &lt;- enquos(..., .named = TRUE)
+  names &lt;- names(dots)
+
+  # Pass the inputs to `mutate()`
+  data &lt;- data %&gt;% dplyr::mutate(!!!dots)
+
+  # Select `...` inputs by name with `all_of()`
+  data %&gt;%
+    tidyr::pivot_longer(cols = all_of(names))
+}
+
+mtcars %&gt;% my_pivot_longer(cyl, am = am * 100)
+</pre></div>
+
+<ol>
+<li><p> Defuse the <code>...</code> expressions. The <code>.named</code> argument ensures unnamed inputs get a default name, just like they would if passed to <code>mutate()</code>. Take the names of the list of inputs.
+</p>
+</li>
+<li><p> Once we have the names, inject the argument expressions into <code>mutate()</code> to update the data frame.
+</p>
+</li>
+<li><p> Finally, pass the names to the tidy selection via <a href="https://tidyselect.r-lib.org/reference/all_of.html"><code>all_of()</code></a>.
+</p>
+</li></ol>
+
+
+
+
+<h3>Transformation patterns</h3>
+
+
+
+<h4>Transforming inputs manually</h4>
+
+<p>If <code>across()</code> and variants are not available, you will need to transform the inputs yourself using metaprogramming techniques. To illustrate the technique we'll reimplement <code>my_mean()</code> and without using <code>across()</code>. The pattern consists in defusing the input expression, building larger calls around them, and finally inject the modified expressions inside the data-masking functions.
+</p>
+<p>We'll start with a single named argument for simplicity:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  # Defuse the expression
+  var &lt;- enquo(var)
+
+  # Wrap it in a call to `mean()`
+  var &lt;- expr(mean(!!var, na.rm = TRUE))
+
+  # Inject the expanded expression
+  data %&gt;% dplyr::summarise(mean = !!var)
+}
+
+mtcars %&gt;% my_mean(cyl)
+#&gt; # A tibble: 1 x 1
+#&gt;    mean
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+</pre></div>
+<p>With <code>...</code> the technique is similar, though a little more involved. We'll use the plural variants <code>enquos()</code> and <code><a href="splice-operator.html">!!!</a></code>. We'll also loop over the variable number of inputs using <code>purrr::map()</code>. But the pattern is otherwise basically the same:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(.data, ...) {
+  # Defuse the dots. Make sure they are automatically named.
+  vars &lt;- enquos(..., .named = TRUE)
+
+  # Map over each defused expression and wrap it in a call to `mean()`
+  vars &lt;- purrr::map(vars, ~ expr(mean(!!.x, na.rm = TRUE)))
+
+  # Inject the expressions
+  .data %&gt;% dplyr::summarise(!!!vars)
+}
+
+mtcars %&gt;% my_mean(cyl)
+#&gt; # A tibble: 1 x 1
+#&gt;     cyl
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+</pre></div>
+<p>Note that we are inheriting the data-masking behaviour of <code>summarise()</code> because we have effectively forwarded <code>...</code> inside that verb. This is different than transformation patterns based on <code>across()</code> which inherit tidy selection behaviour. In practice, this means the function doesn't support selection helpers and syntax. Instead, it gains the ability to create new vectors on the fly:<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% my_mean(cyl = cyl * 100)
+#&gt; # A tibble: 1 x 1
+#&gt;     cyl
+#&gt;   &lt;dbl&gt;
+#&gt; 1  619.
+</pre></div>
+
+
+
+<h3>Base patterns</h3>
+
+<p>In this section, we review patterns for programming with <em>base</em> data-masking functions. They essentially consist in building and evaluating expressions in the data mask. We review these patterns and compare them to rlang idioms.
+</p>
+
+
+<h4>Data-masked <code>get()</code></h4>
+
+<p>In the simplest version of this pattern, <code>get()</code> is called with a variable name to retrieve objects from the data mask:<div class="sourceCode r"></p>
+<pre>var &lt;- "cyl"
+
+with(mtcars, mean(get(var)))
+#&gt; [1] 6.1875
+</pre></div>
+<p>This sort of pattern is susceptible to <a href="topic-data-mask-ambiguity.html">names collisions</a>. For instance, the input data frame might contain a variable called <code>var</code>:<div class="sourceCode r"></p>
+<pre>df &lt;- data.frame(var = "wrong")
+
+with(df, mean(get(var)))
+#&gt; Error in get(var): object 'wrong' not found
+</pre></div>
+<p>In general, prefer symbol injection over <code>get()</code> to prevent this sort of collisions. With base functions you will need to enable injection operators explicitly using <code><a href="inject.html">inject()</a></code>:<div class="sourceCode r"></p>
+<pre>inject(
+  with(mtcars, mean(!!sym(var)))
+)
+#&gt; [1] 6.1875
+</pre></div>
+<p>See <a href="topic-data-mask-ambiguity.html">The data mask ambiguity</a> for more information about names collisions.
+</p>
+
+
+
+<h4>Data-masked <code>parse()</code> and <code>eval()</code></h4>
+
+<p>A more involved pattern consists in building R code in a string and evaluating it in the mask:<div class="sourceCode r"></p>
+<pre>var1 &lt;- "am"
+var2 &lt;- "vs"
+
+code &lt;- paste(var1, "==", var2)
+with(mtcars, mean(eval(parse(text = code))))
+#&gt; [1] 0.59375
+</pre></div>
+<p>As before, the <code>code</code> variable is vulnerable to <a href="topic-data-mask-ambiguity.html">names collisions</a>. More importantly, if <code>var1</code> and <code>var2</code> are user inputs, they could contain <a href="https://xkcd.com/327/">adversarial code</a>. Evaluating code assembled from strings is always a risky business:<div class="sourceCode r"></p>
+<pre>var1 &lt;- "(function() {
+  Sys.sleep(Inf)  # Could be a coin mining routine
+})()"
+var2 &lt;- "vs"
+
+code &lt;- paste(var1, "==", var2)
+with(mtcars, mean(eval(parse(text = code))))
+</pre></div>
+<p>This is not a big deal if your code is only used internally. However, this code could be part of a public Shiny app which Internet users could exploit. But even internally, parsing is a source of bugs when variable names contain syntactic symbols like <code>-</code> or <code>:</code>.<div class="sourceCode r"></p>
+<pre>var1 &lt;- ":var:"
+var2 &lt;- "vs"
+
+code &lt;- paste(var1, "==", var2)
+with(mtcars, mean(eval(parse(text = code))))
+#&gt; Error in parse(text = code): &lt;text&gt;:1:1: unexpected ':'
+#&gt; 1: :
+#&gt;     ^
+</pre></div>
+<p>For these reasons, always prefer to <em>build</em> code instead of parsing code. Building variable names with <code><a href="sym.html">sym()</a></code> is a way of sanitising inputs.<div class="sourceCode r"></p>
+<pre>var1 &lt;- "(function() {
+  Sys.sleep(Inf)  # Could be a coin mining routine
+})()"
+var2 &lt;- "vs"
+
+code &lt;- call("==", sym(var1), sym(var2))
+
+code
+#&gt; `(function() {\n  Sys.sleep(Inf)  # Could be a coin mining routine\n})()` == 
+#&gt;     vs
+</pre></div>
+<p>The adversarial input now produces an error:<div class="sourceCode r"></p>
+<pre>with(mtcars, mean(eval(code)))
+#&gt; Error in eval(code): object '(function() {\n  Sys.sleep(Inf)  # Could be a coin mining routine\n})()' not found
+</pre></div>
+<p>Finally, it is recommended to inject the code instead of evaluating it to avoid names collisions:<div class="sourceCode r"></p>
+<pre>var1 &lt;- "am"
+var2 &lt;- "vs"
+
+code &lt;- call("==", sym(var1), sym(var2))
+inject(
+  with(mtcars, mean(!!code))
+)
+#&gt; [1] 0.59375
+</pre></div>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

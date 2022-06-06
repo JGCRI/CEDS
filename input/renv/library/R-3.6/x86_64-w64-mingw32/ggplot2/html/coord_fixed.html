@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cartesian coordinates with fixed &quot;aspect ratio&quot;</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coord_fixed {ggplot2}"><tr><td>coord_fixed {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cartesian coordinates with fixed &quot;aspect ratio&quot;</h2>
+
+<h3>Description</h3>
+
+<p>A fixed scale coordinate system forces a specified ratio between the
+physical representation of data units on the axes. The ratio represents the
+number of units on the y-axis equivalent to one unit on the x-axis. The
+default, <code>ratio = 1</code>, ensures that one unit on the x-axis is the same
+length as one unit on the y-axis. Ratios higher than one make units on the
+y axis longer than units on the x-axis, and vice versa. This is similar to
+<code><a href="../../MASS/html/eqscplot.html">MASS::eqscplot()</a></code>, but it works for all types of graphics.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ratio</code></td>
+<td>
+<p>aspect ratio, expressed as <code>y / x</code></p>
+</td></tr>
+<tr valign="top"><td><code>xlim</code></td>
+<td>
+<p>Limits for the x and y axes.</p>
+</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+<p>Limits for the x and y axes.</p>
+</td></tr>
+<tr valign="top"><td><code>expand</code></td>
+<td>
+<p>If <code>TRUE</code>, the default, adds a small expansion factor to
+the limits to ensure that data and axes don't overlap. If <code>FALSE</code>,
+limits are taken exactly from the data or <code>xlim</code>/<code>ylim</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>clip</code></td>
+<td>
+<p>Should drawing be clipped to the extent of the plot panel? A
+setting of <code>"on"</code> (the default) means yes, and a setting of <code>"off"</code>
+means no. In most cases, the default of <code>"on"</code> should not be changed,
+as setting <code>clip = "off"</code> can cause unexpected results. It allows
+drawing of data points anywhere on the plot, including in the plot margins. If
+limits are set via <code>xlim</code> and <code>ylim</code> and some data points fall outside those
+limits, then those data points may show up in places such as the axes, the
+legend, the plot title, or the plot margins.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# ensures that the ranges of axes are equal to the specified ratio by
+# adjusting the plot aspect ratio
+
+p &lt;- ggplot(mtcars, aes(mpg, wt)) + geom_point()
+p + coord_fixed(ratio = 1)
+p + coord_fixed(ratio = 5)
+p + coord_fixed(ratio = 1/5)
+p + coord_fixed(xlim = c(15, 30))
+
+# Resize the plot to see that the specified aspect ratio is maintained
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

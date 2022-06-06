@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a disk cache object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cache_disk {cachem}"><tr><td>cache_disk {cachem}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a disk cache object</h2>
+
+<h3>Description</h3>
+
+<p>A disk cache object is a key-value store that saves the values as files in a
+directory on disk. Objects can be stored and retrieved using the <code>get()</code> and
+<code>set()</code> methods. Objects are automatically pruned from the cache according to
+the parameters <code>max_size</code>, <code>max_age</code>, <code>max_n</code>, and <code>evict</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cache_disk(
+  dir = NULL,
+  max_size = 1024 * 1024^2,
+  max_age = Inf,
+  max_n = Inf,
+  evict = c("lru", "fifo"),
+  destroy_on_finalize = FALSE,
+  missing = key_missing(),
+  prune_rate = 20,
+  warn_ref_objects = FALSE,
+  logfile = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>Directory to store files for the cache. If <code>NULL</code> (the default) it
+will create and use a temporary directory.</p>
+</td></tr>
+<tr valign="top"><td><code>max_size</code></td>
+<td>
+<p>Maximum size of the cache, in bytes. If the cache exceeds
+this size, cached objects will be removed according to the value of the
+<code>evict</code>. Use <code>Inf</code> for no size limit. The default is 1 gigabyte.</p>
+</td></tr>
+<tr valign="top"><td><code>max_age</code></td>
+<td>
+<p>Maximum age of files in cache before they are evicted, in
+seconds. Use <code>Inf</code> for no age limit.</p>
+</td></tr>
+<tr valign="top"><td><code>max_n</code></td>
+<td>
+<p>Maximum number of objects in the cache. If the number of objects
+exceeds this value, then cached objects will be removed according to the
+value of <code>evict</code>. Use <code>Inf</code> for no limit of number of items.</p>
+</td></tr>
+<tr valign="top"><td><code>evict</code></td>
+<td>
+<p>The eviction policy to use to decide which objects are removed
+when a cache pruning occurs. Currently, <code>"lru"</code> and <code>"fifo"</code> are supported.</p>
+</td></tr>
+<tr valign="top"><td><code>destroy_on_finalize</code></td>
+<td>
+<p>If <code>TRUE</code>, then when the cache_disk object is
+garbage collected, the cache directory and all objects inside of it will be
+deleted from disk. If <code>FALSE</code> (the default), it will do nothing when
+finalized.</p>
+</td></tr>
+<tr valign="top"><td><code>missing</code></td>
+<td>
+<p>A value to return when <code>get(key)</code> is called but the key is not
+present in the cache. The default is a <code><a href="reexports.html">key_missing()</a></code> object. It is
+actually an expression that is evaluated each time there is a cache miss.
+See section Missing keys for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>prune_rate</code></td>
+<td>
+<p>How often to prune the cache. See section Cache Pruning for
+more information.</p>
+</td></tr>
+<tr valign="top"><td><code>warn_ref_objects</code></td>
+<td>
+<p>Should a warning be emitted when a reference is
+stored in the cache? This can be useful because serializing and
+deserializing a reference object (such as environments and external
+pointers) can lead to unexpected behavior.</p>
+</td></tr>
+<tr valign="top"><td><code>logfile</code></td>
+<td>
+<p>An optional filename or connection object to where logging
+information will be written. To log to the console, use <code>stderr()</code> or
+<code>stdout()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A disk caching object, with class <code>cache_disk</code>.
+</p>
+
+
+<h3>Missing keys</h3>
+
+<p>The <code>missing</code> parameter controls what happens when <code>get()</code> is called with a
+key that is not in the cache (a cache miss). The default behavior is to
+return a <code><a href="reexports.html">key_missing()</a></code> object. This is a <em>sentinel value</em> that indicates
+that the key was not present in the cache. You can test if the returned
+value represents a missing key by using the <code><a href="reexports.html">is.key_missing()</a></code> function.
+You can also have <code>get()</code> return a different sentinel value, like <code>NULL</code>.
+If you want to throw an error on a cache miss, you can do so by providing
+an expression for <code>missing</code>, as in <code>missing = stop("Missing key")</code>.
+</p>
+<p>When the cache is created, you can supply a value for <code>missing</code>, which sets
+the default value to be returned for missing values. It can also be
+overridden when <code>get()</code> is called, by supplying a <code>missing</code> argument. For
+example, if you use <code>cache$get("mykey", missing = NULL)</code>, it will return
+<code>NULL</code> if the key is not in the cache.
+</p>
+<p>The <code>missing</code> parameter is actually an expression which is evaluated each
+time there is a cache miss. A quosure (from the rlang package) can be used.
+</p>
+<p>If you use this, the code that calls <code>get()</code> should be wrapped with
+<code><a href="../../base/html/conditions.html">tryCatch()</a></code> to gracefully handle missing keys.
+</p>
+
+
+<h3>Cache pruning</h3>
+
+<p>Cache pruning occurs when <code>set()</code> is called, or it can be invoked manually
+by calling <code>prune()</code>.
+</p>
+<p>The disk cache will throttle the pruning so that it does not happen on
+every call to <code>set()</code>, because the filesystem operations for checking the
+status of files can be slow. Instead, it will prune once in every
+<code>prune_rate</code> calls to <code>set()</code>, or if at least 5 seconds have elapsed since
+the last prune occurred, whichever is first.
+</p>
+<p>When a pruning occurs, if there are any objects that are older than
+<code>max_age</code>, they will be removed.
+</p>
+<p>The <code>max_size</code> and <code>max_n</code> parameters are applied to the cache as a whole,
+in contrast to <code>max_age</code>, which is applied to each object individually.
+</p>
+<p>If the number of objects in the cache exceeds <code>max_n</code>, then objects will be
+removed from the cache according to the eviction policy, which is set with
+the <code>evict</code> parameter. Objects will be removed so that the number of items
+is <code>max_n</code>.
+</p>
+<p>If the size of the objects in the cache exceeds <code>max_size</code>, then objects
+will be removed from the cache. Objects will be removed from the cache so
+that the total size remains under <code>max_size</code>. Note that the size is
+calculated using the size of the files, not the size of disk space used by
+the files &mdash; these two values can differ because of files are stored in
+blocks on disk. For example, if the block size is 4096 bytes, then a file
+that is one byte in size will take 4096 bytes on disk.
+</p>
+<p>Another time that objects can be removed from the cache is when <code>get()</code> is
+called. If the target object is older than <code>max_age</code>, it will be removed
+and the cache will report it as a missing value.
+</p>
+
+
+<h3>Eviction policies</h3>
+
+<p>If <code>max_n</code> or <code>max_size</code> are used, then objects will be removed from the
+cache according to an eviction policy. The available eviction policies are:
+</p>
+
+<dl>
+<dt><code>"lru"</code></dt><dd>
+<p>Least Recently Used. The least recently used objects will be removed.
+This uses the filesystem's mtime property. When &quot;lru&quot; is used, each
+<code>get()</code> is called, it will update the file's mtime using
+<code><a href="../../base/html/Sys.setFileTime.html">Sys.setFileTime()</a></code>. Note that on some platforms, the resolution of
+<code><a href="../../base/html/Sys.setFileTime.html">Sys.setFileTime()</a></code> may be low, one or two seconds.
+</p>
+</dd>
+<dt><code>"fifo"</code></dt><dd>
+<p>First-in-first-out. The oldest objects will be removed.
+</p>
+</dd>
+</dl>
+
+<p>Both of these policies use files' mtime. Note that some filesystems (notably
+FAT) have poor mtime resolution. (atime is not used because support for atime
+is worse than mtime.)
+</p>
+
+
+<h3>Sharing among multiple processes</h3>
+
+<p>The directory for a cache_disk can be shared among multiple R processes. To
+do this, each R process should have a cache_disk object that uses the same
+directory. Each cache_disk will do pruning independently of the others, so
+if they have different pruning parameters, then one cache_disk may remove
+cached objects before another cache_disk would do so.
+</p>
+<p>Even though it is possible for multiple processes to share a cache_disk
+directory, this should not be done on networked file systems, because of
+slow performance of networked file systems can cause problems. If you need
+a high-performance shared cache, you can use one built on a database like
+Redis, SQLite, mySQL, or similar.
+</p>
+<p>When multiple processes share a cache directory, there are some potential
+race conditions. For example, if your code calls <code>exists(key)</code> to check if
+an object is in the cache, and then call <code>get(key)</code>, the object may be
+removed from the cache in between those two calls, and <code>get(key)</code> will
+throw an error. Instead of calling the two functions, it is better to
+simply call <code>get(key)</code>, and check that the returned object is not a
+<code>key_missing()</code> object, using <code>is.key_missing()</code>. This effectively tests
+for existence and gets the object in one operation.
+</p>
+<p>It is also possible for one processes to prune objects at the same time
+that another processes is trying to prune objects. If this happens, you may
+see a warning from <code>file.remove()</code> failing to remove a file that has
+already been deleted.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>A disk cache object has the following methods:
+</p>
+
+<dl>
+<dt><code>get(key, missing)</code></dt><dd>
+<p>Returns the value associated with <code>key</code>. If the key is not in the
+cache, then it evaluates the expression specified by <code>missing</code> and
+returns the value. If <code>missing</code> is specified here, then it will
+override the default that was set when the <code>cache_mem</code> object was
+created. See section Missing Keys for more information.
+</p>
+</dd>
+<dt><code>set(key, value)</code></dt><dd>
+<p>Stores the <code>key</code>-<code>value</code> pair in the cache.
+</p>
+</dd>
+<dt><code>exists(key)</code></dt><dd>
+<p>Returns <code>TRUE</code> if the cache contains the key, otherwise
+<code>FALSE</code>.
+</p>
+</dd>
+<dt><code>remove(key)</code></dt><dd>
+<p>Removes <code>key</code> from the cache, if it exists in the cache. If the key is
+not in the cache, this does nothing.
+</p>
+</dd>
+<dt><code>size()</code></dt><dd>
+<p>Returns the number of items currently in the cache.
+</p>
+</dd>
+<dt><code>keys()</code></dt><dd>
+<p>Returns a character vector of all keys currently in the cache.
+</p>
+</dd>
+<dt><code>reset()</code></dt><dd>
+<p>Clears all objects from the cache.
+</p>
+</dd>
+<dt><code>destroy()</code></dt><dd>
+<p>Clears all objects in the cache, and removes the cache directory from
+disk.
+</p>
+</dd>
+<dt><code>prune()</code></dt><dd>
+<p>Prunes the cache, using the parameters specified by <code>max_size</code>,
+<code>max_age</code>, <code>max_n</code>, and <code>evict</code>.
+</p>
+</dd>
+</dl>
+
+
+<hr /><div style="text-align: center;">[Package <em>cachem</em> version 1.0.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

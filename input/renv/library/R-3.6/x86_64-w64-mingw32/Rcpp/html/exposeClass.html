@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create an Rcpp Module to Expose a C++ Class in R</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for exposeClass {Rcpp}"><tr><td>exposeClass {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Create an Rcpp Module to Expose a C++ Class in R
+</h2>
+
+<h3>Description</h3>
+
+<p>The arguments specify a C++ class and some combination of
+constructors, fields and methods to be shared with <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> by creating a
+corresponding reference class in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+The information needed in the call to <code>exposeClass()</code> is the
+simplest possible in order to create a C++ module for the class; for
+example, fields and methods in this class need only be identified by
+their name.
+Inherited fields and methods can also be included, but more
+information is needed.
+The function writes a C++ source file,
+containing a module definition to expose the class to
+<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>, plus one line of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> source to create the corresponding reference
+class.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+exposeClass(class, constructors = , fields = , methods = , file = ,
+    header = , module = , CppClass = class, readOnly = , rename = ,
+    Rfile = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>class</code></td>
+<td>
+
+<p>The name of the class in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.  By default, this will be the same as the
+name of the class in C++, unless argument <code>CppClass</code> is supplied.
+</p>
+</td></tr>
+<tr valign="top"><td><code>constructors</code></td>
+<td>
+
+<p>A list of the signatures for any of the class constructors to be
+called from <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.  Each element of the list gives the data types in C++
+for the arguments to the corresponding constructor.  See Details and
+the example.
+</p>
+</td></tr>
+<tr valign="top"><td><code>fields, methods</code></td>
+<td>
+
+<p>The vector of names for the fields and for the methods to be exposed
+in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.  For inherited fields and methods, type information needs to be
+supplied; see the section &ldquo;Inherited Fields and Methods&rdquo;.
+</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+
+<p>Usually, the name for the file on which to write the C++ code,  by default
+<code>paste0(CppClass, "Module.cpp")</code>.
+If the current working directory in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> is the top-level
+directory for a package, the function writes the file in the
+<code>"src"</code> subdirectory.
+Otherwise the file is written in the working directory.
+</p>
+<p>The argument may also be a connection, already open for writing.
+</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+
+<p>Whatever lines of C++ header information are needed to include the
+definition of the class.  Typically this includes a file from the
+package where we are writing the module definition, as in the example below.
+</p>
+</td></tr>
+<tr valign="top"><td><code>module</code></td>
+<td>
+
+<p>The name for the Rcpp module,   by default
+<code>paste0("class_",CppClass)</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>CppClass</code></td>
+<td>
+
+<p>The name for the class in C++.  By default and usually, the intended
+class name in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>readOnly</code></td>
+<td>
+
+<p>Optional vector of field names.  These fields will be created as
+read-only in the interface.
+</p>
+</td></tr>
+<tr valign="top"><td><code>rename</code></td>
+<td>
+
+<p>Optional named character vector, used to name fields or methods
+differently in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> from their C++ name.  The elements of the vector are
+the C++ names and the corresponding elements of <code>names(rename)</code>
+the desired names in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.  So <code>c(.age = "age")</code> renames the C++
+field or method <code>age</code> as <code>.age</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>Rfile</code></td>
+<td>
+
+<p>Controls the writing of a one-line <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> command to create the reference
+class corresponding to the C++ module information.  By default, this
+will be a file <code>paste0(class, "Class.R")</code>.
+If the working directory is an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package source
+directory, the file will be written in the <code>R</code> subdirectory, otherwise in the working directory itself.
+</p>
+<p>Supplying a character string substitutes that file name for the
+default.
+</p>
+<p>The argument may also be a connection  open for
+writing or <code>FALSE</code> to suppress writing the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> source altogether.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The file created by the call to these functions only depends on the
+information in the C++ class supplied.  This file is intended to be
+part of the C++ source for an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package.  The file only needs to
+modified when the information changes, either because the class has
+changed or because you want to expose different information to <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.  In
+that case you can either recall <code>exposeClass()</code> or edit the C++
+file created.
+</p>
+<p>The Rcpp Module mechanism has a number of other optional techniques,
+not covered by <code>exposeClass()</code>.  These should be entered into the
+C++ file created.  See the &ldquo;rcpp-modules&rdquo; vignette with the
+package for current possibilities.
+</p>
+<p>For fields and methods specified directly in the C++ class,
+the fields and method arguments to <code>exposeClass()</code> are character vectors naming the
+corresponding members of the class.  For module construction, the
+data types of directly specified fields and of the arguments for the methods are not
+needed.
+</p>
+<p>For <em>inherited</em> fields or methods, data type information is
+needed.  See the section &ldquo;Inherited Fields and Methods&rdquo;.
+</p>
+<p>For exposing class constructors, the module needs to know the
+signatures of the constructors to be exposed; each signature is a
+character vector of the corresponding C++ data types.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Nothing, called for its side effect.
+</p>
+
+
+<h3>Inherited Fields and Methods</h3>
+
+<p>If the C++ class inherits from one or more other classes, the standard
+Rcpp <code>Module</code> mechanism can not be used to expose inherited
+fields or methods.
+An indirect mechanism is used, generating free functions in C++ to
+expose the inherited members in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>.
+</p>
+<p>This mechanism requires data type information in the call to
+<code>exposeClass()</code>.
+This is provided by naming the corresponding element of the
+<code>fields</code> or <code>methods</code> argument with the name of the member.
+The actual element of the <code>fields</code> argument is then the single
+data type of the field.
+</p>
+<p>For the <code>methods</code> argument the argument will generally need to be
+a named list.
+The corresponding element of the list is the vector of data types for
+the return value and for the arguments, if any, to the method.
+For example, if C++ method <code>foo()</code> took a single argument of type
+<code>NumericVector</code> and returned a value of type <code>long</code>, the
+<code>methods</code> argument would be <code>list(foo = c("long",
+  "NumericVector"))</code>.
+</p>
+<p>See the second example below.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>John Chambers
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="setRcppClass.html">setRcppClass</a></code>, which must be called from some <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> source
+in the package.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+### Given the following C++ class, defined in file PopBD.h,
+### the call to exposeClass() shown below will write a file
+### src/PopBDModule.cpp containing a corresponding module definition.
+###   class PopBD {
+###     public:
+###       PopBD(void);
+###       PopBD(NumericVector initBirth, NumericVector initDeath);
+###   
+###       std::vector&lt;double&gt; birth;
+###       std::vector&lt;double&gt; death;
+###       std::vector&lt;int&gt; lineage;
+###       std::vector&lt;long&gt; size;
+###       void evolve(int);
+###   
+###   };
+### A file R/PopBDClass.R will be written containing the one line:
+###   PopBD &lt;- setRcppClass("PopBD")
+###
+### The call below exposes the lineage and size fields, read-only,
+### and the evolve() method.
+
+exposeClass("PopBD",
+      constructors =
+        list("", c("NumericVector", "NumericVector")),
+      fields = c("lineage", "size"),
+      methods = "evolve",
+      header = '#include "PopBD.h"',
+      readOnly = c("lineage", "size"))
+
+### Example with inheritance:  the class PopCount inherits from 
+### the previous class, and adds a method table().  It has the same
+### constructors as the previous class.
+### To expose the table() method, and the inherited evolve() method and size field:
+
+exposeClass("PopCount",
+      constructors =
+        list("", c("NumericVector", "NumericVector")),
+      fields = c(size = "std::vector&lt;long&gt;"),
+      methods = list("table", evolve = c("void", "int")),
+      header = '#include "PopCount.h"',
+      readOnly = "size")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

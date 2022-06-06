@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bin and summarise in 2d (rectangle &amp; hexagons)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stat_summary_2d {ggplot2}"><tr><td>stat_summary_2d {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bin and summarise in 2d (rectangle &amp; hexagons)</h2>
+
+<h3>Description</h3>
+
+<p><code>stat_summary_2d()</code> is a 2d variation of <code><a href="stat_summary.html">stat_summary()</a></code>.
+<code>stat_summary_hex()</code> is a hexagonal variation of
+<code><a href="stat_summary_2d.html">stat_summary_2d()</a></code>. The data are divided into bins defined
+by <code>x</code> and <code>y</code>, and then the values of <code>z</code> in each cell is
+are summarised with <code>fun</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stat_summary_2d(
+  mapping = NULL,
+  data = NULL,
+  geom = "tile",
+  position = "identity",
+  ...,
+  bins = 30,
+  binwidth = NULL,
+  drop = TRUE,
+  fun = "mean",
+  fun.args = list(),
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+
+stat_summary_hex(
+  mapping = NULL,
+  data = NULL,
+  geom = "hex",
+  position = "identity",
+  ...,
+  bins = 30,
+  binwidth = NULL,
+  drop = TRUE,
+  fun = "mean",
+  fun.args = list(),
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>geom</code></td>
+<td>
+<p>The geometric object to use display the data</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>bins</code></td>
+<td>
+<p>numeric vector giving number of bins in both vertical and
+horizontal directions. Set to 30 by default.</p>
+</td></tr>
+<tr valign="top"><td><code>binwidth</code></td>
+<td>
+<p>Numeric vector giving bin width in both vertical and
+horizontal directions. Overrides <code>bins</code> if both set.</p>
+</td></tr>
+<tr valign="top"><td><code>drop</code></td>
+<td>
+<p>drop if the output of <code>fun</code> is <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>function for summary.</p>
+</td></tr>
+<tr valign="top"><td><code>fun.args</code></td>
+<td>
+<p>A list of extra arguments to pass to <code>fun</code></p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Aesthetics</h3>
+
+
+<ul>
+<li> <p><code>x</code>: horizontal position
+</p>
+</li>
+<li> <p><code>y</code>: vertical position
+</p>
+</li>
+<li> <p><code>z</code>: value passed to the summary function
+</p>
+</li></ul>
+
+
+
+<h3>Computed variables</h3>
+
+
+<dl>
+<dt>x,y</dt><dd><p>Location</p>
+</dd>
+<dt>value</dt><dd><p>Value of summary statistic.</p>
+</dd>
+</dl>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="stat_summary_2d.html">stat_summary_hex()</a></code> for hexagonal summarization.
+<code><a href="geom_bin_2d.html">stat_bin2d()</a></code> for the binning options.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+d &lt;- ggplot(diamonds, aes(carat, depth, z = price))
+d + stat_summary_2d()
+
+# Specifying function
+d + stat_summary_2d(fun = function(x) sum(x^2))
+d + stat_summary_2d(fun = ~ sum(.x^2))
+d + stat_summary_2d(fun = var)
+d + stat_summary_2d(fun = "quantile", fun.args = list(probs = 0.1))
+
+if (requireNamespace("hexbin")) {
+d + stat_summary_hex()
+d + stat_summary_hex(fun = ~ sum(.x^2))
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

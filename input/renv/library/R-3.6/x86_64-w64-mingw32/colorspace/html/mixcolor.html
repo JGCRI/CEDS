@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute the Convex Combination of Two Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mixcolor {colorspace}"><tr><td>mixcolor {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute the Convex Combination of Two Colors</h2>
+
+<h3>Description</h3>
+
+<p>This function can be used to compute the result of color mixing (it assumes
+additive mixing).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+mixcolor(alpha, color1, color2, where = class(color1))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>The mixed color is obtained by combining an amount
+<code>1 - alpha</code> of <code>color1</code> with an amount <code>alpha</code> of
+<code>color2</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>color1</code></td>
+<td>
+<p>The first color.</p>
+</td></tr>
+<tr valign="top"><td><code>color2</code></td>
+<td>
+<p>The second color.</p>
+</td></tr>
+<tr valign="top"><td><code>where</code></td>
+<td>
+<p>The color space where the mixing is to take place.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The mixed color.  This is in the color space specified by
+<code>where</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="RGB.html">RGB</a></code>, <code><a href="HSV.html">HSV</a></code>, <code><a href="XYZ.html">XYZ</a></code>,
+<code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>, <code><a href="LUV.html">LUV</a></code>,
+<code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+mixcolor(0.5, RGB(1, 0, 0), RGB(0, 1, 0))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

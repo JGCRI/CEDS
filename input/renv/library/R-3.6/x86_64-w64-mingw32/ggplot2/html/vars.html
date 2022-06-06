@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Quote faceting variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vars {ggplot2}"><tr><td>vars {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Quote faceting variables</h2>
+
+<h3>Description</h3>
+
+<p>Just like <code><a href="aes.html">aes()</a></code>, <code>vars()</code> is a <a href="../../rlang/html/nse-defuse.html">quoting function</a>
+that takes inputs to be evaluated in the context of a dataset.
+These inputs can be:
+</p>
+
+<ul>
+<li><p> variable names
+</p>
+</li>
+<li><p> complex expressions
+</p>
+</li></ul>
+
+<p>In both cases, the results (the vectors that the variable
+represents or the results of the expressions) are used to form
+faceting groups.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vars(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Variables or expressions automatically quoted. These are
+evaluated in the context of the data to form faceting groups. Can
+be named (the names are passed to a <a href="labellers.html">labeller</a>).</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="aes.html">aes()</a></code>, <code><a href="facet_wrap.html">facet_wrap()</a></code>, <code><a href="facet_grid.html">facet_grid()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(wt, disp)) + geom_point()
+p + facet_wrap(vars(vs, am))
+
+# vars() makes it easy to pass variables from wrapper functions:
+wrap_by &lt;- function(...) {
+  facet_wrap(vars(...), labeller = label_both)
+}
+p + wrap_by(vs)
+p + wrap_by(vs, am)
+
+# You can also supply expressions to vars(). In this case it's often a
+# good idea to supply a name as well:
+p + wrap_by(drat = cut_number(drat, 3))
+
+# Let's create another function for cutting and wrapping a
+# variable. This time it will take a named argument instead of dots,
+# so we'll have to use the "enquote and unquote" pattern:
+wrap_cut &lt;- function(var, n = 3) {
+  # Let's enquote the named argument `var` to make it auto-quoting:
+  var &lt;- enquo(var)
+
+  # `as_label()` will create a nice default name:
+  nm &lt;- as_label(var)
+
+  # Now let's unquote everything at the right place. Note that we also
+  # unquote `n` just in case the data frame has a column named
+  # `n`. The latter would have precedence over our local variable
+  # because the data is always masking the environment.
+  wrap_by(!!nm := cut_number(!!var, !!n))
+}
+
+# Thanks to tidy eval idioms we now have another useful wrapper:
+p + wrap_cut(drat)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

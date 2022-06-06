@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set operations</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for setops {dplyr}"><tr><td>setops {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set operations</h2>
+
+<h3>Description</h3>
+
+<p>These functions override the set functions provided in base to make them
+generic so that efficient versions for data frames and other tables can be
+provided. The default methods call the base versions. Beware that
+<code>intersect()</code>, <code>union()</code> and <code>setdiff()</code> remove duplicates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+union_all(x, y, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>objects to perform set function on (ignoring order)</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other arguments passed on to methods</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+mtcars$model &lt;- rownames(mtcars)
+first &lt;- mtcars[1:20, ]
+second &lt;- mtcars[10:32, ]
+
+intersect(first, second)
+union(first, second)
+setdiff(first, second)
+setdiff(second, first)
+
+union_all(first, second)
+setequal(mtcars, mtcars[32:1, ])
+
+# Handling of duplicates:
+a &lt;- data.frame(column = c(1:10, 10))
+b &lt;- data.frame(column = c(1:5, 5))
+
+# intersection is 1 to 5, duplicates removed (5)
+intersect(a, b)
+
+# union is 1 to 10, duplicates removed (5 and 10)
+union(a, b)
+
+# set difference, duplicates removed (10)
+setdiff(a, b)
+
+# union all does not remove duplicates
+union_all(a, b)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

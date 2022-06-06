@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List Known Character Encodings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_list {stringi}"><tr><td>stri_enc_list {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List Known Character Encodings</h2>
+
+<h3>Description</h3>
+
+<p>Gives the list of encodings that are supported by <span class="pkg">ICU</span>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_list(simplify = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>simplify</code></td>
+<td>
+<p>single logical value; return a character vector or a
+list of character vectors?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Apart from given encoding identifiers and their aliases,
+some other specifiers might additionally be available.
+This is due to the fact that <span class="pkg">ICU</span> tries to normalize
+converter names. For instance, <code>'UTF8'</code> is also valid,
+see <a href="about_encoding.html">stringi-encoding</a> for more information.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>simplify</code> is <code>FALSE</code>, a list of
+character vectors is returned. Each list element represents a unique
+character encoding. The <code>name</code> attribute gives the <span class="pkg">ICU</span> Canonical
+Name of an encoding family. The elements (character vectors) are
+its aliases.
+</p>
+<p>If <code>simplify</code> is <code>TRUE</code> (the default), then the resulting list
+is coerced to a character vector and sorted, and returned with
+removed duplicated entries.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_management: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_info.html">stri_enc_info</a>()</code>,
+<code><a href="stri_enc_mark.html">stri_enc_mark</a>()</code>,
+<code><a href="stri_enc_set.html">stri_enc_set</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_enc_list()
+stri_enc_list(FALSE)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

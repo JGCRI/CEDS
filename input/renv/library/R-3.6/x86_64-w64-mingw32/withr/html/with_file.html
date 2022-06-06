@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Files which delete themselves</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_file {withr}"><tr><td>with_file {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Files which delete themselves</h2>
+
+<h3>Description</h3>
+
+<p>Create files, which are then automatically removed afterwards.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_file(file, code)
+
+local_file(.file, ..., .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file, .file</code></td>
+<td>
+<p><code style="white-space: pre;">[named list]</code><br /> Files to create.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional (possibly named) arguments of files to create.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+with_file("file1", {
+  writeLines("foo", "file1")
+  readLines("file1")
+})
+
+with_file(list("file1" = writeLines("foo", "file1")), {
+  readLines("file1")
+})
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Verify output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for verify_output {testthat}"><tr><td>verify_output {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Verify output</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p>This function is superseded in favour of <code>expect_snapshot()</code> and friends.
+</p>
+<p>This is a regression test that records interwoven code and output into a
+file, in a similar way to knitting an <code>.Rmd</code> file (but see caveats below).
+</p>
+<p><code>verify_output()</code> is designed particularly for testing print methods and error
+messages, where the primary goal is to ensure that the output is helpful to
+a human. Obviously, you can't test that with code, so the best you can do is
+make the results explicit by saving them to a text file. This makes the output
+easy to verify in code reviews, and ensures that you don't change the output
+by accident.
+</p>
+<p><code>verify_output()</code> is designed to be used with git: to see what has changed
+from the previous run, you'll need to use <code style="white-space: pre;">git diff</code> or similar.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+verify_output(
+  path,
+  code,
+  width = 80,
+  crayon = FALSE,
+  unicode = FALSE,
+  env = caller_env()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to record results.
+</p>
+<p>This should usually be a call to <code><a href="test_path.html">test_path()</a></code> in order to ensure that
+the same path is used when run interactively (when the working directory
+is typically the project root), and when run as an automated test (when
+the working directory will be <code>tests/testthat</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to execute. This will usually be a multiline expression
+contained within <code>{}</code> (similarly to <code>test_that()</code> calls).</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of console output</p>
+</td></tr>
+<tr valign="top"><td><code>crayon</code></td>
+<td>
+<p>Enable crayon package colouring?</p>
+</td></tr>
+<tr valign="top"><td><code>unicode</code></td>
+<td>
+<p>Enable cli package UTF-8 symbols? If you set this to
+<code>TRUE</code>, call <code>skip_if(!cli::is_utf8_output())</code> to disable the
+test on your CI platforms that don't support UTF-8 (e.g. Windows).</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The environment to evaluate <code>code</code> in.</p>
+</td></tr>
+</table>
+
+
+<h3>Syntax</h3>
+
+<p><code>verify_output()</code> can only capture the abstract syntax tree, losing all
+whitespace and comments. To mildly offset this limitation:
+</p>
+
+<ul>
+<li><p> Strings are converted to R comments in the output.
+</p>
+</li>
+<li><p> Strings starting with <code style="white-space: pre;"># </code> are converted to headers in the output.
+</p>
+</li></ul>
+
+
+
+<h3>CRAN</h3>
+
+<p>On CRAN, <code>verify_output()</code> will never fail, even if the output changes.
+This avoids false positives because tests of print methods and error
+messages are often fragile due to implicit dependencies on other packages,
+and failure does not imply incorrect computation, just a change in
+presentation.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

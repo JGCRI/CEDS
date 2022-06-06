@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a table in HTML with support for paging rows and...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for paged_table {rmarkdown}"><tr><td>paged_table {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a table in HTML with support for paging rows and columns</h2>
+
+<h3>Description</h3>
+
+<p>Create a table in HTML with support for paging rows and columns
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+paged_table(x, options = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a data frame to be rendered as a paged table.</p>
+</td></tr>
+<tr valign="top"><td><code>options</code></td>
+<td>
+<p>options for printing the paged table. See details for specifics.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Below are the recognized table pagination options.
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: right;">
+Option </td><td style="text-align: left;"> Description </td><td style="text-align: left;"> Default </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>max.print</code> </td><td style="text-align: left;"> The number of rows to print. </td><td style="text-align: left;"> 1000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>sql.max.print</code> </td><td style="text-align: left;"> The number of rows to print from a SQL data table. </td><td style="text-align: left;"> 1000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>rows.print</code> </td><td style="text-align: left;"> The number of rows to display. </td><td style="text-align: left;"> 10 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>cols.print</code> </td><td style="text-align: left;"> The number of columns to display. </td><td style="text-align: left;"> 10 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>cols.min.print</code> </td><td style="text-align: left;"> The minimum number of columns to display. </td><td style="text-align: left;"> - </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>pages.print</code> </td><td style="text-align: left;"> The number of pages to display under page navigation. </td><td style="text-align: left;"> - </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>paged.print</code> </td><td style="text-align: left;"> When set to FALSE turns off paged tables. </td><td style="text-align: left;"> TRUE </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+<code>rownames.print</code> </td><td style="text-align: left;"> When set to FALSE turns off row names. </td><td style="text-align: left;"> TRUE
+</td>
+</tr>
+
+</table>
+
+<p><b>Note:</b> There is a hard cap of 10,000 rows to ensure that pandoc will not
+fail when rendering the document.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

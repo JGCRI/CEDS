@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Package options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tibble_options {tibble}"><tr><td>tibble_options {tibble}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Package options</h2>
+
+<h3>Description</h3>
+
+<p>Options that affect interactive display.
+See <a href="../../pillar/html/pillar_options.html">pillar::pillar_options</a> for options that affect display on the console,
+and <code><a href="../../cli/html/num_ansi_colors.html">cli::num_ansi_colors()</a></code> for enabling and disabling colored output
+via ANSI sequences like <code style="white-space: pre;">[3m[38;5;246m[39m[23m</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tibble_options
+</pre>
+
+
+<h3>Details</h3>
+
+<p>These options can be set via <code><a href="../../base/html/options.html">options()</a></code> and queried via <code><a href="../../base/html/options.html">getOption()</a></code>.
+For this, add a <code>tibble.</code> prefix (the package name and a dot) to the option name.
+Example: for an option <code>foo</code>, use <code>options(tibble.foo = value)</code> to set it
+and <code>getOption("tibble.foo")</code> to retrieve the current value.
+An option value of <code>NULL</code> means that the default is used.
+</p>
+
+
+<h3>Options for the tibble package</h3>
+
+
+<ul>
+<li> <p><code>view_max</code>: Maximum number of rows shown by <code><a href="view.html">view()</a></code>
+if the input is not a data frame, passed on to <code><a href="../../utils/html/head.html">head()</a></code>. Default: <code>1000</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# Default setting:
+getOption("tibble.view_max")
+
+# Change for the duration of the session:
+old &lt;- options(tibble.view_max = 100)
+
+# view() would show only 100 rows e.g. for a lazy data frame
+
+# Change back to the original value:
+options(old)
+
+# Local scope:
+local({
+  rlang::local_options(tibble.view_max = 100)
+  # view() would show only 100 rows e.g. for a lazy data frame
+})
+# view() would show the default 1000 rows e.g. for a lazy data frame
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tibble</em> version 3.1.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

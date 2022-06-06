@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read the value of a symbolic link</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for link_path {fs}"><tr><td>link_path {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read the value of a symbolic link</h2>
+
+<h3>Description</h3>
+
+<p>Read the value of a symbolic link
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+link_path(path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tidy path to the object the link points to.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+file_create("foo")
+link_create(path_abs("foo"), "bar")
+link_path("bar")
+
+# Cleanup
+file_delete(c("foo", "bar"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

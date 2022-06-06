@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Adjust or Extract Transparency of Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for adjust_transparency {colorspace}"><tr><td>adjust_transparency {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Adjust or Extract Transparency of Colors</h2>
+
+<h3>Description</h3>
+
+<p>Adjust (i.e., add, remove, or modify) or extract alpha transparency of a vector of colors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+adjust_transparency(col, alpha = TRUE)
+
+extract_transparency(col, mode = "numeric", default = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>vector of R colors. Can be any of the three kinds of R colors,
+i.e., either a color name (an element of
+<code><a href="../../grDevices/html/colors.html">colors</a></code>), a hexadecimal (hex) string of the form
+<code>"#rrggbb"</code> or <code>"#rrggbbaa"</code> (see <code><a href="../../grDevices/html/rgb.html">rgb</a></code>), or
+an integer <code>i</code> meaning <code>palette()[i]</code>. Additionally, <code>col</code> can be
+a formal <code><a href="color-class.html">color-class</a></code> object or a matrix with three
+rows containing R/G/B (0-255) values.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>either a new alpha transparency value or logical (to add/remove alpha)
+or <code>NULL</code>. See details.</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>character specifying the output mode for the alpha transparency, can be
+<code>"numeric"</code>, <code>"integer"</code>, <code>"character"</code> or <code>"hexmode"</code>. See details.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>vector of length 1 specifying the default alpha transparency that should
+be returned for colors that do not specify any explicitly (defaulting to fully opaque).
+Can either be numeric, integer, character, or hexmode.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Alpha transparency is useful for making colors semi-transparent, e.g., for
+overlaying different elements in graphics. An alpha value of 0 (or 00 in hex strings)
+corresponds to fully transparent and an alpha value of 1 (or FF in hex strings)
+corresponds to fully opaque. If a color hex string in R does not provide an explicit
+alpha transparency, the color is assumed to be fully opaque.
+</p>
+<p>The <code>adjust_transparency</code> function can be used to adjust the alpha transparency
+of a set of colors. It always returns a hex color specification. This hex color
+can have the alpha transparency added/removed/modified depending on the
+specification of <code>alpha</code>: </p>
+
+<ul>
+<li> <p><code>alpha = NULL</code>: Returns a hex vector with alpha transparency only if needed.
+Thus, it keeps the alpha transparency for the colors (if any) but only if
+different from opaque.
+</p>
+</li>
+<li> <p><code>alpha = TRUE</code>: Returns a hex vector with alpha transparency
+for all colors, using opaque (FF) as the default if missing.
+</p>
+</li>
+<li> <p><code>alpha = FALSE</code>: Returns a hex vector without alpha transparency for
+all colors (even if the original colors had non-opaque alpha).
+</p>
+</li>
+<li> <p><code>alpha</code> numeric: Returns a hex vector with alpha transparency for
+all colors set to the <code>alpha</code> argument (recycled if necessary).
+</p>
+</li></ul>
+
+<p>The <code>extract_transparency</code> function can be used to extract the alpha transparency
+from a set of colors. It allows to specify the <code>default</code> value - that should be used
+for colors without an explicit alpha transparency (defaulting to fully opaque) - and
+<code>mode</code> of the return value. This can either be numeric (in [0, 1]), integer
+(0L, 1L, ..., 255L), character (&ldquo;00&rdquo;, &ldquo;01&rdquo;, ..., &ldquo;FF&rdquo;),
+or an object of class <code><a href="../../base/html/hexmode.html">hexmode</a></code> (internally represented as integer
+with printing as character). The <code>default</code> can use any of these modes as well
+(independent of the output <code>mode</code>) or be <code>NA</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>adjust_transparency</code> character vector with hexadecimal color strings with alpha transparency
+corresponding to <code>alpha</code> argument. For <code>extract_transparency</code> a vector of
+alpha transparency values with the indicated <code>mode</code>.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../grDevices/html/rgb.html">rgb</a></code>, <code><a href="desaturate.html">desaturate</a></code>, <code><a href="lighten.html">lighten</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## modify transparency of a color (in different formats)
+adjust_transparency("black",   alpha = c(0, 0.5, 1)) ## name
+adjust_transparency("#000000", alpha = c(0, 0.5, 1)) ## hex string
+adjust_transparency(1,         alpha = c(0, 0.5, 1)) ## palette() integer
+
+## three shades of gray (in different formats:
+## name/opaque, hex/opaque, hex/semi-transparent)
+x &lt;- c("gray", "#BEBEBE", "#BEBEBE80")
+
+## adjust transparency
+adjust_transparency(x, alpha = NULL)  ## only if necessary
+adjust_transparency(x, alpha = TRUE)  ## add
+adjust_transparency(x, alpha = FALSE) ## remove
+adjust_transparency(x, alpha = 0.8)   ## modify
+
+## extract transparency in different formats
+extract_transparency(x, mode = "numeric") ## default
+extract_transparency(x, mode = "integer")
+extract_transparency(x, mode = "character")
+extract_transparency(x, mode = "hexmode")
+
+## extract transparency with different default values
+extract_transparency(x, default = NA)
+extract_transparency(x, default = 0.5)
+extract_transparency(x, default = 128L)
+extract_transparency(x, default = "80", mode = "integer")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

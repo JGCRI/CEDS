@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set worksheet column widths</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for setColWidths {openxlsx}"><tr><td>setColWidths {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set worksheet column widths</h2>
+
+<h3>Description</h3>
+
+<p>Set worksheet column widths to specific width or &quot;auto&quot;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+setColWidths(
+  wb,
+  sheet,
+  cols,
+  widths = 8.43,
+  hidden = rep(FALSE, length(cols)),
+  ignoreMergedCells = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Indices of cols to set width</p>
+</td></tr>
+<tr valign="top"><td><code>widths</code></td>
+<td>
+<p>widths to set cols to specified in Excel column width units or &quot;auto&quot; for automatic sizing. The widths argument is
+recycled to the length of cols.</p>
+</td></tr>
+<tr valign="top"><td><code>hidden</code></td>
+<td>
+<p>Logical vector. If TRUE the column is hidden.</p>
+</td></tr>
+<tr valign="top"><td><code>ignoreMergedCells</code></td>
+<td>
+<p>Ignore any cells that have been merged with other cells in the calculation of &quot;auto&quot; column widths.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The global min and max column width for &quot;auto&quot; columns is set by (default values show):
+</p>
+
+<ul>
+<li><p>options(&quot;openxlsx.minWidth&quot; = 3)
+</p>
+</li>
+<li><p>options(&quot;openxlsx.maxWidth&quot; = 250) ## This is the maximum width allowed in Excel
+</p>
+</li></ul>
+
+<p>NOTE: The calculation of column widths can be slow for large worksheets.
+</p>
+<p>NOTE: The <code>hidden</code> parameter may conflict with the one set in <code>groupColumns</code>; changing one will update the other.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="removeColWidths.html">removeColWidths()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook()
+
+## Add a worksheet
+addWorksheet(wb, "Sheet 1")
+
+
+## set col widths
+setColWidths(wb, 1, cols = c(1, 4, 6, 7, 9), widths = c(16, 15, 12, 18, 33))
+
+## auto columns
+addWorksheet(wb, "Sheet 2")
+writeData(wb, sheet = 2, x = iris)
+setColWidths(wb, sheet = 2, cols = 1:5, widths = "auto")
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "setColWidthsExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

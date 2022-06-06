@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Continuous and binned colour scales</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for scale_colour_continuous {ggplot2}"><tr><td>scale_colour_continuous {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Continuous and binned colour scales</h2>
+
+<h3>Description</h3>
+
+<p>The scales <code>scale_colour_continuous()</code> and <code>scale_fill_continuous()</code> are
+the default colour scales ggplot2 uses when continuous data values are
+mapped onto the <code>colour</code> or <code>fill</code> aesthetics, respectively. The scales
+<code>scale_colour_binned()</code> and <code>scale_fill_binned()</code> are equivalent scale
+functions that assign discrete color bins to the continuous values
+instead of using a continuous color spectrum.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+scale_colour_continuous(..., type = getOption("ggplot2.continuous.colour"))
+
+scale_fill_continuous(..., type = getOption("ggplot2.continuous.fill"))
+
+scale_colour_binned(..., type = getOption("ggplot2.binned.colour"))
+
+scale_fill_binned(..., type = getOption("ggplot2.binned.fill"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters passed on to the scale type</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>One of the following:
+</p>
+
+<ul>
+<li><p> &quot;gradient&quot; (the default)
+</p>
+</li>
+<li><p> &quot;viridis&quot;
+</p>
+</li>
+<li><p> A function that returns a continuous colour scale.
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>All these colour scales use the <code><a href="../../base/html/options.html">options()</a></code> mechanism to determine
+default settings. Continuous colour scales default to the values of the
+<code>ggplot2.continuous.colour</code> and <code>ggplot2.continuous.fill</code> options, and
+binned colour scales default to the values of the <code>ggplot2.binned.colour</code>
+and <code>ggplot2.binned.fill</code> options. These option values default to
+<code>"gradient"</code>, which means that the scale functions actually used are
+<code><a href="scale_gradient.html">scale_colour_gradient()</a></code>/<code><a href="scale_gradient.html">scale_fill_gradient()</a></code> for continuous scales and
+<code><a href="scale_steps.html">scale_colour_steps()</a></code>/<code><a href="scale_steps.html">scale_fill_steps()</a></code> for binned scales.
+Alternative option values are <code>"viridis"</code> or a different scale function.
+See description of the <code>type</code> argument for details.
+</p>
+<p>Note that the binned colour scales will use the settings of
+<code>ggplot2.continuous.colour</code> and <code>ggplot2.continuous.fill</code> as fallback,
+respectively, if <code>ggplot2.binned.colour</code> or <code>ggplot2.binned.fill</code> are
+not set.
+</p>
+<p>These scale functions are meant to provide simple defaults. If
+you want to manually set the colors of a scale, consider using
+<code><a href="scale_gradient.html">scale_colour_gradient()</a></code> or <code><a href="scale_steps.html">scale_colour_steps()</a></code>.
+</p>
+
+
+<h3>Color Blindness</h3>
+
+<p>Many color palettes derived from RGB combinations (like the &quot;rainbow&quot; color
+palette) are not suitable to support all viewers, especially those with
+color vision deficiencies. Using <code>viridis</code> type, which is perceptually
+uniform in both colour and black-and-white display is an easy option to
+ensure good perceptive properties of your visulizations.
+The colorspace package offers functionalities
+</p>
+
+<ul>
+<li><p> to generate color palettes with good perceptive properties,
+</p>
+</li>
+<li><p> to analyse a given color palette, like emulating color blindness,
+</p>
+</li>
+<li><p> and to modify a given color palette for better perceptivity.
+</p>
+</li></ul>
+
+<p>For more information on color vision deficiencies and suitable color choices
+see the <a href="https://arxiv.org/abs/1903.06490">paper on the colorspace package</a>
+and references therein.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="scale_gradient.html">scale_colour_gradient()</a></code>, <code><a href="scale_viridis.html">scale_colour_viridis_c()</a></code>,
+<code><a href="scale_steps.html">scale_colour_steps()</a></code>, <code><a href="scale_viridis.html">scale_colour_viridis_b()</a></code>, <code><a href="scale_gradient.html">scale_fill_gradient()</a></code>,
+<code><a href="scale_viridis.html">scale_fill_viridis_c()</a></code>, <code><a href="scale_steps.html">scale_fill_steps()</a></code>, and <code><a href="scale_viridis.html">scale_fill_viridis_b()</a></code>
+</p>
+<p>Other colour scales: 
+<code><a href="scale_alpha.html">scale_alpha</a>()</code>,
+<code><a href="scale_brewer.html">scale_colour_brewer</a>()</code>,
+<code><a href="scale_gradient.html">scale_colour_gradient</a>()</code>,
+<code><a href="scale_grey.html">scale_colour_grey</a>()</code>,
+<code><a href="scale_hue.html">scale_colour_hue</a>()</code>,
+<code><a href="scale_steps.html">scale_colour_steps</a>()</code>,
+<code><a href="scale_viridis.html">scale_colour_viridis_d</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+v &lt;- ggplot(faithfuld, aes(waiting, eruptions, fill = density)) +
+geom_tile()
+v
+
+v + scale_fill_continuous(type = "gradient")
+v + scale_fill_continuous(type = "viridis")
+
+# The above are equivalent to
+v + scale_fill_gradient()
+v + scale_fill_viridis_c()
+
+# To make a binned version of this plot
+v + scale_fill_binned(type = "viridis")
+
+# Set a different default scale using the options
+# mechanism
+tmp &lt;- getOption("ggplot2.continuous.fill") # store current setting
+options(ggplot2.continuous.fill = scale_fill_distiller)
+v
+options(ggplot2.continuous.fill = tmp) # restore previous setting
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get Declared Encodings of Each String</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_mark {stringi}"><tr><td>stri_enc_mark {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get Declared Encodings of Each String</h2>
+
+<h3>Description</h3>
+
+<p>Reads declared encodings for each string in a character vector
+as seen by <span class="pkg">stringi</span>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_mark(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector
+or an object coercible to a character vector</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>According to <code><a href="../../base/html/Encoding.html">Encoding</a></code>,
+<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> has a simple encoding marking mechanism:
+strings can be declared to be in <code>latin1</code>,
+<code>UTF-8</code> or <code>bytes</code>.
+</p>
+<p>Moreover, we may check (via the R/C API) whether
+a string is in ASCII (<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> assumes that this holds if and only if
+all bytes in a string are not greater than 127,
+so there is an implicit assumption that your platform uses
+an encoding that extends ASCII)
+or in the system's default (a.k.a. <code>unknown</code> in <code><a href="../../base/html/Encoding.html">Encoding</a></code>)
+encoding.
+</p>
+<p>Intuitively, the default encoding should be equivalent to
+the one you use on <code>stdin</code> (e.g., your 'keyboard').
+In <span class="pkg">stringi</span> we assume that such an encoding
+is equivalent to the one returned by <code><a href="stri_enc_set.html">stri_enc_get</a></code>.
+It is automatically detected by <span class="pkg">ICU</span>
+to match &ndash; by default &ndash; the encoding part of the <code>LC_CTYPE</code> category
+as given by <code><a href="../../base/html/locales.html">Sys.getlocale</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector of the same length as <code>str</code>.
+Unlike in the <code><a href="../../base/html/Encoding.html">Encoding</a></code> function, here the possible encodings are:
+<code>ASCII</code>, <code>latin1</code>, <code>bytes</code>, <code>native</code>,
+and <code>UTF-8</code>. Additionally, missing values are handled properly.
+</p>
+<p>This gives exactly the same data that is used by
+all the functions in <span class="pkg">stringi</span> to re-encode their inputs.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_management: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_info.html">stri_enc_info</a>()</code>,
+<code><a href="stri_enc_list.html">stri_enc_list</a>()</code>,
+<code><a href="stri_enc_set.html">stri_enc_set</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

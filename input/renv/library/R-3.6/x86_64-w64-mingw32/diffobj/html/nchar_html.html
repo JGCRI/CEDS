@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count Text Characters in HTML</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nchar_html {diffobj}"><tr><td>nchar_html {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count Text Characters in HTML</h2>
+
+<h3>Description</h3>
+
+<p>Very simple implementation that will fail if there are any &ldquo;&gt;&rdquo; in the
+HTML that are not closing tags, and assumes that HTML entities are all one
+character wide.  Also, spaces are counted as one width each because the
+HTML output is intended to be displayed inside <code>&lt;PRE&gt;</code> tags.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nchar_html(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>unused for compatibility with internal use</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>integer(length(x)) with number of characters of each element
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+nchar_html("&lt;a href='http:www.domain.com'&gt;hello&lt;/a&gt;")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The building block of all 'expect_' functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect {testthat}"><tr><td>expect {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The building block of all <code>expect_</code> functions</h2>
+
+<h3>Description</h3>
+
+<p>Call <code>expect()</code> when writing your own expectations. See
+<code>vignette("custom-expectation")</code> for details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect(
+  ok,
+  failure_message,
+  info = NULL,
+  srcref = NULL,
+  trace = NULL,
+  trace_env = caller_env()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ok</code></td>
+<td>
+<p><code>TRUE</code> or <code>FALSE</code> indicating if the expectation was successful.</p>
+</td></tr>
+<tr valign="top"><td><code>failure_message</code></td>
+<td>
+<p>Message to show if the expectation failed.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Character vector continuing additional information. Included
+for backward compatibility only and new expectations should not use it.</p>
+</td></tr>
+<tr valign="top"><td><code>srcref</code></td>
+<td>
+<p>Location of the failure. Should only needed to be explicitly
+supplied when you need to forward a srcref captured elsewhere.</p>
+</td></tr>
+<tr valign="top"><td><code>trace</code></td>
+<td>
+<p>An optional backtrace created by <code><a href="../../rlang/html/trace_back.html">rlang::trace_back()</a></code>.
+When supplied, the expectation is displayed with the backtrace.</p>
+</td></tr>
+<tr valign="top"><td><code>trace_env</code></td>
+<td>
+<p>If <code>is.null(trace)</code>, this is used to automatically
+generate a traceback running from <code>test_code()</code>/<code>test_file()</code> to
+<code>trace_env</code>. You'll generally only need to set this if you're wrapping
+an expectation inside another function.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>While <code>expect()</code> creates and signals an expectation in one go,
+<code>exp_signal()</code> separately signals an expectation that you
+have manually created with <code><a href="expectation.html">new_expectation()</a></code>. Expectations are
+signalled with the following protocol:
+</p>
+
+<ul>
+<li><p> If the expectation is a failure or an error, it is signalled with
+<code><a href="../../base/html/stop.html">base::stop()</a></code>. Otherwise, it is signalled with
+<code><a href="../../base/html/conditions.html">base::signalCondition()</a></code>.
+</p>
+</li>
+<li><p> The <code>continue_test</code> restart is registered. When invoked, failing
+expectations are ignored and normal control flow is resumed to
+run the other tests.
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p>An expectation object. Signals the expectation condition
+with a <code>continue_test</code> restart.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="expectation.html">exp_signal()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Git Remotes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_remote {gert}"><tr><td>git_remote {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Git Remotes</h2>
+
+<h3>Description</h3>
+
+<p>List, add, configure, or remove remotes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_remote_list(repo = ".")
+
+git_remote_add(url, name = "origin", refspec = NULL, repo = ".")
+
+git_remote_remove(remote, repo = ".")
+
+git_remote_info(remote = NULL, repo = ".")
+
+git_remote_set_url(url, remote = NULL, repo = ".")
+
+git_remote_set_pushurl(url, remote = NULL, repo = ".")
+
+git_remote_refspecs(remote = NULL, repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>server url (https or ssh)</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>unique name for the new remote</p>
+</td></tr>
+<tr valign="top"><td><code>refspec</code></td>
+<td>
+<p>optional string with the remote fetch value</p>
+</td></tr>
+<tr valign="top"><td><code>remote</code></td>
+<td>
+<p>name of an existing remote. Default <code>NULL</code> means the remote
+from the upstream of the current branch.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

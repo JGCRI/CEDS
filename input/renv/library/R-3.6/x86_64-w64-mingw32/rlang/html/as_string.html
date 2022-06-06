@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cast symbol to string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_string {rlang}"><tr><td>as_string {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cast symbol to string</h2>
+
+<h3>Description</h3>
+
+<p><code>as_string()</code> converts <a href="sym.html">symbols</a> to character strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_string(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A string or symbol. If a string, the attributes are
+removed, if any.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of length 1.
+</p>
+
+
+<h3>Unicode tags</h3>
+
+<p>Unlike <code><a href="../../base/html/name.html">base::as.symbol()</a></code> and <code><a href="../../base/html/name.html">base::as.name()</a></code>, <code>as_string()</code>
+automatically transforms unicode tags such as <code>"&lt;U+5E78&gt;"</code> to the
+proper UTF-8 character. This is important on Windows because:
+</p>
+
+<ul>
+<li><p> R on Windows has no UTF-8 support, and uses native encoding instead.
+</p>
+</li>
+<li><p> The native encodings do not cover all Unicode characters. For
+example, Western encodings do not support CKJ characters.
+</p>
+</li>
+<li><p> When a lossy UTF-8 -&gt; native transformation occurs, uncovered
+characters are transformed to an ASCII unicode tag like <code>"&lt;U+5E78&gt;"</code>.
+</p>
+</li>
+<li><p> Symbols are always encoded in native. This means that
+transforming the column names of a data frame to symbols might be
+a lossy operation.
+</p>
+</li>
+<li><p> This operation is very common in the tidyverse because of data
+masking APIs like dplyr where data frames are transformed to
+environments. While the names of a data frame are stored as a
+character vector, the bindings of environments are stored as
+symbols.
+</p>
+</li></ul>
+
+<p>Because it reencodes the ASCII unicode tags to their UTF-8
+representation, the string -&gt; symbol -&gt; string roundtrip is
+more stable with <code>as_string()</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="as_name.html">as_name()</a></code> for a higher-level variant of <code>as_string()</code>
+that automatically unwraps quosures.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Let's create some symbols:
+foo &lt;- quote(foo)
+bar &lt;- sym("bar")
+
+# as_string() converts symbols to strings:
+foo
+as_string(foo)
+
+typeof(bar)
+typeof(as_string(bar))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Split a String Into Text Lines</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_split_lines {stringi}"><tr><td>stri_split_lines {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Split a String Into Text Lines</h2>
+
+<h3>Description</h3>
+
+<p>These functions split each character string in a given vector
+into text lines.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_split_lines(str, omit_empty = FALSE)
+
+stri_split_lines1(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector (<code>stri_split_lines</code>)
+or a single string (<code>stri_split_lines1</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>omit_empty</code></td>
+<td>
+<p>logical vector; determines whether empty
+strings should be removed from the result
+[<code>stri_split_lines</code> only]</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and <code>omit_empty</code>.
+</p>
+<p><code>omit_empty</code> is applied when splitting. If set to <code>TRUE</code>,
+then empty strings will never appear in the resulting vector.
+</p>
+<p>Newlines are represented with the Carriage Return
+(CR, 0x0D), Line Feed (LF, 0x0A), CRLF, or Next Line (NEL, 0x85) characters,
+depending on the platform.
+Moreover, the Unicode Standard defines two unambiguous separator characters,
+the Paragraph Separator (PS, 0x2029) and the Line Separator (LS, 0x2028).
+Sometimes also the Vertical Tab (VT, 0x0B) and the Form Feed (FF, 0x0C)
+are used for this purpose.
+</p>
+<p>These <span class="pkg">stringi</span> functions follow UTR#18 rules,
+where a newline sequence
+corresponds to the following regular expression:
+<code>(?:\u{D A}|(?!\u{D A})[\u{A}-\u{D}\u{85}\u{2028}\u{2029}]</code>.
+Each match serves as a text line separator.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>stri_split_lines</code> returns a list of character vectors.
+If any input string is <code>NA</code>, then the corresponding list element
+is a single <code>NA</code> string.
+</p>
+<p><code>stri_split_lines1(str)</code> is equivalent to
+<code>stri_split_lines(str[1])[[1]]</code> (with default parameters),
+therefore it returns a character vector. Moreover, if the input string
+ends with a newline sequence, the last empty string is omitted from the
+file's contents into text lines.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Unicode Newline Guidelines</em> &ndash; Unicode Technical Report #13,
+<a href="https://www.unicode.org/standard/reports/tr13/tr13-5.html">https://www.unicode.org/standard/reports/tr13/tr13-5.html</a>
+</p>
+<p><em>Unicode Regular Expressions</em> &ndash; Unicode Technical Standard #18,
+<a href="https://www.unicode.org/reports/tr18/">https://www.unicode.org/reports/tr18/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_split: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_split.html">stri_split</a>()</code>
+</p>
+<p>Other text_boundaries: 
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

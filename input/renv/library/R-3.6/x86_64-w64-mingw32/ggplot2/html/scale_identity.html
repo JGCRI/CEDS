@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use values without scaling</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for scale_identity {ggplot2}"><tr><td>scale_identity {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use values without scaling</h2>
+
+<h3>Description</h3>
+
+<p>Use this set of scales when your data has already been scaled, i.e. it
+already represents aesthetic values that ggplot2 can handle directly.
+These scales will not produce a legend unless you also supply the <code>breaks</code>,
+<code>labels</code>, and type of <code>guide</code> you want.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+scale_colour_identity(..., guide = "none", aesthetics = "colour")
+
+scale_fill_identity(..., guide = "none", aesthetics = "fill")
+
+scale_shape_identity(..., guide = "none")
+
+scale_linetype_identity(..., guide = "none")
+
+scale_alpha_identity(..., guide = "none")
+
+scale_size_identity(..., guide = "none")
+
+scale_discrete_identity(aesthetics, ..., guide = "none")
+
+scale_continuous_identity(aesthetics, ..., guide = "none")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="discrete_scale.html">discrete_scale()</a></code> or
+<code><a href="continuous_scale.html">continuous_scale()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>guide</code></td>
+<td>
+<p>Guide to use for this scale. Defaults to <code>"none"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>aesthetics</code></td>
+<td>
+<p>Character string or vector of character strings listing the
+name(s) of the aesthetic(s) that this scale works with. This can be useful, for
+example, to apply colour settings to the <code>colour</code> and <code>fill</code> aesthetics at the
+same time, via <code>aesthetics = c("colour", "fill")</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The functions <code>scale_colour_identity()</code>, <code>scale_fill_identity()</code>, <code>scale_size_identity()</code>,
+etc. work on the aesthetics specified in the scale name: <code>colour</code>, <code>fill</code>, <code>size</code>,
+etc. However, the functions <code>scale_colour_identity()</code> and <code>scale_fill_identity()</code> also
+have an optional <code>aesthetics</code> argument that can be used to define both <code>colour</code> and
+<code>fill</code> aesthetic mappings via a single function call. The functions
+<code>scale_discrete_identity()</code> and <code>scale_continuous_identity()</code> are generic scales that
+can work with any aesthetic or set of aesthetics provided via the <code>aesthetics</code>
+argument.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ggplot(luv_colours, aes(u, v)) +
+  geom_point(aes(colour = col), size = 3) +
+  scale_color_identity() +
+  coord_equal()
+
+df &lt;- data.frame(
+  x = 1:4,
+  y = 1:4,
+  colour = c("red", "green", "blue", "yellow")
+)
+ggplot(df, aes(x, y)) + geom_tile(aes(fill = colour))
+ggplot(df, aes(x, y)) +
+  geom_tile(aes(fill = colour)) +
+  scale_fill_identity()
+
+# To get a legend guide, specify guide = "legend"
+ggplot(df, aes(x, y)) +
+  geom_tile(aes(fill = colour)) +
+  scale_fill_identity(guide = "legend")
+# But you'll typically also need to supply breaks and labels:
+ggplot(df, aes(x, y)) +
+  geom_tile(aes(fill = colour)) +
+  scale_fill_identity("trt", labels = letters[1:4], breaks = df$colour,
+  guide = "legend")
+
+# cyl scaled to appropriate size
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point(aes(size = cyl))
+
+# cyl used as point size
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point(aes(size = cyl)) +
+  scale_size_identity()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

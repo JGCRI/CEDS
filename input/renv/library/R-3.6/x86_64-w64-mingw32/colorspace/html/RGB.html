@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create RGB Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for RGB {colorspace}"><tr><td>RGB {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create RGB Colors</h2>
+
+<h3>Description</h3>
+
+<p>This function creates colors of class RGB; a subclass of the virtual
+<code><a href="color-class.html">color-class</a></code> class.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+RGB(R, G, B, names)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>R, G, B</code></td>
+<td>
+<p>these arguments give the red, green and blue intensities of the
+colors (the values should lie between 0 and 1).  The values can be provided
+in separate <code>R</code>, <code>G</code> and <code>B</code> vectors or in a three-column
+matrix passed as <code>R</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>A vector of names for the colors (by default the row names of
+<code>R</code> are used).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function creates colors in the linearized sRGB color space (IEC
+standard 61966).
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code>RGB</code> which inherits from class <code>color</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="sRGB.html">sRGB</a></code>, <code><a href="HSV.html">HSV</a></code>, <code><a href="XYZ.html">XYZ</a></code>,
+<code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>, <code><a href="LUV.html">LUV</a></code>,
+<code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Create a random set of colors
+set.seed(1)
+RGB(R = runif(20), G = runif(20), B = runif(20))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

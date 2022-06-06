@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get or set the default Git branch</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git-default-branch {usethis}"><tr><td>git-default-branch {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get or set the default Git branch</h2>
+
+<h3>Description</h3>
+
+<p>The <code style="white-space: pre;">git_default_branch*()</code> functions put some structure around the somewhat
+fuzzy (but definitely real) concept of the default branch. In particular,
+they support new conventions around the Git default branch name, globally or
+in a specific project / Git repository.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_default_branch()
+
+git_default_branch_configure(name = "main")
+
+git_default_branch_rediscover(current_local_default = NULL)
+
+git_default_branch_rename(from = NULL, to = "main")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Default name for the initial branch in new Git repositories.</p>
+</td></tr>
+<tr valign="top"><td><code>current_local_default</code></td>
+<td>
+<p>Name of the local branch that is currently
+functioning as the default branch. If unspecified, this can often be
+inferred.</p>
+</td></tr>
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>Name of the branch that is currently functioning as the default
+branch.</p>
+</td></tr>
+<tr valign="top"><td><code>to</code></td>
+<td>
+<p>New name for the default branch.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Name of the default branch.
+</p>
+
+
+<h3>Background on the default branch</h3>
+
+<p>Technically, Git has no official concept of the default branch. But in
+reality, almost all Git repos have an <em>effective default branch</em>. If there's
+only one branch, this is it! It is the branch that most bug fixes and
+features get merged in to. It is the branch you see when you first visit a
+repo on a site such as GitHub. On a Git remote, it is the branch that <code>HEAD</code>
+points to.
+</p>
+<p>Historically, <code>master</code> has been the most common name for the default branch,
+but <code>main</code> is an increasingly popular choice.
+</p>
+
+
+<h3><code>git_default_branch_configure()</code></h3>
+
+<p>This configures <code>init.defaultBranch</code> at the global (a.k.a user) level. This
+setting determines the name of the branch that gets created when you make the
+first commit in a new Git repo. <code>init.defaultBranch</code> only affects the local
+Git repos you create in the future.
+</p>
+
+
+<h3><code>git_default_branch()</code></h3>
+
+<p>This figures out the default branch of the current Git repo, integrating
+information from the local repo and, if applicable, the <code>upstream</code> or
+<code>origin</code> remote. If there is a local vs. remote mismatch,
+<code>git_default_branch()</code> throws an error with advice to call
+<code>git_default_branch_rediscover()</code> to repair the situation.
+</p>
+<p>For a remote repo, the default branch is the branch that <code>HEAD</code> points to.
+</p>
+<p>For the local repo, if there is only one branch, that must be the default!
+Otherwise we try to identify the relevant local branch by looking for
+specific branch names, in this order:
+</p>
+
+<ul>
+<li><p> whatever the default branch of <code>upstream</code> or <code>origin</code> is, if applicable
+</p>
+</li>
+<li> <p><code>main</code>
+</p>
+</li>
+<li> <p><code>master</code>
+</p>
+</li>
+<li><p> the value of the Git option <code>init.defaultBranch</code>, with the usual deal where
+a local value, if present, takes precedence over a global (a.k.a.
+user-level) value
+</p>
+</li></ul>
+
+
+
+<h3><code>git_default_branch_rediscover()</code></h3>
+
+<p>This consults an external authority &ndash; specifically, the remote <strong>source
+repo</strong> on GitHub &ndash; to learn the default branch of the current project /
+repo. If that doesn't match the apparent local default branch (for example,
+the project switched from <code>master</code> to <code>main</code>), we do the corresponding branch
+renaming in your local repo and, if relevant, in your fork.
+</p>
+<p>See <a href="https://happygitwithr.com/common-remote-setups.html">https://happygitwithr.com/common-remote-setups.html</a> for more about
+GitHub remote configurations and, e.g., what we mean by the source repo. This
+function works for the configurations <code>"ours"</code>, <code>"fork"</code>, and <code>"theirs"</code>.
+</p>
+
+
+<h3><code>git_default_branch_rename()</code></h3>
+
+<p>Note: this only works for a repo that you effectively own. In terms of
+GitHub, you must own the <strong>source repo</strong> personally or, if
+organization-owned, you must have <code>admin</code> permission on the <strong>source repo</strong>.
+</p>
+<p>This renames the default branch in the <strong>source repo</strong> on GitHub and then
+calls <code>git_default_branch_rediscover()</code>, to make any necessary changes in the
+local repo and, if relevant, in your personal fork.
+</p>
+<p>See <a href="https://happygitwithr.com/common-remote-setups.html">https://happygitwithr.com/common-remote-setups.html</a> for more about
+GitHub remote configurations and, e.g., what we mean by the source repo. This
+function works for the configurations <code>"ours"</code>, <code>"fork"</code>, and <code>"no_github"</code>.
+</p>
+<p>Regarding <code>"no_github"</code>: Of course, this function does what you expect for a
+local repo with no GitHub remotes, but that is not the primary use case.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+git_default_branch()
+
+## End(Not run)
+## Not run: 
+git_default_branch_configure()
+
+## End(Not run)
+## Not run: 
+git_default_branch_rediscover()
+
+# you can always explicitly specify the local branch that's been playing the
+# role of the default
+git_default_branch_rediscover("unconventional_default_branch_name")
+
+## End(Not run)
+## Not run: 
+git_default_branch_rename()
+
+# you can always explicitly specify one or both branch names
+git_default_branch_rename(from = "this", to = "that")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

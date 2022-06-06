@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Are build tools are available?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for has_build_tools {pkgbuild}"><tr><td>has_build_tools {pkgbuild}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Are build tools are available?</h2>
+
+<h3>Description</h3>
+
+<p><code>has_build_tools</code> returns a logical, <code>check_build_tools</code> throws
+an error. <code>with_build_tools</code> checks that build tools are available,
+then runs <code>code</code> in an correctly staged environment.
+If run interactively from RStudio, and the build tools are not
+available these functions will trigger an automated install.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+has_build_tools(debug = FALSE)
+
+check_build_tools(debug = FALSE, quiet = FALSE)
+
+with_build_tools(code, debug = FALSE, required = TRUE)
+
+local_build_tools(
+  debug = FALSE,
+  required = TRUE,
+  .local_envir = parent.frame()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>debug</code></td>
+<td>
+<p>If <code>TRUE</code>, will print out extra information useful for
+debugging. If <code>FALSE</code>, it will use result cached from a previous run.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>if <code>TRUE</code> suppresses output from this function.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to rerun in environment where build tools are guaranteed to
+exist.</p>
+</td></tr>
+<tr valign="top"><td><code>required</code></td>
+<td>
+<p>If <code>TRUE</code>, and build tools are not available,
+will throw an error. Otherwise will attempt to run <code>code</code> without
+them.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Errors like <code style="white-space: pre;">running command '"C:/PROGRA~1/R/R-34~1.2/bin/x64/R" CMD config CC' had status 127</code>
+indicate the code expected Rtools to be on the system PATH. You can
+then verify you have rtools installed with <code>has_build_tools()</code> and
+temporarily add Rtools to the PATH <code>with_build_tools({ code })</code>.
+</p>
+<p>It is possible to add Rtools to your system PATH manually; you can use
+<code><a href="has_rtools.html">rtools_path()</a></code> to show the installed location. However because this
+requires manual updating when a new version of Rtools is installed and the
+binaries in Rtools may conflict with existing binaries elsewhere on the PATH it
+is better practice to use <code>with_build_tools()</code> as needed.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>has_rtools
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+has_build_tools(debug = TRUE)
+check_build_tools()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgbuild</em> version 1.3.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

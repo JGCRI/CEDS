@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a Blocking Version of a Function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for make_blocking {diffobj}"><tr><td>make_blocking {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a Blocking Version of a Function</h2>
+
+<h3>Description</h3>
+
+<p>Wraps <code>fun</code> in a function that runs <code>fun</code> and then issues a
+<code>readline</code> prompt to prevent further R code evaluation until user
+presses a key.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+make_blocking(fun, msg = "Press ENTER to continue...", invisible.res = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>a function</p>
+</td></tr>
+<tr valign="top"><td><code>msg</code></td>
+<td>
+<p>character(1L) a message to use as the <code>readline</code> prompt</p>
+</td></tr>
+<tr valign="top"><td><code>invisible.res</code></td>
+<td>
+<p>whether to return the result of <code>fun</code> invisibly</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>fun</code>, wrapped in a function that does the blocking.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+make_blocking(sum, invisible.res=FALSE)(1:10)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

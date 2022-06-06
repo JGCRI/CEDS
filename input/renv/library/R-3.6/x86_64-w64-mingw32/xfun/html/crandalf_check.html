@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Submit check jobs to crandalf</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for crandalf_check {xfun}"><tr><td>crandalf_check {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Submit check jobs to crandalf</h2>
+
+<h3>Description</h3>
+
+<p>Check the reverse dependencies of a package using the crandalf service:
+<a href="https://github.com/yihui/crandalf">https://github.com/yihui/crandalf</a>. If the number of reverse
+dependencies is large, they will be split into batches and pushed to crandalf
+one by one.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+crandalf_check(pkg, size = 400, jobs = Inf, which = "all")
+
+crandalf_results(pkg, repo = NA, limit = 200, wait = 5 * 60)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>The package name of which the reverse dependencies are to be
+checked.</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>The number of reverse dependencies to be checked in each job.</p>
+</td></tr>
+<tr valign="top"><td><code>jobs</code></td>
+<td>
+<p>The number of jobs to run in Github Actions (by default, all jobs
+are submitted, but you can choose to submit the first few jobs).</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>The type of dependencies (see <code><a href="rev_check.html">rev_check</a>()</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The crandalf repo on Github (of the form <code>user/repo</code> such as
+<code>"yihui/crandalf"</code>). Usually you do not need to specify it, unless you
+are not calling this function inside the crandalf project, because
+<code>gh</code> should be able to figure out the repo automatically.</p>
+</td></tr>
+<tr valign="top"><td><code>limit</code></td>
+<td>
+<p>The maximum of records for <code>gh run list</code> to retrieve.
+You only need a larger number if the check results are very early in the
+Github Action history.</p>
+</td></tr>
+<tr valign="top"><td><code>wait</code></td>
+<td>
+<p>Number of seconds to wait if not all jobs have been completed on
+Github. By default, this function checks the status every 5 minutes until
+all jobs are completed. Set <code>wait</code> to 0 to disable waiting (and throw
+an error immediately when any jobs are not completed).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Due to the time limit of a single job on Github Actions (6 hours), you will
+have to split the large number of reverse dependencies into batches and check
+them sequentially on Github (at most 5 jobs in parallel). The function
+<code>crandalf_check()</code> does this automatically when necessary. It requires
+the <code>git</code> command to be available.
+</p>
+<p>The function <code>crandalf_results()</code> fetches check results from Github
+after all checks are completed, merge the results, and show a full summary of
+check results. It requires <code>gh</code> (Github CLI:
+<a href="https://cli.github.com/manual/">https://cli.github.com/manual/</a>) to be installed and you also need to
+authenticate with your Github account beforehand.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

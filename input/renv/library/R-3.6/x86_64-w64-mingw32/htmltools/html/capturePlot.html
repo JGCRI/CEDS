@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Capture a plot as a saved file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for capturePlot {htmltools}"><tr><td>capturePlot {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Capture a plot as a saved file</h2>
+
+<h3>Description</h3>
+
+<p>Easily generates a .png file (or other graphics file) from a plotting
+expression.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+capturePlot(
+  expr,
+  filename = tempfile(fileext = ".png"),
+  device = defaultPngDevice(),
+  width = 400,
+  height = 400,
+  res = 72,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>A plotting expression that generates a plot (or yields an object
+that generates a plot when printed, like a ggplot2). We evaluate this
+expression after activating the graphics device (<code>device</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>filename</code></td>
+<td>
+<p>The output filename. By default, a temp file with <code>.png</code>
+extension will be used; you should provide a filename with a different
+extension if you provide a non-PNG graphics device function.</p>
+</td></tr>
+<tr valign="top"><td><code>device</code></td>
+<td>
+<p>A graphics device function; by default, this will be either
+<code><a href="../../grDevices/html/png.html">grDevices::png()</a></code>, <code><a href="../../ragg/html/agg_png.html">ragg::agg_png()</a></code>, or <code><a href="../../Cairo/html/Cairo.html">Cairo::CairoPNG()</a></code>, depending on
+your system and configuration. See <code><a href="defaultPngDevice.html">defaultPngDevice()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>width, height, res, ...</code></td>
+<td>
+<p>Additional arguments to the <code>device</code> function.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="plotTag.html">plotTag()</a></code> saves plots as a self-contained <code style="white-space: pre;">&lt;img&gt;</code>
+tag.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Default settings
+res &lt;- capturePlot(plot(cars))
+
+# View result
+if (interactive()) browseURL(res)
+
+# Clean up
+unlink(res)
+
+# Custom width/height
+pngpath &lt;- tempfile(fileext = ".png")
+capturePlot(plot(pressure), pngpath, width = 800, height = 375)
+if (interactive()) browseURL(pngpath)
+unlink(pngpath)
+
+# Use a custom graphics device (e.g., SVG)
+if (capabilities("cairo")) {
+  svgpath &lt;- capturePlot(
+    plot(pressure),
+    tempfile(fileext = ".svg"),
+    grDevices::svg,
+    width = 8, height = 3.75
+  )
+  if (interactive()) browseURL(svgpath)
+  unlink(svgpath)
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

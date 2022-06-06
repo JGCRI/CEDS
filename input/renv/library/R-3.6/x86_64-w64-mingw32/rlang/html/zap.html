@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create zap objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for zap {rlang}"><tr><td>zap {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create zap objects</h2>
+
+<h3>Description</h3>
+
+<p><code>zap()</code> creates a sentinel object that indicates that an object
+should be removed. For instance, named zaps instruct <code><a href="env_bind.html">env_bind()</a></code>
+and <code><a href="call_modify.html">call_modify()</a></code> to remove those objects from the environment or
+the call.
+</p>
+<p>The advantage of zap objects is that they unambiguously signal the
+intent of removing an object. Sentinels like <code>NULL</code> or
+<code><a href="missing_arg.html">missing_arg()</a></code> are ambiguous because they represent valid R
+objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+zap()
+
+is_zap(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Create one zap object:
+zap()
+
+# Create a list of zaps:
+rep(list(zap()), 3)
+rep_named(c("foo", "bar"), list(zap()))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

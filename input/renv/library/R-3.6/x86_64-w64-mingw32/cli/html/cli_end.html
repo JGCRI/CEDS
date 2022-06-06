@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Close a CLI container</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_end {cli}"><tr><td>cli_end {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Close a CLI container</h2>
+
+<h3>Description</h3>
+
+<p>Containers aut0-close by default, but sometimes you need to explicitly
+close them. Closing a container also closes all of its nested
+containers.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_end(id = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>id</code></td>
+<td>
+<p>Id of the container to close. If missing, the current
+container is closed, if any.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Explicit closing</h4>
+
+<div class="sourceCode r"><pre>cnt &lt;- cli_par()
+cli_text("First paragraph.")
+cli_end(cnt)
+cnt &lt;- cli_par()
+cli_text("Second paragraph.")
+cli_end(cnt)
+</pre></div>
+<p><img src="../help/figures/cli-end.svg" alt="cli-end.svg" />
+</p>
+
+
+
+<h4>Closing a stack of containers</h4>
+
+<div class="sourceCode r"><pre>list &lt;- cli_ul()
+cli_li("Item one:")
+cli_li("Item two:")
+cli_par()
+cli_text("Still item two.")
+cli_end(list)
+cli_text("Not in the list any more")
+</pre></div>
+<p><img src="../help/figures/cli-end-many.svg" alt="cli-end-many.svg" />
+</p>
+
+
+
+<h4>Omitting <code>id</code></h4>
+
+<p>If <code>id</code> is omitted, the container that was opened last will be closed.<div class="sourceCode r"></p>
+<pre>cli_par()
+cli_text("First paragraph")
+cli_end()
+cli_par()
+cli_text("Second paragraph")
+cli_end()
+</pre></div>
+<p><img src="../help/figures/cli-end-noid.svg" alt="cli-end-noid.svg" />
+</p>
+
+
+
+<h4>Debugging containers</h4>
+
+<p>You can use the internal <code>cli:::cli_debug_doc()</code> function to see the
+currently open containers.<div class="sourceCode r"></p>
+<pre>fun &lt;- function() {
+  cli_div(id = "mydiv")
+  cli_par(class = "myclass")
+  cli:::cli_debug_doc()
+}
+fun()
+</pre></div>
+<p><img src="../help/figures/cli-end-debug.svg" alt="cli-end-debug.svg" />
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

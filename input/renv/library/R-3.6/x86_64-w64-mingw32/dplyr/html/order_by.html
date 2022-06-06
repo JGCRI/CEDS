@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A helper function for ordering window function output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for order_by {dplyr}"><tr><td>order_by {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A helper function for ordering window function output</h2>
+
+<h3>Description</h3>
+
+<p>This function makes it possible to control the ordering of window functions
+in R that don't have a specific ordering parameter. When translated to SQL
+it will modify the order clause of the OVER function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+order_by(order_by, call)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>order_by</code></td>
+<td>
+<p>a vector to order_by</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>a function call to a window function, where the first argument
+is the vector being operated on</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function works by changing the <code>call</code> to instead call
+<code><a href="with_order.html">with_order()</a></code> with the appropriate arguments.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+order_by(10:1, cumsum(1:10))
+x &lt;- 10:1
+y &lt;- 1:10
+order_by(x, cumsum(y))
+
+df &lt;- data.frame(year = 2000:2005, value = (0:5) ^ 2)
+scrambled &lt;- df[sample(nrow(df)), ]
+
+wrong &lt;- mutate(scrambled, running = cumsum(value))
+arrange(wrong, year)
+
+right &lt;- mutate(scrambled, running = order_by(year, cumsum(value)))
+arrange(right, year)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

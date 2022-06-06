@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create useful spreadsheet filler</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gs4_fodder {googlesheets4}"><tr><td>gs4_fodder {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create useful spreadsheet filler</h2>
+
+<h3>Description</h3>
+
+<p>Creates a data frame that is useful for filling a spreadsheet, when you just
+need a sheet to experiment with. The data frame has <code>n</code> rows and <code>m</code> columns
+with these properties:
+</p>
+
+<ul>
+<li><p> Column names match what Sheets displays: &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, and so on.
+</p>
+</li>
+<li><p> Inner cell values reflect the coordinates where each value will land in
+the sheet, in A1-notation. So the first row is &quot;B2&quot;, &quot;C2&quot;, and so on.
+Note that this <code>n</code>-row data frame will occupy <code>n + 1</code> rows in the sheet,
+because the column names occupy the first row.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+gs4_fodder(n = 10, m = n)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Number of rows.</p>
+</td></tr>
+<tr valign="top"><td><code>m</code></td>
+<td>
+<p>Number of columns.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A data frame of character vectors.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+gs4_fodder()
+gs4_fodder(5, 3)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

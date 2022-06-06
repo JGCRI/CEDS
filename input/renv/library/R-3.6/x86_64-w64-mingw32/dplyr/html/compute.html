@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Force computation of a database query</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for compute {dplyr}"><tr><td>compute {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Force computation of a database query</h2>
+
+<h3>Description</h3>
+
+<p><code>compute()</code> stores results in a remote temporary table.
+<code>collect()</code> retrieves data into a local tibble.
+<code>collapse()</code> is slightly different: it doesn't force computation, but
+instead forces generation of the SQL query. This is sometimes needed to work
+around bugs in dplyr's SQL generation.
+</p>
+<p>All functions preserve grouping and ordering.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+compute(x, ...)
+
+collect(x, ...)
+
+collapse(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a lazy
+data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for more
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments passed on to methods</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+<p>These functions are <strong>generics</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>Methods available in currently loaded packages:
+</p>
+
+<ul>
+<li> <p><code>compute()</code>: no methods found
+</p>
+</li>
+<li> <p><code>collect()</code>: no methods found
+</p>
+</li>
+<li> <p><code>collapse()</code>: no methods found
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="copy_to.html">copy_to()</a></code>, the opposite of <code>collect()</code>: it takes a local data
+frame and uploads it to the remote source.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(dbplyr)) {
+  mtcars2 &lt;- src_memdb() %&gt;%
+    copy_to(mtcars, name = "mtcars2-cc", overwrite = TRUE)
+
+  remote &lt;- mtcars2 %&gt;%
+    filter(cyl == 8) %&gt;%
+    select(mpg:drat)
+
+  # Compute query and save in remote table
+  compute(remote)
+
+  # Compute query bring back to this session
+  collect(remote)
+
+  # Creates a fresh query based on the generated SQL
+  collapse(remote)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

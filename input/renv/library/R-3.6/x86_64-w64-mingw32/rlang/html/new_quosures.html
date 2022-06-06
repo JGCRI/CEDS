@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a list of quosures</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_quosures {rlang}"><tr><td>new_quosures {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a list of quosures</h2>
+
+<h3>Description</h3>
+
+<p>This small S3 class provides methods for <code>[</code> and <code>c()</code> and ensures
+the following invariants:
+</p>
+
+<ul>
+<li><p> The list only contains quosures.
+</p>
+</li>
+<li><p> It is always named, possibly with a vector of empty strings.
+</p>
+</li></ul>
+
+<p><code>new_quosures()</code> takes a list of quosures and adds the <code>quosures</code>
+class and a vector of empty names if needed. <code>as_quosures()</code> calls
+<code><a href="new_quosure.html">as_quosure()</a></code> on all elements before creating the <code>quosures</code>
+object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_quosures(x)
+
+as_quosures(x, env, named = FALSE)
+
+is_quosures(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A list of quosures or objects to coerce to quosures.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The default environment for the new quosures.</p>
+</td></tr>
+<tr valign="top"><td><code>named</code></td>
+<td>
+<p>Whether to name the list with <code><a href="exprs_auto_name.html">quos_auto_name()</a></code>.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

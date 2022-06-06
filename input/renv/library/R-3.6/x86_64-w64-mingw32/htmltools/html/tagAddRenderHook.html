@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Modify a tag prior to rendering</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tagAddRenderHook {htmltools}"><tr><td>tagAddRenderHook {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Modify a tag prior to rendering</h2>
+
+<h3>Description</h3>
+
+<p>Adds a hook to call on a <code><a href="builder.html">tag()</a></code> object when it is is rendered as HTML (with,
+for example, <code><a href="../../base/html/print.html">print()</a></code>, <code><a href="renderTags.html">renderTags()</a></code>, <code><a href="as.tags.html">as.tags()</a></code>, etc).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tagAddRenderHook(tag, func, replace = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>A <code><a href="builder.html">tag()</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>func</code></td>
+<td>
+<p>A function (<em>hook</em>) to call when the <code>tag</code> is rendered. This function
+should have at least one argument (the <code>tag</code>) and return anything that can
+be converted into tags via <code><a href="as.tags.html">as.tags()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>replace</code></td>
+<td>
+<p>If <code>TRUE</code>, the previous hooks will be removed. If <code>FALSE</code>,
+<code>func</code> is appended to the previous hooks.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The primary motivation for <code><a href="tagAddRenderHook.html">tagAddRenderHook()</a></code> is to create tags that can
+change their attributes (e.g., change CSS classes) depending upon the context
+in which they're rendered (e.g., use one set of CSS classes in one a page
+layout, but a different set in another page layout). In this situation,
+<code><a href="tagAddRenderHook.html">tagAddRenderHook()</a></code> is preferable to <code><a href="tagFunction.html">tagFunction()</a></code> since the latter is more a
+&quot;black box&quot; in the sense that you don't know anything about the tag structure
+until it's rendered.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="builder.html">tag()</a></code> object with a <code>.renderHooks</code> field containing a list of functions
+(e.g. <code>func</code>). When the return value is <em>rendered</em> (such as with <code><a href="as.tags.html">as.tags()</a></code>),
+these functions will be called just prior to writing the HTML.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="tagFunction.html">tagFunction()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Have a place holder div and return a span instead
+obj &lt;- div("example", .renderHook = function(x) {
+  x$name &lt;- "span"
+  x
+})
+obj$name # "div"
+print(obj) # Prints as a `span`
+
+# Add a class to the tag
+# Should print a `span` with class `"extra"`
+spanExtra &lt;- tagAddRenderHook(obj, function(x) {
+  tagAppendAttributes(x, class = "extra")
+})
+spanExtra
+
+# Replace the previous render method
+# Should print a `div` with class `"extra"`
+divExtra &lt;- tagAddRenderHook(obj, replace = TRUE, function(x) {
+  tagAppendAttributes(x, class = "extra")
+})
+divExtra
+
+# Add more child tags
+spanExtended &lt;- tagAddRenderHook(obj, function(x) {
+  tagAppendChildren(x, " ", tags$strong("bold text"))
+})
+spanExtended
+
+# Add a new html dependency
+newDep &lt;- tagAddRenderHook(obj, function(x) {
+  fa &lt;- htmlDependency(
+    "font-awesome", "4.5.0", c(href="shared/font-awesome"),
+    stylesheet = "css/font-awesome.min.css")
+  attachDependencies(x, fa, append = TRUE)
+})
+# Also add a jqueryui html dependency
+htmlDependencies(newDep) &lt;- htmlDependency(
+  "jqueryui", "1.11.4", c(href="shared/jqueryui"),
+  script = "jquery-ui.min.js")
+# At render time, both dependencies will be found
+renderTags(newDep)$dependencies
+
+# Ignore the original tag and return something completely new.
+newObj &lt;- tagAddRenderHook(obj, function(x) {
+  tags$p("Something else")
+})
+newObj
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

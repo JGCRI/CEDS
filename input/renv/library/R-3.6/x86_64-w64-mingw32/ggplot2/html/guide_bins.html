@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A binned version of guide_legend</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for guide_bins {ggplot2}"><tr><td>guide_bins {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A binned version of guide_legend</h2>
+
+<h3>Description</h3>
+
+<p>This guide is a version of the <code><a href="guide_legend.html">guide_legend()</a></code> guide for binned scales. It
+differs in that it places ticks correctly between the keys, and sports a
+small axis to better show the binning. Like <code><a href="guide_legend.html">guide_legend()</a></code> it can be used
+for all non-position aesthetics though colour and fill defaults to
+<code><a href="guide_coloursteps.html">guide_coloursteps()</a></code>, and it will merge aesthetics together into the same
+guide if they are mapped in the same way.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+guide_bins(
+  title = waiver(),
+  title.position = NULL,
+  title.theme = NULL,
+  title.hjust = NULL,
+  title.vjust = NULL,
+  label = TRUE,
+  label.position = NULL,
+  label.theme = NULL,
+  label.hjust = NULL,
+  label.vjust = NULL,
+  keywidth = NULL,
+  keyheight = NULL,
+  axis = TRUE,
+  axis.colour = "black",
+  axis.linewidth = 0.5,
+  axis.arrow = NULL,
+  direction = NULL,
+  default.unit = "line",
+  override.aes = list(),
+  reverse = FALSE,
+  order = 0,
+  show.limits = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>A character string or expression indicating a title of guide.
+If <code>NULL</code>, the title is not shown. By default
+(<code><a href="waiver.html">waiver()</a></code>), the name of the scale object or the name
+specified in <code><a href="labs.html">labs()</a></code> is used for the title.</p>
+</td></tr>
+<tr valign="top"><td><code>title.position</code></td>
+<td>
+<p>A character string indicating the position of a
+title. One of &quot;top&quot; (default for a vertical guide), &quot;bottom&quot;, &quot;left&quot;
+(default for a horizontal guide), or &quot;right.&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>title.theme</code></td>
+<td>
+<p>A theme object for rendering the title text. Usually the
+object of <code><a href="element.html">element_text()</a></code> is expected. By default, the theme is
+specified by <code>legend.title</code> in <code><a href="theme.html">theme()</a></code> or theme.</p>
+</td></tr>
+<tr valign="top"><td><code>title.hjust</code></td>
+<td>
+<p>A number specifying horizontal justification of the
+title text.</p>
+</td></tr>
+<tr valign="top"><td><code>title.vjust</code></td>
+<td>
+<p>A number specifying vertical justification of the title
+text.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>logical. If <code>TRUE</code> then the labels are drawn. If
+<code>FALSE</code> then the labels are invisible.</p>
+</td></tr>
+<tr valign="top"><td><code>label.position</code></td>
+<td>
+<p>A character string indicating the position of a
+label. One of &quot;top&quot;, &quot;bottom&quot; (default for horizontal guide), &quot;left&quot;, or
+&quot;right&quot; (default for vertical guide).</p>
+</td></tr>
+<tr valign="top"><td><code>label.theme</code></td>
+<td>
+<p>A theme object for rendering the label text. Usually the
+object of <code><a href="element.html">element_text()</a></code> is expected. By default, the theme is
+specified by <code>legend.text</code> in <code><a href="theme.html">theme()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>label.hjust</code></td>
+<td>
+<p>A numeric specifying horizontal justification of the
+label text.</p>
+</td></tr>
+<tr valign="top"><td><code>label.vjust</code></td>
+<td>
+<p>A numeric specifying vertical justification of the label
+text.</p>
+</td></tr>
+<tr valign="top"><td><code>keywidth</code></td>
+<td>
+<p>A numeric or a <code><a href="../../grid/html/unit.html">grid::unit()</a></code> object specifying
+the width of the legend key. Default value is <code>legend.key.width</code> or
+<code>legend.key.size</code> in <code><a href="theme.html">theme()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>keyheight</code></td>
+<td>
+<p>A numeric or a <code><a href="../../grid/html/unit.html">grid::unit()</a></code> object specifying
+the height of the legend key. Default value is <code>legend.key.height</code> or
+<code>legend.key.size</code> in <code><a href="theme.html">theme()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>axis</code></td>
+<td>
+<p>Logical. Should a small axis be drawn along the guide</p>
+</td></tr>
+<tr valign="top"><td><code>axis.colour, axis.linewidth</code></td>
+<td>
+<p>Graphic specifications for the look of the
+axis.</p>
+</td></tr>
+<tr valign="top"><td><code>axis.arrow</code></td>
+<td>
+<p>A call to <code>arrow()</code> to specify arrows at the end of the
+axis line, thus showing an open interval.</p>
+</td></tr>
+<tr valign="top"><td><code>direction</code></td>
+<td>
+<p>A character string indicating the direction of the guide.
+One of &quot;horizontal&quot; or &quot;vertical.&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>default.unit</code></td>
+<td>
+<p>A character string indicating <code><a href="../../grid/html/unit.html">grid::unit()</a></code>
+for <code>keywidth</code> and <code>keyheight</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>override.aes</code></td>
+<td>
+<p>A list specifying aesthetic parameters of legend key.
+See details and examples.</p>
+</td></tr>
+<tr valign="top"><td><code>reverse</code></td>
+<td>
+<p>logical. If <code>TRUE</code> the order of legends is reversed.</p>
+</td></tr>
+<tr valign="top"><td><code>order</code></td>
+<td>
+<p>positive integer less than 99 that specifies the order of
+this guide among multiple guides. This controls the order in which
+multiple guides are displayed, not the contents of the guide itself.
+If 0 (default), the order is determined by a secret algorithm.</p>
+</td></tr>
+<tr valign="top"><td><code>show.limits</code></td>
+<td>
+<p>Logical. Should the limits of the scale be shown with
+labels and ticks.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A guide object
+</p>
+
+
+<h3>Use with discrete scale</h3>
+
+<p>This guide is intended to show binned data and work together with ggplot2's
+binning scales. However, it is sometimes desirable to perform the binning in
+a separate step, either as part of a stat (e.g. <code><a href="geom_contour.html">stat_contour_filled()</a></code>) or
+prior to the visualisation. If you want to use this guide for discrete data
+the levels must follow the naming scheme implemented by <code><a href="../../base/html/cut.html">base::cut()</a></code>. This
+means that a bin must be encoded as <code>"(&lt;lower&gt;, &lt;upper&gt;]"</code> with <code style="white-space: pre;">&lt;lower&gt;</code>
+giving the lower bound of the bin and <code style="white-space: pre;">&lt;upper&gt;</code> giving the upper bound
+(<code>"[&lt;lower&gt;, &lt;upper&gt;)"</code> is also accepted). If you use <code><a href="../../base/html/cut.html">base::cut()</a></code> to
+perform the binning everything should work as expected, if not, some recoding
+may be needed.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other guides: 
+<code><a href="guide_colourbar.html">guide_colourbar</a>()</code>,
+<code><a href="guide_coloursteps.html">guide_coloursteps</a>()</code>,
+<code><a href="guide_legend.html">guide_legend</a>()</code>,
+<code><a href="guides.html">guides</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars) +
+  geom_point(aes(disp, mpg, size = hp)) +
+  scale_size_binned()
+
+# Standard look
+p
+
+# Remove the axis or style it
+p + guides(size = guide_bins(axis = FALSE))
+
+p + guides(size = guide_bins(show.limits = TRUE))
+
+p + guides(size = guide_bins(
+  axis.arrow = arrow(length = unit(1.5, 'mm'), ends = 'both')
+))
+
+# Guides are merged together if possible
+ggplot(mtcars) +
+  geom_point(aes(disp, mpg, size = hp, colour = hp)) +
+  scale_size_binned() +
+  scale_colour_binned(guide = "bins")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

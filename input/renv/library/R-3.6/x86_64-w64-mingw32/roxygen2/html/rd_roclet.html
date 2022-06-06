@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Roclet: make Rd files.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rd_roclet {roxygen2}"><tr><td>rd_roclet {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Roclet: make Rd files.</h2>
+
+<h3>Description</h3>
+
+<p>This roclet is the workhorse of <code>roxygen</code>, producing the <code>.Rd</code> files that
+R uses to document that functions, datasets, packages, classes, and
+other objects.
+</p>
+<p>See <code>vignette("rd")</code> for details.
+</p>
+<p>Generally you will not call this function directly
+but will instead use roxygenise() specifying the rd roclet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rd_roclet()
+</pre>
+
+
+<h3>See Also</h3>
+
+<p>Other roclets: 
+<code><a href="namespace_roclet.html">namespace_roclet</a>()</code>,
+<code><a href="vignette_roclet.html">vignette_roclet</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+#' The length of a string (in characters)
+#'
+#' @param x String input character vector
+#' @return An integer vector the same length as `x`.
+#'   `NA` strings have `NA` length.
+#' @seealso [nchar()]
+#' @export
+#' @examples
+#' str_length(letters)
+#' str_length(c("i", "like", "programming", NA))
+str_length &lt;- function(x) {
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

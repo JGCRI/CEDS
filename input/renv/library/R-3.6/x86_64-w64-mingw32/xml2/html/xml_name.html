@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The (tag) name of an xml element.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_name {xml2}"><tr><td>xml_name {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The (tag) name of an xml element.</h2>
+
+<h3>Description</h3>
+
+<p>The (tag) name of an xml element.
+</p>
+<p>Modify the (tag) name of an element
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_name(x, ns = character())
+
+xml_name(x, ns = character()) &lt;- value
+
+xml_set_name(x, value, ns = character())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>Optionally, a named vector giving prefix-url pairs, as produced
+by <code><a href="xml_ns.html">xml_ns()</a></code>. If provided, all names will be explicitly
+qualified with the ns prefix, i.e. if the element <code>bar</code> is defined
+in namespace <code>foo</code>, it will be called <code>foo:bar</code>. (And
+similarly for attributes). Default namespaces must be given an explicit
+name. The ns is ignored when using <code><a href="xml_name.html">xml_name&lt;-()</a></code> and
+<code><a href="xml_name.html">xml_set_name()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a character vector with replacement name.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- read_xml("&lt;bar&gt;123&lt;/bar&gt;")
+xml_name(x)
+
+y &lt;- read_xml("&lt;bar&gt;&lt;baz&gt;1&lt;/baz&gt;abc&lt;foo /&gt;&lt;/bar&gt;")
+z &lt;- xml_children(y)
+xml_name(xml_children(y))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

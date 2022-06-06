@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Computes attractive axis breaks for date-time data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pretty_dates {lubridate}"><tr><td>pretty_dates {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Computes attractive axis breaks for date-time data</h2>
+
+<h3>Description</h3>
+
+<p>pretty.dates indentifies which unit of time the sub-intervals should be
+measured in to provide approximately n breaks. It then chooses a &quot;pretty&quot;
+length for the sub-intervals and sets start and endpoints that 1) span the
+entire range of the data, and 2) allow the breaks to occur on important
+date-times (i.e. on the hour, on the first of the month, etc.)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pretty_dates(x, n, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a vector of POSIXct, POSIXlt, Date, or chron date-time objects</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>integer value of the desired number of breaks</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments to pass to function</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a vector of date-times that can be used as axis tick marks or bin breaks
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- seq.Date(as.Date("2009-08-02"), by = "year", length.out = 2)
+pretty_dates(x, 12)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

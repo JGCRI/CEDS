@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Retrieve Drive file links</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_link {googledrive}"><tr><td>drive_link {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Retrieve Drive file links</h2>
+
+<h3>Description</h3>
+
+<p>Returns the <code>"webViewLink"</code> for one or more files, which is the &quot;link for
+opening the file in a relevant Google editor or viewer in a browser&quot;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_link(file)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file(s) of interest on your Google
+Drive. Can be a character vector of names/paths, a character vector of file
+ids or URLs marked with <code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of file hyperlinks.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# get a few files into a dribble
+three_files &lt;- drive_find(n_max = 3)
+
+# get their browser links
+drive_link(three_files)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

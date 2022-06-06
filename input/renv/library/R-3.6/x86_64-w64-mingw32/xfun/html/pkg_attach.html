@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Attach or load packages, and automatically install missing...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pkg_attach {xfun}"><tr><td>pkg_attach {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Attach or load packages, and automatically install missing packages if
+requested</h2>
+
+<h3>Description</h3>
+
+<p><code>pkg_attach()</code> is a vectorized version of <code><a href="../../base/html/library.html">library</a>()</code> over
+the <code>package</code> argument to attach multiple packages in a single function
+call. <code>pkg_load()</code> is a vectorized version of
+<code><a href="../../base/html/ns-load.html">requireNamespace</a>()</code> to load packages (without attaching them).
+The functions <code>pkg_attach2()</code> and <code>pkg_load2()</code> are wrappers of
+<code>pkg_attach(install = TRUE)</code> and <code>pkg_load(install = TRUE)</code>,
+respectively. <code>loadable()</code> is an abbreviation of
+<code>requireNamespace(quietly = TRUE)</code>. <code>pkg_available()</code> tests if a
+package with a minimal version is available.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pkg_attach(
+  ...,
+  install = FALSE,
+  message = getOption("xfun.pkg_attach.message", TRUE)
+)
+
+pkg_load(..., error = TRUE, install = FALSE)
+
+loadable(pkg, strict = TRUE, new_session = FALSE)
+
+pkg_available(pkg, version = NULL)
+
+pkg_attach2(...)
+
+pkg_load2(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Package names (character vectors, and must always be quoted).</p>
+</td></tr>
+<tr valign="top"><td><code>install</code></td>
+<td>
+<p>Whether to automatically install packages that are not
+available using <code><a href="../../utils/html/install.packages.html">install.packages</a>()</code>. Besides <code>TRUE</code> and
+<code>FALSE</code>, the value of this argument can also be a function to install
+packages (<code>install = TRUE</code> is equivalent to <code>install =
+install.packages</code>), or a character string <code>"pak"</code> (equivalent to
+<code>install = pak::pkg_install</code>, which requires the <span class="pkg">pak</span> package).
+You are recommended to set a CRAN mirror in the global option <code>repos</code>
+via <code><a href="../../base/html/options.html">options</a>()</code> if you want to automatically install packages.</p>
+</td></tr>
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>Whether to show the package startup messages (if any startup
+messages are provided in a package).</p>
+</td></tr>
+<tr valign="top"><td><code>error</code></td>
+<td>
+<p>Whether to signal an error when certain packages cannot be loaded.</p>
+</td></tr>
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>A single package name.</p>
+</td></tr>
+<tr valign="top"><td><code>strict</code></td>
+<td>
+<p>If <code>TRUE</code>, use <code><a href="../../base/html/ns-load.html">requireNamespace</a>()</code> to test if
+a package is loadable; otherwise only check if the package is in
+<code><a href="../../base/html/zpackages.html">.packages</a>(TRUE)</code> (this does not really load the package, so it
+is less rigorous but on the other hand, it can keep the current R session
+clean).</p>
+</td></tr>
+<tr valign="top"><td><code>new_session</code></td>
+<td>
+<p>Whether to test if a package is loadable in a new R
+session. Note that <code>new_session = TRUE</code> implies <code>strict = TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>A minimal version number. If <code>NULL</code>, only test if a
+package is available and do not check its version.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These are convenience functions that aim to solve these common problems: (1)
+We often need to attach or load multiple packages, and it is tedious to type
+several <code>library()</code> calls; (2) We are likely to want to install the
+packages when attaching/loading them but they have not been installed.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>pkg_attach()</code> returns <code>NULL</code> invisibly. <code>pkg_load()</code>
+returns a logical vector, indicating whether the packages can be loaded.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code>pkg_attach2()</code> is similar to <code>pacman::p_load()</code>, but does
+not allow non-standard evaluation (NSE) of the <code>...</code> argument, i.e.,
+you must pass a real character vector of package names to it, and all names
+must be quoted. Allowing NSE adds too much complexity with too little gain
+(the only gain is that it saves your effort in typing two quotes).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+pkg_attach("stats", "graphics")
+# pkg_attach2('servr') # automatically install servr if it is not installed
+
+(pkg_load("stats", "graphics"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

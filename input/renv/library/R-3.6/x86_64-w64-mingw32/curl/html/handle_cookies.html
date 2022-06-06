@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract cookies from a handle</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for handle_cookies {curl}"><tr><td>handle_cookies {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract cookies from a handle</h2>
+
+<h3>Description</h3>
+
+<p>The <code>handle_cookies</code> function returns a data frame with 7 columns as specified in the
+<a href="http://www.cookiecentral.com/faq/#3.5">netscape cookie file format</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+handle_cookies(handle)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>a curl handle object</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other handles: 
+<code><a href="handle.html">handle</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+h &lt;- new_handle()
+handle_cookies(h)
+
+# Server sets cookies
+req &lt;- curl_fetch_memory("http://httpbin.org/cookies/set?foo=123&amp;bar=ftw", handle = h)
+handle_cookies(h)
+
+# Server deletes cookies
+req &lt;- curl_fetch_memory("http://httpbin.org/cookies/delete?foo", handle = h)
+handle_cookies(h)
+
+# Cookies will survive a reset!
+handle_reset(h)
+handle_cookies(h)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

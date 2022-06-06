@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: (Deprecated) Calculate confidence interval as a tidy data...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for confint_tidy {broom}"><tr><td>confint_tidy {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>(Deprecated) Calculate confidence interval as a tidy data frame</h2>
+
+<h3>Description</h3>
+
+<p>This function is now deprecated and will be removed from a future
+release of broom.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+confint_tidy(x, conf.level = 0.95, func = stats::confint, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a model object for which <code><a href="../../stats/html/confint.html">confint()</a></code> can be calculated</p>
+</td></tr>
+<tr valign="top"><td><code>conf.level</code></td>
+<td>
+<p>confidence level</p>
+</td></tr>
+<tr valign="top"><td><code>func</code></td>
+<td>
+<p>A function to compute a confidence interval for <code>x</code>. Calling
+<code>func(x, level = conf.level, ...)</code> must return an object coercible to a
+tibble. This dataframe like object should have to columns corresponding
+the lower and upper bounds on the confidence interval.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>extra arguments passed on to <code>confint</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Return a confidence interval as a tidy data frame. This directly wraps the
+<code><a href="../../stats/html/confint.html">confint()</a></code> function, but ensures it follows broom conventions:
+column names of <code>conf.low</code> and <code>conf.high</code>, and no row names.
+</p>
+<p><code>confint_tidy</code>
+</p>
+
+
+<h3>Value</h3>
+
+<p>A tibble with two columns: <code>conf.low</code> and <code>conf.high</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other deprecated: 
+<code><a href="bootstrap.html">bootstrap</a>()</code>,
+<code><a href="data.frame_tidiers.html">data.frame_tidiers</a></code>,
+<code><a href="finish_glance.html">finish_glance</a>()</code>,
+<code><a href="fix_data_frame.html">fix_data_frame</a>()</code>,
+<code><a href="summary_tidiers.html">summary_tidiers</a></code>,
+<code><a href="tidy.density.html">tidy.density</a>()</code>,
+<code><a href="tidy.dist.html">tidy.dist</a>()</code>,
+<code><a href="tidy.ftable.html">tidy.ftable</a>()</code>,
+<code><a href="vector_tidiers.html">tidy.numeric</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extending dplyr with new data frame subclasses</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dplyr_extending {dplyr}"><tr><td>dplyr_extending {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extending dplyr with new data frame subclasses</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>These three functions, along with <code style="white-space: pre;">names&lt;-</code> and 1d numeric <code>[</code>
+(i.e. <code>x[loc]</code>) methods, provide a minimal interface for extending dplyr
+to work with new data frame subclasses. This means that for simple cases
+you should only need to provide a couple of methods, rather than a method
+for every dplyr verb.
+</p>
+<p>These functions are a stop-gap measure until we figure out how to solve
+the problem more generally, but it's likely that any code you write to
+implement them will find a home in what comes next.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dplyr_row_slice(data, i, ...)
+
+dplyr_col_modify(data, cols)
+
+dplyr_reconstruct(data, template)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A tibble. We use tibbles because they avoid some inconsistent
+subset-assignment use cases</p>
+</td></tr>
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>A numeric or logical vector that indexes the rows of <code>.data</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>A named list used modify columns. A <code>NULL</code> value should remove
+an existing column.</p>
+</td></tr>
+<tr valign="top"><td><code>template</code></td>
+<td>
+<p>Template to use for restoring attributes</p>
+</td></tr>
+</table>
+
+
+<h3>Basic advice</h3>
+
+<p>This section gives you basic advice if you want to extend dplyr to work with
+your custom data frame subclass, and you want the dplyr methods to behave
+in basically the same way.
+</p>
+
+<ul>
+<li><p> If you have data frame attributes that don't depend on the rows or columns
+(and should unconditionally be preserved), you don't need to do anything.
+</p>
+</li>
+<li><p> If you have <strong>scalar</strong> attributes that depend on <strong>rows</strong>, implement a
+<code>dplyr_reconstruct()</code> method. Your method should recompute the attribute
+depending on rows now present.
+</p>
+</li>
+<li><p> If you have <strong>scalar</strong> attributes that depend on <strong>columns</strong>, implement a
+<code>dplyr_reconstruct()</code> method and a 1d <code>[</code> method. For example, if your
+class requires that certain columns be present, your method should return
+a data.frame or tibble when those columns are removed.
+</p>
+</li>
+<li><p> If your attributes are <strong>vectorised</strong> over <strong>rows</strong>, implement a
+<code>dplyr_row_slice()</code> method. This gives you access to <code>i</code> so you can
+modify the row attribute accordingly. You'll also need to think carefully
+about how to recompute the attribute in <code>dplyr_reconstruct()</code>, and
+you will need to carefully verify the behaviour of each verb, and provide
+additional methods as needed.
+</p>
+</li>
+<li><p> If your attributes that are <strong>vectorised</strong> over <strong>columns</strong>, implement
+<code>dplyr_col_modify()</code>, 1d <code>[</code>, and <code style="white-space: pre;">names&lt;-</code> methods. All of these methods
+know which columns are being modified, so you can update the column
+attribute according. You'll also need to think carefully about how to
+recompute the attribute in <code>dplyr_reconstruct()</code>, and you will need to
+carefully verify the behaviour of each verb, and provide additional
+methods as needed.
+</p>
+</li></ul>
+
+
+
+<h3>Current usage</h3>
+
+
+<ul>
+<li> <p><code>arrange()</code>, <code>filter()</code>, <code>slice()</code>, <code>semi_join()</code>, and <code>anti_join()</code>
+work by generating a vector of row indices, and then subsetting
+with <code>dplyr_row_slice()</code>.
+</p>
+</li>
+<li> <p><code>mutate()</code> generates a list of new column value (using <code>NULL</code> to indicate
+when columns should be deleted), then passes that to <code>dplyr_col_modify()</code>.
+<code>transmute()</code> does the same then uses 1d <code>[</code> to select the columns.
+</p>
+</li>
+<li> <p><code>summarise()</code> works similarly to <code>mutate()</code> but the data modified by
+<code>dplyr_col_modify()</code> comes from <code>group_data()</code>.
+</p>
+</li>
+<li> <p><code>select()</code> uses 1d <code>[</code> to select columns, then <code style="white-space: pre;">names&lt;-</code> to rename them.
+<code>rename()</code> just uses <code style="white-space: pre;">names&lt;-</code>. <code>relocate()</code> just uses 1d <code>[</code>.
+</p>
+</li>
+<li> <p><code>inner_join()</code>, <code>left_join()</code>, <code>right_join()</code>, and <code>full_join()</code>
+coerces <code>x</code> to a tibble, modify the rows, then uses <code>dplyr_reconstruct()</code>
+to convert back to the same type as <code>x</code>.
+</p>
+</li>
+<li> <p><code>nest_join()</code> uses <code>dplyr_col_modify()</code> to cast the key variables to
+common type and add the nested-df that <code>y</code> becomes.
+</p>
+</li>
+<li> <p><code>distinct()</code> does a <code>mutate()</code> if any expressions are present, then
+uses 1d <code>[</code> to select variables to keep, then <code>dplyr_row_slice()</code> to
+select distinct rows.
+</p>
+</li></ul>
+
+<p>Note that <code>group_by()</code> and <code>ungroup()</code> don't use any these generics and
+you'll need to provide methods directly.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

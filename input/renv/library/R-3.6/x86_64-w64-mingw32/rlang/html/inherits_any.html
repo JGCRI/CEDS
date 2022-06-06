@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does an object inherit from a set of classes?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for inherits_any {rlang}"><tr><td>inherits_any {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does an object inherit from a set of classes?</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>inherits_any()</code> is like <code><a href="../../base/html/class.html">base::inherits()</a></code> but is more explicit
+about its behaviour with multiple classes. If <code>classes</code> contains
+several elements and the object inherits from at least one of
+them, <code>inherits_any()</code> returns <code>TRUE</code>.
+</p>
+</li>
+<li> <p><code>inherits_all()</code> tests that an object inherits from all of the
+classes in the supplied order. This is usually the best way to
+test for inheritance of multiple classes.
+</p>
+</li>
+<li> <p><code>inherits_only()</code> tests that the class vectors are identical. It
+is a shortcut for <code>identical(class(x), class)</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+inherits_any(x, class)
+
+inherits_all(x, class)
+
+inherits_only(x, class)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test for inheritance.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>A character vector of classes.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+obj &lt;- structure(list(), class = c("foo", "bar", "baz"))
+
+# With the _any variant only one class must match:
+inherits_any(obj, c("foobar", "bazbaz"))
+inherits_any(obj, c("foo", "bazbaz"))
+
+# With the _all variant all classes must match:
+inherits_all(obj, c("foo", "bazbaz"))
+inherits_all(obj, c("foo", "baz"))
+
+# The order of classes must match as well:
+inherits_all(obj, c("baz", "foo"))
+
+# inherits_only() checks that the class vectors are identical:
+inherits_only(obj, c("foo", "baz"))
+inherits_only(obj, c("foo", "bar", "baz"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

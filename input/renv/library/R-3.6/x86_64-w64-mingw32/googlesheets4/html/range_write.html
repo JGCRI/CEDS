@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: (Over)write new data into a range</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for range_write {googlesheets4}"><tr><td>range_write {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>(Over)write new data into a range</h2>
+
+<h3>Description</h3>
+
+<p>Writes a data frame into a range of cells. Main differences from
+<code><a href="sheet_write.html">sheet_write()</a></code> (a.k.a. <code><a href="sheet_write.html">write_sheet()</a></code>):
+</p>
+
+<ul>
+<li><p> Narrower scope. <code>range_write()</code> literally targets some cells, not a whole
+(work)sheet.
+</p>
+</li>
+<li><p> The edited rectangle is not explicitly styled as a table. Nothing special
+is done re: formatting a header row or freezing rows.
+</p>
+</li>
+<li><p> Column names can be suppressed. This means that, although <code>data</code> must
+be a data frame (at least for now), <code>range_write()</code> can actually be used
+to write arbitrary data.
+</p>
+</li>
+<li><p> The target (spread)Sheet and (work)sheet must already exist. There is no
+ability to create a Sheet or add a worksheet.
+</p>
+</li>
+<li><p> The target sheet dimensions are not &quot;trimmed&quot; to shrink-wrap the <code>data</code>.
+However, the sheet might gain rows and/or columns, in order to write
+<code>data</code> to the user-specified <code>range</code>.
+</p>
+</li></ul>
+
+<p>If you just want to add rows to an existing table, the function you probably
+want is <code><a href="sheet_append.html">sheet_append()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+range_write(
+  ss,
+  data,
+  sheet = NULL,
+  range = NULL,
+  col_names = TRUE,
+  reformat = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to write into, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. Ignored if the sheet is specified via <code>range</code>. If neither argument specifies the sheet, defaults to the first visible sheet.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>Where to write. This <code>range</code> argument has important similarities
+and differences to <code>range</code> elsewhere (e.g. <code><a href="range_read.html">range_read()</a></code>):
+</p>
+
+<ul>
+<li><p> Similarities: Can be a cell range, using A1 notation (&quot;A1:D3&quot;) or using
+the helpers in <code><a href="cell-specification.html">cell-specification</a></code>. Can combine sheet name and cell
+range (&quot;Sheet1!A5:A&quot;) or refer to a sheet by name (<code>range = "Sheet1"</code>,
+although <code>sheet = "Sheet1"</code> is preferred for clarity).
+</p>
+</li>
+<li><p> Difference: Can NOT be a named range.
+</p>
+</li>
+<li><p> Difference: <code>range</code> can be interpreted as the <em>start</em> of the target
+rectangle (the upper left corner) or, more literally, as the actual
+target rectangle. See the &quot;Range specification&quot; section for details.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>col_names</code></td>
+<td>
+<p>Logical, indicates whether to send the column names of
+<code>data</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>reformat</code></td>
+<td>
+<p>Logical, indicates whether to reformat the affected cells.
+Currently googlesheets4 provides no real support for formatting, so
+<code>reformat = TRUE</code> effectively means that edited cells become unformatted.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>Range specification</h3>
+
+<p>The <code>range</code> argument of <code>range_write()</code> is special, because the Sheets API
+can implement it in 2 different ways:
+</p>
+
+<ul>
+<li><p> If <code>range</code> represents exactly 1 cell, like &quot;B3&quot;, it is taken as the <em>start</em>
+(or upper left corner) of the targeted cell rectangle. The edited cells are
+determined implicitly by the extent of the <code>data</code> we are writing. This
+frees you from doing fiddly range computations based on the dimensions of
+the <code>data</code>.
+</p>
+</li>
+<li><p> If <code>range</code> describes a rectangle with multiple cells, it is interpreted
+as the <em>actual</em> rectangle to edit. It is possible to describe a rectangle
+that is unbounded on the right (e.g. &quot;B2:4&quot;), on the bottom (e.g. &quot;A4:C&quot;),
+or on both the right and the bottom (e.g.
+<code>cell_limits(c(2, 3), c(NA, NA))</code>. Note that <strong>all cells</strong> inside the
+rectangle receive updated data and format. Important implication: if the
+<code>data</code> object isn't big enough to fill the target rectangle, the cells that
+don't receive new data are effectively cleared, i.e. the existing value
+and format are deleted.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>If sheet size needs to change, makes an <code>UpdateSheetPropertiesRequest</code>:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest</a>
+</p>
+</li></ul>
+
+<p>The main data write is done via an <code>UpdateCellsRequest</code>:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#updatecellsrequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#updatecellsrequest</a>
+</p>
+</li></ul>
+
+<p>Other write functions: 
+<code><a href="gs4_create.html">gs4_create</a>()</code>,
+<code><a href="gs4_formula.html">gs4_formula</a>()</code>,
+<code><a href="range_delete.html">range_delete</a>()</code>,
+<code><a href="range_flood.html">range_flood</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  # create a Sheet with some initial, empty (work)sheets
+  (ss &lt;- gs4_create("range-write-demo", sheets = c("alpha", "beta")))
+
+  df &lt;- data.frame(
+    x = 1:3,
+    y = letters[1:3]
+  )
+
+  #  write df somewhere other than the "upper left corner"
+  range_write(ss, data = df, range = "D6")
+
+  # view your magnificent creation in the browser
+  gs4_browse(ss)
+
+  # send data of disparate types to a 1-row rectangle
+  dat &lt;- tibble::tibble(
+    string = "string",
+    logical = TRUE,
+    datetime = Sys.time()
+  )
+  range_write(ss, data = dat, sheet = "beta", col_names = FALSE)
+
+  # send data of disparate types to a 1-column rectangle
+  dat &lt;- tibble::tibble(
+    x = list(Sys.time(), FALSE, "string")
+  )
+  range_write(ss, data = dat, range = "beta!C5", col_names = FALSE)
+
+  # clean up
+  gs4_find("range-write-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

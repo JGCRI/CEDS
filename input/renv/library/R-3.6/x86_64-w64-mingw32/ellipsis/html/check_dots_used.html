@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check that all dots have been used</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_dots_used {ellipsis}"><tr><td>check_dots_used {ellipsis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check that all dots have been used</h2>
+
+<h3>Description</h3>
+
+<p>Automatically sets exit handler to run when function terminates, checking
+that all elements of <code>...</code> have been evaluated. If you use <code><a href="../../base/html/on.exit.html">on.exit()</a></code>
+elsewhere in your function, make sure to use <code>add = TRUE</code> so that you
+don't override the handler set up by <code>check_dots_used()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_dots_used(env = parent.frame(), action = abort)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which to look for <code>...</code> and to set up handler.</p>
+</td></tr>
+<tr valign="top"><td><code>action</code></td>
+<td>
+<p>The action to take when the dots have not been used. One of
+<code><a href="../../rlang/html/abort.html">rlang::abort()</a></code>, <code><a href="../../rlang/html/warn.html">rlang::warn()</a></code>, <code><a href="../../rlang/html/inform.html">rlang::inform()</a></code> or <code><a href="../../rlang/html/signal.html">rlang::signal()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(...) {
+  check_dots_used()
+  g(...)
+}
+
+g &lt;- function(x, y, ...) {
+  x + y
+}
+f(x = 1, y = 2)
+
+try(f(x = 1, y = 2, z = 3))
+try(f(x = 1, y = 2, 3, 4, 5))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ellipsis</em> version 0.3.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Spread a data frame of cells into spreadsheet shape</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for spread_sheet {googlesheets4}"><tr><td>spread_sheet {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Spread a data frame of cells into spreadsheet shape</h2>
+
+<h3>Description</h3>
+
+<p>Reshapes a data frame of cells (presumably the output of
+<code><a href="range_read_cells.html">range_read_cells()</a></code>) into another data frame, i.e., puts it back into the
+shape of the source spreadsheet. This function exists primarily for internal
+use and for testing. The flagship function <code><a href="range_read.html">range_read()</a></code>, a.k.a.
+<code><a href="range_read.html">read_sheet()</a></code>, is what most users are looking for. It is basically
+<code><a href="range_read_cells.html">range_read_cells()</a></code> + <code>spread_sheet()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spread_sheet(
+  df,
+  col_names = TRUE,
+  col_types = NULL,
+  na = "",
+  trim_ws = TRUE,
+  guess_max = min(1000, max(df$row)),
+  .name_repair = "unique"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>A data frame with one row per (nonempty) cell, integer variables
+<code>row</code> and <code>column</code> (probably referring to location within the spreadsheet),
+and a list-column <code>cell</code> of <code>SHEET_CELL</code> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>col_names</code></td>
+<td>
+<p><code>TRUE</code> to use the first row as column names, <code>FALSE</code> to get
+default names, or a character vector to provide column names directly. If
+user provides <code>col_types</code>, <code>col_names</code> can have one entry per column or one
+entry per unskipped column.</p>
+</td></tr>
+<tr valign="top"><td><code>col_types</code></td>
+<td>
+<p>Column types. Either <code>NULL</code> to guess all from the
+spreadsheet or a string of readr-style shortcodes, with one character or
+code per column. If exactly one <code>col_type</code> is specified, it is recycled.
+See Column Specification for more.</p>
+</td></tr>
+<tr valign="top"><td><code>na</code></td>
+<td>
+<p>Character vector of strings to interpret as missing values. By
+default, blank cells are treated as missing data.</p>
+</td></tr>
+<tr valign="top"><td><code>trim_ws</code></td>
+<td>
+<p>Logical. Should leading and trailing whitespace be trimmed
+from cell contents?</p>
+</td></tr>
+<tr valign="top"><td><code>guess_max</code></td>
+<td>
+<p>Maximum number of data rows to use for guessing column
+types.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Handling of column names. By default, googlesheets4
+ensures column names are not empty and are unique. There is full support
+for <code>.name_repair</code> as documented in <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tibble in the shape of the original spreadsheet, but enforcing
+user's wishes regarding column names, column types, <code>NA</code> strings, and
+whitespace trimming.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  df &lt;- gs4_example("mini-gap") %&gt;%
+    range_read_cells()
+  spread_sheet(df)
+
+  # ^^ gets same result as ...
+  read_sheet(gs4_example("mini-gap"))
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

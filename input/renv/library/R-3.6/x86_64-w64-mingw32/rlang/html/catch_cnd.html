@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Catch a condition</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for catch_cnd {rlang}"><tr><td>catch_cnd {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Catch a condition</h2>
+
+<h3>Description</h3>
+
+<p>This is a small wrapper around <code>tryCatch()</code> that captures any
+condition signalled while evaluating its argument. It is useful for
+situations where you expect a specific condition to be signalled,
+for debugging, and for unit testing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+catch_cnd(expr, classes = "condition")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>Expression to be evaluated with a catching condition
+handler.</p>
+</td></tr>
+<tr valign="top"><td><code>classes</code></td>
+<td>
+<p>A character vector of condition classes to catch. By
+default, catches all conditions.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A condition if any was signalled, <code>NULL</code> otherwise.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+catch_cnd(10)
+catch_cnd(abort("an error"))
+catch_cnd(signal("my_condition", message = "a condition"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

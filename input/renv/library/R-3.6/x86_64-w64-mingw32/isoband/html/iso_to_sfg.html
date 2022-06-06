@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert isolines or isobands to sfg object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for iso_to_sfg {isoband}"><tr><td>iso_to_sfg {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert isolines or isobands to sfg object</h2>
+
+<h3>Description</h3>
+
+<p>Convert isolines or isobands to an sf geometry collection (<code>sfg</code>) object. Further downstream
+processing needs to happen via the sf package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+iso_to_sfg(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The object to convert.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function <code>iso_to_sfg()</code> is a generic that takes an object created by either <code><a href="isobands.html">isolines()</a></code>
+or <code><a href="isobands.html">isobands()</a></code> and turns it into a simple features (sf) geometry collection. Importantly,
+the isobanding algorithm can produce polygons that do not represent valid simple features. This
+happens usually when the lower limit of an isoband is exactly equal to some data values (see
+examples for a demonstration). This can be worked around either by slightly shifting the data
+or band limits (e.g., round all data values and then shift them by a value smaller than the
+rounding error) or by fixing the geometries using the function <code>st_make_valid()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (requireNamespace("sf", quietly = TRUE)) {
+library(sf)
+library(ggplot2)
+
+# Example 1: simple 5x5 matrix
+m &lt;- matrix(c(0, 2, 2, 2, 0,
+              0, 1, 0, 1, 0,
+              0, 1, 0, 0, 0,
+              0, 1, 0, 1, 0,
+              0, 0, 0, 0, 0), 5, 5, byrow = TRUE)
+
+z &lt;- isolines(1:ncol(m), nrow(m):1, m, c(0.5, 1.5))
+lines &lt;- iso_to_sfg(z)
+x &lt;- st_sf(level = names(lines), geometry = st_sfc(lines))
+ggplot(x) + geom_sf(aes(color = level))
+
+# Example 2: volcano dataset
+m &lt;- volcano
+b &lt;- isobands((1:ncol(m))/(ncol(m)+1), (nrow(m):1)/(nrow(m)+1), m,
+              10*9:19, 10*10:20)
+bands &lt;- iso_to_sfg(b)
+x &lt;- st_sf(level = as.numeric(sub(":.*", "", names(bands))), geometry = st_sfc(bands))
+ggplot(x) + geom_sf(aes(color = level, fill = level))
+
+# Example 3: invalid simple features
+m &lt;- matrix(c(1.5, 1.5, 1.5, 1.5, 0.6,
+              0.5, 1.5, 1.5,   0,   0,
+                0,   1,   0,   1,   1,
+                0,   1,   0, 0.7,   0,
+              0.9, 1.3, 1.8, 1.4, 0.4), 5, 5, byrow = TRUE)
+
+raw &lt;- isobands(1:5, 5:1, m, levels_low = 0:1, levels_high = 1:2)
+bands &lt;- iso_to_sfg(raw)
+
+iso &lt;- st_sf(
+  id = factor(1:length(bands)),
+  geometry = st_sfc(bands)
+)
+
+# the geometries are not valid
+st_is_valid(iso, reason = TRUE)
+# this doesn't prevent us from plotting them
+ggplot(iso, aes(fill = id)) + geom_sf()
+
+# make all geometries valid, requires GEOS &gt;= 3.8.0
+if (sf_extSoftVersion()["GEOS"] &gt;= "3.8.0") {
+  iso2 &lt;- st_make_valid(iso)
+  st_is_valid(iso2, reason=TRUE)
+  # the plot should be unchanged
+  ggplot(iso2, aes(fill = id)) + geom_sf()
+}
+
+# alternatively, if we shift all data values by a tiny
+# amount (here, 1e-10) so they don't coincide with the band
+# limits, no invalid geometries are generated.
+raw &lt;- isobands(1:5, 5:1, m + 1e-10, levels_low = 0:1, levels_high = 1:2)
+bands &lt;- iso_to_sfg(raw)
+iso &lt;- st_sf(id = factor(1:length(bands)), geometry = st_sfc(bands))
+st_is_valid(iso, reason = TRUE)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

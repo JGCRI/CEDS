@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Skip a test</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for skip {testthat}"><tr><td>skip {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Skip a test</h2>
+
+<h3>Description</h3>
+
+<p><code>skip_if()</code> and <code>skip_if_not()</code> allow you to skip tests, immediately
+concluding a <code><a href="test_that.html">test_that()</a></code> block without executing any further expectations.
+This allows you to skip a test without failure, if for some reason it
+can't be run (e.g. it depends on the feature of a specific operating system,
+or it requires a specific version of a package).
+</p>
+<p>See <code>vignette("skipping")</code> for more details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+skip(message)
+
+skip_if_not(condition, message = NULL)
+
+skip_if(condition, message = NULL)
+
+skip_if_not_installed(pkg, minimum_version = NULL)
+
+skip_if_offline(host = "r-project.org")
+
+skip_on_cran()
+
+skip_on_os(os, arch = NULL)
+
+skip_on_travis()
+
+skip_on_appveyor()
+
+skip_on_ci()
+
+skip_on_covr()
+
+skip_on_bioc()
+
+skip_if_translated(msgid = "'%s' not found")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>A message describing why the test was skipped.</p>
+</td></tr>
+<tr valign="top"><td><code>condition</code></td>
+<td>
+<p>Boolean condition to check. <code>skip_if_not()</code> will skip if
+<code>FALSE</code>, <code>skip_if()</code> will skip if <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>Name of package to check for</p>
+</td></tr>
+<tr valign="top"><td><code>minimum_version</code></td>
+<td>
+<p>Minimum required version for the package</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>A string with a hostname to lookup</p>
+</td></tr>
+<tr valign="top"><td><code>os</code></td>
+<td>
+<p>Character vector of one or more operating systems to skip on.
+Supported values are <code>"windows"</code>, <code>"mac"</code>, <code>"linux"</code>, and <code>"solaris"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>arch</code></td>
+<td>
+<p>Character vector of one or more architectures to skip on.
+Common values include <code>"i386"</code> (32 bit), <code>"x86_64"</code> (64 bit), and
+<code>"aarch64"</code> (M1 mac). Supplying <code>arch</code> makes the test stricter; i.e. both
+<code>os</code> and <code>arch</code> must match in order for the test to be skipped.</p>
+</td></tr>
+<tr valign="top"><td><code>msgid</code></td>
+<td>
+<p>R message identifier used to check for translation: the default
+uses a message included in most translation packs. See the complete list in
+<a href="https://github.com/wch/r-source/blob/master/src/library/base/po/R-base.pot"><code>R-base.pot</code></a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Helpers</h3>
+
+
+<ul>
+<li> <p><code>skip_if_not_installed("pkg")</code> skips tests if package &quot;pkg&quot; is not
+installed or cannot be loaded (using <code>requireNamespace()</code>). Generally,
+you can assume that suggested packages are installed, and you do not
+need to check for them specifically, unless they are particularly
+difficult to install.
+</p>
+</li>
+<li> <p><code>skip_if_offline()</code> skips if an internet connection is not available
+(using <code><a href="../../curl/html/nslookup.html">curl::nslookup()</a></code>) or if the test is run on CRAN.
+</p>
+</li>
+<li> <p><code>skip_if_translated("msg")</code> skips tests if the &quot;msg&quot; is translated.
+</p>
+</li>
+<li> <p><code>skip_on_bioc()</code> skips on Bioconductor (using the <code>BBS_HOME</code> env var).
+</p>
+</li>
+<li> <p><code>skip_on_cran()</code> skips on CRAN (using the <code>NOT_CRAN</code> env var set by
+devtools and friends).
+</p>
+</li>
+<li> <p><code>skip_on_covr()</code> skips when covr is running (using the <code>R_COVR</code> env var).
+</p>
+</li>
+<li> <p><code>skip_on_ci()</code> skips on continuous integration systems like GitHub Actions,
+travis, and appveyor (using the <code>CI</code> env var). It supersedes the older
+<code>skip_on_travis()</code> and <code>skip_on_appveyor()</code> functions.
+</p>
+</li>
+<li> <p><code>skip_on_os()</code> skips on the specified operating system(s) (&quot;windows&quot;,
+&quot;mac&quot;, &quot;linux&quot;, or &quot;solaris&quot;).
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+if (FALSE) skip("No internet connection")
+
+test_that("skip example", {
+  expect_equal(1, 1L)    # this expectation runs
+  skip('skip')
+  expect_equal(1, 2)     # this one skipped
+  expect_equal(1, 3)     # this one is also skipped
+})
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

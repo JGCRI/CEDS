@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse date/time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for parse_date {curl}"><tr><td>parse_date {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse date/time</h2>
+
+<h3>Description</h3>
+
+<p>Can be used to parse dates appearing in http response headers such
+as <code>Expires</code> or <code>Last-Modified</code>. Automatically recognizes
+most common formats. If the format is known, <code><a href="../../base/html/strptime.html">strptime</a></code>
+might be easier.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+parse_date(datestring)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>datestring</code></td>
+<td>
+<p>a string consisting of a timestamp</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Parse dates in many formats
+parse_date("Sunday, 06-Nov-94 08:49:37 GMT")
+parse_date("06 Nov 1994 08:49:37")
+parse_date("20040911 +0200")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

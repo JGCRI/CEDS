@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: What happens if I use injection operators out of context?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-inject-out-of-context {rlang}"><tr><td>topic-inject-out-of-context {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>What happens if I use injection operators out of context?</h2>
+
+<h3>Description</h3>
+
+<p>The <a href="topic-inject.html">injection operators</a> <code><a href="embrace-operator.html">{{</a></code>, <code><a href="injection-operator.html">!!</a></code>, and <code><a href="splice-operator.html">!!!</a></code> are an extension of the R syntax developed for tidyverse packages. Because they are not part of base R, they suffer from some limitations. In particular no specific error is thrown when they are used in unexpected places.
+</p>
+
+
+<h4>Using <code style="white-space: pre;">{{</code> out of context</h4>
+
+<p>The embrace operator <code><a href="embrace-operator.html">{{</a></code> is a feature available in <a href="topic-data-mask.html">data-masked</a> arguments powered by tidy eval. If you use it elsewhere, it is interpreted as a double <code style="white-space: pre;">{</code> wrapping.
+</p>
+<p>In the R language, <code style="white-space: pre;">{</code> is like <code>(</code> but takes multiple expressions instead of one:<div class="sourceCode r"></p>
+<pre>{
+  1 # Discarded
+  2
+}
+#&gt; [1] 2
+
+list(
+  { message("foo"); 2 }
+)
+#&gt; foo
+#&gt; [[1]]
+#&gt; [1] 2
+</pre></div>
+<p>Just like you can wrap an expression in as many parentheses as you'd like, you can wrap multiple times with braces:<div class="sourceCode r"></p>
+<pre>((1))
+#&gt; [1] 1
+
+{{ 2 }}
+#&gt; [1] 2
+</pre></div>
+<p>So nothing prevents you from embracing a function argument in a context where this operation is not implemented. R will just treat the braces like a set of parentheses and silently return the result:<div class="sourceCode r"></p>
+<pre>f &lt;- function(arg) list({{ arg }})
+f(1)
+#&gt; [[1]]
+#&gt; [1] 1
+</pre></div>
+<p>This sort of no-effect embracing should be avoided in real code because it falsely suggests that the function supports the tidy eval operator and that something special is happening.
+</p>
+<p>However in many cases embracing is done to implement <a href="topic-data-mask.html">data masking</a>. It is likely that the function will be called with data-variables references which R won't be able to resolve properly:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  with(data, mean({{ var }}))
+}
+
+my_mean(mtcars, cyl)
+#&gt; Error in mean({: object 'cyl' not found
+</pre></div>
+<p>Since <code><a href="../../base/html/with.html">with()</a></code> is a base data-masking function that doesn't support tidy eval operators, the embrace operator does not work and we get an object not found error.
+</p>
+
+
+
+<h4>Using <code style="white-space: pre;">!!</code> and <code style="white-space: pre;">!!!</code> out of context</h4>
+
+<p>The injection operators <code><a href="injection-operator.html">!!</a></code> and <code><a href="splice-operator.html">!!!</a></code> are implemented in <a href="topic-data-mask.html">data-masked</a> arguments, <a href="dyn-dots.html">dynamic dots</a>, and within <code><a href="inject.html">inject()</a></code>. When used in other contexts, they are interpreted by R as double and triple <em>negations</em>.
+</p>
+<p>Double negation can be used in ordinary code to convert an input to logical:<div class="sourceCode r"></p>
+<pre>!!10
+#&gt; [1] TRUE
+
+!!0
+#&gt; [1] FALSE
+</pre></div>
+<p>Triple negation is essentially the same as simple negation:<div class="sourceCode r"></p>
+<pre>!10
+#&gt; [1] FALSE
+
+!!!10
+#&gt; [1] FALSE
+</pre></div>
+<p>This means that when injection operators are used in the wrong place, they will be interpreted as negation. In the best case scenario you will get a type error:<div class="sourceCode r"></p>
+<pre>!"foo"
+#&gt; Error in !"foo": invalid argument type
+
+!quote(foo)
+#&gt; Error in !quote(foo): invalid argument type
+
+!quote(foo())
+#&gt; Error in !quote(foo()): invalid argument type
+</pre></div>
+<p>In the worst case, R will silently convert the input to logical. Unfortunately there is no systematic way of checking for these errors.
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

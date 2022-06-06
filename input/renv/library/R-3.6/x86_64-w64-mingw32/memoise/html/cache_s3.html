@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Amazon Web Services S3 Cache Amazon Web Services S3 backed...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cache_s3 {memoise}"><tr><td>cache_s3 {memoise}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Amazon Web Services S3 Cache
+Amazon Web Services S3 backed cache, for remote caching.</h2>
+
+<h3>Description</h3>
+
+<p>Amazon Web Services S3 Cache
+Amazon Web Services S3 backed cache, for remote caching.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cache_s3(cache_name, algo = "sha512", compress = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cache_name</code></td>
+<td>
+<p>Bucket name for storing cache files.</p>
+</td></tr>
+<tr valign="top"><td><code>algo</code></td>
+<td>
+<p>The hashing algorithm used for the cache, see
+<code><a href="../../digest/html/digest.html">digest</a></code> for available algorithms.</p>
+</td></tr>
+<tr valign="top"><td><code>compress</code></td>
+<td>
+<p>Argument passed to <code>saveRDS</code>. One of FALSE, &quot;gzip&quot;,
+&quot;bzip2&quot; or &quot;xz&quot;. Default: FALSE.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+# Set AWS credentials.
+Sys.setenv("AWS_ACCESS_KEY_ID" = "&lt;access key&gt;",
+           "AWS_SECRET_ACCESS_KEY" = "&lt;access secret&gt;")
+
+# Set up a unique bucket name.
+s3 &lt;- cache_s3("unique-bucket-name")
+mem_runif &lt;- memoise(runif, cache = s3)
+
+## End(Not run)
+
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>memoise</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

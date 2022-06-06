@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Details About Manipulation of Strings Containing Control...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fansi {fansi}"><tr><td>fansi {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Details About Manipulation of Strings Containing Control Sequences</h2>
+
+<h3>Description</h3>
+
+<p>Counterparts to R string manipulation functions that account for
+the effects of some ANSI X3.64 (a.k.a. ECMA-48, ISO-6429) control sequences.
+</p>
+
+
+<h3>Control Characters and Sequences</h3>
+
+<p>Control characters and sequences are non-printing inline characters or
+sequences initiated by them that can be used to modify terminal display and
+behavior, for example by changing text color or cursor position.
+</p>
+<p>We will refer to X3.64/ECMA-48/ISO-6429 control characters and sequences as
+&quot;<em>Control Sequences</em>&quot; hereafter.
+</p>
+<p>There are four types of <em>Control Sequences</em> that <code>fansi</code> can treat
+specially:
+</p>
+
+<ul>
+<li><p> &quot;C0&quot; control characters, such as tabs and carriage returns (we include
+delete in this set, even though technically it is not part of it).
+</p>
+</li>
+<li><p> Sequences starting in &quot;ESC[&quot;, also known as Control Sequence
+Introducer (CSI) sequences, of which the Select Graphic Rendition (SGR)
+sequences used to format terminal output are a subset.
+</p>
+</li>
+<li><p> Sequences starting in &quot;ESC]&quot;, also known as Operating System
+Commands (OSC), of which the subset beginning with &quot;8&quot; is used to encode
+URI based hyperlinks.
+</p>
+</li>
+<li><p> Sequences starting in &quot;ESC&quot; and followed by something other than &quot;[&quot; or
+&quot;]&quot;.
+</p>
+</li></ul>
+
+<p><em>Control Sequences</em> starting with ESC are assumed to be two characters
+long (including the ESC) unless they are of the CSI or OSC variety, in which
+case their length is computed as per the <a href="https://www.ecma-international.org/publications-and-standards/standards/ecma-48/">ECMA-48 specification</a>,
+with the exception that <a href="#osc-hyperlinks">OSC hyperlinks</a> may be terminated
+with BEL (&quot;\a&quot;) in addition to ST (&quot;ESC\&quot;).  <code>fansi</code> handles most common
+<em>Control Sequences</em> in its parsing algorithms, but it is not a conforming
+implementation of ECMA-48.  For example, there are non-CSI/OSC escape
+sequences that may be longer than two characters, but <code>fansi</code> will
+(incorrectly) treat them as if they were two characters long.  There are many
+more unimplemented ECMA-48 specifications.
+</p>
+<p>In theory it is possible to encode CSI sequences with a single byte
+introducing character in the 0x40-0x5F range instead of the traditional
+&quot;ESC[&quot;.  Since this is rare and it conflicts with UTF-8 encoding, <code>fansi</code>
+does not support it.
+</p>
+<p>Within <em>Control Sequences</em>, <code>fansi</code> further distinguishes CSI SGR and OSC
+hyperlinks by recording format specification and URIs into string state, and
+applying the same to any output strings according to the semantics of the
+functions in use.  CSI SGR and OSC hyperlinks are known together as <em>Special
+Sequences</em>.  See the following sections for details.
+</p>
+<p>Additionally, all <em>Control Sequences</em>, whether special or not,
+do not count as characters, graphemes, or display width.  You can cause
+<code>fansi</code> to treat particular <em>Control Sequences</em> as regular characters with
+the <code>ctl</code> parameter.
+</p>
+
+
+<h3>CSI SGR Control Sequences</h3>
+
+<p><strong>NOTE</strong>: not all displays support CSI SGR sequences; run
+<code><a href="term_cap_test.html">term_cap_test</a></code> to see whether your display supports them.
+</p>
+<p>CSI SGR Control Sequences are the subset of CSI sequences that can be
+used to change text appearance (e.g. color).  These sequences begin with
+&quot;ESC[&quot; and end in &quot;m&quot;.  <code>fansi</code> interprets these sequences and writes new
+ones to the output strings in such a way that the original formatting is
+preserved.  In most cases this should be transparent to the user.
+</p>
+<p>Occasionally there may be mismatches between how <code>fansi</code> and a display
+interpret the CSI SGR sequences, which may produce display artifacts.  The
+most likely source of artifacts are <em>Control Sequences</em> that move
+the cursor or change the display, or that <code>fansi</code> otherwise fails to
+interpret, such as:
+</p>
+
+<ul>
+<li><p> Unknown SGR substrings.
+</p>
+</li>
+<li><p> &quot;C0&quot; control characters like tabs and carriage returns.
+</p>
+</li>
+<li><p> Other escape sequences.
+</p>
+</li></ul>
+
+<p>Another possible source of problems is that different displays parse
+and interpret control sequences differently.  The common CSI SGR sequences
+that you are likely to encounter in formatted text tend to be treated
+consistently, but less common ones are not.  <code>fansi</code> tries to hew by the
+ECMA-48 specification <strong>for CSI SGR control sequences</strong>, but not all
+terminals do.
+</p>
+<p>The most likely source of problems will be 24-bit CSI SGR sequences.
+For example, a 24-bit color sequence such as &quot;ESC[38;2;31;42;4&quot; is a
+single foreground color to a terminal that supports it, or separate
+foreground, background, faint, and underline specifications for one that does
+not.  <code>fansi</code> will always interpret the sequences according to ECMA-48, but
+it will warn you if encountered sequences exceed those specified by
+the <code>term.cap</code> parameter or the &quot;fansi.term.cap&quot; global option.
+</p>
+<p><code>fansi</code> will will also warn if it encounters <em>Control Sequences</em> that it
+cannot interpret.  You can turn off warnings via the <code>warn</code> parameter, which
+can be set globally via the &quot;fansi.warn&quot; option.  You can work around &quot;C0&quot;
+tabs characters by turning them into spaces first with <code><a href="tabs_as_spaces.html">tabs_as_spaces</a></code> or
+with the <code>tabs.as.spaces</code> parameter available in some of the <code>fansi</code>
+functions
+</p>
+<p><code>fansi</code> interprets CSI SGR sequences in cumulative &quot;Graphic Rendition
+Combination Mode&quot;.  This means new SGR sequences add to rather than replace
+previous ones, although in some cases the effect is the same as replacement
+(e.g. if you have a color active and pick another one).
+</p>
+
+
+<h3>OSC Hyperlinks</h3>
+
+<p>Operating System Commands are interpreted by terminal emulators typically to
+engage actions external to the display of text proper, such as setting a
+window title or changing the active color palette.
+</p>
+<p><a href="https://iterm2.com/documentation-escape-codes.html">Some terminals</a> have
+added support for associating URIs to text with OSCs in a similar way to
+anchors in HTML, so <code>fansi</code> interprets them and outputs or terminates them as
+needed.  For example:</p>
+<pre>"\033]8;;xy.z\033\\LINK\033]8;;\033\\"
+</pre>
+<p>Might be interpreted as link to the URI &quot;x.z&quot;.  To make the encoding pattern
+clearer, we replace &quot;\033]&quot; with &quot;&lt;OSC&gt;&quot; and &quot;\033\\&quot; with
+&quot;&lt;ST&gt;&quot; below:</p>
+<pre>&lt;OSC&gt;8;;URI&lt;ST&gt;LINK TEXT&lt;OSC&gt;8;;&lt;ST&gt;
+</pre>
+
+
+<h3>State Interactions</h3>
+
+<p>The cumulative nature of state as specified by SGR or OSC hyperlinks means
+that unterminated strings that are spliced will interact with each other.
+By extension, a substring does not inherently contain all the information
+required to recreate its state as it appeared in the source document. The
+default <code>fansi</code> configuration terminates extracted substrings and prepends
+original state to them so they present on a stand-alone basis as they did as
+part of the original string.
+</p>
+<p>To allow state in substrings to affect subsequent strings set <code>terminate = FALSE</code>, but you will need to manually terminate them or deal with the
+consequences of not doing so (see &quot;Terminal Quirks&quot;).
+</p>
+<p>By default, <code>fansi</code> assumes that each element in an input character vector is
+independent, but this is incorrect if the input is a single document with
+each element a line in it.  In that situation state from each line should
+bleed into subsequent ones.  Setting <code>carry = TRUE</code> enables the &quot;single
+document&quot; interpretation.
+</p>
+<p>To most closely approximate what <code>writeLines(x)</code> produces on your terminal,
+where <code>x</code> is a stateful string, use <code>writeLines(fansi_fun(x, carry=TRUE, terminate=FALSE))</code>.  <code>fansi_fun</code> is a stand-in for any of the <code>fansi</code> string
+manipulation functions.  Note that even with a seeming &quot;null-op&quot; such as
+<code>substr_ctl(x, 1, nchar_ctl(x), carry=TRUE, terminate=FALSE)</code> the output
+control sequences may not match the input ones, but the output <em>should</em> look
+the same if displayed to the terminal.
+</p>
+<p><code>fansi</code> strings will be affected by any active state in strings they are
+appended to.  There are no parameters to control what happens in this case,
+but <code>fansi</code> provides functions that can help the user get the desired
+behavior.  <code>state_at_end</code> computes the active state the end of a string,
+which can then be prepended onto the <em>input</em> of <code>fansi</code> functions so that
+they are aware of the active style at the beginning of the string.
+Alternatively, one could use <code>close_state(state_at_end(...))</code> and pre-pend
+that to the <em>output</em> of <code>fansi</code> functions so they are unaffected by preceding
+SGR.  One could also just prepend &quot;ESC[0m&quot;, but in some cases as
+described in <code><a href="normalize_state.html">?normalize_state</a></code> that is sub-optimal.
+</p>
+<p>If you intend to combine stateful <code>fansi</code> manipulated strings with your own,
+it may be best to set <code>normalize = TRUE</code> for improved compatibility (see
+<code><a href="normalize_state.html">?normalize_state</a></code>.)
+</p>
+
+
+<h3>Terminal Quirks</h3>
+
+<p>Some terminals (e.g. OS X terminal, ITerm2) will pre-paint the entirety of a
+new line with the currently active background before writing the contents of
+the line.  If there is a non-default active background color, any unwritten
+columns in the new line will keep the prior background color even if the new
+line changes the background color.  To avoid this be sure to use <code>terminate = TRUE</code> or to manually terminate each line with e.g.  &quot;ESC[0m&quot;.  The
+problem manifests as:</p>
+<pre>" " = default background
+"#" = new background
+"&gt;" = start new background
+"!" = restore default background
+
++-----------+
+| abc\n     |
+|&gt;###\n     |
+|!abc\n#####| &lt;- trailing "#" after newline are from pre-paint
+| abc       |
++-----------+
+</pre>
+<p>The simplest way to avoid this problem is to split input strings by any
+newlines they contain, and use <code>terminate = TRUE</code> (the default).  A more
+complex solution is to pad with spaces to the terminal window width before
+emitting the newline to ensure the pre-paint is overpainted with the current
+line's prevailing background color.
+</p>
+
+
+<h3>Encodings / UTF-8</h3>
+
+<p><code>fansi</code> will convert any non-ASCII strings to UTF-8 before processing them,
+and <code>fansi</code> functions that return strings will return them encoded in UTF-8.
+In some cases this will be different to what base R does.  For example,
+<code>substr</code> re-encodes substrings to their original encoding.
+</p>
+<p>Interpretation of UTF-8 strings is intended to be consistent with base R.
+There are three ways things may not work out exactly as desired:
+</p>
+
+<ol>
+<li> <p><code>fansi</code>, despite its best intentions, handles a UTF-8 sequence differently
+to the way R does.
+</p>
+</li>
+<li><p> R incorrectly handles a UTF-8 sequence.
+</p>
+</li>
+<li><p> Your display incorrectly handles a UTF-8 sequence.
+</p>
+</li></ol>
+
+<p>These issues are most likely to occur with invalid UTF-8 sequences,
+combining character sequences, and emoji.  For example, whether special
+characters such as emoji are considered one or two wide evolves as software
+implements newer versions the Unicode databases.
+</p>
+<p>Internally, <code>fansi</code> computes the width of most UTF-8 character sequences
+outside of the ASCII range using the native <code>R_nchar</code> function.  This will
+cause such characters to be processed slower than ASCII characters.  Unlike R
+(at least as of version 4.1), <code>fansi</code> can account for graphemes.
+</p>
+<p>Because <code>fansi</code> implements its own internal UTF-8 parsing it is possible
+that you will see results different from those that R produces even on
+strings without <em>Control Sequences</em>.
+</p>
+
+
+<h3>Overflow</h3>
+
+<p>The maximum length of input character vector elements allowed by <code>fansi</code> is
+the 32 bit INT_MAX, excluding the terminating NULL.  As of R4.1 this is the
+limit for R character vector elements generally, but is enforced at the C
+level by <code>fansi</code> nonetheless.
+</p>
+<p>It is possible that during processing strings that are shorter than INT_MAX
+would become longer than that. <code>fansi</code> checks for that overflow and will
+stop with an error if that happens.  A work-around for this situation is to
+break up large strings into smaller ones.  The limit is on each element of a
+character vector, not on the vector as a whole.  <code>fansi</code> will also error on
+your system if <code>R_len_t</code>, the R type used to measure string lengths, is less
+than the processed length of the string.
+</p>
+
+
+<h3>R &lt; 3.2.2 support</h3>
+
+<p>Nominally you can build and run this package in R versions between 3.1.0 and
+3.2.1.  Things should mostly work, but please be aware we do not run the test
+suite under versions of R less than 3.2.2.  One key degraded capability is
+width computation of wide-display characters.  Under R &lt; 3.2.2 <code>fansi</code> will
+assume every character is 1 display width.  Additionally, <code>fansi</code> may not
+always report malformed UTF-8 sequences as it usually does.  One
+exception to this is <code><a href="nchar_ctl.html">nchar_ctl</a></code> as that is just a thin wrapper around
+<code><a href="../../base/html/nchar.html">base::nchar</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

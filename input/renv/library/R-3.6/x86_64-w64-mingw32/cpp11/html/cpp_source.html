@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compile C++ code</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cpp_source {cpp11}"><tr><td>cpp_source {cpp11}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compile C++ code</h2>
+
+<h3>Description</h3>
+
+<p><code><a href="cpp_source.html">cpp_source()</a></code> compiles and loads a single C++ file for use in R.
+<code><a href="cpp_source.html">cpp_function()</a></code> compiles and loads a single function for use in R.
+<code><a href="cpp_source.html">cpp_eval()</a></code> evaluates a single C++ expression and returns the result.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cpp_source(
+  file,
+  code = NULL,
+  env = parent.frame(),
+  clean = TRUE,
+  quiet = TRUE,
+  cxx_std = Sys.getenv("CXX_STD", "CXX11"),
+  dir = tempfile()
+)
+
+cpp_function(
+  code,
+  env = parent.frame(),
+  clean = TRUE,
+  quiet = TRUE,
+  cxx_std = Sys.getenv("CXX_STD", "CXX11")
+)
+
+cpp_eval(
+  code,
+  env = parent.frame(),
+  clean = TRUE,
+  quiet = TRUE,
+  cxx_std = Sys.getenv("CXX_STD", "CXX11")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A file containing C++ code to compile</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>If non-null, the C++ code to compile</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The R environment where the R wrapping functions should be defined.</p>
+</td></tr>
+<tr valign="top"><td><code>clean</code></td>
+<td>
+<p>If <code>TRUE</code>, cleanup the files after sourcing</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If 'TRUE', do not show compiler output</p>
+</td></tr>
+<tr valign="top"><td><code>cxx_std</code></td>
+<td>
+<p>The C++ standard to use, the <code>CXX_STD</code> make macro is set to
+this value. The default value queries the <code>CXX_STD</code> environment variable, or
+uses 'CXX11' if unset.</p>
+</td></tr>
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>The directory to store the generated source files. <code>tempfile()</code> is
+used by default. The directory will be removed if <code>clean</code> is <code>TRUE</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Within C++ code you can use <code style="white-space: pre;">[[cpp11::linking_to("pkgxyz")]]</code> to link to
+external packages. This is equivalent to putting those packages in the
+<code>LinkingTo</code> field in a package DESCRIPTION.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code><a href="cpp_source.html">cpp_source()</a></code> and <code style="white-space: pre;">[cpp_function()]</code> the results of
+<code><a href="../../base/html/dynload.html">dyn.load()</a></code> (invisibly). For <code style="white-space: pre;">[cpp_eval()]</code> the results of the evaluated
+expression.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+cpp_source(
+  code = '#include "cpp11/integers.hpp"
+
+  [[cpp11::register]]
+  int num_odd(cpp11::integers x) {
+    int total = 0;
+    for (int val : x) {
+      if ((val % 2) == 1) {
+        ++total;
+      }
+    }
+    return total;
+  }
+  ')
+
+num_odd(as.integer(c(1:10, 15, 23)))
+
+if (interactive() &amp;&amp; require("progress")) {
+
+cpp_source(
+  code = '
+#include &lt;cpp11/R.hpp&gt;
+#include &lt;RProgress.h&gt;
+
+[[cpp11::linking_to("progress")]]
+
+[[cpp11::register]] void
+show_progress() {
+  RProgress::RProgress pb("Processing [:bar] ETA: :eta");
+
+  pb.tick(0);
+  for (int i = 0; i &lt; 100; i++) {
+    usleep(2.0 / 100 * 1000000);
+    pb.tick();
+  }
+}
+')
+
+show_progress()
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cpp11</em> version 0.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

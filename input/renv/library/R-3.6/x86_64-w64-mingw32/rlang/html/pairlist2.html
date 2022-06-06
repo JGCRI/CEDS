@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Collect dynamic dots in a pairlist</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pairlist2 {rlang}"><tr><td>pairlist2 {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Collect dynamic dots in a pairlist</h2>
+
+<h3>Description</h3>
+
+<p>This pairlist constructor uses <a href="dyn-dots.html">dynamic dots</a>. Use
+it to manually create argument lists for calls or parameter lists
+for functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pairlist2(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="dyn-dots.html">dynamic</a>&gt; Arguments stored in the
+pairlist. Empty arguments are preserved.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Unlike `exprs()`, `pairlist2()` evaluates its arguments.
+new_function(pairlist2(x = 1, y = 3 * 6), quote(x * y))
+new_function(exprs(x = 1, y = 3 * 6), quote(x * y))
+
+# It preserves missing arguments, which is useful for creating
+# parameters without defaults:
+new_function(pairlist2(x = , y = 3 * 6), quote(x * y))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

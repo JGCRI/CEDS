@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Functions for generating pandoc command line arguments</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pandoc_args {rmarkdown}"><tr><td>pandoc_args {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Functions for generating pandoc command line arguments</h2>
+
+<h3>Description</h3>
+
+<p>Functions that assist in creating various types of pandoc command line
+arguments (e.g. for templates, table of contents, highlighting, and content
+includes).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pandoc_variable_arg(name, value)
+
+pandoc_metadata_arg(name, value)
+
+pandoc_include_args(in_header = NULL, before_body = NULL, after_body = NULL)
+
+pandoc_highlight_args(highlight, default = "tango")
+
+pandoc_latex_engine_args(latex_engine)
+
+pandoc_toc_args(toc, toc_depth = 3)
+
+pandoc_citeproc_args()
+
+pandoc_lua_filter_args(lua_files)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of template variable to set.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>Value of template variable (defaults to <code>true</code> if missing).</p>
+</td></tr>
+<tr valign="top"><td><code>in_header</code></td>
+<td>
+<p>One or more files with content to be included in the
+header of the document.</p>
+</td></tr>
+<tr valign="top"><td><code>before_body</code></td>
+<td>
+<p>One or more files with content to be included before
+the document body.</p>
+</td></tr>
+<tr valign="top"><td><code>after_body</code></td>
+<td>
+<p>One or more files with content to be included after the
+document body.</p>
+</td></tr>
+<tr valign="top"><td><code>highlight</code></td>
+<td>
+<p>The name of a pandoc syntax highlighting theme.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>The highlighting theme to use if &quot;default&quot;
+is specified.</p>
+</td></tr>
+<tr valign="top"><td><code>latex_engine</code></td>
+<td>
+<p>LaTeX engine for producing PDF output. Options are
+&quot;pdflatex&quot;, &quot;lualatex&quot;, &quot;xelatex&quot;, and &quot;tectonic&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>toc</code></td>
+<td>
+<p><code>TRUE</code> to include a table of contents in the output.</p>
+</td></tr>
+<tr valign="top"><td><code>toc_depth</code></td>
+<td>
+<p>Depth of headers to include in table of contents.</p>
+</td></tr>
+<tr valign="top"><td><code>lua_files</code></td>
+<td>
+<p>Character vector of file paths to Lua filter files. Paths
+will be transformed by <code><a href="pandoc_path_arg.html">pandoc_path_arg</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Non-absolute paths for resources referenced from the
+<code>in_header</code>, <code>before_body</code>, and <code>after_body</code>
+parameters are resolved relative to the directory of the input document.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector with pandoc command line arguments.
+</p>
+
+
+<h3>About Pandoc citeproc</h3>
+
+<p>For Pandoc version before 2.11, a pandoc filter <span class="samp">pandoc-citeproc</span> is
+used. Since Pandoc 2.11, the feature is built-in and activated using
+<span class="samp">--citeproc</span> flag. <span class="samp">pandoc_citeproc_arg</span> will return the correct
+switches depending on the Pandoc version in use.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+
+pandoc_include_args(before_body = "header.htm")
+pandoc_include_args(before_body = "header.tex")
+
+pandoc_highlight_args("kate")
+
+pandoc_latex_engine_args("pdflatex")
+
+pandoc_toc_args(toc = TRUE, toc_depth = 2)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

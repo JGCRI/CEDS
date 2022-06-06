@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the statement associated with a result set</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbGetStatement {DBI}"><tr><td>dbGetStatement {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the statement associated with a result set</h2>
+
+<h3>Description</h3>
+
+<p>Returns the statement that was passed to <code><a href="dbSendQuery.html">dbSendQuery()</a></code>
+or <code><a href="dbSendStatement.html">dbSendStatement()</a></code>.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbGetStatement(res, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>res</code></td>
+<td>
+<p>An object inheriting from <a href="DBIResult-class.html">DBIResult</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>dbGetStatement()</code> returns a string, the query used in
+either <code><a href="dbSendQuery.html">dbSendQuery()</a></code>
+or <code><a href="dbSendStatement.html">dbSendStatement()</a></code>.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>Attempting to query the statement for a result set cleared with
+<code><a href="dbClearResult.html">dbClearResult()</a></code> gives an error.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbWriteTable(con, "mtcars", mtcars)
+rs &lt;- dbSendQuery(con, "SELECT * FROM mtcars")
+dbGetStatement(rs)
+
+dbClearResult(rs)
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

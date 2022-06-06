@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Graphical User Interface to Pick Colors in HCL Space</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hcl_color_picker {colorspace}"><tr><td>hcl_color_picker {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Graphical User Interface to Pick Colors in HCL Space</h2>
+
+<h3>Description</h3>
+
+<p>The app visualizes colors either along the hue-chroma plane for a given luminance value or along the
+luminance-chroma plane for a given hue. Colors can be entered by specifying the hue (H), chroma (C),
+and luminance (L) values via sliders, by entering an RGB hex code, or by clicking on a color in the
+hue-chroma or luminance-chroma plane. It is also possible to select individual colors and add them
+to a palette for comparison and future reference.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hcl_color_picker(shiny.trace = FALSE)
+
+choose_color(shiny.trace = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>shiny.trace</code></td>
+<td>
+<p>logical: used for debugging the shiny interface.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>choose_color</code> is a convenience alias for <code>hcl_color_picker</code> to
+go along with <code><a href="choose_palette.html">choose_palette</a></code>. Another alias is <code>hclcolorpicker</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>hclcolorpicker</code> invisibly returns a vector of colors choosen.
+If no colors have been selected <code>NULL</code> will be returned.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Claus O. Wilke, Reto Stauffer, Achim Zeileis
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="choose_palette.html">choose_palette</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+hcl_color_picker()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

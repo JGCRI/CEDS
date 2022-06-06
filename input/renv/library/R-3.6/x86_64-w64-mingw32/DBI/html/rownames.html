@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert row names back and forth between columns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rownames {DBI}"><tr><td>rownames {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert row names back and forth between columns</h2>
+
+<h3>Description</h3>
+
+<p>These functions provide a reasonably automatic way of preserving the row
+names of data frame during back-and-forth translation to an SQL table.
+By default, row names will be converted to an explicit column
+called &quot;row_names&quot;, and any query returning a column called &quot;row_names&quot;
+will have those automatically set as row names.
+These methods are mostly useful for backend implementers.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sqlRownamesToColumn(df, row.names = NA)
+
+sqlColumnToRownames(df, row.names = NA)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>A data frame</p>
+</td></tr>
+<tr valign="top"><td><code>row.names</code></td>
+<td>
+<p>Either <code>TRUE</code>, <code>FALSE</code>, <code>NA</code> or a string.
+</p>
+<p>If <code>TRUE</code>, always translate row names to a column called &quot;row_names&quot;.
+If <code>FALSE</code>, never translate row names. If <code>NA</code>, translate
+rownames only if they're a character vector.
+</p>
+<p>A string is equivalent to <code>TRUE</code>, but allows you to override the
+default name.
+</p>
+<p>For backward compatibility, <code>NULL</code> is equivalent to <code>FALSE</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# If have row names
+sqlRownamesToColumn(head(mtcars))
+sqlRownamesToColumn(head(mtcars), FALSE)
+sqlRownamesToColumn(head(mtcars), "ROWNAMES")
+
+# If don't have
+sqlRownamesToColumn(head(iris))
+sqlRownamesToColumn(head(iris), TRUE)
+sqlRownamesToColumn(head(iris), "ROWNAMES")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

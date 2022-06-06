@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Print an expression</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expr_print {rlang}"><tr><td>expr_print {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Print an expression</h2>
+
+<h3>Description</h3>
+
+<p><code>expr_print()</code>, powered by <code>expr_deparse()</code>, is an alternative
+printer for R expressions with a few improvements over the base R
+printer.
+</p>
+
+<ul>
+<li><p> It colourises <a href="topic-defuse.html">quosures</a> according to their environment.
+Quosures from the global environment are printed normally while
+quosures from local environments are printed in unique colour (or
+in italic when all colours are taken).
+</p>
+</li>
+<li><p> It wraps inlined objects in angular brackets. For instance, an
+integer vector unquoted in a function call (e.g.
+<code>expr(foo(!!(1:3)))</code>) is printed like this: <code style="white-space: pre;">foo(&lt;int: 1L, 2L, 3L&gt;)</code> while by default R prints the code to create that vector:
+<code>foo(1:3)</code> which is ambiguous.
+</p>
+</li>
+<li><p> It respects the width boundary (from the global option <code>width</code>)
+in more cases.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+expr_print(x, ...)
+
+expr_deparse(x, ..., width = peek_option("width"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object or expression to print.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments passed to <code>expr_deparse()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>The width of the deparsed or printed expression.
+Defaults to the global option <code>width</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>expr_deparse()</code> returns a character vector of lines.
+<code>expr_print()</code> returns its input invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# It supports any object. Non-symbolic objects are always printed
+# within angular brackets:
+expr_print(1:3)
+expr_print(function() NULL)
+
+# Contrast this to how the code to create these objects is printed:
+expr_print(quote(1:3))
+expr_print(quote(function() NULL))
+
+# The main cause of non-symbolic objects in expressions is
+# quasiquotation:
+expr_print(expr(foo(!!(1:3))))
+
+
+# Quosures from the global environment are printed normally:
+expr_print(quo(foo))
+expr_print(quo(foo(!!quo(bar))))
+
+# Quosures from local environments are colourised according to
+# their environments (if you have crayon installed):
+local_quo &lt;- local(quo(foo))
+expr_print(local_quo)
+
+wrapper_quo &lt;- local(quo(bar(!!local_quo, baz)))
+expr_print(wrapper_quo)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write a data frame to a delimited file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vroom_write {vroom}"><tr><td>vroom_write {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write a data frame to a delimited file</h2>
+
+<h3>Description</h3>
+
+<p>Write a data frame to a delimited file
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vroom_write(
+  x,
+  file,
+  delim = "\t",
+  eol = "\n",
+  na = "NA",
+  col_names = !append,
+  append = FALSE,
+  quote = c("needed", "all", "none"),
+  escape = c("double", "backslash", "none"),
+  bom = FALSE,
+  num_threads = vroom_threads(),
+  progress = vroom_progress(),
+  path = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data frame or tibble to write to disk.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>File or connection to write to.</p>
+</td></tr>
+<tr valign="top"><td><code>delim</code></td>
+<td>
+<p>Delimiter used to separate values. Defaults to <code style="white-space: pre;">\t</code> to write
+tab separated value (TSV) files.</p>
+</td></tr>
+<tr valign="top"><td><code>eol</code></td>
+<td>
+<p>The end of line character to use. Most commonly either <code>"\n"</code> for
+Unix style newlines, or <code>"\r\n"</code> for Windows style newlines.</p>
+</td></tr>
+<tr valign="top"><td><code>na</code></td>
+<td>
+<p>String used for missing values. Defaults to 'NA'.</p>
+</td></tr>
+<tr valign="top"><td><code>col_names</code></td>
+<td>
+<p>If <code>FALSE</code>, column names will not be included at the top of the file. If <code>TRUE</code>,
+column names will be included. If not specified, <code>col_names</code> will take the opposite value given to <code>append</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>append</code></td>
+<td>
+<p>If <code>FALSE</code>, will overwrite existing file. If <code>TRUE</code>,
+will append to existing file. In both cases, if the file does not exist a new
+file is created.</p>
+</td></tr>
+<tr valign="top"><td><code>quote</code></td>
+<td>
+<p>How to handle fields which contain characters that need to be quoted.
+</p>
+
+<ul>
+<li> <p><code>needed</code> - Only quote fields which need them.
+</p>
+</li>
+<li> <p><code>all</code> - Quote all fields.
+</p>
+</li>
+<li> <p><code>none</code> - Never quote fields.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>escape</code></td>
+<td>
+<p>The type of escape to use when quotes are in the data.
+</p>
+
+<ul>
+<li> <p><code>double</code> - quotes are escaped by doubling them.
+</p>
+</li>
+<li> <p><code>backslash</code> - quotes are escaped by a preceding backslash.
+</p>
+</li>
+<li> <p><code>none</code> - quotes are not escaped.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>bom</code></td>
+<td>
+<p>If <code>TRUE</code> add a UTF-8 BOM at the beginning of the file. This is
+recommended when saving data for consumption by excel, as it will force
+excel to read the data with the correct encoding (UTF-8)</p>
+</td></tr>
+<tr valign="top"><td><code>num_threads</code></td>
+<td>
+<p>Number of threads to use when reading and materializing
+vectors. If your data contains newlines within fields the parser will
+automatically be forced to use a single thread only.</p>
+</td></tr>
+<tr valign="top"><td><code>progress</code></td>
+<td>
+<p>Display a progress bar? By default it will only display
+in an interactive session and not while knitting a document. The display
+is updated every 50,000 values and will only display if estimated reading
+time is 5 seconds or more. The automatic progress bar can be disabled by
+setting option <code>readr.show_progress</code> to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> is no longer supported, use
+<code>file</code> instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# If you only specify a file name, vroom_write() will write
+# the file to your current working directory.
+out_file &lt;- tempfile(fileext = "csv")
+vroom_write(mtcars, out_file, ",")
+
+# You can also use a literal filename
+# vroom_write(mtcars, "mtcars.tsv")
+
+# If you add an extension to the file name, write_()* will
+# automatically compress the output.
+# vroom_write(mtcars, "mtcars.tsv.gz")
+# vroom_write(mtcars, "mtcars.tsv.bz2")
+# vroom_write(mtcars, "mtcars.tsv.xz")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

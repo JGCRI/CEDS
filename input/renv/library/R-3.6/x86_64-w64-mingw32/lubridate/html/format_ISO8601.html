@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format in ISO8601 character format</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for format_ISO8601 {lubridate}"><tr><td>format_ISO8601 {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format in ISO8601 character format</h2>
+
+<h3>Description</h3>
+
+<p>Format in ISO8601 character format
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+format_ISO8601(x, usetz = FALSE, precision = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to convert to ISO8601 character format.</p>
+</td></tr>
+<tr valign="top"><td><code>usetz</code></td>
+<td>
+<p>Include the time zone in the formatting (of outputs including
+time; date outputs never include time zone information).</p>
+</td></tr>
+<tr valign="top"><td><code>precision</code></td>
+<td>
+<p>The amount of precision to represent with substrings of
+&quot;ymdhms&quot;, as &quot;y&quot;ear, &quot;m&quot;onth, &quot;d&quot;ay, &quot;h&quot;our, &quot;m&quot;inute, and &quot;s&quot;econd. (e.g.
+&quot;ymdhm&quot; would show precision through minutes.  When <code>NULL</code>, full
+precision for the object is shown.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of ISO8601-formatted text.
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="https://en.wikipedia.org/wiki/ISO_8601">https://en.wikipedia.org/wiki/ISO_8601</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+format_ISO8601(as.Date("02-01-2018", format="%m-%d-%Y"))
+format_ISO8601(as.POSIXct("2018-02-01 03:04:05", tz="EST"), usetz=TRUE)
+format_ISO8601(as.POSIXct("2018-02-01 03:04:05", tz="EST"), precision="ymdhm")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

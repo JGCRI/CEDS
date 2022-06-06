@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate a gargle token</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gargle2.0_token {gargle}"><tr><td>gargle2.0_token {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate a gargle token</h2>
+
+<h3>Description</h3>
+
+<p>Constructor function for objects of class <a href="Gargle-class.html">Gargle2.0</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gargle2.0_token(
+  email = gargle_oauth_email(),
+  app = gargle_app(),
+  package = "gargle",
+  scope = NULL,
+  user_params = NULL,
+  type = NULL,
+  use_oob = gargle_oob_default(),
+  credentials = NULL,
+  cache = if (is.null(credentials)) gargle_oauth_cache() else FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>email</code></td>
+<td>
+<p>Optional. Allows user to target a specific Google identity. If
+specified, this is used for token lookup, i.e. to determine if a suitable
+token is already available in the cache. If no such token is found, <code>email</code>
+is used to pre-select the targetted Google identity in the OAuth chooser.
+Note, however, that the email associated with a token when it's cached is
+always determined from the token itself, never from this argument. Use <code>NA</code>
+or <code>FALSE</code> to match nothing and force the OAuth dance in the browser. Use
+<code>TRUE</code> to allow email auto-discovery, if exactly one matching token is
+found in the cache. Specify just the domain with a glob pattern, e.g.
+<code>"*@example.com"</code>, to create code that &quot;just works&quot; for both
+<code>alice@example.com</code> and <code>bob@example.com</code>. Defaults to the option named
+&quot;gargle_oauth_email&quot;, retrieved by <code><a href="gargle_options.html">gargle_oauth_email()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>app</code></td>
+<td>
+<p>An OAuth consumer application, created by <code><a href="../../httr/html/oauth_app.html">httr::oauth_app()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>Name of the package requesting a token. Used in messages.</p>
+</td></tr>
+<tr valign="top"><td><code>scope</code></td>
+<td>
+<p>A character vector of scopes to request.</p>
+</td></tr>
+<tr valign="top"><td><code>user_params</code></td>
+<td>
+<p>Named list holding endpoint specific parameters to pass to
+the server when posting the request for obtaining or refreshing the
+access token.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>content type used to override incorrect server response</p>
+</td></tr>
+<tr valign="top"><td><code>use_oob</code></td>
+<td>
+<p>Whether to prefer &quot;out of band&quot; authentication. Defaults to
+the option named &quot;gargle_oob_default&quot;, retrieved via
+<code><a href="gargle_options.html">gargle_oob_default()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>credentials</code></td>
+<td>
+<p>Advanced use only: allows you to completely customise
+token generation.</p>
+</td></tr>
+<tr valign="top"><td><code>cache</code></td>
+<td>
+<p>Specifies the OAuth token cache. Defaults to the option named
+&quot;gargle_oauth_cache&quot;, retrieved via <code><a href="gargle_options.html">gargle_oauth_cache()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Absorbs arguments intended for use by other credential functions.
+Not used.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <a href="Gargle-class.html">Gargle2.0</a>, either new or loaded from the cache.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+gargle2.0_token()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

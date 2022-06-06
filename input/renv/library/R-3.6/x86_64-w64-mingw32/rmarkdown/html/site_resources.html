@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine website resource files for a directory</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for site_resources {rmarkdown}"><tr><td>site_resources {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine website resource files for a directory</h2>
+
+<h3>Description</h3>
+
+<p>Determine which files within a given directory should be copied in
+order to serve a website from the directory. Attempts to automatically
+exclude source, data, hidden, and other files not required to serve
+website content.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+site_resources(site_dir, include = NULL, exclude = NULL, recursive = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>site_dir</code></td>
+<td>
+<p>Site directory to analyze</p>
+</td></tr>
+<tr valign="top"><td><code>include</code></td>
+<td>
+<p>Additional files to include (glob wildcards supported)</p>
+</td></tr>
+<tr valign="top"><td><code>exclude</code></td>
+<td>
+<p>Files to exclude  (glob wildcards supported)</p>
+</td></tr>
+<tr valign="top"><td><code>recursive</code></td>
+<td>
+<p><code>TRUE</code> to return a full recursive file listing;
+<code>FALSE</code> to just provide top-level files and directories.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of files and directories to copy
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

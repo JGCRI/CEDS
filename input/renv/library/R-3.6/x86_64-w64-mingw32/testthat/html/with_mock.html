@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Mock functions in a package.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_mock {testthat}"><tr><td>with_mock {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Mock functions in a package.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p><code>with_mock()</code> and <code>local_mock()</code> are superseded in favour of the more
+rigorous techniques found in the <a href="https://krlmlr.github.io/mockr/">mockr</a>
+and <a href="https://github.com/r-lib/mockery#mockery">mockery</a> packages.
+</p>
+<p>Mocking allows you to temporary replace the implementation of functions
+within a package, which useful for testing code that relies on functions
+that are slow, have unintended side effects or access resources that may
+not be available when testing.
+</p>
+<p>This works by using some C code to temporarily modify the mocked function
+<em>in place</em>. On exit, all functions are restored to their previous state.
+This is somewhat abusive of R's internals so use with care. In particular,
+functions in base packages cannot be mocked; to work aroud you'll need to
+make a wrapper function in your own package..
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_mock(..., .env = topenv())
+
+local_mock(..., .env = topenv(), .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>named parameters redefine mocked functions, unnamed parameters
+will be evaluated after mocking the functions</p>
+</td></tr>
+<tr valign="top"><td><code>.env</code></td>
+<td>
+<p>the environment in which to patch the functions,
+defaults to the top-level environment.  A character is interpreted as
+package name.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_env</code></td>
+<td>
+<p>Environment in which to add exit hander.
+For expert use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The result of the last unnamed parameter
+</p>
+
+
+<h3>3rd edition</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>with_mock()</code> and <code>local_mock()</code> are deprecated in the third edition.
+</p>
+
+
+<h3>References</h3>
+
+<p>Suraj Gupta (2012): <a href="http://blog.obeautifulcode.com/R/How-R-Searches-And-Finds-Stuff/">How R Searches And Finds Stuff</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

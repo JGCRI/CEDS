@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: (Deprecated) Tidy dist objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidy.dist {broom}"><tr><td>tidy.dist {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>(Deprecated) Tidy dist objects</h2>
+
+<h3>Description</h3>
+
+<p>(Deprecated) Tidy dist objects
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dist'
+tidy(x, diagonal = attr(x, "Diag"), upper = attr(x, "Upper"), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>dist</code> object returned from <code><a href="../../stats/html/dist.html">stats::dist()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>diagonal</code></td>
+<td>
+<p>Logical indicating whether or not to tidy the diagonal
+elements of the distance matrix. Defaults to whatever was based to the
+<code>diag</code> argument of <code><a href="../../stats/html/dist.html">stats::dist()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>upper</code></td>
+<td>
+<p>Logical indicating whether or not to tidy the upper half of
+the distance matrix. Defaults to whatever was based to the
+<code>upper</code> argument of <code><a href="../../stats/html/dist.html">stats::dist()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If the distance matrix does not include an upper triangle and/or
+diagonal, the tidied version will not either.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../tibble/html/tibble.html">tibble::tibble</a> with one row for each pair of items in the
+distance matrix, with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>item1</code></td>
+<td>
+<p>First item</p>
+</td></tr>
+<tr valign="top"><td><code>item2</code></td>
+<td>
+<p>Second item</p>
+</td></tr>
+<tr valign="top"><td><code>distance</code></td>
+<td>
+<p>Distance between items</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other deprecated: 
+<code><a href="bootstrap.html">bootstrap</a>()</code>,
+<code><a href="confint_tidy.html">confint_tidy</a>()</code>,
+<code><a href="data.frame_tidiers.html">data.frame_tidiers</a></code>,
+<code><a href="finish_glance.html">finish_glance</a>()</code>,
+<code><a href="fix_data_frame.html">fix_data_frame</a>()</code>,
+<code><a href="summary_tidiers.html">summary_tidiers</a></code>,
+<code><a href="tidy.density.html">tidy.density</a>()</code>,
+<code><a href="tidy.ftable.html">tidy.ftable</a>()</code>,
+<code><a href="vector_tidiers.html">tidy.numeric</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+cars_dist &lt;- dist(t(mtcars[, 1:4]))
+cars_dist
+
+tidy(cars_dist)
+tidy(cars_dist, upper = TRUE)
+tidy(cars_dist, diagonal = TRUE)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

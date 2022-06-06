@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get/set months component of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for month {lubridate}"><tr><td>month {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get/set months component of a date-time</h2>
+
+<h3>Description</h3>
+
+<p>Date-time must be a POSIXct, POSIXlt, Date, Period, chron, yearmon, yearqtr, zoo,
+zooreg, timeDate, xts, its, ti, jul, timeSeries, and fts objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+month(x, label = FALSE, abbr = TRUE, locale = Sys.getlocale("LC_TIME"))
+
+month(x) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a date-time object</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>logical. TRUE will display the month as a character string such
+as &quot;January.&quot; FALSE will display the month as a number.</p>
+</td></tr>
+<tr valign="top"><td><code>abbr</code></td>
+<td>
+<p>logical. FALSE will display the month as a character string
+label, such as &quot;January&quot;. TRUE will display an abbreviated version of the
+label, such as &quot;Jan&quot;. abbr is disregarded if label = FALSE.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>for month, locale to use for month names. Default to current locale.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a numeric object</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If <code>label = FALSE</code>: month as number (1-12, 1 = January, 12 = December),
+otherwise as an ordered factor.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd("2012-03-26")
+month(x)
+month(x) &lt;- 1
+month(x) &lt;- 13
+month(x) &gt; 3
+
+month(ymd(080101))
+month(ymd(080101), label = TRUE)
+month(ymd(080101), label = TRUE, abbr = FALSE)
+month(ymd(080101) + months(0:11), label = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

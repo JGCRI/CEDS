@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate or handle a missing argument</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for missing_arg {rlang}"><tr><td>missing_arg {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate or handle a missing argument</h2>
+
+<h3>Description</h3>
+
+<p>These functions help using the missing argument as a regular R
+object.
+</p>
+
+<ul>
+<li> <p><code>missing_arg()</code> generates a missing argument.
+</p>
+</li>
+<li> <p><code>is_missing()</code> is like <code><a href="../../base/html/missing.html">base::missing()</a></code> but also supports
+testing for missing arguments contained in other objects like
+lists. It is also more consistent with default arguments which
+are never treated as missing (see section below).
+</p>
+</li>
+<li> <p><code>maybe_missing()</code> is useful to pass down an input that might be
+missing to another function, potentially substituting by a
+default value. It avoids triggering an &quot;argument is missing&quot; error.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+missing_arg()
+
+is_missing(x)
+
+maybe_missing(x, default = missing_arg())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object that might be the missing argument.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>The object to return if the input is missing,
+defaults to <code>missing_arg()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Other ways to reify the missing argument</h3>
+
+
+<ul>
+<li> <p><code>base::quote(expr = )</code> is the canonical way to create a missing
+argument object.
+</p>
+</li>
+<li> <p><code>expr()</code> called without argument creates a missing argument.
+</p>
+</li>
+<li> <p><code>quo()</code> called without argument creates an empty quosure, i.e. a
+quosure containing the missing argument object.
+</p>
+</li></ul>
+
+
+
+<h3><code>is_missing()</code> and default arguments</h3>
+
+<p>The base function <code><a href="missing.html">missing()</a></code> makes a distinction between default
+values supplied explicitly and default values generated through a
+missing argument:<div class="sourceCode r"></p>
+<pre>fn &lt;- function(x = 1) base::missing(x)
+
+fn()
+</pre></div><pre>## [1] TRUE
+</pre><div class="sourceCode r"><pre>fn(1)
+</pre></div><pre>## [1] FALSE
+</pre>
+<p>This only happens within a function. If the default value has been
+generated in a calling function, it is never treated as missing:<div class="sourceCode r"></p>
+<pre>caller &lt;- function(x = 1) fn(x)
+caller()
+</pre></div><pre>## [1] FALSE
+</pre>
+<p><code>rlang::is_missing()</code> simplifies these rules by never treating
+default arguments as missing, even in internal contexts:<div class="sourceCode r"></p>
+<pre>fn &lt;- function(x = 1) rlang::is_missing(x)
+
+fn()
+</pre></div><pre>## [1] FALSE
+</pre><div class="sourceCode r"><pre>fn(1)
+</pre></div><pre>## [1] FALSE
+</pre>
+<p>This is a little less flexible because you can't specialise
+behaviour based on implicitly supplied default values. However,
+this makes the behaviour of <code>is_missing()</code> and functions using it
+simpler to understand.
+</p>
+
+
+<h3>Fragility of the missing argument object</h3>
+
+<p>The missing argument is an object that triggers an error if and
+only if it is the result of evaluating a symbol. No error is
+produced when a function call evaluates to the missing argument
+object. For instance, it is possible to bind the missing argument
+to a variable with an expression like <code>x[[1]] &lt;- missing_arg()</code>.
+Likewise, <code>x[[1]]</code> is safe to use as argument, e.g. <code>list(x[[1]])</code>
+even when the result is the missing object.
+</p>
+<p>However, as soon as the missing argument is passed down between
+functions through a bare variable, it is likely to cause a missing
+argument error:<div class="sourceCode r"></p>
+<pre>x &lt;- missing_arg()
+list(x)
+#&gt; Error:
+#&gt; ! argument "x" is missing, with no default
+</pre></div>
+<p>To work around this, <code>is_missing()</code> and <code>maybe_missing(x)</code> use a
+bit of magic to determine if the input is the missing argument
+without triggering a missing error.<div class="sourceCode r"></p>
+<pre>x &lt;- missing_arg()
+list(maybe_missing(x))
+#&gt; [[1]]
+#&gt;
+</pre></div>
+<p><code>maybe_missing()</code> is particularly useful for prototyping
+meta-programming algorithms in R. The missing argument is a likely
+input when computing on the language because it is a standard
+object in formals lists. While C functions are always allowed to
+return the missing argument and pass it to other C functions, this
+is not the case on the R side. If you're implementing your
+meta-programming algorithm in R, use <code>maybe_missing()</code> when an
+input might be the missing argument object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# The missing argument usually arises inside a function when the
+# user omits an argument that does not have a default:
+fn &lt;- function(x) is_missing(x)
+fn()
+
+# Creating a missing argument can also be useful to generate calls
+args &lt;- list(1, missing_arg(), 3, missing_arg())
+quo(fn(!!! args))
+
+# Other ways to create that object include:
+quote(expr = )
+expr()
+
+# It is perfectly valid to generate and assign the missing
+# argument in a list.
+x &lt;- missing_arg()
+l &lt;- list(missing_arg())
+
+# Just don't evaluate a symbol that contains the empty argument.
+# Evaluating the object `x` that we created above would trigger an
+# error.
+# x  # Not run
+
+# On the other hand accessing a missing argument contained in a
+# list does not trigger an error because subsetting is a function
+# call:
+l[[1]]
+is.null(l[[1]])
+
+# In case you really need to access a symbol that might contain the
+# empty argument object, use maybe_missing():
+maybe_missing(x)
+is.null(maybe_missing(x))
+is_missing(maybe_missing(x))
+
+
+# Note that base::missing() only works on symbols and does not
+# support complex expressions. For this reason the following lines
+# would throw an error:
+
+#&gt; missing(missing_arg())
+#&gt; missing(l[[1]])
+
+# while is_missing() will work as expected:
+is_missing(missing_arg())
+is_missing(l[[1]])
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

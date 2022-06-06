@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Navigate around the family tree.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_children {xml2}"><tr><td>xml_children {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Navigate around the family tree.</h2>
+
+<h3>Description</h3>
+
+<p><code>xml_children</code> returns only elements, <code>xml_contents</code> returns
+all nodes. <code>xml_length</code> returns the number of children.
+<code>xml_parent</code> returns the parent node, <code>xml_parents</code>
+returns all parents up to the root. <code>xml_siblings</code> returns all nodes
+at the same level. <code>xml_child</code> makes it easy to specify a specific
+child to return.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_children(x)
+
+xml_child(x, search = 1, ns = xml_ns(x))
+
+xml_contents(x)
+
+xml_parents(x)
+
+xml_siblings(x)
+
+xml_parent(x)
+
+xml_length(x, only_elements = TRUE)
+
+xml_root(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>search</code></td>
+<td>
+<p>For <code>xml_child</code>, either the child number to return (by
+position), or the name of the child node to return. If there are multiple
+child nodes with the same name, the first will be returned</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>Optionally, a named vector giving prefix-url pairs, as produced
+by <code><a href="xml_ns.html">xml_ns()</a></code>. If provided, all names will be explicitly
+qualified with the ns prefix, i.e. if the element <code>bar</code> is defined
+in namespace <code>foo</code>, it will be called <code>foo:bar</code>. (And
+similarly for attributes). Default namespaces must be given an explicit
+name. The ns is ignored when using <code><a href="xml_name.html">xml_name&lt;-()</a></code> and
+<code><a href="xml_name.html">xml_set_name()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>only_elements</code></td>
+<td>
+<p>For <code>xml_length</code>, should it count all children,
+or just children that are elements (the default)?</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A node or nodeset (possibly empty). Results are always de-duplicated.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- read_xml("&lt;foo&gt; &lt;bar&gt;&lt;boo /&gt;&lt;/bar&gt; &lt;baz/&gt; &lt;/foo&gt;")
+xml_children(x)
+xml_children(xml_children(x))
+xml_siblings(xml_children(x)[[1]])
+
+# Note the each unique node only appears once in the output
+xml_parent(xml_children(x))
+
+# Mixed content
+x &lt;- read_xml("&lt;foo&gt; a &lt;b/&gt; c &lt;d&gt;e&lt;/d&gt; f&lt;/foo&gt;")
+# Childen gets the elements, contents gets all node types
+xml_children(x)
+xml_contents(x)
+
+xml_length(x)
+xml_length(x, only_elements = FALSE)
+
+# xml_child makes it easier to select specific children
+xml_child(x)
+xml_child(x, 2)
+xml_child(x, "baz")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

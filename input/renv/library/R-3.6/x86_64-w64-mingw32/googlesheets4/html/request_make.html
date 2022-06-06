@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make a Google Sheets API request</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for request_make {googlesheets4}"><tr><td>request_make {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make a Google Sheets API request</h2>
+
+<h3>Description</h3>
+
+<p>Low-level function to execute a Sheets API request. Most users should,
+instead, use higher-level wrappers that facilitate common tasks, such as
+reading or writing worksheets or cell ranges. The functions here are intended
+for internal use and for programming around the Sheets API.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+request_make(x, ..., encode = "json")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>List. Holds the components for an HTTP request, presumably created
+with <code><a href="request_generate.html">request_generate()</a></code> or <code><a href="../../gargle/html/request_develop.html">gargle::request_build()</a></code>. Must contain a
+<code>method</code> and <code>url</code>. If present, <code>body</code> and <code>token</code> are used.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments passed through to the HTTP method.</p>
+</td></tr>
+<tr valign="top"><td><code>encode</code></td>
+<td>
+<p>If the body is a named list, how should it be encoded? This has
+the same meaning as <code>encode</code> in all the <code><a href="../../httr/html/VERB.html">httr::VERB()</a></code>s, such as
+<code><a href="../../httr/html/POST.html">httr::POST()</a></code>. Note, however, that we default to <code>encode = "json"</code>, which
+is what you want most of the time when calling the Sheets API. The httr
+default is <code>"multipart"</code>. Other acceptable values are <code>"form"</code> and <code>"raw"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>make_request()</code> is a very thin wrapper around <code><a href="../../gargle/html/request_retry.html">gargle::request_retry()</a></code>,
+only adding the googlesheets4 user agent. Typically the input has been
+created with <code><a href="request_generate.html">request_generate()</a></code> or <code><a href="../../gargle/html/request_develop.html">gargle::request_build()</a></code> and the output
+is processed with <code>process_response()</code>.
+</p>
+<p><code><a href="../../gargle/html/request_retry.html">gargle::request_retry()</a></code> retries requests that error with <code style="white-space: pre;">429 RESOURCE_EXHAUSTED</code>. Its basic scheme is exponential backoff, with one tweak
+that is very specific to the Sheets API, which has documented <a href="https://developers.google.com/sheets/api/reference/limits">usage limits</a>:
+</p>
+<p>&quot;a limit of 500 requests per 100 seconds per project and 100 requests per 100
+seconds per user&quot;
+</p>
+<p>Note that the &quot;project&quot; here means everyone using googlesheets4 who hasn't
+configured their own OAuth app. This is potentially a lot of users, all
+acting independently.
+</p>
+<p>If you hit the &quot;100 requests per 100 seconds per <strong>user</strong>&quot; limit (which
+really does mean YOU), the first wait time is a bit more than 100 seconds,
+then we revert to exponential backoff.
+</p>
+<p>If you experience lots of retries, especially with 100 second delays, it
+means your use of googlesheets4 is more than casual and <strong>it's time for you
+to get your own OAuth app or use a service account token</strong>. This is explained
+in the gargle vignette <code>vignette("get-api-credentials", package = "gargle")</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Object of class <code>response</code> from <a href="../../httr/html/httr-package.html">httr</a>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other low-level API functions: 
+<code><a href="gs4_has_token.html">gs4_has_token</a>()</code>,
+<code><a href="gs4_token.html">gs4_token</a>()</code>,
+<code><a href="request_generate.html">request_generate</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

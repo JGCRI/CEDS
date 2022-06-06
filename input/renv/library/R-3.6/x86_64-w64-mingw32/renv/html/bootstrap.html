@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bootstrap an renv Installation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bootstrap {renv}"><tr><td>bootstrap {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bootstrap an renv Installation</h2>
+
+<h3>Description</h3>
+
+<p>Bootstrap an <code>renv</code> installation, making the requested version of
+<code>renv</code> available for projects on the system.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bootstrap(project = NULL, version = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>The version of <code>renv</code> to install. If <code>NULL</code>, the version
+of <code>renv</code> currently installed will be used. The requested version of
+<code>renv</code> will be retrieved from the <code>renv</code> public GitHub repository,
+at <a href="https://github.com/rstudio/renv">https://github.com/rstudio/renv</a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Normally, this function does not need to be called directly by the user; it
+will be invoked as required by <code><a href="init.html">init()</a></code> and <code><a href="activate.html">activate()</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The project directory, invisibly. Note that this function is normally
+called for its side effects.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

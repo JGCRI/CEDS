@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Character Encodings and 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for about_encoding {stringi}"><tr><td>about_encoding {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Character Encodings and <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p>This manual page explains how <span class="pkg">stringi</span> deals with character
+strings in various encodings.
+</p>
+<p>In particular we should note that:
+</p>
+
+<ul>
+<li> <p><span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> lets strings in ASCII, UTF-8, and your platform's
+native encoding coexist. A character vector printed on the console
+by calling <code><a href="../../base/html/print.html">print</a></code> or <code><a href="../../base/html/cat.html">cat</a></code> is
+silently re-encoded to the native encoding.
+</p>
+</li>
+<li><p> Functions in <span class="pkg">stringi</span> process each string internally in
+Unicode, the most universal character encoding ever.
+Even if a string is given in the native encoding, i.e., your platform's
+default one, it will be converted to Unicode (precisely: UTF-8 or UTF-16).
+</p>
+</li>
+<li><p> Most <span class="pkg">stringi</span> functions always return UTF-8 encoded strings,
+regardless of the input encoding. What is more, the functions have been
+optimized for UTF-8/ASCII input (they have competitive, if not better
+performance, especially when performing more complex operations like
+string comparison, sorting, and even concatenation). Thus, it is
+best to rely on cascading calls to <span class="pkg">stringi</span> operations solely.
+</p>
+</li></ul>
+
+
+
+<h3>Details</h3>
+
+<p>Quoting the ICU User Guide,
+'Hundreds of encodings have been developed over the years, each for small
+groups of languages and for special purposes. As a result,
+the interpretation of text, input, sorting, display, and storage
+depends on the knowledge of all the different types of character sets
+and their encodings. Programs have been written to handle either
+one single encoding at a time and switch between them, or to convert
+between external and internal encodings.'
+</p>
+<p>'Unicode provides a single character set that covers the major
+languages of the world, and a small number of machine-friendly encoding
+forms and schemes to fit the needs of existing applications and protocols.
+It is designed for best interoperability with both ASCII and ISO-8859-1
+(the most widely used character sets) to make it easier for Unicode to be
+used in almost all applications and protocols' (see the ICU User Guide).
+</p>
+<p>The Unicode Standard determines the way to map any possible character
+to a numeric value &ndash; a so-called code point. Such code points, however,
+have to be stored somehow in computer's memory.
+The Unicode Standard encodes characters in the range U+0000..U+10FFFF,
+which amounts to a 21-bit code space. Depending on the encoding
+form (UTF-8, UTF-16, or UTF-32), each character will
+then be represented either as a sequence of one to four 8-bit bytes,
+one or two 16-bit code units, or a single 32-bit integer
+(compare the ICU FAQ).
+</p>
+<p>Unicode can be thought of as a superset of the spectrum of characters
+supported by any given code page.
+</p>
+
+
+<h3>UTF-8 and UTF-16</h3>
+
+<p>For portability reasons, the UTF-8 encoding is the most natural choice
+for representing Unicode character strings in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>. UTF-8 has ASCII as its
+subset (code points 1&ndash;127 represent the same characters in both of them).
+Code points larger than 127 are represented by multi-byte sequences
+(from 2 to 4 bytes: Please note that not all sequences of bytes
+are valid UTF-8, compare <code><a href="stri_enc_isutf8.html">stri_enc_isutf8</a></code>).
+</p>
+<p>Most of the computations in <span class="pkg">stringi</span> are performed internally
+using either UTF-8 or UTF-16 encodings (this depends on type of service
+you request: some <span class="pkg">ICU</span> services are designed only to work with UTF-16).
+Due to such a choice, with <span class="pkg">stringi</span> you get the same result on
+each platform, which is &ndash; unfortunately &ndash; not the case of base <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>'s
+functions (for instance, it is known that performing a regular expression
+search under Linux on some texts may give you a different result
+to those obtained under Windows). We really had portability in our minds
+while developing our package!
+</p>
+<p>We have observed that <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> correctly handles UTF-8 strings regardless of your
+platform's native encoding (see below). Therefore, we decided that most
+functions in <span class="pkg">stringi</span> will output its results in UTF-8
+&ndash; this speeds ups computations on cascading calls to our functions:
+the strings does not have to be re-encoded each time.
+</p>
+<p>Note that some Unicode characters may have an ambiguous representation.
+For example, &ldquo;a with ogonek&rdquo; (one character) and &ldquo;a&rdquo;+&ldquo;ogonek&rdquo;
+(two graphemes) are semantically the same. <span class="pkg">stringi</span> provides functions
+to normalize character sequences, see <code><a href="stri_trans_nf.html">stri_trans_nfc</a></code>
+for discussion. However, it is observed that denormalized strings
+do appear very rarely in typical string processing activities.
+</p>
+<p>Additionally, do note that <span class="pkg">stringi</span> silently removes byte order marks
+(BOMs - they may incidentally appear in a string read from a text file)
+from UTF8-encoded strings, see <code><a href="stri_enc_toutf8.html">stri_enc_toutf8</a></code>.
+</p>
+
+
+<h3>Character Encodings in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span></h3>
+
+<p>Data in memory are just bytes (small integer
+values) &ndash; an en<em>coding</em> is a way to represent characters with such
+numbers, it is a semantic 'key' to understand a given byte sequence.
+For example, in ISO-8859-2 (Central European), the value 177 represents
+Polish &ldquo;a with ogonek&rdquo;, and in ISO-8859-1 (Western European),
+the same value denotes the &ldquo;plus-minus&rdquo; sign. Thus, a character encoding
+is a translation scheme: we need to communicate with <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> somehow,
+relying on how it represents strings.
+</p>
+<p>Overall, <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> has a very simple encoding marking mechanism,
+see <code><a href="stri_enc_mark.html">stri_enc_mark</a></code>. There is an implicit assumption
+that your platform's default (native) encoding always extends
+ASCII &ndash; <span class="pkg">stringi</span> checks that whenever your native encoding
+is being detected automatically on <span class="pkg">ICU</span>'s initialization and each time
+when you change it manually by calling <code><a href="stri_enc_set.html">stri_enc_set</a></code>.
+</p>
+<p>Character strings in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> (internally) can be declared to be in:
+</p>
+
+<ul>
+<li> <p><code>UTF-8</code>;
+</p>
+</li>
+<li> <p><code>latin1</code>, i.e., either ISO-8859-1 (Western European on
+Linux, OS X, and other Unixes) or WINDOWS-1252 (Windows);
+</p>
+</li>
+<li> <p><code>bytes</code> &ndash; for strings that
+should be manipulated as sequences of bytes.
+</p>
+</li></ul>
+
+<p>Moreover, there are two other cases:
+</p>
+
+<ul>
+<li><p> ASCII &ndash; for strings consisting only of byte codes
+not greater than 127;
+</p>
+</li>
+<li> <p><code>native</code> (a.k.a. <code>unknown</code> in <code><a href="../../base/html/Encoding.html">Encoding</a></code>;
+quite a misleading name: no explicit encoding mark) &ndash; for
+strings that are assumed to be in your platform's native (default) encoding.
+This can represent UTF-8 if you are an OS X user,
+or some 8-bit Windows code page, for example.
+The native encoding used by <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> may be determined by examining
+the LC_CTYPE category, see <code><a href="../../base/html/locales.html">Sys.getlocale</a></code>.
+</p>
+</li></ul>
+
+<p>Intuitively, &ldquo;native&rdquo; strings result from reading
+a string from stdin (e.g., keyboard input). This makes sense: your operating
+system works in some encoding and provides <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> with some data.
+</p>
+<p>Each time when a <span class="pkg">stringi</span> function encounters a string declared
+in native encoding, it assumes that the input data should be translated
+from the default encoding, i.e., the one returned by <code><a href="stri_enc_set.html">stri_enc_get</a></code>
+(unless you know what you are doing, the default encoding should only be
+changed if the automatic encoding detection process fails on <span class="pkg">stringi</span>
+load).
+</p>
+<p>Functions which allow <code>'bytes'</code> encoding markings are very rare in
+<span class="pkg">stringi</span>, and were carefully selected. These are:
+<code><a href="stri_enc_toutf8.html">stri_enc_toutf8</a></code> (with argument <code>is_unknown_8bit=TRUE</code>),
+<code><a href="stri_enc_toascii.html">stri_enc_toascii</a></code>, and <code><a href="stri_encode.html">stri_encode</a></code>.
+</p>
+<p>Finally, note that <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> lets strings in ASCII, UTF-8, and your platform's
+native encoding coexist. A character vector printed with
+<code><a href="../../base/html/print.html">print</a></code>, <code><a href="../../base/html/cat.html">cat</a></code>, etc., is silently re-encoded
+so that it can be properly shown, e.g., on the console.
+</p>
+
+
+<h3>Encoding Conversion</h3>
+
+<p>Apart from automatic conversion from the native encoding,
+you may re-encode a string manually, for example
+when you read it from a file created on a different platform.
+Call <code><a href="stri_enc_list.html">stri_enc_list</a></code> for the list of
+encodings supported by <span class="pkg">ICU</span>.
+Note that converter names are case-insensitive
+and <span class="pkg">ICU</span> tries to normalize the encoding specifiers.
+Leading zeroes are ignored in sequences of digits (if further digits follow),
+and all non-alphanumeric characters are ignored. Thus the strings
+'UTF-8', 'utf_8', 'u*Tf08' and 'Utf 8' are equivalent.
+</p>
+<p>The <code><a href="stri_encode.html">stri_encode</a></code> function
+allows you to convert between any given encodings
+(in some cases you will obtain <code>bytes</code>-marked
+strings, or even lists of raw vectors (i.e., for UTF-16).
+There are also some useful more specialized functions,
+like <code><a href="stri_enc_toutf32.html">stri_enc_toutf32</a></code> (converts a character vector to a list
+of integers, where one code point is exactly one numeric value)
+or <code><a href="stri_enc_toascii.html">stri_enc_toascii</a></code> (substitutes all non-ASCII
+bytes with the SUBSTITUTE CHARACTER,
+which plays a similar role as <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>'s <code>NA</code> value).
+</p>
+<p>There are also some routines for automated encoding detection,
+see, e.g., <code><a href="stri_enc_detect.html">stri_enc_detect</a></code>.
+</p>
+
+
+<h3>Encoding Detection</h3>
+
+<p>Given a text file, one has to know how to interpret (encode)
+raw data in order to obtain meaningful information.
+</p>
+<p>Encoding detection is always an imprecise operation and
+needs a considerable amount of data. However, in case of some
+encodings (like UTF-8, ASCII, or UTF-32) a &ldquo;false positive&rdquo; byte
+sequence is quite rare (statistically speaking).
+</p>
+<p>Check out <code><a href="stri_enc_detect.html">stri_enc_detect</a></code> (among others) for a useful
+function in this category.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Unicode Basics</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/icu/unicode.html">https://unicode-org.github.io/icu/userguide/icu/unicode.html</a>
+</p>
+<p><em>Conversion</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/conversion/">https://unicode-org.github.io/icu/userguide/conversion/</a>
+</p>
+<p><em>Converters</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/conversion/converters.html">https://unicode-org.github.io/icu/userguide/conversion/converters.html</a>
+(technical details)
+</p>
+<p><em>UTF-8, UTF-16, UTF-32 &amp; BOM</em> &ndash; ICU FAQ,
+<a href="https://www.unicode.org/faq/utf_bom.html">https://www.unicode.org/faq/utf_bom.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other stringi_general_topics: 
+<code><a href="about_arguments.html">about_arguments</a></code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_charclass.html">about_search_charclass</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="about_search_fixed.html">about_search_fixed</a></code>,
+<code><a href="about_search_regex.html">about_search_regex</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="about_stringi.html">about_stringi</a></code>
+</p>
+<p>Other encoding_management: 
+<code><a href="stri_enc_info.html">stri_enc_info</a>()</code>,
+<code><a href="stri_enc_list.html">stri_enc_list</a>()</code>,
+<code><a href="stri_enc_mark.html">stri_enc_mark</a>()</code>,
+<code><a href="stri_enc_set.html">stri_enc_set</a>()</code>
+</p>
+<p>Other encoding_detection: 
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_enc_detect.html">stri_enc_detect</a>()</code>,
+<code><a href="stri_enc_isascii.html">stri_enc_isascii</a>()</code>,
+<code><a href="stri_enc_isutf16.html">stri_enc_isutf16be</a>()</code>,
+<code><a href="stri_enc_isutf8.html">stri_enc_isutf8</a>()</code>
+</p>
+<p>Other encoding_conversion: 
+<code><a href="stri_enc_fromutf32.html">stri_enc_fromutf32</a>()</code>,
+<code><a href="stri_enc_toascii.html">stri_enc_toascii</a>()</code>,
+<code><a href="stri_enc_tonative.html">stri_enc_tonative</a>()</code>,
+<code><a href="stri_enc_toutf32.html">stri_enc_toutf32</a>()</code>,
+<code><a href="stri_enc_toutf8.html">stri_enc_toutf8</a>()</code>,
+<code><a href="stri_encode.html">stri_encode</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

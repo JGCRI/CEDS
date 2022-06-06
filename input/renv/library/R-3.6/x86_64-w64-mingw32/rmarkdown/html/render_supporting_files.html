@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render supporting files for an input document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for render_supporting_files {rmarkdown}"><tr><td>render_supporting_files {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render supporting files for an input document</h2>
+
+<h3>Description</h3>
+
+<p>Render (copy) required supporting files for an input document to the
+<code>_files</code> directory that is associated with the document.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+render_supporting_files(from, files_dir, rename_to = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>The directory from which the files should be copied.</p>
+</td></tr>
+<tr valign="top"><td><code>files_dir</code></td>
+<td>
+<p>The directory that will receive the copied files.</p>
+</td></tr>
+<tr valign="top"><td><code>rename_to</code></td>
+<td>
+<p>An option to rename the source directory after the copy
+operation is complete.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The relative path to the supporting files. This path is suitable
+for inclusion in HTML<code>href</code> and <code>src</code> attributes.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

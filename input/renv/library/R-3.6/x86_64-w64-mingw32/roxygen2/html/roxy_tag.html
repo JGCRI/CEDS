@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: 'roxy_tag' S3 constructor</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for roxy_tag {roxygen2}"><tr><td>roxy_tag {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2><code>roxy_tag</code> S3 constructor</h2>
+
+<h3>Description</h3>
+
+<p><code>roxy_tag()</code> is the constructor for tag objects.
+<code>roxy_tag_warning()</code> generates a warning that gives the location of the tag.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+roxy_tag(tag, raw, val = NULL, file = NA_character_, line = NA_integer_)
+
+roxy_tag_parse(x)
+
+roxy_tag_warning(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>Tag name. Arguments starting with <code>.</code> are reserved for internal
+usage.</p>
+</td></tr>
+<tr valign="top"><td><code>raw</code></td>
+<td>
+<p>Raw tag value, a string.</p>
+</td></tr>
+<tr valign="top"><td><code>val</code></td>
+<td>
+<p>Parsed tag value, typically a character vector, but sometimes
+a list. Usually filled in by <code>tag_parsers</code></p>
+</td></tr>
+<tr valign="top"><td><code>file, line</code></td>
+<td>
+<p>Location of the tag</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A tag</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+<p>Define a method for <code>roxy_tag_parse</code> to support new tags. See <a href="tag_parsers.html">tag_parsers</a>
+for more details.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

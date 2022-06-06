@@ -1,0 +1,526 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Modify components of a theme</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for theme {ggplot2}"><tr><td>theme {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Modify components of a theme</h2>
+
+<h3>Description</h3>
+
+<p>Themes are a powerful way to customize the non-data components of your plots:
+i.e. titles, labels, fonts, background, gridlines, and legends. Themes can be
+used to give plots a consistent customized look. Modify a single plot's theme
+using <code>theme()</code>; see <code><a href="theme_get.html">theme_update()</a></code> if you want modify the active theme, to
+affect all subsequent plots. Use the themes available in <a href="ggtheme.html">complete themes</a> if you would like to use a complete theme such as
+<code>theme_bw()</code>, <code>theme_minimal()</code>, and more. Theme elements are documented
+together according to inheritance, read more about theme inheritance below.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+theme(
+  line,
+  rect,
+  text,
+  title,
+  aspect.ratio,
+  axis.title,
+  axis.title.x,
+  axis.title.x.top,
+  axis.title.x.bottom,
+  axis.title.y,
+  axis.title.y.left,
+  axis.title.y.right,
+  axis.text,
+  axis.text.x,
+  axis.text.x.top,
+  axis.text.x.bottom,
+  axis.text.y,
+  axis.text.y.left,
+  axis.text.y.right,
+  axis.ticks,
+  axis.ticks.x,
+  axis.ticks.x.top,
+  axis.ticks.x.bottom,
+  axis.ticks.y,
+  axis.ticks.y.left,
+  axis.ticks.y.right,
+  axis.ticks.length,
+  axis.ticks.length.x,
+  axis.ticks.length.x.top,
+  axis.ticks.length.x.bottom,
+  axis.ticks.length.y,
+  axis.ticks.length.y.left,
+  axis.ticks.length.y.right,
+  axis.line,
+  axis.line.x,
+  axis.line.x.top,
+  axis.line.x.bottom,
+  axis.line.y,
+  axis.line.y.left,
+  axis.line.y.right,
+  legend.background,
+  legend.margin,
+  legend.spacing,
+  legend.spacing.x,
+  legend.spacing.y,
+  legend.key,
+  legend.key.size,
+  legend.key.height,
+  legend.key.width,
+  legend.text,
+  legend.text.align,
+  legend.title,
+  legend.title.align,
+  legend.position,
+  legend.direction,
+  legend.justification,
+  legend.box,
+  legend.box.just,
+  legend.box.margin,
+  legend.box.background,
+  legend.box.spacing,
+  panel.background,
+  panel.border,
+  panel.spacing,
+  panel.spacing.x,
+  panel.spacing.y,
+  panel.grid,
+  panel.grid.major,
+  panel.grid.minor,
+  panel.grid.major.x,
+  panel.grid.major.y,
+  panel.grid.minor.x,
+  panel.grid.minor.y,
+  panel.ontop,
+  plot.background,
+  plot.title,
+  plot.title.position,
+  plot.subtitle,
+  plot.caption,
+  plot.caption.position,
+  plot.tag,
+  plot.tag.position,
+  plot.margin,
+  strip.background,
+  strip.background.x,
+  strip.background.y,
+  strip.placement,
+  strip.text,
+  strip.text.x,
+  strip.text.y,
+  strip.switch.pad.grid,
+  strip.switch.pad.wrap,
+  ...,
+  complete = FALSE,
+  validate = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>line</code></td>
+<td>
+<p>all line elements (<code><a href="element.html">element_line()</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>rect</code></td>
+<td>
+<p>all rectangular elements (<code><a href="element.html">element_rect()</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>all text elements (<code><a href="element.html">element_text()</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>all title elements: plot, axes, legends (<code><a href="element.html">element_text()</a></code>;
+inherits from <code>text</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>aspect.ratio</code></td>
+<td>
+<p>aspect ratio of the panel</p>
+</td></tr>
+<tr valign="top"><td><code>axis.title, axis.title.x, axis.title.y, axis.title.x.top, axis.title.x.bottom, axis.title.y.left, axis.title.y.right</code></td>
+<td>
+<p>labels of axes (<code><a href="element.html">element_text()</a></code>). Specify all axes' labels (<code>axis.title</code>),
+labels by plane (using <code>axis.title.x</code> or <code>axis.title.y</code>), or individually
+for each axis (using <code>axis.title.x.bottom</code>, <code>axis.title.x.top</code>,
+<code>axis.title.y.left</code>, <code>axis.title.y.right</code>). <code style="white-space: pre;">axis.title.*.*</code> inherits from
+<code style="white-space: pre;">axis.title.*</code> which inherits from <code>axis.title</code>, which in turn inherits
+from <code>text</code></p>
+</td></tr>
+<tr valign="top"><td><code>axis.text, axis.text.x, axis.text.y, axis.text.x.top, axis.text.x.bottom, axis.text.y.left, axis.text.y.right</code></td>
+<td>
+<p>tick labels along axes (<code><a href="element.html">element_text()</a></code>). Specify all axis tick labels (<code>axis.text</code>),
+tick labels by plane (using <code>axis.text.x</code> or <code>axis.text.y</code>), or individually
+for each axis (using <code>axis.text.x.bottom</code>, <code>axis.text.x.top</code>,
+<code>axis.text.y.left</code>, <code>axis.text.y.right</code>). <code style="white-space: pre;">axis.text.*.*</code> inherits from
+<code style="white-space: pre;">axis.text.*</code> which inherits from <code>axis.text</code>, which in turn inherits
+from <code>text</code></p>
+</td></tr>
+<tr valign="top"><td><code>axis.ticks, axis.ticks.x, axis.ticks.x.top, axis.ticks.x.bottom, axis.ticks.y, axis.ticks.y.left, axis.ticks.y.right</code></td>
+<td>
+<p>tick marks along axes (<code><a href="element.html">element_line()</a></code>). Specify all tick marks (<code>axis.ticks</code>),
+ticks by plane (using <code>axis.ticks.x</code> or <code>axis.ticks.y</code>), or individually
+for each axis (using <code>axis.ticks.x.bottom</code>, <code>axis.ticks.x.top</code>,
+<code>axis.ticks.y.left</code>, <code>axis.ticks.y.right</code>). <code style="white-space: pre;">axis.ticks.*.*</code> inherits from
+<code style="white-space: pre;">axis.ticks.*</code> which inherits from <code>axis.ticks</code>, which in turn inherits
+from <code>line</code></p>
+</td></tr>
+<tr valign="top"><td><code>axis.ticks.length, axis.ticks.length.x, axis.ticks.length.x.top, axis.ticks.length.x.bottom, axis.ticks.length.y, axis.ticks.length.y.left, axis.ticks.length.y.right</code></td>
+<td>
+<p>length of tick marks (<code>unit</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>axis.line, axis.line.x, axis.line.x.top, axis.line.x.bottom, axis.line.y, axis.line.y.left, axis.line.y.right</code></td>
+<td>
+<p>lines along axes (<code><a href="element.html">element_line()</a></code>). Specify lines along all axes (<code>axis.line</code>),
+lines for each plane (using <code>axis.line.x</code> or <code>axis.line.y</code>), or individually
+for each axis (using <code>axis.line.x.bottom</code>, <code>axis.line.x.top</code>,
+<code>axis.line.y.left</code>, <code>axis.line.y.right</code>). <code style="white-space: pre;">axis.line.*.*</code> inherits from
+<code style="white-space: pre;">axis.line.*</code> which inherits from <code>axis.line</code>, which in turn inherits
+from <code>line</code></p>
+</td></tr>
+<tr valign="top"><td><code>legend.background</code></td>
+<td>
+<p>background of legend (<code><a href="element.html">element_rect()</a></code>; inherits
+from <code>rect</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.margin</code></td>
+<td>
+<p>the margin around each legend (<code><a href="element.html">margin()</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.spacing, legend.spacing.x, legend.spacing.y</code></td>
+<td>
+<p>the spacing between legends (<code>unit</code>). <code>legend.spacing.x</code> &amp; <code>legend.spacing.y</code>
+inherit from <code>legend.spacing</code> or can be specified separately</p>
+</td></tr>
+<tr valign="top"><td><code>legend.key</code></td>
+<td>
+<p>background underneath legend keys (<code><a href="element.html">element_rect()</a></code>;
+inherits from <code>rect</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.key.size, legend.key.height, legend.key.width</code></td>
+<td>
+<p>size of legend keys (<code>unit</code>); key background height &amp; width inherit from
+<code>legend.key.size</code> or can be specified separately</p>
+</td></tr>
+<tr valign="top"><td><code>legend.text</code></td>
+<td>
+<p>legend item labels (<code><a href="element.html">element_text()</a></code>; inherits from
+<code>text</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.text.align</code></td>
+<td>
+<p>alignment of legend labels (number from 0 (left) to
+1 (right))</p>
+</td></tr>
+<tr valign="top"><td><code>legend.title</code></td>
+<td>
+<p>title of legend (<code><a href="element.html">element_text()</a></code>; inherits from
+<code>title</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.title.align</code></td>
+<td>
+<p>alignment of legend title (number from 0 (left) to
+1 (right))</p>
+</td></tr>
+<tr valign="top"><td><code>legend.position</code></td>
+<td>
+<p>the position of legends (&quot;none&quot;, &quot;left&quot;, &quot;right&quot;,
+&quot;bottom&quot;, &quot;top&quot;, or two-element numeric vector)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.direction</code></td>
+<td>
+<p>layout of items in legends (&quot;horizontal&quot; or
+&quot;vertical&quot;)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.justification</code></td>
+<td>
+<p>anchor point for positioning legend inside plot
+(&quot;center&quot; or two-element numeric vector) or the justification according to
+the plot area when positioned outside the plot</p>
+</td></tr>
+<tr valign="top"><td><code>legend.box</code></td>
+<td>
+<p>arrangement of multiple legends (&quot;horizontal&quot; or
+&quot;vertical&quot;)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.box.just</code></td>
+<td>
+<p>justification of each legend within the overall
+bounding box, when there are multiple legends (&quot;top&quot;, &quot;bottom&quot;, &quot;left&quot;, or
+&quot;right&quot;)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.box.margin</code></td>
+<td>
+<p>margins around the full legend area, as specified
+using <code><a href="element.html">margin()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>legend.box.background</code></td>
+<td>
+<p>background of legend area (<code><a href="element.html">element_rect()</a></code>;
+inherits from <code>rect</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>legend.box.spacing</code></td>
+<td>
+<p>The spacing between the plotting area and the
+legend box (<code>unit</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>panel.background</code></td>
+<td>
+<p>background of plotting area, drawn underneath plot
+(<code><a href="element.html">element_rect()</a></code>; inherits from <code>rect</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>panel.border</code></td>
+<td>
+<p>border around plotting area, drawn on top of plot so that
+it covers tick marks and grid lines. This should be used with
+<code>fill = NA</code>
+(<code><a href="element.html">element_rect()</a></code>; inherits from <code>rect</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>panel.spacing, panel.spacing.x, panel.spacing.y</code></td>
+<td>
+<p>spacing between facet
+panels (<code>unit</code>). <code>panel.spacing.x</code> &amp; <code>panel.spacing.y</code> inherit from <code>panel.spacing</code>
+or can be specified separately.</p>
+</td></tr>
+<tr valign="top"><td><code>panel.grid, panel.grid.major, panel.grid.minor, panel.grid.major.x, panel.grid.major.y, panel.grid.minor.x, panel.grid.minor.y</code></td>
+<td>
+<p>grid lines (<code><a href="element.html">element_line()</a></code>). Specify major grid lines,
+or minor grid lines separately (using <code>panel.grid.major</code> or <code>panel.grid.minor</code>)
+or individually for each axis (using <code>panel.grid.major.x</code>, <code>panel.grid.minor.x</code>,
+<code>panel.grid.major.y</code>, <code>panel.grid.minor.y</code>).  Y axis grid lines are horizontal
+and x axis grid lines are vertical. <code style="white-space: pre;">panel.grid.*.*</code> inherits from
+<code style="white-space: pre;">panel.grid.*</code> which inherits from <code>panel.grid</code>, which in turn inherits
+from <code>line</code></p>
+</td></tr>
+<tr valign="top"><td><code>panel.ontop</code></td>
+<td>
+<p>option to place the panel (background, gridlines) over
+the data layers (<code>logical</code>). Usually used with a transparent or blank
+<code>panel.background</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>plot.background</code></td>
+<td>
+<p>background of the entire plot (<code><a href="element.html">element_rect()</a></code>;
+inherits from <code>rect</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>plot.title</code></td>
+<td>
+<p>plot title (text appearance) (<code><a href="element.html">element_text()</a></code>; inherits
+from <code>title</code>) left-aligned by default</p>
+</td></tr>
+<tr valign="top"><td><code>plot.title.position, plot.caption.position</code></td>
+<td>
+<p>Alignment of the plot title/subtitle
+and caption.  The setting for <code>plot.title.position</code> applies to both
+the title and the subtitle. A value of &quot;panel&quot; (the default) means that
+titles and/or caption are aligned to the plot panels. A value of &quot;plot&quot; means
+that titles and/or caption are aligned to the entire plot (minus any space
+for margins and plot tag).</p>
+</td></tr>
+<tr valign="top"><td><code>plot.subtitle</code></td>
+<td>
+<p>plot subtitle (text appearance) (<code><a href="element.html">element_text()</a></code>;
+inherits from <code>title</code>) left-aligned by default</p>
+</td></tr>
+<tr valign="top"><td><code>plot.caption</code></td>
+<td>
+<p>caption below the plot (text appearance)
+(<code><a href="element.html">element_text()</a></code>; inherits from <code>title</code>) right-aligned by default</p>
+</td></tr>
+<tr valign="top"><td><code>plot.tag</code></td>
+<td>
+<p>upper-left label to identify a plot (text appearance)
+(<code><a href="element.html">element_text()</a></code>; inherits from <code>title</code>) left-aligned by default</p>
+</td></tr>
+<tr valign="top"><td><code>plot.tag.position</code></td>
+<td>
+<p>The position of the tag as a string (&quot;topleft&quot;,
+&quot;top&quot;, &quot;topright&quot;, &quot;left&quot;, &quot;right&quot;, &quot;bottomleft&quot;, &quot;bottom&quot;, &quot;bottomright)
+or a coordinate. If a string, extra space will be added to accommodate the
+tag.</p>
+</td></tr>
+<tr valign="top"><td><code>plot.margin</code></td>
+<td>
+<p>margin around entire plot (<code>unit</code> with the sizes of
+the top, right, bottom, and left margins)</p>
+</td></tr>
+<tr valign="top"><td><code>strip.background, strip.background.x, strip.background.y</code></td>
+<td>
+<p>background of facet labels (<code><a href="element.html">element_rect()</a></code>;
+inherits from <code>rect</code>). Horizontal facet background (<code>strip.background.x</code>)
+&amp; vertical facet background (<code>strip.background.y</code>) inherit from
+<code>strip.background</code> or can be specified separately</p>
+</td></tr>
+<tr valign="top"><td><code>strip.placement</code></td>
+<td>
+<p>placement of strip with respect to axes,
+either &quot;inside&quot; or &quot;outside&quot;. Only important when axes and strips are
+on the same side of the plot.</p>
+</td></tr>
+<tr valign="top"><td><code>strip.text, strip.text.x, strip.text.y</code></td>
+<td>
+<p>facet labels (<code><a href="element.html">element_text()</a></code>;
+inherits from  <code>text</code>). Horizontal facet labels (<code>strip.text.x</code>) &amp; vertical
+facet labels (<code>strip.text.y</code>) inherit from <code>strip.text</code> or can be specified
+separately</p>
+</td></tr>
+<tr valign="top"><td><code>strip.switch.pad.grid</code></td>
+<td>
+<p>space between strips and axes when strips are
+switched (<code>unit</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>strip.switch.pad.wrap</code></td>
+<td>
+<p>space between strips and axes when strips are
+switched (<code>unit</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional element specifications not part of base ggplot2. In general,
+these should also be defined in the <code style="white-space: pre;">element tree</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>complete</code></td>
+<td>
+<p>set this to <code>TRUE</code> if this is a complete theme, such as
+the one returned by <code><a href="ggtheme.html">theme_grey()</a></code>. Complete themes behave
+differently when added to a ggplot object. Also, when setting
+<code>complete = TRUE</code> all elements will be set to inherit from blank
+elements.</p>
+</td></tr>
+<tr valign="top"><td><code>validate</code></td>
+<td>
+<p><code>TRUE</code> to run <code>validate_element()</code>, <code>FALSE</code> to bypass checks.</p>
+</td></tr>
+</table>
+
+
+<h3>Theme inheritance</h3>
+
+<p>Theme elements inherit properties from other theme elements hierarchically.
+For example, <code>axis.title.x.bottom</code> inherits from <code>axis.title.x</code> which inherits
+from <code>axis.title</code>, which in turn inherits from <code>text</code>. All text elements inherit
+directly or indirectly from <code>text</code>; all lines inherit from
+<code>line</code>, and all rectangular objects inherit from <code>rect</code>.
+This means that you can modify the appearance of multiple elements by
+setting a single high-level component.
+</p>
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="gg-add.html">+.gg()</a></code> and <a href="theme_get.html">%+replace%</a>,
+<code><a href="element.html">element_blank()</a></code>, <code><a href="element.html">element_line()</a></code>,
+<code><a href="element.html">element_rect()</a></code>, and <code><a href="element.html">element_text()</a></code> for
+details of the specific theme elements.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p1 &lt;- ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  labs(title = "Fuel economy declines as weight increases")
+p1
+
+# Plot ---------------------------------------------------------------------
+p1 + theme(plot.title = element_text(size = rel(2)))
+p1 + theme(plot.background = element_rect(fill = "green"))
+
+# Panels --------------------------------------------------------------------
+
+p1 + theme(panel.background = element_rect(fill = "white", colour = "grey50"))
+p1 + theme(panel.border = element_rect(linetype = "dashed", fill = NA))
+p1 + theme(panel.grid.major = element_line(colour = "black"))
+p1 + theme(
+  panel.grid.major.y = element_blank(),
+  panel.grid.minor.y = element_blank()
+)
+
+# Put gridlines on top of data
+p1 + theme(
+  panel.background = element_rect(fill = NA),
+  panel.grid.major = element_line(colour = "grey50"),
+  panel.ontop = TRUE
+)
+
+# Axes ----------------------------------------------------------------------
+# Change styles of axes texts and lines
+p1 + theme(axis.line = element_line(size = 3, colour = "grey80"))
+p1 + theme(axis.text = element_text(colour = "blue"))
+p1 + theme(axis.ticks = element_line(size = 2))
+
+# Change the appearance of the y-axis title
+p1 + theme(axis.title.y = element_text(size = rel(1.5), angle = 90))
+
+# Make ticks point outwards on y-axis and inwards on x-axis
+p1 + theme(
+  axis.ticks.length.y = unit(.25, "cm"),
+  axis.ticks.length.x = unit(-.25, "cm"),
+  axis.text.x = element_text(margin = margin(t = .3, unit = "cm"))
+)
+
+
+# Legend --------------------------------------------------------------------
+p2 &lt;- ggplot(mtcars, aes(wt, mpg)) +
+  geom_point(aes(colour = factor(cyl), shape = factor(vs))) +
+  labs(
+    x = "Weight (1000 lbs)",
+    y = "Fuel economy (mpg)",
+    colour = "Cylinders",
+    shape = "Transmission"
+   )
+p2
+
+# Position
+p2 + theme(legend.position = "none")
+p2 + theme(legend.justification = "top")
+p2 + theme(legend.position = "bottom")
+
+# Or place legends inside the plot using relative coordinates between 0 and 1
+# legend.justification sets the corner that the position refers to
+p2 + theme(
+  legend.position = c(.95, .95),
+  legend.justification = c("right", "top"),
+  legend.box.just = "right",
+  legend.margin = margin(6, 6, 6, 6)
+)
+
+# The legend.box properties work similarly for the space around
+# all the legends
+p2 + theme(
+  legend.box.background = element_rect(),
+  legend.box.margin = margin(6, 6, 6, 6)
+)
+
+# You can also control the display of the keys
+# and the justification related to the plot area can be set
+p2 + theme(legend.key = element_rect(fill = "white", colour = "black"))
+p2 + theme(legend.text = element_text(size = 8, colour = "red"))
+p2 + theme(legend.title = element_text(face = "bold"))
+
+# Strips --------------------------------------------------------------------
+
+p3 &lt;- ggplot(mtcars, aes(wt, mpg)) +
+  geom_point() +
+  facet_wrap(~ cyl)
+p3
+
+p3 + theme(strip.background = element_rect(colour = "black", fill = "white"))
+p3 + theme(strip.text.x = element_text(colour = "white", face = "bold"))
+p3 + theme(panel.spacing = unit(1, "lines"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

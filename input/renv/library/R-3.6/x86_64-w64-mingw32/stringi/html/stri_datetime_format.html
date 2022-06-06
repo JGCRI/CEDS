@@ -1,0 +1,576 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Date and Time Formatting and Parsing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_datetime_format {stringi}"><tr><td>stri_datetime_format {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Date and Time Formatting and Parsing</h2>
+
+<h3>Description</h3>
+
+<p>These functions convert a given date/time object
+to a character vector, or vice versa.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_datetime_format(
+  time,
+  format = "uuuu-MM-dd HH:mm:ss",
+  tz = NULL,
+  locale = NULL
+)
+
+stri_datetime_parse(
+  str,
+  format = "uuuu-MM-dd HH:mm:ss",
+  lenient = FALSE,
+  tz = NULL,
+  locale = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>time</code></td>
+<td>
+<p>an object of class <code><a href="../../base/html/DateTimeClasses.html">POSIXct</a></code>
+(<code>as.POSIXct</code> will be called on character vectors
+and objects of class <code>POSIXlt</code>, <code>Date</code>, and <code>factor</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>character vector, see Details; see also <code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for the default time zone
+or a single string with a timezone identifier,
+see <code><a href="stri_timezone_set.html">stri_timezone_get</a></code> and <code><a href="stri_timezone_list.html">stri_timezone_list</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for the default locale,
+or a single string with locale identifier; a non-Gregorian calendar
+may be specified by setting the <code>@calendar=name</code> keyword</p>
+</td></tr>
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>lenient</code></td>
+<td>
+<p>single logical value; should date/time parsing be lenient?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>format</code> and <code>time</code> or <code>str</code>.
+</p>
+<p>By default, <code>stri_datetime_format</code> (for the sake of compatibility
+with the <code><a href="../../base/html/strftime.html">strftime</a></code> function)
+formats a date/time object using the current default time zone.
+</p>
+<p><code>format</code> may be one of <code>DT_STYLE</code> or <code>DT_relative_STYLE</code>,
+where <code>DT</code> is equal to <code>date</code>, <code>time</code>, or <code>datetime</code>,
+and <code>STYLE</code> is equal to <code>full</code>, <code>long</code>, <code>medium</code>,
+or <code>short</code>. This gives a locale-dependent date and/or time format.
+Note that currently <span class="pkg">ICU</span> does not support <code>relative</code>
+<code>time</code> formats, thus this flag is currently ignored in such a context.
+</p>
+<p>Otherwise, <code>format</code> is a pattern:
+a string where specific sequences of characters are replaced
+with date/time data from a calendar when formatting or used
+to generate data for a calendar when parsing.
+For example, <code>y</code> stands for 'year'. Characters
+may be used multiple times:
+<code>yy</code> might produce <code>99</code>, whereas <code>yyyy</code> yields <code>1999</code>.
+For most numerical fields, the number of characters specifies
+the field width. For example, if <code>h</code> is the hour, <code>h</code> might
+produce <code>5</code>, but <code>hh</code> yields <code>05</code>.
+For some characters, the count specifies whether an abbreviated
+or full form should be used.
+</p>
+<p>Two single quotes represent a literal single quote, either
+inside or outside single quotes. Text within single quotes
+is not interpreted in any way (except for two adjacent single quotes).
+Otherwise, all ASCII letters from <code>a</code> to <code>z</code> and
+<code>A</code> to <code>Z</code> are reserved as syntax characters, and require quoting
+if they are to represent literal characters. In addition, certain
+ASCII punctuation characters may become available in the future
+(e.g., <code>:</code> being interpreted as the time separator and <code>/</code>
+as a date separator, and replaced by respective
+locale-sensitive characters in display).
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<b>Symbol</b> </td><td style="text-align: left;"> <b>Meaning</b> </td><td style="text-align: left;"> <b>Example(s)</b> </td><td style="text-align: left;"> <b>Output</b> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+G </td><td style="text-align: left;"> era designator </td><td style="text-align: left;"> G, GG, or GGG </td><td style="text-align: left;"> AD </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> GGGG </td><td style="text-align: left;"> Anno Domini </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> GGGGG </td><td style="text-align: left;"> A </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+y </td><td style="text-align: left;"> year </td><td style="text-align: left;"> yy </td><td style="text-align: left;"> 96 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> y or yyyy </td><td style="text-align: left;"> 1996 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+u </td><td style="text-align: left;"> extended year </td><td style="text-align: left;"> u </td><td style="text-align: left;"> 4601 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+U </td><td style="text-align: left;"> cyclic year name, as in Chinese lunar calendar </td><td style="text-align: left;"> U </td><td style="text-align: left;"> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+r </td><td style="text-align: left;"> related Gregorian year </td><td style="text-align: left;"> r </td><td style="text-align: left;"> 1996 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+Q </td><td style="text-align: left;"> quarter </td><td style="text-align: left;"> Q or QQ </td><td style="text-align: left;"> 02 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> QQQ </td><td style="text-align: left;"> Q2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> QQQQ </td><td style="text-align: left;"> 2nd quarter </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> QQQQQ </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+q </td><td style="text-align: left;"> Stand Alone quarter </td><td style="text-align: left;"> q or qq </td><td style="text-align: left;"> 02 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> qqq </td><td style="text-align: left;"> Q2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> qqqq </td><td style="text-align: left;"> 2nd quarter </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> qqqqq </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+M </td><td style="text-align: left;"> month in year </td><td style="text-align: left;"> M or MM </td><td style="text-align: left;"> 09 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> MMM </td><td style="text-align: left;"> Sep </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> MMMM </td><td style="text-align: left;"> September </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> MMMMM </td><td style="text-align: left;"> S </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+L </td><td style="text-align: left;"> Stand Alone month in year </td><td style="text-align: left;"> L or LL </td><td style="text-align: left;"> 09 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> LLL </td><td style="text-align: left;"> Sep </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> LLLL </td><td style="text-align: left;"> September </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> LLLLL </td><td style="text-align: left;"> S </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+w </td><td style="text-align: left;"> week of year </td><td style="text-align: left;"> w or ww </td><td style="text-align: left;"> 27 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+W </td><td style="text-align: left;"> week of month </td><td style="text-align: left;"> W </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+d </td><td style="text-align: left;"> day in month </td><td style="text-align: left;"> d </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> dd </td><td style="text-align: left;"> 02 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+D </td><td style="text-align: left;"> day of year </td><td style="text-align: left;"> D </td><td style="text-align: left;"> 189 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+F </td><td style="text-align: left;"> day of week in month </td><td style="text-align: left;"> F </td><td style="text-align: left;"> 2 (2nd Wed in July) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+g </td><td style="text-align: left;"> modified Julian day </td><td style="text-align: left;"> g </td><td style="text-align: left;"> 2451334 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+E </td><td style="text-align: left;"> day of week </td><td style="text-align: left;"> E, EE, or EEE </td><td style="text-align: left;"> Tue </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> EEEE </td><td style="text-align: left;"> Tuesday </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> EEEEE </td><td style="text-align: left;"> T </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> EEEEEE </td><td style="text-align: left;"> Tu </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+e </td><td style="text-align: left;"> local day of week </td><td style="text-align: left;"> e or ee </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  example: if Monday is 1st day, Tuesday is 2nd )  </td><td style="text-align: left;"> eee </td><td style="text-align: left;"> Tue </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> eeee </td><td style="text-align: left;"> Tuesday </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> eeeee </td><td style="text-align: left;"> T </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> eeeeee </td><td style="text-align: left;"> Tu </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+c </td><td style="text-align: left;"> Stand Alone local day of week </td><td style="text-align: left;"> c or cc </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> ccc </td><td style="text-align: left;"> Tue </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> cccc </td><td style="text-align: left;"> Tuesday </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> ccccc </td><td style="text-align: left;"> T </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> cccccc </td><td style="text-align: left;"> Tu </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+a </td><td style="text-align: left;"> am/pm marker </td><td style="text-align: left;"> a </td><td style="text-align: left;"> pm </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+h </td><td style="text-align: left;"> hour in am/pm (1~12) </td><td style="text-align: left;"> h </td><td style="text-align: left;"> 7 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> hh </td><td style="text-align: left;"> 07 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+H </td><td style="text-align: left;"> hour in day (0~23) </td><td style="text-align: left;"> H </td><td style="text-align: left;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> HH </td><td style="text-align: left;"> 00 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+k </td><td style="text-align: left;"> hour in day (1~24) </td><td style="text-align: left;"> k </td><td style="text-align: left;"> 24 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> kk </td><td style="text-align: left;"> 24 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+K </td><td style="text-align: left;"> hour in am/pm (0~11) </td><td style="text-align: left;"> K </td><td style="text-align: left;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> KK </td><td style="text-align: left;"> 00 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+m </td><td style="text-align: left;"> minute in hour </td><td style="text-align: left;"> m </td><td style="text-align: left;"> 4 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> mm </td><td style="text-align: left;"> 04 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+s </td><td style="text-align: left;"> second in minute </td><td style="text-align: left;"> s </td><td style="text-align: left;"> 5 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> ss </td><td style="text-align: left;"> 05 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+S </td><td style="text-align: left;"> fractional second - truncates (like other time fields)  </td><td style="text-align: left;"> S </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> to the count of letters when formatting. Appends  </td><td style="text-align: left;"> SS </td><td style="text-align: left;"> 23 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> zeros if more than 3 letters specified. Truncates at  </td><td style="text-align: left;"> SSS </td><td style="text-align: left;"> 235 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> three significant digits when parsing.  </td><td style="text-align: left;"> SSSS </td><td style="text-align: left;"> 2350 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+A </td><td style="text-align: left;"> milliseconds in day </td><td style="text-align: left;"> A </td><td style="text-align: left;"> 61201235 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+z </td><td style="text-align: left;"> Time Zone: specific non-location </td><td style="text-align: left;"> z, zz, or zzz </td><td style="text-align: left;"> PDT </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;">  </td><td style="text-align: left;"> zzzz </td><td style="text-align: left;"> Pacific Daylight Time </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+Z </td><td style="text-align: left;"> Time Zone: ISO8601 basic hms? / RFC 822 </td><td style="text-align: left;"> Z, ZZ, or ZZZ </td><td style="text-align: left;"> -0800 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: long localized GMT (=OOOO) </td><td style="text-align: left;"> ZZZZ </td><td style="text-align: left;"> GMT-08:00 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 extended hms? (=XXXXX) </td><td style="text-align: left;"> ZZZZZ </td><td style="text-align: left;"> -08:00, -07:52:58, Z </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+O </td><td style="text-align: left;"> Time Zone: short localized GMT </td><td style="text-align: left;"> O </td><td style="text-align: left;"> GMT-8 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: long localized GMT (=ZZZZ) </td><td style="text-align: left;"> OOOO </td><td style="text-align: left;"> GMT-08:00 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+v </td><td style="text-align: left;"> Time Zone: generic non-location </td><td style="text-align: left;"> v </td><td style="text-align: left;"> PT </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> (falls back first to VVVV) </td><td style="text-align: left;"> vvvv </td><td style="text-align: left;"> Pacific Time or Los Angeles Time </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+V </td><td style="text-align: left;"> Time Zone: short time zone ID </td><td style="text-align: left;"> V </td><td style="text-align: left;"> uslax </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: long time zone ID </td><td style="text-align: left;"> VV </td><td style="text-align: left;"> America/Los_Angeles </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: time zone exemplar city </td><td style="text-align: left;"> VVV </td><td style="text-align: left;"> Los Angeles </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: generic location (falls back to OOOO) </td><td style="text-align: left;"> VVVV </td><td style="text-align: left;"> Los Angeles Time </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+X </td><td style="text-align: left;"> Time Zone: ISO8601 basic hm?, with Z for 0 </td><td style="text-align: left;"> X </td><td style="text-align: left;"> -08, +0530, Z </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 basic hm, with Z </td><td style="text-align: left;"> XX </td><td style="text-align: left;"> -0800, Z </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 extended hm, with Z </td><td style="text-align: left;"> XXX </td><td style="text-align: left;"> -08:00, Z </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 basic hms?, with Z </td><td style="text-align: left;"> XXXX </td><td style="text-align: left;"> -0800, -075258, Z </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 extended hms?, with Z </td><td style="text-align: left;"> XXXXX </td><td style="text-align: left;"> -08:00, -07:52:58, Z </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+x </td><td style="text-align: left;"> Time Zone: ISO8601 basic hm?, without Z for 0 </td><td style="text-align: left;"> x </td><td style="text-align: left;"> -08, +0530 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 basic hm, without Z </td><td style="text-align: left;"> xx </td><td style="text-align: left;"> -0800 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 extended hm, without Z </td><td style="text-align: left;"> xxx </td><td style="text-align: left;"> -08:00 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 basic hms?, without Z </td><td style="text-align: left;"> xxxx </td><td style="text-align: left;"> -0800, -075258 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+ </td><td style="text-align: left;"> Time Zone: ISO8601 extended hms?, without Z </td><td style="text-align: left;"> xxxxx </td><td style="text-align: left;"> -08:00, -07:52:58 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+' </td><td style="text-align: left;"> escape for text </td><td style="text-align: left;"> ' </td><td style="text-align: left;"> (nothing) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+' ' </td><td style="text-align: left;"> two single quotes produce one </td><td style="text-align: left;"> ' ' </td><td style="text-align: left;"> '
+</td>
+</tr>
+
+</table>
+
+<p>Note that any characters in the pattern that are not in the ranges
+of <code>[a-z]</code> and <code>[A-Z]</code> will be treated as quoted text.
+For instance, characters like <code>:</code>, <code>.</code>,  (a space),
+<code>#</code> and <code>@</code> will appear in the resulting time text
+even if they are not enclosed within single quotes. The single quote is used
+to &ldquo;escape&rdquo; the letters. Two single quotes in a row,
+inside or outside a quoted sequence, represent a &ldquo;real&rdquo; single quote.
+</p>
+<p>A few examples:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<b>Example Pattern</b> </td><td style="text-align: left;">  <b>Result</b> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+yyyy.MM.dd 'at' HH:mm:ss zzz </td><td style="text-align: left;"> 2015.12.31 at 23:59:59 GMT+1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+EEE, MMM d, ''yy </td><td style="text-align: left;"> czw., gru 31, '15 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+h:mm a </td><td style="text-align: left;"> 11:59 PM </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+hh 'o''clock' a, zzzz </td><td style="text-align: left;"> 11 o'clock PM, GMT+01:00 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+K:mm a, z </td><td style="text-align: left;"> 11:59 PM, GMT+1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+yyyyy.MMMM.dd GGG hh:mm aaa </td><td style="text-align: left;"> 2015.grudnia.31 n.e. 11:59 PM </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+uuuu-MM-dd'T'HH:mm:ssZ </td><td style="text-align: left;"> 2015-12-31T23:59:59+0100 (the ISO 8601 guideline) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+
+
+<h3>Value</h3>
+
+<p><code>stri_datetime_format</code> returns a character vector.
+</p>
+<p><code>stri_datetime_parse</code> returns an object of class <code><a href="../../base/html/DateTimeClasses.html">POSIXct</a></code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Formatting Dates and Times</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/format_parse/datetime/">https://unicode-org.github.io/icu/userguide/format_parse/datetime/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_datetime_parse(c('2015-02-28', '2015-02-29'), 'yyyy-MM-dd')
+stri_datetime_parse(c('2015-02-28', '2015-02-29'), 'yyyy-MM-dd', lenient=TRUE)
+stri_datetime_parse('19 lipca 2015', 'date_long', locale='pl_PL')
+stri_datetime_format(stri_datetime_now(), 'datetime_relative_medium')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is R running interactively?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_interactive {rlang}"><tr><td>is_interactive {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is R running interactively?</h2>
+
+<h3>Description</h3>
+
+<p>Like <code><a href="../../base/html/interactive.html">base::interactive()</a></code>, <code>is_interactive()</code> returns <code>TRUE</code> when
+the function runs interactively and <code>FALSE</code> when it runs in batch
+mode. It also checks, in this order:
+</p>
+
+<ul>
+<li><p> The <code>rlang_interactive</code> global option. If set to a single <code>TRUE</code>
+or <code>FALSE</code>, <code>is_interactive()</code> returns that value immediately. This
+escape hatch is useful in unit tests or to manually turn on
+interactive features in RMarkdown outputs.
+</p>
+</li>
+<li><p> Whether knitr or testthat is in progress, in which case
+<code>is_interactive()</code> returns <code>FALSE</code>.
+</p>
+</li></ul>
+
+<p><code>with_interactive()</code> and <code>local_interactive()</code> set the global
+option conveniently.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_interactive()
+
+local_interactive(value = TRUE, frame = caller_env())
+
+with_interactive(expr, value = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>A single <code>TRUE</code> or <code>FALSE</code>. This overrides the return
+value of <code>is_interactive()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>The environment of a running function which defines
+the scope of the temporary options. When the function returns,
+the options are reset to their original values.</p>
+</td></tr>
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An expression to evaluate with interactivity set to
+<code>value</code>.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

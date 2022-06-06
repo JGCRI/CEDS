@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Authorization state</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for AuthState-class {gargle}"><tr><td>AuthState-class {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Authorization state</h2>
+
+<h3>Description</h3>
+
+<p>An <code>AuthState</code> object manages an authorization state, typically on behalf of
+a client package that makes requests to a Google API.
+</p>
+<p>The <a href="https://gargle.r-lib.org/articles/gargle-auth-in-client-package.html">How to use gargle for auth in a client package</a>
+vignette describes a design for wrapper packages that relies on an <code>AuthState</code>
+object. This state can then be incorporated into the package's requests for
+tokens and can control the inclusion of tokens in requests to the target API.
+</p>
+
+<ul>
+<li> <p><code>api_key</code> is the simplest way to associate a request with a specific
+Google Cloud Platform <a href="https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy#projects">project</a>.
+A few calls to certain APIs, e.g. reading a public Sheet, can succeed
+with an API key, but this is the exception.
+</p>
+</li>
+<li> <p><code>app</code> is an OAuth app associated with a specific Google Cloud Platform
+<a href="https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy#projects">project</a>.
+This is used in the OAuth flow, in which an authenticated user authorizes
+the app to access or manipulate data on their behalf.
+</p>
+</li>
+<li> <p><code>auth_active</code> reflects whether outgoing requests will be authorized by an
+authenticated user or are unauthorized requests for public resources.
+These two states correspond to sending a request with a token versus an
+API key, respectively.
+</p>
+</li>
+<li> <p><code>cred</code> is where the current token is cached within a session, once one
+has been fetched. It is generally assumed to be an instance of
+<code><a href="../../httr/html/Token-class.html">httr::TokenServiceAccount</a></code> or
+<code><a href="../../httr/html/Token-class.html">httr::Token2.0</a></code> (or a subclass thereof), probably
+obtained via <code><a href="token_fetch.html">token_fetch()</a></code> (or one of its constituent credential
+fetching functions).
+</p>
+</li></ul>
+
+<p>An <code>AuthState</code> should be created through the constructor function
+<code><a href="init_AuthState.html">init_AuthState()</a></code>, which has more details on the arguments.
+</p>
+
+
+<h3>Public fields</h3>
+
+<div class="r6-fields">
+
+<dl>
+<dt><code>package</code></dt><dd><p>Package name.</p>
+</dd>
+<dt><code>app</code></dt><dd><p>An OAuth consumer application.</p>
+</dd>
+<dt><code>api_key</code></dt><dd><p>An API key.</p>
+</dd>
+<dt><code>auth_active</code></dt><dd><p>Logical, indicating whether auth is active.</p>
+</dd>
+<dt><code>cred</code></dt><dd><p>Credentials.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<h3>Methods</h3>
+
+
+
+<h4>Public methods</h4>
+
+
+<ul>
+<li> <p><a href="#method-new"><code>AuthState$new()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-format"><code>AuthState$format()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-set_app"><code>AuthState$set_app()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-set_api_key"><code>AuthState$set_api_key()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-set_auth_active"><code>AuthState$set_auth_active()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-set_cred"><code>AuthState$set_cred()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-clear_cred"><code>AuthState$clear_cred()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-get_cred"><code>AuthState$get_cred()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-has_cred"><code>AuthState$has_cred()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-clone"><code>AuthState$clone()</code></a>
+</p>
+</li></ul>
+
+
+<hr>
+<a id="method-new"></a>
+
+
+
+<h4>Method <code>new()</code></h4>
+
+<p>Create a new AuthState
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$new(
+  package = NA_character_,
+  app = NULL,
+  api_key = NULL,
+  auth_active = TRUE,
+  cred = NULL
+)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>package</code></dt><dd><p>Package name.</p>
+</dd>
+<dt><code>app</code></dt><dd><p>An OAuth consumer application.</p>
+</dd>
+<dt><code>api_key</code></dt><dd><p>An API key.</p>
+</dd>
+<dt><code>auth_active</code></dt><dd><p>Logical, indicating whether auth is active.</p>
+</dd>
+<dt><code>cred</code></dt><dd><p>Credentials.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Details</h5>
+
+<p>For more details on the parameters, see <code><a href="init_AuthState.html">init_AuthState()</a></code>
+</p>
+
+
+<hr>
+<a id="method-format"></a>
+
+
+
+<h4>Method <code>format()</code></h4>
+
+<p>Format an AuthState
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$format(...)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>...</code></dt><dd><p>Not used.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-set_app"></a>
+
+
+
+<h4>Method <code>set_app()</code></h4>
+
+<p>Set the OAuth app
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$set_app(app)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>app</code></dt><dd><p>An OAuth consumer application.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-set_api_key"></a>
+
+
+
+<h4>Method <code>set_api_key()</code></h4>
+
+<p>Set the API key
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$set_api_key(value)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>value</code></dt><dd><p>An API key.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-set_auth_active"></a>
+
+
+
+<h4>Method <code>set_auth_active()</code></h4>
+
+<p>Set whether auth is (in)active
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$set_auth_active(value)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>value</code></dt><dd><p>Logical, indicating whether to send requests authorized with
+user credentials.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-set_cred"></a>
+
+
+
+<h4>Method <code>set_cred()</code></h4>
+
+<p>Set credentials
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$set_cred(cred)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>cred</code></dt><dd><p>User credentials.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-clear_cred"></a>
+
+
+
+<h4>Method <code>clear_cred()</code></h4>
+
+<p>Clear credentials
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$clear_cred()</pre></div>
+
+
+<hr>
+<a id="method-get_cred"></a>
+
+
+
+<h4>Method <code>get_cred()</code></h4>
+
+<p>Get credentials
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$get_cred()</pre></div>
+
+
+<hr>
+<a id="method-has_cred"></a>
+
+
+
+<h4>Method <code>has_cred()</code></h4>
+
+<p>Report if we have credentials
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$has_cred()</pre></div>
+
+
+<hr>
+<a id="method-clone"></a>
+
+
+
+<h4>Method <code>clone()</code></h4>
+
+<p>The objects of this class are cloneable with this method.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>AuthState$clone(deep = FALSE)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

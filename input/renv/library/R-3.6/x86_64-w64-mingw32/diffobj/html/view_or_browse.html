@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Invoke IDE Viewer If Available, browseURL If Not</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for view_or_browse {diffobj}"><tr><td>view_or_browse {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Invoke IDE Viewer If Available, browseURL If Not</h2>
+
+<h3>Description</h3>
+
+<p>Use <code>getOption("viewer")</code> to view HTML output if it is available as
+per <a href="https://support.rstudio.com/hc/en-us/articles/202133558-Extending-RStudio-with-the-Viewer-Pane">RStudio</a>. Fallback to <code><a href="../../utils/html/browseURL.html">browseURL</a></code>
+if not available.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+view_or_browse(url)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>character(1L) a location containing a file to display</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>the return vaue of <code>getOption("viewer")</code> if it is a function, or
+of <code><a href="../../utils/html/browseURL.html">browseURL</a></code> if the viewer is not available
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

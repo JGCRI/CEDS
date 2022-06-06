@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Coerce xml nodes to a list.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_list {xml2}"><tr><td>as_list {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Coerce xml nodes to a list.</h2>
+
+<h3>Description</h3>
+
+<p>This turns an XML document (or node or nodeset) into the equivalent R
+list. Note that this is <code>as_list()</code>, not <code>as.list()</code>:
+<code>lapply()</code> automatically calls <code>as.list()</code> on its inputs, so
+we can't override the default.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_list(x, ns = character(), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>Optionally, a named vector giving prefix-url pairs, as produced
+by <code><a href="xml_ns.html">xml_ns()</a></code>. If provided, all names will be explicitly
+qualified with the ns prefix, i.e. if the element <code>bar</code> is defined
+in namespace <code>foo</code>, it will be called <code>foo:bar</code>. (And
+similarly for attributes). Default namespaces must be given an explicit
+name. The ns is ignored when using <code><a href="xml_name.html">xml_name&lt;-()</a></code> and
+<code><a href="xml_name.html">xml_set_name()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Needed for compatibility with generic. Unused.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>as_list</code> currently only handles the four most common types of
+children that an element might have:
+</p>
+
+<ul>
+<li><p> Other elements, converted to lists.
+</p>
+</li>
+<li><p> Attributes, stored as R attributes. Attributes that have special meanings in R
+(<code><a href="../../base/html/class.html">class()</a></code>, <code><a href="../../base/html/comment.html">comment()</a></code>, <code><a href="../../base/html/dim.html">dim()</a></code>,
+<code><a href="../../base/html/dimnames.html">dimnames()</a></code>, <code><a href="../../base/html/names.html">names()</a></code>, <code><a href="../../base/html/row.names.html">row.names()</a></code> and
+<code><a href="../../stats/html/tsp.html">tsp()</a></code>) are escaped with '.'
+</p>
+</li>
+<li><p> Text, stored as a character vector.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+as_list(read_xml("&lt;foo&gt; a &lt;b /&gt;&lt;c&gt;&lt;![CDATA[&lt;d&gt;&lt;/d&gt;]]&gt;&lt;/c&gt;&lt;/foo&gt;"))
+as_list(read_xml("&lt;foo&gt; &lt;bar&gt;&lt;baz /&gt;&lt;/bar&gt; &lt;/foo&gt;"))
+as_list(read_xml("&lt;foo id = 'a'&gt;&lt;/foo&gt;"))
+as_list(read_xml("&lt;foo&gt;&lt;bar id='a'/&gt;&lt;bar id='b'/&gt;&lt;/foo&gt;"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

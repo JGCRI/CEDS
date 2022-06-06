@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set document headers and footers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for setHeaderFooter {openxlsx}"><tr><td>setHeaderFooter {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set document headers and footers</h2>
+
+<h3>Description</h3>
+
+<p>Set document headers and footers
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+setHeaderFooter(
+  wb,
+  sheet,
+  header = NULL,
+  footer = NULL,
+  evenHeader = NULL,
+  evenFooter = NULL,
+  firstHeader = NULL,
+  firstFooter = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>document header. Character vector of length 3 corresponding to positions left, center, right. Use NA to skip a position.</p>
+</td></tr>
+<tr valign="top"><td><code>footer</code></td>
+<td>
+<p>document footer. Character vector of length 3 corresponding to positions left, center, right. Use NA to skip a position.</p>
+</td></tr>
+<tr valign="top"><td><code>evenHeader</code></td>
+<td>
+<p>document header for even pages.</p>
+</td></tr>
+<tr valign="top"><td><code>evenFooter</code></td>
+<td>
+<p>document footer for even pages.</p>
+</td></tr>
+<tr valign="top"><td><code>firstHeader</code></td>
+<td>
+<p>document header for first page only.</p>
+</td></tr>
+<tr valign="top"><td><code>firstFooter</code></td>
+<td>
+<p>document footer for first page only.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Headers and footers can contain special tags
+</p>
+
+<ul>
+<li><p><strong>&amp;[Page]</strong> Page number
+</p>
+</li>
+<li><p><strong>&amp;[Pages]</strong> Number of pages
+</p>
+</li>
+<li><p><strong>&amp;[Date]</strong> Current date
+</p>
+</li>
+<li><p><strong>&amp;[Time]</strong> Current time
+</p>
+</li>
+<li><p><strong>&amp;[Path]</strong> File path
+</p>
+</li>
+<li><p><strong>&amp;[File]</strong> File name
+</p>
+</li>
+<li><p><strong>&amp;[Tab]</strong> Worksheet name
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="addWorksheet.html">addWorksheet()</a></code> to set headers and footers when adding a worksheet
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+
+addWorksheet(wb, "S1")
+addWorksheet(wb, "S2")
+addWorksheet(wb, "S3")
+addWorksheet(wb, "S4")
+
+writeData(wb, 1, 1:400)
+writeData(wb, 2, 1:400)
+writeData(wb, 3, 3:400)
+writeData(wb, 4, 3:400)
+
+setHeaderFooter(wb,
+  sheet = "S1",
+  header = c("ODD HEAD LEFT", "ODD HEAD CENTER", "ODD HEAD RIGHT"),
+  footer = c("ODD FOOT RIGHT", "ODD FOOT CENTER", "ODD FOOT RIGHT"),
+  evenHeader = c("EVEN HEAD LEFT", "EVEN HEAD CENTER", "EVEN HEAD RIGHT"),
+  evenFooter = c("EVEN FOOT RIGHT", "EVEN FOOT CENTER", "EVEN FOOT RIGHT"),
+  firstHeader = c("TOP", "OF FIRST", "PAGE"),
+  firstFooter = c("BOTTOM", "OF FIRST", "PAGE")
+)
+
+setHeaderFooter(wb,
+  sheet = 2,
+  header = c("&amp;[Date]", "ALL HEAD CENTER 2", "&amp;[Page] / &amp;[Pages]"),
+  footer = c("&amp;[Path]&amp;[File]", NA, "&amp;[Tab]"),
+  firstHeader = c(NA, "Center Header of First Page", NA),
+  firstFooter = c(NA, "Center Footer of First Page", NA)
+)
+
+setHeaderFooter(wb,
+  sheet = 3,
+  header = c("ALL HEAD LEFT 2", "ALL HEAD CENTER 2", "ALL HEAD RIGHT 2"),
+  footer = c("ALL FOOT RIGHT 2", "ALL FOOT CENTER 2", "ALL FOOT RIGHT 2")
+)
+
+setHeaderFooter(wb,
+  sheet = 4,
+  firstHeader = c("FIRST ONLY L", NA, "FIRST ONLY R"),
+  firstFooter = c("FIRST ONLY L", NA, "FIRST ONLY R")
+)
+## Not run: 
+saveWorkbook(wb, "setHeaderFooterExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

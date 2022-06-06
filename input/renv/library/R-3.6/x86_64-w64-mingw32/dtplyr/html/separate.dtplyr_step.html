@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Separate a character column into multiple columns with a...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for separate.dtplyr_step {dtplyr}"><tr><td>separate.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Separate a character column into multiple columns with a regular
+expression or numeric locations</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the <code><a href="../../tidyr/html/separate.html">tidyr::separate()</a></code> generic. It is translated to
+<code><a href="../../data.table/html/tstrsplit.html">data.table::tstrsplit()</a></code> in the <code>j</code> argument of <code style="white-space: pre;">[.data.table</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+separate(
+  data,
+  col,
+  into,
+  sep = "[^[:alnum:]]+",
+  remove = TRUE,
+  convert = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>Column name or position.
+</p>
+<p>This argument is passed by expression and supports quasiquotation
+(you can unquote column names or column positions).</p>
+</td></tr>
+<tr valign="top"><td><code>into</code></td>
+<td>
+<p>Names of new variables to create as character vector.
+Use <code>NA</code> to omit the variable in the output.</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>Separator between columns.
+The default value is a regular expression that matches any sequence of non-alphanumeric values.</p>
+</td></tr>
+<tr valign="top"><td><code>remove</code></td>
+<td>
+<p>If TRUE, remove the input column from the output data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>convert</code></td>
+<td>
+<p>If TRUE, will run type.convert() with as.is = TRUE on new columns.
+This is useful if the component columns are integer, numeric or logical.
+</p>
+<p>NB: this will cause string &quot;NA&quot;s to be converted to NAs.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments passed on to methods</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(tidyr)
+# If you want to split by any non-alphanumeric value (the default):
+df &lt;- lazy_dt(data.frame(x = c(NA, "x.y", "x.z", "y.z")), "DT")
+df %&gt;% separate(x, c("A", "B"))
+
+# If you just want the second variable:
+df %&gt;% separate(x, c(NA, "B"))
+
+# Use regular expressions to separate on multiple characters:
+df &lt;- lazy_dt(data.frame(x = c(NA, "x?y", "x.z", "y:z")), "DT")
+df %&gt;% separate(x, c("A","B"), sep = "([.?:])")
+
+# convert = TRUE detects column classes:
+df &lt;- lazy_dt(data.frame(x = c("x:1", "x:2", "y:4", "z", NA)), "DT")
+df %&gt;% separate(x, c("key","value"), ":") %&gt;% str
+df %&gt;% separate(x, c("key","value"), ":", convert = TRUE) %&gt;% str
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Execute code with a modified search path</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_package {withr}"><tr><td>with_package {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Execute code with a modified search path</h2>
+
+<h3>Description</h3>
+
+<p><code>with_package()</code> attaches a package to the search path, executes the code, then
+removes the package from the search path. The package namespace is <em>not</em>
+unloaded however. <code>with_namespace()</code> does the same thing, but attaches the
+package namespace to the search path, so all objects (even unexported ones) are also
+available on the search path.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_package(
+  package,
+  code,
+  pos = 2,
+  lib.loc = NULL,
+  character.only = TRUE,
+  logical.return = FALSE,
+  warn.conflicts = FALSE,
+  quietly = TRUE,
+  verbose = getOption("verbose")
+)
+
+local_package(
+  package,
+  pos = 2,
+  lib.loc = NULL,
+  character.only = TRUE,
+  logical.return = FALSE,
+  warn.conflicts = FALSE,
+  quietly = TRUE,
+  verbose = getOption("verbose"),
+  .local_envir = parent.frame()
+)
+
+with_namespace(package, code, warn.conflicts = FALSE)
+
+local_namespace(package, .local_envir = parent.frame(), warn.conflicts = FALSE)
+
+with_environment(
+  env,
+  code,
+  pos = 2L,
+  name = format(env),
+  warn.conflicts = FALSE
+)
+
+local_environment(
+  env,
+  pos = 2L,
+  name = format(env),
+  warn.conflicts = FALSE,
+  .local_envir = parent.frame()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p><code>[character(1)]</code><br /> package name to load.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>pos</code></td>
+<td>
+<p>the position on the search list at which to attach the
+loaded namespace.  Can also be the name of a position on the current
+search list as given by <code><a href="../../base/html/search.html">search</a>()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lib.loc</code></td>
+<td>
+<p>a character vector describing the location of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>
+library trees to search through, or <code>NULL</code>.  The default value
+of <code>NULL</code> corresponds to all libraries currently known to
+<code><a href="../../base/html/.libPaths.html">.libPaths</a>()</code>.
+Non-existent library trees are silently ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>character.only</code></td>
+<td>
+<p>a logical indicating whether <code>package</code> or
+<code>help</code> can be assumed to be character strings.</p>
+</td></tr>
+<tr valign="top"><td><code>logical.return</code></td>
+<td>
+<p>logical.  If it is <code>TRUE</code>,  <code>FALSE</code> or
+<code>TRUE</code> is returned to indicate success.</p>
+</td></tr>
+<tr valign="top"><td><code>warn.conflicts</code></td>
+<td>
+<p>logical.  If <code>TRUE</code>, warnings are
+printed about <code><a href="../../base/html/conflicts.html">conflicts</a></code> from attaching the new
+package.  A conflict is a function masking a function,
+or a non-function masking a non-function. The default is <code>TRUE</code>
+unless specified as <code>FALSE</code> in the <code>conflicts.policy</code> option.
+</p>
+</td></tr>
+<tr valign="top"><td><code>quietly</code></td>
+<td>
+<p>a logical.  If <code>TRUE</code>, no message confirming
+package attaching is printed, and most often, no errors/warnings are
+printed if package attaching fails.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>a logical.  If <code>TRUE</code>, additional diagnostics are
+printed.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p><code>[environment()]</code><br /> Environment to attach.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>name to use for the attached database. Names starting with
+<code>package:</code> are reserved for <code><a href="../../base/html/library.html">library</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+with_package("ggplot2", {
+  ggplot(mtcars) + geom_point(aes(wt, hp))
+})
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

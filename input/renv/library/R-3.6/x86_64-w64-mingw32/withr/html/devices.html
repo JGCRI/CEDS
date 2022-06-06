@@ -1,0 +1,436 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Graphics devices</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for devices {withr}"><tr><td>devices {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Graphics devices</h2>
+
+<h3>Description</h3>
+
+<p>Temporarily use a graphics device.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_bmp(new, code, ...)
+
+local_bmp(new = list(), ..., .local_envir = parent.frame())
+
+with_cairo_pdf(new, code, ...)
+
+local_cairo_pdf(new = list(), ..., .local_envir = parent.frame())
+
+with_cairo_ps(new, code, ...)
+
+local_cairo_ps(new = list(), ..., .local_envir = parent.frame())
+
+with_pdf(
+  new,
+  code,
+  width,
+  height,
+  onefile,
+  family,
+  title,
+  fonts,
+  version,
+  paper,
+  encoding,
+  bg,
+  fg,
+  pointsize,
+  pagecentre,
+  colormodel,
+  useDingbats,
+  useKerning,
+  fillOddEven,
+  compress
+)
+
+local_pdf(
+  new = list(),
+  width,
+  height,
+  onefile,
+  family,
+  title,
+  fonts,
+  version,
+  paper,
+  encoding,
+  bg,
+  fg,
+  pointsize,
+  pagecentre,
+  colormodel,
+  useDingbats,
+  useKerning,
+  fillOddEven,
+  compress,
+  .local_envir = parent.frame()
+)
+
+with_postscript(
+  new,
+  code,
+  onefile,
+  family,
+  title,
+  fonts,
+  encoding,
+  bg,
+  fg,
+  width,
+  height,
+  horizontal,
+  pointsize,
+  paper,
+  pagecentre,
+  print.it,
+  command,
+  colormodel,
+  useKerning,
+  fillOddEven
+)
+
+local_postscript(
+  new = list(),
+  onefile,
+  family,
+  title,
+  fonts,
+  encoding,
+  bg,
+  fg,
+  width,
+  height,
+  horizontal,
+  pointsize,
+  paper,
+  pagecentre,
+  print.it,
+  command,
+  colormodel,
+  useKerning,
+  fillOddEven,
+  .local_envir = parent.frame()
+)
+
+with_svg(
+  new,
+  code,
+  width = 7,
+  height = 7,
+  pointsize = 12,
+  onefile = FALSE,
+  family = "sans",
+  bg = "white",
+  antialias = c("default", "none", "gray", "subpixel"),
+  ...
+)
+
+local_svg(
+  new = list(),
+  width = 7,
+  height = 7,
+  pointsize = 12,
+  onefile = FALSE,
+  family = "sans",
+  bg = "white",
+  antialias = c("default", "none", "gray", "subpixel"),
+  ...,
+  .local_envir = parent.frame()
+)
+
+with_tiff(new, code, ...)
+
+local_tiff(new = list(), ..., .local_envir = parent.frame())
+
+with_xfig(
+  new,
+  code,
+  onefile = FALSE,
+  encoding = "none",
+  paper = "default",
+  horizontal = TRUE,
+  width = 0,
+  height = 0,
+  family = "Helvetica",
+  pointsize = 12,
+  bg = "transparent",
+  fg = "black",
+  pagecentre = TRUE,
+  defaultfont = FALSE,
+  textspecial = FALSE
+)
+
+local_xfig(
+  new = list(),
+  onefile = FALSE,
+  encoding = "none",
+  paper = "default",
+  horizontal = TRUE,
+  width = 0,
+  height = 0,
+  family = "Helvetica",
+  pointsize = 12,
+  bg = "transparent",
+  fg = "black",
+  pagecentre = TRUE,
+  defaultfont = FALSE,
+  textspecial = FALSE,
+  .local_envir = parent.frame()
+)
+
+with_png(new, code, ...)
+
+local_png(new = list(), ..., .local_envir = parent.frame())
+
+with_jpeg(new, code, ...)
+
+local_jpeg(new = list(), ..., .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p><code>[named character]</code><br /> New graphics device</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to the graphics device.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>the width of the device in inches.</p>
+</td></tr>
+<tr valign="top"><td><code>height</code></td>
+<td>
+<p>the height of the device in inches.</p>
+</td></tr>
+<tr valign="top"><td><code>onefile</code></td>
+<td>
+<p>should all plots appear in one file or in separate files?</p>
+</td></tr>
+<tr valign="top"><td><code>family</code></td>
+<td>
+<p>one of the device-independent font families,
+<code>"sans"</code>, <code>"serif"</code> and <code>"mono"</code>, or a character
+string specify a font family to be searched for in a
+system-dependent way.
+</p>
+<p>On unix-alikes (incl.\ Mac), see
+the &lsquo;Cairo fonts&rsquo; section in the help for <code><a href="../../grDevices/html/X11.html">X11</a></code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>title string to embed as the <span class="samp">/Title</span> field in the
+file.  Defaults to <code>"R Graphics Output"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fonts</code></td>
+<td>
+<p>a character vector specifying <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> graphics font family
+names for additional fonts which will be included in the PDF file.
+Defaults to <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>a string describing the PDF version that will be
+required to view the output.  This is a minimum, and will be
+increased (with a warning) if necessary.  Defaults to <code>"1.4"</code>,
+but see &lsquo;Details&rsquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>paper</code></td>
+<td>
+<p>the target paper size.  The choices are
+<code>"a4"</code>, <code>"letter"</code>, <code>"legal"</code> (or <code>"us"</code>) and
+<code>"executive"</code> (and these can be capitalized), or <code>"a4r"</code>
+and <code>"USr"</code> for rotated (&lsquo;landscape&rsquo;).
+The default is <code>"special"</code>, which means that the <code>width</code>
+and <code>height</code> specify the paper size.  A further choice is
+<code>"default"</code>; if this is selected, the
+papersize is taken from the option <code>"papersize"</code>
+if that is set and as <code>"a4"</code> if it is unset or empty.
+Defaults to <code>"special"</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>the name of an encoding file.  See
+<code><a href="../../grDevices/html/postscript.html">postscript</a></code> for details.  Defaults to <code>"default"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>bg</code></td>
+<td>
+<p>the initial background colour: can be overridden by setting
+par(&quot;bg&quot;).</p>
+</td></tr>
+<tr valign="top"><td><code>fg</code></td>
+<td>
+<p>the initial foreground color to be used.  Defaults to
+<code>"black"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>pointsize</code></td>
+<td>
+<p>the default pointsize of plotted text (in big points).</p>
+</td></tr>
+<tr valign="top"><td><code>pagecentre</code></td>
+<td>
+<p>logical: should the device region be centred on the
+page? &ndash; is only relevant for <code>paper != "special"</code>.
+Defaults to <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>colormodel</code></td>
+<td>
+<p>a character string describing the color model:
+currently allowed values are <code>"srgb"</code>, <code>"gray"</code> (or
+<code>"grey"</code>) and <code>"cmyk"</code>.  Defaults to <code>"srgb"</code>.  See section
+&lsquo;Color models&rsquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>useDingbats</code></td>
+<td>
+<p>logical.  Should small circles be rendered
+<em>via</em> the Dingbats font?  Defaults to <code>FALSE</code>.
+If <code>TRUE</code>, this can produce smaller and better output, but
+there can font display problems in broken PDF viewers: although this
+font is one of the 14 guaranteed to be available in all PDF viewers,
+that guarantee is not always honoured.
+</p>
+<p>For Unix-alikes (including macOS) see the &lsquo;Note&rsquo; for a
+possible fix for some viewers.</p>
+</td></tr>
+<tr valign="top"><td><code>useKerning</code></td>
+<td>
+<p>logical.  Should kerning corrections be included in
+setting text and calculating string widths?  Defaults to <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fillOddEven</code></td>
+<td>
+<p>logical controlling the polygon fill mode:  see
+<code><a href="../../graphics/html/polygon.html">polygon</a></code> for details.  Defaults to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>compress</code></td>
+<td>
+<p>logical.  Should PDF streams be generated with Flate
+compression?  Defaults to <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>horizontal</code></td>
+<td>
+<p>the orientation of the printed image, a logical.
+Defaults to true, that is landscape orientation on paper sizes
+with width less than height.</p>
+</td></tr>
+<tr valign="top"><td><code>print.it</code></td>
+<td>
+<p>logical: should the file be printed when the device is
+closed?  (This only applies if <code>file</code> is a real file name.)
+Defaults to false.</p>
+</td></tr>
+<tr valign="top"><td><code>command</code></td>
+<td>
+<p>the command to be used for &lsquo;printing&rsquo;. Defaults
+to <code>"default"</code>, the value of option <code>"printcmd"</code>. The
+length limit is <code>2*PATH_MAX</code>, typically 8096 bytes on unix systems and
+520 bytes on windows.</p>
+</td></tr>
+<tr valign="top"><td><code>antialias</code></td>
+<td>
+<p>string, the type of anti-aliasing (if any) to be used;
+defaults to <code>"default"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>defaultfont</code></td>
+<td>
+<p>logical: should the device use xfig's default
+font?</p>
+</td></tr>
+<tr valign="top"><td><code>textspecial</code></td>
+<td>
+<p>logical: should the device set the textspecial flag
+for all text elements. This is useful when generating pstex from xfig
+figures.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<ul>
+<li> <p><code>with_bmp</code>: BMP device
+</p>
+</li>
+<li> <p><code>with_cairo_pdf</code>: CAIRO_PDF device
+</p>
+</li>
+<li> <p><code>with_cairo_ps</code>: CAIRO_PS device
+</p>
+</li>
+<li> <p><code>with_pdf</code>: PDF device
+</p>
+</li>
+<li> <p><code>with_postscript</code>: POSTSCRIPT device
+</p>
+</li>
+<li> <p><code>with_svg</code>: SVG device
+</p>
+</li>
+<li> <p><code>with_tiff</code>: TIFF device
+</p>
+</li>
+<li> <p><code>with_xfig</code>: XFIG device
+</p>
+</li>
+<li> <p><code>with_png</code>: PNG device
+</p>
+</li>
+<li> <p><code>with_jpeg</code>: JPEG device
+</p>
+</li></ul>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+<p><code><a href="../../grDevices/html/Devices.html">Devices</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# dimensions are in inches
+with_pdf(file.path(tempdir(), "test.pdf"), width = 7, height = 5,
+  plot(runif(5))
+)
+
+# dimensions are in pixels
+with_png(file.path(tempdir(), "test.png"), width = 800, height = 600,
+  plot(runif(5))
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

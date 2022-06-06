@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Control Sequence Aware Version of trimws</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for trimws_ctl {fansi}"><tr><td>trimws_ctl {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Control Sequence Aware Version of trimws</h2>
+
+<h3>Description</h3>
+
+<p>Removes any whitespace before the first and/or after the last non-<em>Control
+Sequence</em> character.  Unlike with the <code><a href="../../base/html/trimws.html">base::trimws</a></code>, only the default
+<code>whitespace</code> specification is supported.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+trimws_ctl(
+  x,
+  which = c("both", "left", "right"),
+  whitespace = "[ \t\r\n]",
+  warn = getOption("fansi.warn", TRUE),
+  term.cap = getOption("fansi.term.cap", dflt_term_cap()),
+  ctl = "all",
+  normalize = getOption("fansi.normalize", FALSE)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character vector</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>a character string specifying whether to remove both
+leading and trailing whitespace (default), or only leading
+(<code>"left"</code>) or trailing (<code>"right"</code>).  Can be abbreviated.</p>
+</td></tr>
+<tr valign="top"><td><code>whitespace</code></td>
+<td>
+<p>must be set to the default value, in the future it may
+become possible to change this parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to warn when potentially
+problematic <em>Control Sequences</em> are encountered.  These could cause the
+assumptions <code>fansi</code> makes about how strings are rendered on your display
+to be incorrect, for example by moving the cursor (see <code><a href="fansi.html">?fansi</a></code>).
+At most one warning will be issued per element in each input vector.  Will
+also warn about some badly encoded UTF-8 strings, but a lack of UTF-8
+warnings is not a guarantee of correct encoding (use <code><a href="../../base/html/validUTF8.html">validUTF8</a></code> for
+that).</p>
+</td></tr>
+<tr valign="top"><td><code>term.cap</code></td>
+<td>
+<p>character a vector of the capabilities of the terminal, can
+be any combination of &quot;bright&quot; (SGR codes 90-97, 100-107), &quot;256&quot; (SGR codes
+starting with &quot;38;5&quot; or &quot;48;5&quot;), &quot;truecolor&quot; (SGR codes starting with
+&quot;38;2&quot; or &quot;48;2&quot;), and &quot;all&quot;. &quot;all&quot; behaves as it does for the <code>ctl</code>
+parameter: &quot;all&quot; combined with any other value means all terminal
+capabilities except that one.  <code>fansi</code> will warn if it encounters SGR codes
+that exceed the terminal capabilities specified (see <code><a href="term_cap_test.html">term_cap_test</a></code>
+for details).  In versions prior to 1.0, <code>fansi</code> would also skip exceeding
+SGRs entirely instead of interpreting them.  You may add the string &quot;old&quot;
+to any otherwise valid <code>term.cap</code> spec to restore the pre 1.0 behavior.
+&quot;old&quot; will not interact with &quot;all&quot; the way other valid values for this
+parameter do.</p>
+</td></tr>
+<tr valign="top"><td><code>ctl</code></td>
+<td>
+<p>character, which <em>Control Sequences</em> should be treated
+specially.  Special treatment is context dependent, and may include
+detecting them and/or computing their display/character width as zero.  For
+the SGR subset of the ANSI CSI sequences, and OSC hyperlinks, <code>fansi</code>
+will also parse, interpret, and reapply the sequences as needed.  You can
+modify whether a <em>Control Sequence</em> is treated specially with the <code>ctl</code>
+parameter.
+</p>
+
+<ul>
+<li><p> &quot;nl&quot;: newlines.
+</p>
+</li>
+<li><p> &quot;c0&quot;: all other &quot;C0&quot; control characters (i.e. 0x01-0x1f, 0x7F), except
+for newlines and the actual ESC (0x1B) character.
+</p>
+</li>
+<li><p> &quot;sgr&quot;: ANSI CSI SGR sequences.
+</p>
+</li>
+<li><p> &quot;csi&quot;: all non-SGR ANSI CSI sequences.
+</p>
+</li>
+<li><p> &quot;url&quot;: OSC hyperlinks
+</p>
+</li>
+<li><p> &quot;osc&quot;: all non-OSC-hyperlink OSC sequences.
+</p>
+</li>
+<li><p> &quot;esc&quot;: all other escape sequences.
+</p>
+</li>
+<li><p> &quot;all&quot;: all of the above, except when used in combination with any of the
+above, in which case it means &quot;all but&quot;.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>normalize</code></td>
+<td>
+<p>TRUE or FALSE (default) whether SGR sequence should be
+normalized out such that there is one distinct sequence for each SGR code.
+normalized strings will occupy more space (e.g. &quot;\033[31;42m&quot; becomes
+&quot;\033[31m\033[42m&quot;), but will work better with code that assumes each SGR
+code will be in its own escape as <code>crayon</code> does.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input with white space removed as described.
+</p>
+
+
+<h3>Control and Special Sequences</h3>
+
+<p><em>Control Sequences</em> are non-printing characters or sequences of characters.
+<em>Special Sequences</em> are a subset of the <em>Control Sequences</em>, and include CSI
+SGR sequences which can be used to change rendered appearance of text, and
+OSC hyperlinks.  See <code><a href="fansi.html">fansi</a></code> for details.
+</p>
+
+
+<h3>Output Stability</h3>
+
+<p>Several factors could affect the exact output produced by <code>fansi</code>
+functions across versions of <code>fansi</code>, <code>R</code>, and/or across systems.
+<strong>In general it is best not to rely on exact <code>fansi</code> output, e.g. by
+embedding it in tests</strong>.
+</p>
+<p>Width and grapheme calculations depend on locale, Unicode database
+version, and grapheme processing logic (which is still in development), among
+other things.  For the most part <code>fansi</code> (currently) uses the internals of
+<code>base::nchar(type='width')</code>, but there are exceptions and this may change in
+the future.
+</p>
+<p>How a particular display format is encoded in <em>Control Sequences</em> is
+not guaranteed to be stable across <code>fansi</code> versions.  Additionally, which
+<em>Special Sequences</em> are re-encoded vs transcribed untouched may change.
+In general we will strive to keep the rendered appearance stable.
+</p>
+<p>To maximize the odds of getting stable output set <code>normalize_state</code> to
+<code>TRUE</code> and <code>type</code> to <code>"chars"</code> in functions that allow it, and
+set <code>term.cap</code> to a specific set of capabilities.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+trimws_ctl(" \033[31m\thello world\t\033[39m  ")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

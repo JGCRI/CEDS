@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Copy a file from any GitHub repo into the current project</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_github_file {usethis}"><tr><td>use_github_file {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Copy a file from any GitHub repo into the current project</h2>
+
+<h3>Description</h3>
+
+<p>Gets the content of a file from GitHub, from any repo the user can read, and
+writes it into the active project. This function wraps an endpoint of the
+GitHub API which supports specifying a target reference (i.e. branch, tag,
+or commit) and which follows symlinks.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_github_file(
+  repo_spec,
+  path = NULL,
+  save_as = NULL,
+  ref = NULL,
+  ignore = FALSE,
+  open = FALSE,
+  host = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo_spec</code></td>
+<td>
+<p>A string identifying the GitHub repo or, alternatively, a
+GitHub file URL. Acceptable forms:
+</p>
+
+<ul>
+<li><p> Plain <code>OWNER/REPO</code> spec
+</p>
+</li>
+<li><p> A blob URL, such as <code>"https://github.com/OWNER/REPO/blob/REF/path/to/some/file"</code>
+</p>
+</li>
+<li><p> A raw URL, such as <code>"https://raw.githubusercontent.com/OWNER/REPO/REF/path/to/some/file"</code>
+</p>
+</li></ul>
+
+<p>In the case of a URL, the <code>path</code>, <code>ref</code>, and <code>host</code> are extracted from it, in
+addition to the <code>repo_spec</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path of file to copy, relative to the GitHub repo it lives in.
+This is extracted from <code>repo_spec</code> when user provides a URL.</p>
+</td></tr>
+<tr valign="top"><td><code>save_as</code></td>
+<td>
+<p>Path of file to create, relative to root of active project.
+Defaults to the last part of <code>path</code>, in the sense of <code>basename(path)</code> or
+<code>fs::path_file(path)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>The name of a branch, tag, or commit. By default, the file at
+<code>path</code> will by copied from its current state in the repo's default branch.
+This is extracted from <code>repo_spec</code> when user provides a URL.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore</code></td>
+<td>
+<p>Should the newly created file be added to <code>.Rbuildignore</code>?</p>
+</td></tr>
+<tr valign="top"><td><code>open</code></td>
+<td>
+<p>Open the newly created file for editing? Happens in RStudio, if
+applicable, or via <code><a href="../../utils/html/file.edit.html">utils::file.edit()</a></code> otherwise.</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>GitHub host to target, passed to the <code>.api_url</code> argument of
+<code><a href="../../gh/html/gh.html">gh::gh()</a></code>. If unspecified, gh defaults to &quot;https://api.github.com&quot;,
+although gh's default can be customised by setting the GITHUB_API_URL
+environment variable.
+</p>
+<p>For a hypothetical GitHub Enterprise instance, either
+&quot;https://github.acme.com/api/v3&quot; or &quot;https://github.acme.com&quot; is
+acceptable.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A logical indicator of whether a file was written, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+use_github_file(
+  "https://github.com/r-lib/actions/blob/v1/examples/check-standard.yaml"
+)
+
+use_github_file(
+  "r-lib/actions",
+  path = "examples/check-standard.yaml",
+  ref = "v1",
+  save_as = ".github/workflows/R-CMD-check.yaml"
+)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Resolve the output format for an R Markdown document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for resolve_output_format {rmarkdown}"><tr><td>resolve_output_format {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Resolve the output format for an R Markdown document</h2>
+
+<h3>Description</h3>
+
+<p>Read the YAML metadata (and any common output YAML file) for the
+document and return an output format object that can be
+passed to the <code><a href="render.html">render</a></code> function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+resolve_output_format(
+  input,
+  output_format = NULL,
+  output_options = NULL,
+  output_yaml = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>Input file (Rmd or plain markdown)</p>
+</td></tr>
+<tr valign="top"><td><code>output_format</code></td>
+<td>
+<p>Name of output format (or <code>NULL</code> to use
+the default format for the input file).</p>
+</td></tr>
+<tr valign="top"><td><code>output_options</code></td>
+<td>
+<p>List of output options that should override the
+options specified in metadata.</p>
+</td></tr>
+<tr valign="top"><td><code>output_yaml</code></td>
+<td>
+<p>Paths to YAML files specifying output formats and their
+configurations. The first existing one is used. If none are found, then
+the function searches YAML files specified to the <code>output_yaml</code> top-level
+parameter in the YAML front matter, _output.yml or _output.yaml, and then uses
+the first existing one.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function is useful for front-end tools that need to modify
+the default behavior of an output format.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An R Markdown output format definition that can be passed to
+<code><a href="render.html">render</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

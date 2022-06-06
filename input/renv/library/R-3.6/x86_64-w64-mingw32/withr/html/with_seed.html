@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Random seed</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_seed {withr}"><tr><td>with_seed {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Random seed</h2>
+
+<h3>Description</h3>
+
+<p><code>with_seed()</code> runs code with a specific random seed and resets it afterwards.
+</p>
+<p><code>with_preserve_seed()</code> runs code with the current random seed and resets it
+afterwards.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_seed(
+  seed,
+  code,
+  .rng_kind = "default",
+  .rng_normal_kind = "default",
+  .rng_sample_kind = "default"
+)
+
+local_seed(
+  seed,
+  .local_envir = parent.frame(),
+  .rng_kind = "default",
+  .rng_normal_kind = "default",
+  .rng_sample_kind = "default"
+)
+
+with_preserve_seed(code)
+
+local_preserve_seed(.local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p><code style="white-space: pre;">[integer(1)]</code><br /> The random seed to use to evaluate the code.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>.rng_kind</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> Kind of (uniform) RNG to use.</p>
+</td></tr>
+<tr valign="top"><td><code>.rng_normal_kind</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> Kind of normal RNG to use.</p>
+</td></tr>
+<tr valign="top"><td><code>.rng_sample_kind</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> Kind of RNG to use for sampling.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Same random values:
+with_preserve_seed(runif(5))
+with_preserve_seed(runif(5))
+
+# Use a pseudorandom value as seed to advance the RNG and pick a different
+# value for the next call:
+with_seed(seed &lt;- sample.int(.Machine$integer.max, 1L), runif(5))
+with_seed(seed, runif(5))
+with_seed(seed &lt;- sample.int(.Machine$integer.max, 1L), runif(5))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

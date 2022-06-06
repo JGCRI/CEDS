@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract alt text from a plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for get_alt_text {ggplot2}"><tr><td>get_alt_text {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract alt text from a plot</h2>
+
+<h3>Description</h3>
+
+<p>This function returns a text that can be used as alt-text in webpages etc.
+Currently it will use the <code>alt</code> label, added with <code style="white-space: pre;">+ labs(alt = &lt;...&gt;)</code>, or
+a return an empty string, but in the future it might try to generate an alt
+text from the information stored in the plot.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+get_alt_text(p, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>p</code></td>
+<td>
+<p>a ggplot object</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Currently ignored</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A text string
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mpg, aes(displ, hwy)) +
+  geom_point()
+
+# Returns an empty string
+get_alt_text(p)
+
+# A user provided alt text
+p &lt;- p + labs(
+  alt = paste("A scatterplot showing the negative correlation between engine",
+              "displacement as a function of highway miles per gallon")
+)
+
+get_alt_text(p)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

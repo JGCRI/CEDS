@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Watches code and tests for changes, rerunning tests as...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for auto_test {testthat}"><tr><td>auto_test {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Watches code and tests for changes, rerunning tests as appropriate.</h2>
+
+<h3>Description</h3>
+
+<p>The idea behind <code>auto_test()</code> is that you just leave it running while
+you develop your code.  Everytime you save a file it will be automatically
+tested and you can easily see if your changes have caused any test
+failures.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+auto_test(
+  code_path,
+  test_path,
+  reporter = default_reporter(),
+  env = test_env(),
+  hash = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>code_path</code></td>
+<td>
+<p>path to directory containing code</p>
+</td></tr>
+<tr valign="top"><td><code>test_path</code></td>
+<td>
+<p>path to directory containing tests</p>
+</td></tr>
+<tr valign="top"><td><code>reporter</code></td>
+<td>
+<p>test reporter to use</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>environment in which to execute test suite.</p>
+</td></tr>
+<tr valign="top"><td><code>hash</code></td>
+<td>
+<p>Passed on to <code><a href="watch.html">watch()</a></code>. When FALSE, uses less accurate
+modification time stamps, but those are faster for large files.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The current strategy for rerunning tests is as follows:
+</p>
+
+<ul>
+<li><p> if any code has changed, then those files are reloaded and all tests
+rerun
+</p>
+</li>
+<li><p> otherwise, each new or modified test is run
+</p>
+</li></ul>
+
+<p>In the future, <code>auto_test()</code> might implement one of the following more
+intelligent alternatives:
+</p>
+
+<ul>
+<li><p> Use codetools to build up dependency tree and then rerun tests only
+when a dependency changes.
+</p>
+</li>
+<li><p> Mimic ruby's autotest and rerun only failing tests until they pass,
+and then rerun all tests.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="auto_test_package.html">auto_test_package()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

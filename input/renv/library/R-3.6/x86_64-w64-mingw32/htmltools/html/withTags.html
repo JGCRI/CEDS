@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Evaluate an expression using 'tags'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for withTags {htmltools}"><tr><td>withTags {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Evaluate an expression using <code>tags</code></h2>
+
+<h3>Description</h3>
+
+<p>This function makes it simpler to write HTML-generating code. Instead of
+needing to specify <code>tags</code> each time a tag function is used, as in
+<code>tags$div()</code> and <code>tags$p()</code>, code inside <code>withTags</code> is
+evaluated with <code>tags</code> searched first, so you can simply use
+<code>div()</code> and <code>p()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+withTags(code, .noWS = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>A set of tags.</p>
+</td></tr>
+<tr valign="top"><td><code>.noWS</code></td>
+<td>
+<p>Default whitespace behavior for all tags within this call to
+<code>withTags()</code>. Setting <code>.noWS</code> on an individual tag fuction inside
+<code>withTags()</code> will override the default. See <code><a href="builder.html">tag()</a></code> for complete options.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If your code uses an object which happens to have the same name as an
+HTML tag function, such as <code>source()</code> or <code>summary()</code>, it will call
+the tag function. To call the intended (non-tags function), specify the
+namespace, as in <code>base::source()</code> or <code>base::summary()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Using tags$ each time
+tags$div(class = "myclass",
+  tags$h3("header"),
+  tags$p("text")
+)
+
+# Equivalent to above, but using withTags
+withTags(
+  div(class = "myclass",
+    h3("header"),
+    p("text")
+  )
+)
+
+# Setting .noWS for all tags in withTags()
+withTags(
+  div(
+    class = "myclass",
+    h3("header"),
+    p("One", strong(span("two")), "three")
+  ),
+  .noWS = c("outside", "inside")
+)
+
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

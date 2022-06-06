@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_options {withr}"><tr><td>with_options {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Options</h2>
+
+<h3>Description</h3>
+
+<p>Temporarily change global options.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_options(new, code)
+
+local_options(.new = list(), ..., .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new, .new</code></td>
+<td>
+<p><code style="white-space: pre;">[named list]</code><br /> New options and their values</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional options and their values</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+<p><code><a href="../../base/html/options.html">options()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# number of significant digits to print
+getOption("digits")
+# modify temporarily the number of significant digits to print
+with_options(list(digits = 3), getOption("digits"))
+with_options(list(digits = 3), print(pi))
+
+# modify temporarily the character to be used as the decimal point
+getOption("digits")
+with_options(list(OutDec = ","), print(pi))
+
+# modify temporarily multiple options
+with_options(list(OutDec = ",", digits = 3), print(pi))
+
+# modify, within the scope of the function, the number of
+# significant digits to print
+print_3_digits &lt;- function(x) {
+  # assign 3 to the option "digits" for the rest of this function
+  # after the function exits, the option will return to its previous
+  # value
+  local_options(list(digits = 3))
+  print(x)
+}
+
+print_3_digits(pi)  # returns 3.14
+print(pi)           # returns 3.141593
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

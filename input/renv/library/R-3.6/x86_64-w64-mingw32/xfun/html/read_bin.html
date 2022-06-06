@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read all records of a binary file as a raw vector by default</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read_bin {xfun}"><tr><td>read_bin {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read all records of a binary file as a raw vector by default</h2>
+
+<h3>Description</h3>
+
+<p>This is a wrapper function of <code><a href="../../base/html/readBin.html">readBin</a>()</code> with default arguments
+<code>what = "raw"</code> and <code>n = <a href="../../base/html/file.info.html">file.size</a>(file)</code>, which means it
+will read the full content of a binary file as a raw vector by default.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_bin(file, what = "raw", n = file.info(file)$size, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file, what, n, ...</code></td>
+<td>
+<p>Arguments to be passed to <code>readBin()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A vector returned from <code>readBin()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f = tempfile()
+cat("abc", file = f)
+xfun::read_bin(f)
+unlink(f)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

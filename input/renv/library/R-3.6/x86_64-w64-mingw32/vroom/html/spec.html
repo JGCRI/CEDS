@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Examine the column specifications for a data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cols_condense {vroom}"><tr><td>cols_condense {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Examine the column specifications for a data frame</h2>
+
+<h3>Description</h3>
+
+<p><code>cols_condense()</code> takes a spec object and condenses its definition by setting
+the default column type to the most frequent type and only listing columns
+with a different type.
+</p>
+<p><code>spec()</code> extracts the full column specification from a tibble
+created by readr.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cols_condense(x)
+
+spec(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The data frame object to extract from</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A col_spec object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- vroom(vroom_example("mtcars.csv"))
+s &lt;- spec(df)
+s
+
+cols_condense(s)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

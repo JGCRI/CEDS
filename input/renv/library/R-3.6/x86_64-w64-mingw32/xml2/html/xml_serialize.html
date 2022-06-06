@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Serializing XML objects to connections.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_serialize {xml2}"><tr><td>xml_serialize {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Serializing XML objects to connections.</h2>
+
+<h3>Description</h3>
+
+<p>Serializing XML objects to connections.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_serialize(object, connection, ...)
+
+xml_unserialize(connection, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p><span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> object to serialize.</p>
+</td></tr>
+<tr valign="top"><td><code>connection</code></td>
+<td>
+<p>an open <a href="../../base/html/connection.html">connection</a> or (for <code>serialize</code>)
+<code>NULL</code> or (for <code>unserialize</code>) a raw vector
+(see &lsquo;Details&rsquo;).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="read_xml.html">read_xml()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>For <code>serialize</code>, <code>NULL</code> unless <code>connection = NULL</code>, when
+the result is returned in a raw vector.
+</p>
+<p>For <code>unserialize</code> an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xml2)
+x &lt;- read_xml("&lt;a&gt;
+  &lt;b&gt;&lt;c&gt;123&lt;/c&gt;&lt;/b&gt;
+  &lt;b&gt;&lt;c&gt;456&lt;/c&gt;&lt;/b&gt;
+&lt;/a&gt;")
+
+b &lt;- xml_find_all(x, "//b")
+out &lt;- xml_serialize(b, NULL)
+xml_unserialize(out)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

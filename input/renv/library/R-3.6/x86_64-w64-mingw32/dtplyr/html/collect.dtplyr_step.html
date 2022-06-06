@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Force computation of a lazy data.table</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for collect.dtplyr_step {dtplyr}"><tr><td>collect.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Force computation of a lazy data.table</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>collect()</code> returns a tibble, grouped if needed.
+</p>
+</li>
+<li> <p><code>compute()</code> generates an intermediate assignment in the translation.
+</p>
+</li>
+<li> <p><code>as.data.table()</code> returns a data.table.
+</p>
+</li>
+<li> <p><code>as.data.frame()</code> returns a data frame.
+</p>
+</li>
+<li> <p><code>as_tibble()</code> returns a tibble.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+collect(x, ...)
+
+## S3 method for class 'dtplyr_step'
+compute(x, name = unique_name(), ...)
+
+## S3 method for class 'dtplyr_step'
+as.data.table(x, keep.rownames = FALSE, ...)
+
+## S3 method for class 'dtplyr_step'
+as.data.frame(x, ...)
+
+## S3 method for class 'dtplyr_step'
+as_tibble(x, ..., .name_repair = "check_unique")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <a href="lazy_dt.html">lazy_dt</a></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments used by other methods.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of intermediate data.table.</p>
+</td></tr>
+<tr valign="top"><td><code>keep.rownames</code></td>
+<td>
+<p>Ignored as dplyr never preserves rownames.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Treatment of problematic column names</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+dt &lt;- lazy_dt(mtcars)
+
+# Generate translation
+avg_mpg &lt;- dt %&gt;%
+  filter(am == 1) %&gt;%
+  group_by(cyl) %&gt;%
+  summarise(mpg = mean(mpg))
+
+# Show translation and temporarily compute result
+avg_mpg
+
+# compute and return tibble
+avg_mpg_tb &lt;- as_tibble(avg_mpg)
+avg_mpg_tb
+
+# compute and return data.table
+avg_mpg_dt &lt;- data.table::as.data.table(avg_mpg)
+avg_mpg_dt
+
+# modify translation to use intermediate assignment
+compute(avg_mpg)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

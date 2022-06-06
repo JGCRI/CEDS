@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write to a worksheet as an Excel table</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for writeDataTable {openxlsx}"><tr><td>writeDataTable {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write to a worksheet as an Excel table</h2>
+
+<h3>Description</h3>
+
+<p>Write to a worksheet and format as an Excel table
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+writeDataTable(
+  wb,
+  sheet,
+  x,
+  startCol = 1,
+  startRow = 1,
+  xy = NULL,
+  colNames = TRUE,
+  rowNames = FALSE,
+  tableStyle = openxlsx_getOp("tableStyle", "TableStyleLight9"),
+  tableName = NULL,
+  headerStyle = openxlsx_getOp("headerStyle"),
+  withFilter = openxlsx_getOp("withFilter", TRUE),
+  keepNA = openxlsx_getOp("keepNA", FALSE),
+  na.string = openxlsx_getOp("na.string"),
+  sep = ", ",
+  stack = FALSE,
+  firstColumn = openxlsx_getOp("firstColumn", FALSE),
+  lastColumn = openxlsx_getOp("lastColumn", FALSE),
+  bandedRows = openxlsx_getOp("bandedRows", TRUE),
+  bandedCols = openxlsx_getOp("bandedCols", FALSE),
+  col.names,
+  row.names
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A Workbook object containing a
+worksheet.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>The worksheet to write to. Can be the worksheet index or name.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A dataframe.</p>
+</td></tr>
+<tr valign="top"><td><code>startCol</code></td>
+<td>
+<p>A vector specifying the starting column to write df</p>
+</td></tr>
+<tr valign="top"><td><code>startRow</code></td>
+<td>
+<p>A vector specifying the starting row to write df</p>
+</td></tr>
+<tr valign="top"><td><code>xy</code></td>
+<td>
+<p>An alternative to specifying startCol and startRow individually.
+A vector of the form c(startCol, startRow)</p>
+</td></tr>
+<tr valign="top"><td><code>colNames</code></td>
+<td>
+<p>If <code>TRUE</code>, column names of x are written.</p>
+</td></tr>
+<tr valign="top"><td><code>rowNames</code></td>
+<td>
+<p>If <code>TRUE</code>, row names of x are written.</p>
+</td></tr>
+<tr valign="top"><td><code>tableStyle</code></td>
+<td>
+<p>Any excel table style name or &quot;none&quot; (see &quot;formatting&quot; vignette).</p>
+</td></tr>
+<tr valign="top"><td><code>tableName</code></td>
+<td>
+<p>name of table in workbook. The table name must be unique.</p>
+</td></tr>
+<tr valign="top"><td><code>headerStyle</code></td>
+<td>
+<p>Custom style to apply to column names.</p>
+</td></tr>
+<tr valign="top"><td><code>withFilter</code></td>
+<td>
+<p>If <code>TRUE</code> or <code>NA</code>, columns with have filters in the first row.</p>
+</td></tr>
+<tr valign="top"><td><code>keepNA</code></td>
+<td>
+<p>If <code>TRUE</code>, NA values are converted to #N/A (or <code>na.string</code>, if not NULL) in Excel, else NA cells will be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>na.string</code></td>
+<td>
+<p>If not NULL, and if <code>keepNA</code> is <code>TRUE</code>, NA values are converted to this string in Excel.</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>Only applies to list columns. The separator used to collapse list columns to a character vector e.g. sapply(x$list_column, paste, collapse = sep).</p>
+</td></tr>
+<tr valign="top"><td><code>stack</code></td>
+<td>
+<p>If <code>TRUE</code> the new style is merged with any existing cell styles.  If FALSE, any
+existing style is replaced by the new style.
+<br /><br />
+<br /><strong>The below options correspond to Excel table options:</strong>
+<br />
+<img src="../help/figures/tableoptions.png" width="40%" alt="Figure: table\_options.png" />
+</p>
+</td></tr>
+<tr valign="top"><td><code>firstColumn</code></td>
+<td>
+<p>logical. If TRUE, the first column is bold</p>
+</td></tr>
+<tr valign="top"><td><code>lastColumn</code></td>
+<td>
+<p>logical. If TRUE, the last column is bold</p>
+</td></tr>
+<tr valign="top"><td><code>bandedRows</code></td>
+<td>
+<p>logical. If TRUE, rows are colour banded</p>
+</td></tr>
+<tr valign="top"><td><code>bandedCols</code></td>
+<td>
+<p>logical. If TRUE, the columns are colour banded</p>
+</td></tr>
+<tr valign="top"><td><code>row.names, col.names</code></td>
+<td>
+<p>Deprecated, please use <code>rowNames</code>, <code>colNames</code> instead</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>columns of x with class Date/POSIXt, currency, accounting,
+hyperlink, percentage are automatically styled as dates, currency, accounting,
+hyperlinks, percentages respectively.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="addWorksheet.html">addWorksheet()</a></code>
+</p>
+<p><code><a href="writeData.html">writeData()</a></code>
+</p>
+<p><code><a href="removeTable.html">removeTable()</a></code>
+</p>
+<p><code><a href="getTables.html">getTables()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## see package vignettes for further examples.
+
+#####################################################################################
+## Create Workbook object and add worksheets
+wb &lt;- createWorkbook()
+addWorksheet(wb, "S1")
+addWorksheet(wb, "S2")
+addWorksheet(wb, "S3")
+
+
+#####################################################################################
+## -- write data.frame as an Excel table with column filters
+## -- default table style is "TableStyleMedium2"
+
+writeDataTable(wb, "S1", x = iris)
+
+writeDataTable(wb, "S2",
+  x = mtcars, xy = c("B", 3), rowNames = TRUE,
+  tableStyle = "TableStyleLight9"
+)
+
+df &lt;- data.frame(
+  "Date" = Sys.Date() - 0:19,
+  "T" = TRUE, "F" = FALSE,
+  "Time" = Sys.time() - 0:19 * 60 * 60,
+  "Cash" = paste("$", 1:20), "Cash2" = 31:50,
+  "hLink" = "https://CRAN.R-project.org/",
+  "Percentage" = seq(0, 1, length.out = 20),
+  "TinyNumbers" = runif(20) / 1E9, stringsAsFactors = FALSE
+)
+
+## openxlsx will apply default Excel styling for these classes
+class(df$Cash) &lt;- c(class(df$Cash), "currency")
+class(df$Cash2) &lt;- c(class(df$Cash2), "accounting")
+class(df$hLink) &lt;- "hyperlink"
+class(df$Percentage) &lt;- c(class(df$Percentage), "percentage")
+class(df$TinyNumbers) &lt;- c(class(df$TinyNumbers), "scientific")
+
+writeDataTable(wb, "S3", x = df, startRow = 4, rowNames = TRUE, tableStyle = "TableStyleMedium9")
+
+#####################################################################################
+## Additional Header Styling and remove column filters
+
+writeDataTable(wb,
+  sheet = 1, x = iris, startCol = 7, headerStyle = createStyle(textRotation = 45),
+  withFilter = FALSE
+)
+
+
+#####################################################################################
+## Save workbook
+## Open in excel without saving file: openXL(wb)
+## Not run: 
+saveWorkbook(wb, "writeDataTableExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+
+
+
+
+#####################################################################################
+## Pre-defined table styles gallery
+
+wb &lt;- createWorkbook(paste0("tableStylesGallery.xlsx"))
+addWorksheet(wb, "Style Samples")
+for (i in 1:21) {
+  style &lt;- paste0("TableStyleLight", i)
+  writeDataTable(wb,
+    x = data.frame(style), sheet = 1,
+    tableStyle = style, startRow = 1, startCol = i * 3 - 2
+  )
+}
+
+for (i in 1:28) {
+  style &lt;- paste0("TableStyleMedium", i)
+  writeDataTable(wb,
+    x = data.frame(style), sheet = 1,
+    tableStyle = style, startRow = 4, startCol = i * 3 - 2
+  )
+}
+
+for (i in 1:11) {
+  style &lt;- paste0("TableStyleDark", i)
+  writeDataTable(wb,
+    x = data.frame(style), sheet = 1,
+    tableStyle = style, startRow = 7, startCol = i * 3 - 2
+  )
+}
+
+## openXL(wb)
+## Not run: 
+saveWorkbook(wb, file = "tableStylesGallery.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

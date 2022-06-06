@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does a condition or its ancestors inherit from a class?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cnd_inherits {rlang}"><tr><td>cnd_inherits {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does a condition or its ancestors inherit from a class?</h2>
+
+<h3>Description</h3>
+
+<p>Like any R objects, errors captured with catchers like <code><a href="../../base/html/conditions.html">tryCatch()</a></code>
+have a <code><a href="../../base/html/class.html">class()</a></code> which you can test with <code><a href="../../base/html/class.html">inherits()</a></code>.  However,
+with chained errors, the class of a captured error might be
+different than the error that was originally signalled. Use
+<code>cnd_inherits()</code> to detect whether an error or any of its <em>parent</em>
+inherits from a class.
+</p>
+<p>Whereas <code>inherits()</code> tells you whether an object is a particular
+kind of error, <code>cnd_inherits()</code> answers the question whether an
+object is a particular kind of error or has been caused by such an
+error.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cnd_inherits(cnd, class)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cnd</code></td>
+<td>
+<p>A condition to test.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>A class passed to <code><a href="../../base/html/class.html">inherits()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Capture an error with <code>cnd_inherits()</code></h3>
+
+<p>Error catchers like <code><a href="../../base/html/conditions.html">tryCatch()</a></code> and <code><a href="try_fetch.html">try_fetch()</a></code> can only match
+the class of a condition, not the class of its parents. To match a
+class across the ancestry of an error, you'll need a bit of
+craftiness.
+</p>
+<p>Ancestry matching can't be done with <code>tryCatch()</code> at all so you'll
+need to switch to <code><a href="../../base/html/conditions.html">withCallingHandlers()</a></code>. Alternatively, you can
+use the experimental rlang function <code><a href="try_fetch.html">try_fetch()</a></code> which is able to
+perform the roles of both <code>tryCatch()</code> and <code>withCallingHandlers()</code>.
+</p>
+
+
+<h4><code>withCallingHandlers()</code></h4>
+
+<p>Unlike <code>tryCatch()</code>, <code>withCallingHandlers()</code> does not capture an
+error. If you don't explicitly jump with an <em>error</em> or a <em>value</em>
+throw, nothing happens.
+</p>
+<p>Since we don't want to throw an error, we'll throw a value using
+<code><a href="../../base/html/callCC.html">callCC()</a></code>:<div class="sourceCode r"></p>
+<pre>f &lt;- function() {
+  parent &lt;- error_cnd("bar", message = "Bar")
+  abort("Foo", parent = parent)
+}
+
+cnd &lt;- callCC(function(throw) {
+  withCallingHandlers(
+    f(),
+    error = function(x) if (cnd_inherits(x, "bar")) throw(x)
+  )
+})
+
+class(cnd)
+#&gt; [1] "rlang_error" "error"       "condition"
+class(cnd$parent)
+#&gt; [1] "bar"         "rlang_error" "error"       "condition"
+</pre></div>
+
+
+
+<h4><code>try_fetch()</code></h4>
+
+<p>This pattern is easier with <code><a href="try_fetch.html">try_fetch()</a></code>. Like
+<code>withCallingHandlers()</code>, it doesn't capture a matching error right
+away. Instead, it captures it only if the handler doesn't return a
+<code><a href="zap.html">zap()</a></code> value.<div class="sourceCode r"></p>
+<pre>cnd &lt;- try_fetch(
+  f(),
+  error = function(x) if (cnd_inherits(x, "bar")) x else zap()
+)
+
+class(cnd)
+#&gt; [1] "rlang_error" "error"       "condition"
+class(cnd$parent)
+#&gt; [1] "bar"         "rlang_error" "error"       "condition"
+</pre></div>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

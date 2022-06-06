@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract a single column</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pull {dplyr}"><tr><td>pull {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract a single column</h2>
+
+<h3>Description</h3>
+
+<p><code>pull()</code> is similar to <code>$</code>. It's mostly useful because it looks a little
+nicer in pipes, it also works with remote data frames, and it can optionally
+name the output.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pull(.data, var = -1, name = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>var</code></td>
+<td>
+<p>A variable specified as:
+</p>
+
+<ul>
+<li><p> a literal variable name
+</p>
+</li>
+<li><p> a positive integer, giving the position counting from the left
+</p>
+</li>
+<li><p> a negative integer, giving the position counting from the right.
+</p>
+</li></ul>
+
+<p>The default returns the last column (on the assumption that's the
+column you've created most recently).
+</p>
+<p>This argument is taken by expression and supports
+<a href="../../rlang/html/nse-force.html">quasiquotation</a> (you can unquote column
+names and column locations).</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>An optional parameter that specifies the column to be used
+as names for a named vector. Specified in a similar manner as <code>var</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For use by methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A vector the same size as <code>.data</code>.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+mtcars %&gt;% pull(-1)
+mtcars %&gt;% pull(1)
+mtcars %&gt;% pull(cyl)
+
+# Also works for remote sources
+if (requireNamespace("dbplyr", quietly = TRUE)) {
+df &lt;- dbplyr::memdb_frame(x = 1:10, y = 10:1, .name = "pull-ex")
+df %&gt;%
+  mutate(z = x * y) %&gt;%
+  pull()
+}
+
+# Pull a named vector
+starwars %&gt;% pull(height, name)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

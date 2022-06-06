@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert to an HTML notebook</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_notebook {rmarkdown}"><tr><td>html_notebook {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert to an HTML notebook</h2>
+
+<h3>Description</h3>
+
+<p>Format for converting from R Markdown to an HTML notebook.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_notebook(
+  toc = FALSE,
+  toc_depth = 3,
+  toc_float = FALSE,
+  number_sections = FALSE,
+  fig_width = 7,
+  fig_height = 5,
+  fig_retina = 2,
+  fig_caption = TRUE,
+  code_folding = "show",
+  theme = "default",
+  highlight = "textmate",
+  mathjax = "default",
+  extra_dependencies = NULL,
+  css = NULL,
+  includes = NULL,
+  md_extensions = NULL,
+  pandoc_args = NULL,
+  output_source = NULL,
+  self_contained = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>toc</code></td>
+<td>
+<p><code>TRUE</code> to include a table of contents in the output</p>
+</td></tr>
+<tr valign="top"><td><code>toc_depth</code></td>
+<td>
+<p>Depth of headers to include in table of contents</p>
+</td></tr>
+<tr valign="top"><td><code>toc_float</code></td>
+<td>
+<p><code>TRUE</code> to float the table of contents to the left of the
+main document content. Rather than <code>TRUE</code> you may also pass a list of
+options that control the behavior of the floating table of contents. See the
+<em>Floating Table of Contents</em> section below for details.</p>
+</td></tr>
+<tr valign="top"><td><code>number_sections</code></td>
+<td>
+<p><code>TRUE</code> to number section headings</p>
+</td></tr>
+<tr valign="top"><td><code>fig_width</code></td>
+<td>
+<p>Default width (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_height</code></td>
+<td>
+<p>Default height (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_retina</code></td>
+<td>
+<p>Scaling to perform for retina displays (defaults to 2, which
+currently works for all widely used retina displays). Set to <code>NULL</code> to
+prevent retina scaling. Note that this will always be <code>NULL</code> when
+<code>keep_md</code> is specified (this is because <code>fig_retina</code> relies on
+outputting HTML directly into the markdown document).</p>
+</td></tr>
+<tr valign="top"><td><code>fig_caption</code></td>
+<td>
+<p><code>TRUE</code> to render figures with captions</p>
+</td></tr>
+<tr valign="top"><td><code>code_folding</code></td>
+<td>
+<p>Enable document readers to toggle the display of R code
+chunks. Specify <code>"none"</code> to display all code chunks (assuming
+they were knit with <code>echo = TRUE</code>). Specify <code>"hide"</code> to hide all R
+code chunks by default (users can show hidden code chunks either
+individually or document-wide). Specify <code>"show"</code> to show all R code
+chunks by default.</p>
+</td></tr>
+<tr valign="top"><td><code>theme</code></td>
+<td>
+<p>One of the following:
+</p>
+
+<ul>
+<li><p> A <code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> object (or a list of <code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> argument values)
+</p>
+
+<ul>
+<li><p> Use this option for custom themes using Bootstrap 4 or 3.
+</p>
+</li>
+<li><p> In this case, any <code>.scss</code>/<code>.sass</code> files provided to the <code>css</code>
+parameter may utilize the <code>theme</code>'s underlying Sass utilities
+(e.g., variables, mixins, etc).
+</p>
+</li></ul>
+
+</li>
+<li> <p><code>NULL</code> for no theme (i.e., no <code><a href="html-dependencies.html">html_dependency_bootstrap()</a></code>).
+</p>
+</li>
+<li><p> A character string specifying a <a href="https://bootswatch.com/3/">Bootswatch 3</a>
+theme name (for backwards-compatibility).
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>highlight</code></td>
+<td>
+<p>Syntax highlighting style. Supported styles include
+&quot;default&quot;, &quot;tango&quot;, &quot;pygments&quot;, &quot;kate&quot;, &quot;monochrome&quot;, &quot;espresso&quot;, &quot;zenburn&quot;,
+&quot;haddock&quot;, and &quot;textmate&quot;. Pass <code>NULL</code> to prevent syntax highlighting.</p>
+</td></tr>
+<tr valign="top"><td><code>mathjax</code></td>
+<td>
+<p>Include mathjax. The &quot;default&quot; option uses an https URL from a
+MathJax CDN. The &quot;local&quot; option uses a local version of MathJax (which is
+copied into the output directory). You can pass an alternate URL or pass
+<code>NULL</code> to exclude MathJax entirely.</p>
+</td></tr>
+<tr valign="top"><td><code>extra_dependencies</code></td>
+<td>
+<p>Additional function arguments to pass to the
+base R Markdown HTML output formatter <code><a href="html_document_base.html">html_document_base</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>css</code></td>
+<td>
+<p>CSS and/or Sass files to include. Files with an extension of .sass
+or .scss are compiled to CSS via <code>sass::sass()</code>. Also, if <code>theme</code> is a
+<code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> object, Sass code may reference the relevant Bootstrap
+Sass variables, functions, mixins, etc.</p>
+</td></tr>
+<tr valign="top"><td><code>includes</code></td>
+<td>
+<p>Named list of additional content to include within the
+document (typically created using the <code><a href="includes.html">includes</a></code> function).</p>
+</td></tr>
+<tr valign="top"><td><code>md_extensions</code></td>
+<td>
+<p>Markdown extensions to be added or removed from the
+default definition or R Markdown. See the <code><a href="rmarkdown_format.html">rmarkdown_format</a></code> for
+additional details.</p>
+</td></tr>
+<tr valign="top"><td><code>pandoc_args</code></td>
+<td>
+<p>Additional command line options to pass to pandoc</p>
+</td></tr>
+<tr valign="top"><td><code>output_source</code></td>
+<td>
+<p>Define an output source for <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> chunks (ie,
+outputs to use instead of those produced by evaluating the
+underlying <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> code). See <code><a href="html_notebook_output.html">html_notebook_output</a></code> for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>self_contained</code></td>
+<td>
+<p>Produce a standalone HTML file with no external
+dependencies. Defaults to <code>TRUE</code>. In notebooks, setting this to
+<code>FALSE</code> is not recommended, since the setting does not apply to
+embedded notebook output such as plots and HTML widgets.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional function arguments to pass to the
+base R Markdown HTML output formatter <code><a href="html_document_base.html">html_document_base</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>See the <a href="https://rmarkdown.rstudio.com/r_notebook_format.html">online
+documentation</a> for additional details on using the <code>html_notebook</code>
+format.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

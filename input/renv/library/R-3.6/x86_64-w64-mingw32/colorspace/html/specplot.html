@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Color Spectrum Plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for specplot {colorspace}"><tr><td>specplot {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Color Spectrum Plot</h2>
+
+<h3>Description</h3>
+
+<p>Visualization of color palettes (given as hex codes) in HCL and/or RGB
+coordinates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+specplot(
+  x,
+  y = NULL,
+  rgb = FALSE,
+  hcl = TRUE,
+  fix = TRUE,
+  cex = 1,
+  type = "l",
+  lwd = 2 * cex,
+  lty = 1,
+  pch = NULL,
+  mar = NULL,
+  oma = NULL,
+  main = NULL,
+  legend = TRUE,
+  palette = TRUE,
+  plot = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector containing color hex codes.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>optional second character vector containing further color hex codes,
+to be used for comparing two palettes (<code>x</code> vs. <code>y</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>rgb</code></td>
+<td>
+<p>logical or color specification. Should the RGB spectrum be
+visualized? Can also be a vector of three colors for the legend of R/G/B coordinates.</p>
+</td></tr>
+<tr valign="top"><td><code>hcl</code></td>
+<td>
+<p>logical or color specification. Should the HCL spectrum be
+visualized? Can also be a vector of three colors for the legend of H/C/L coordinates.</p>
+</td></tr>
+<tr valign="top"><td><code>fix</code></td>
+<td>
+<p>logical. Should the hues be fixed to be on a smooth(er) curve?
+For details see below.</p>
+</td></tr>
+<tr valign="top"><td><code>cex</code></td>
+<td>
+<p>numeric. Character extension for figure axes and labels.</p>
+</td></tr>
+<tr valign="top"><td><code>type, lwd, lty, pch</code></td>
+<td>
+<p>plotting parameters passed to
+<code><a href="../../graphics/html/lines.html">lines</a></code> for drawing the RGB and HCL coordinates,
+respectively. Can be vectors of length 3.</p>
+</td></tr>
+<tr valign="top"><td><code>mar, oma</code></td>
+<td>
+<p>numeric or logical. Either numeric vectors of length 4 giving
+the (outer) margins or a logical indicating whether <code>mar</code>/<code>oma</code>
+should be set.</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p>character. Main title of the plot.</p>
+</td></tr>
+<tr valign="top"><td><code>legend</code></td>
+<td>
+<p>logical. Should legends for the coordinates be plotted?</p>
+</td></tr>
+<tr valign="top"><td><code>palette</code></td>
+<td>
+<p>logical. Should the given palette <code>x</code> be plotted?</p>
+</td></tr>
+<tr valign="top"><td><code>plot</code></td>
+<td>
+<p>logical. Should the RGB and/or HCL coordinates be plotted?</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>currently not used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function <code>specplot</code> transforms a given color palette in hex codes
+into their HCL (<code><a href="polarLUV.html">polarLUV</a></code>) and/or RGB
+(<code><a href="sRGB.html">sRGB</a></code>) coordinates. As the hues for low-chroma
+colors are not (or poorly) identified, by default a smoothing is applied to
+the hues (<code>fix = TRUE</code>). Also, to avoid jumps from 0 to 360 or vice
+versa, the hue coordinates are shifted suitably.
+</p>
+<p>By default (<code>plot = TRUE</code>), the resulting HCL and optionally RGB coordinates are
+visualized by simple line plots along with the color palette <code>x</code>
+itself. The x-axis simply gives the ordering of the colors in the palette
+The y-axis depicts the following information: (1) Hue is drawn in red and
+coordinates are indicated on the axis on the right with range [0, 360] or
+(if necessary) [-360, 360]. (2) Chroma is drawn in green with coordinates on
+the left axis. The range [0, 100] is used unless the palette necessitates
+higher chroma values. (3) Luminance is drawn in blue with coordinates on the
+left axis in the range [0, 100]. Luminance (and hence also chroma) is on
+the left axis because it is arguably most important for understanding the
+type of palette (qualitative vs. sequential vs. diverging). To facilitate
+reading the legend the reversed order Luminance / Chroma / Hue is used so that
+the legend labels are closer to the axis they pertain to.
+</p>
+<p>For comparing two palettes, <code>specplot(x, y)</code> can be used which adds
+lines (dashed, by default) corresponding to the <code>y</code> palette HCL/RGB
+coordinates in the display.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>specplot</code> invisibly returns a list with components
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>HCL</code></td>
+<td>
+<p>a matrix of HCL coordinates,</p>
+</td></tr>
+<tr valign="top"><td><code>RGB</code></td>
+<td>
+<p>a matrix of sRGB coordinates,</p>
+</td></tr>
+<tr valign="top"><td><code>hex</code></td>
+<td>
+<p>original color palette <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Reto Stauffer, Achim Zeileis
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Hornik K, Murrell P (2009).  Escaping RGBland:
+Selecting Colors for Statistical Graphics.  <em>Computational Statistics &amp;
+Data Analysis</em>, <b>53</b>, 3259&ndash;3270.
+doi: <a href="https://doi.org/10.1016/j.csda.2008.11.033">10.1016/j.csda.2008.11.033</a>
+Preprint available from
+<a href="https://www.zeileis.org/papers/Zeileis+Hornik+Murrell-2009.pdf">https://www.zeileis.org/papers/Zeileis+Hornik+Murrell-2009.pdf</a>.
+</p>
+<p>Stauffer R, Mayr GJ, Dabernig M, Zeileis A (2015).  Somewhere over the
+Rainbow: How to Make Effective Use of Colors in Meteorological
+Visualizations.  <em>Bulletin of the American Meteorological Society</em>,
+<b>96</b>(2), 203&ndash;216.
+doi: <a href="https://doi.org/10.1175/BAMS-D-13-00155.1">10.1175/BAMS-D-13-00155.1</a>
+</p>
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="hcl_palettes.html">hcl_palettes</a></code>, <code><a href="hclplot.html">hclplot</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## spectrum of the (in)famous RGB rainbow palette (in both RGB and HCL)
+specplot(rainbow(100), rgb = TRUE)
+
+## spectrum of HCL-based palettes: qualitative/sequential/diverging
+specplot(qualitative_hcl(100, "Set 2"))
+specplot(sequential_hcl(100, "Blues 2"))
+specplot(diverging_hcl(100, "Blue-Red"))
+
+## return computed RGB and HCL coordinates
+res &lt;- specplot(rainbow(10), plot = FALSE)
+print(res)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

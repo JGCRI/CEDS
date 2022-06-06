@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Try an expression with condition handlers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for try_fetch {rlang}"><tr><td>try_fetch {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Try an expression with condition handlers</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p><code>try_fetch()</code> establishes handlers for conditions of a given class
+(<code>"error"</code>, <code>"warning"</code>, <code>"message"</code>, ...). Handlers are functions
+that take a condition object as argument and are called when the
+corresponding condition class has been signalled.
+</p>
+<p>A condition handler can:
+</p>
+
+<ul>
+<li> <p><strong>Recover from conditions</strong> with a value. In this case the computation of
+<code>expr</code> is aborted and the recovery value is returned from
+<code>try_fetch()</code>. Error recovery is useful when you don't want
+errors to abruptly interrupt your program but resume at the
+catching site instead.</p>
+<pre># Recover with the value 0
+try_fetch(1 + "", error = function(cnd) 0)
+</pre>
+</li>
+<li> <p><strong>Rethrow conditions</strong>, e.g. using <code>abort(msg, parent = cnd)</code>.
+See the <code>parent</code> argument of <code><a href="abort.html">abort()</a></code>. This is typically done to
+add information to low-level errors about the high-level context
+in which they occurred.</p>
+<pre>try_fetch(1 + "", error = function(cnd) abort("Failed.", parent = cnd))
+</pre>
+</li>
+<li> <p><strong>Inspect conditions</strong>, for instance to log data about warnings
+or errors. In this case, the handler must return the <code><a href="zap.html">zap()</a></code>
+sentinel to instruct <code>try_fetch()</code> to ignore (or zap) that
+particular handler. The next matching handler is called if any,
+and errors bubble up to the user if no handler remains.</p>
+<pre>log &lt;- NULL
+try_fetch(1 + "", error = function(cnd) {
+  log &lt;&lt;- cnd
+  zap()
+})
+</pre>
+</li></ul>
+
+<p>Whereas <code>tryCatch()</code> catches conditions (discarding any running
+code along the way) and then calls the handler, <code>try_fetch()</code> first
+calls the handler with the condition on top of the currently
+running code (fetches it where it stands) and then catches the
+return value . This is a subtle difference that has implications
+for the debuggability of your functions. See the comparison with
+<code>tryCatch()</code> section below.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+try_fetch(expr, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An R expression.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dyn-dots.html">dynamic-dots</a></code>&gt; Named condition
+handlers. The names specify the condition class for which a
+handler will be called.</p>
+</td></tr>
+</table>
+
+
+<h3>Stack overflows</h3>
+
+<p>A stack overflow occurs when a program keeps adding to itself until
+the stack memory (whose size is very limited unlike heap memory) is
+exhausted.</p>
+<pre># A function that calls itself indefinitely causes stack overflows
+f &lt;- function() f()
+f()
+#&gt; Error: C stack usage  9525680 is too close to the limit
+</pre>
+<p>Because memory is very limited when these errors happen, it is not
+possible to call the handlers on the existing program stack.
+Instead, error conditions are first caught by <code>try_fetch()</code> and only
+then error handlers are called. Catching the error interrupts the
+program up to the <code>try_fetch()</code> context, which allows R to reclaim
+stack memory.
+</p>
+<p>The practical implication is that error handlers should never
+assume that the whole call stack is preserved. For instance a
+<code><a href="trace_back.html">trace_back()</a></code> capture might miss frames.
+</p>
+<p>Note that error handlers are only run for stack overflows on R &gt;=
+4.2 (unreleased at the time of writing). On older versions of R the
+handlers are simply not run. This is because these errors do not
+inherit from the class <code>stackOverflowError</code> before R 4.2. Consider
+using <code><a href="../../base/html/conditions.html">tryCatch()</a></code> instead with critical error handlers that need
+to capture all errors on old versions of R.
+</p>
+
+
+<h3>Comparison with <code>tryCatch()</code></h3>
+
+<p><code>try_fetch()</code> generalises <code>tryCatch()</code> and <code>withCallingHandlers()</code>
+in a single function. It reproduces the behaviour of both calling
+and exiting handlers depending the on the return value of the
+handler. If the handler returns the <code><a href="zap.html">zap()</a></code> sentinel, it is taken
+as a calling handler that declines to recover from a condition.
+Otherwise, it is taken as an exiting handler which returns a value
+from the catching site.
+</p>
+<p>The important difference between <code>tryCatch()</code> and <code>try_fetch()</code> is
+that the program in <code>expr</code> is still fully running when an error
+handler is called. Because the call stack is preserved, this makes
+it possible to capture a full backtrace from within the handler,
+e.g. when rethrowing the error with <code>abort(parent = cnd)</code>.
+Technically, <code>try_fetch()</code> is more similar to (and implemented on
+top of) <code><a href="../../base/html/conditions.html">base::withCallingHandlers()</a></code> than <code style="white-space: pre;">tryCatch().</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

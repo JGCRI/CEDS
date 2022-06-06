@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write a YAML file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write_yaml {yaml}"><tr><td>write_yaml {yaml}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write a YAML file</h2>
+
+<h3>Description</h3>
+
+<p>Write the YAML representation of an R object to a file
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+  write_yaml(x, file, fileEncoding = "UTF-8", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>the object to be converted</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>either a character string naming a file or a <a href="../../base/html/connections.html">connection</a>
+open for writing</p>
+</td></tr>
+<tr valign="top"><td><code>fileEncoding</code></td>
+<td>
+<p>character string: if non-empty declares the
+encoding to be used on a file (not a connection) so the character data can
+be re-encoded as they are written.  See <code><a href="../../base/html/connections.html">file</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments to <code><a href="as.yaml.html">as.yaml</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If <code>file</code> is a non-open connection, an attempt is made to open it
+and then close it after use.
+</p>
+<p>This function is a convenient wrapper around <code><a href="as.yaml.html">as.yaml</a></code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jeremy Stephens &lt;jeremy.f.stephens@vumc.org&gt;</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="as.yaml.html">as.yaml</a></code>, <code><a href="read_yaml.html">read_yaml</a></code>, <code><a href="yaml.load.html">yaml.load_file</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+  # writing to a file connection
+  filename &lt;- tempfile()
+  con &lt;- file(filename, "w")
+  write_yaml(data.frame(a=1:10, b=letters[1:10], c=11:20), con)
+  close(con)
+
+  # using a filename to specify output file
+  write_yaml(data.frame(a=1:10, b=letters[1:10], c=11:20), filename)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>yaml</em> version 2.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

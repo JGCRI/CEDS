@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Formatting condition messages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-condition-formatting {rlang}"><tr><td>topic-condition-formatting {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Formatting condition messages</h2>
+
+<h3>Description</h3>
+
+<p>Condition signallers like <code><a href="abort.html">abort()</a></code>, <code><a href="abort.html">warn()</a></code>, and <code><a href="abort.html">signal()</a></code> take a character vector of <strong>bulleted text</strong> as <code>message</code> argument. This makes it easy to write messages in a list format where each bullet conveys a single important point.<div class="sourceCode r"></p>
+<pre>abort(c(
+  "The error header",
+  "*" = "An error bullet",
+  "i" = "An info bullet",
+  "x" = "A cross bullet"
+))
+#&gt; Error:
+#&gt; ! The error header
+#&gt; * An error bullet
+#&gt; i An info bullet
+#&gt; x A cross bullet
+</pre></div>
+<p>See the <a href="https://style.tidyverse.org/error-messages.html">tidyverse error style guide</a> for more about this style of error messaging.
+</p>
+<p>By default, condition messages use unicode symbols rather than simple letters. This is not the case here because unicode isn't supported in documentation. If you'd like to disable unicode symbols globally, add this to your Rprofile:<div class="sourceCode r"></p>
+<pre>options(cli.condition_unicode_bullets = FALSE)
+</pre></div>
+
+
+<h4>Use cli formatting</h4>
+
+<p>By default, rlang uses an internal mechanism to format bullets. It is preferable to delegate formatting to the <a href="https://cli.r-lib.org/">cli package</a> because it uses sophisticated paragraph wrapping and bullet indenting that make long lines easier to read. In the following example, a long <code>!</code> bullet is broken with an indented newline:<div class="sourceCode r"></p>
+<pre>rlang::global_entrace(class = "errorr")
+#&gt; Error in `rlang::global_entrace()`:
+#&gt; ! `class` must be one of "error", "warning", or "message",
+#&gt;   not "errorr".
+#&gt; i Did you mean "error"?
+</pre></div>
+<p>To enable cli formatting, use <code><a href="../../cli/html/cli_abort.html">cli::cli_abort()</a></code>, <code><a href="../../cli/html/cli_abort.html">cli::cli_warn()</a></code>, and <code><a href="../../cli/html/cli_abort.html">cli::cli_inform()</a></code>. Not only do these wrappers improve the formatting of messages, they also add many features such as interpolation, semantic formatting of text elements, and pluralisation:<div class="sourceCode r"></p>
+<pre>inform_marbles &lt;- function(n_marbles) {
+  cli::cli_inform(c(
+    "i" = "I have {n_marbles} shiny marble{?s} in my bag.",
+    "v" = "Way to go {.code cli::cli_inform()}!"
+  ))
+}
+
+inform_marbles(1)
+#&gt; i I have 1 shiny marble in my bag.
+#&gt; v Way to go `cli::cli_inform()`!
+
+inform_marbles(2)
+#&gt; i I have 2 shiny marbles in my bag.
+#&gt; v Way to go `cli::cli_inform()`!
+</pre></div>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

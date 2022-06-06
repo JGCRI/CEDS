@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make a Google API request, repeatedly</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for request_retry {gargle}"><tr><td>request_retry {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make a Google API request, repeatedly</h2>
+
+<h3>Description</h3>
+
+<p>Intended primarily for internal use in client packages that provide
+high-level wrappers for users. It is a drop-in substitute for
+<code><a href="request_make.html">request_make()</a></code> that also has the ability to retry the request.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+request_retry(..., max_tries_total = 5, max_total_wait_time_in_seconds = 100)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed along to <code><a href="request_make.html">request_make()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>max_tries_total</code></td>
+<td>
+<p>Maximum number of tries.</p>
+</td></tr>
+<tr valign="top"><td><code>max_total_wait_time_in_seconds</code></td>
+<td>
+<p>Total seconds we are willing to
+dedicate to waiting, summed across all tries. This is a technical upper
+bound and actual cumulative waiting will be less.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Consider an example where we are willing to make a request up to 5 times.</p>
+<pre>try  1  2    3        4                5
+     |--|----|--------|----------------|
+wait  1   2      3           4
+</pre>
+<p>There will be up to 5 - 1 = 4 waits and we generally want the waiting period
+to get longer, in an exponential way. Such schemes are called exponential
+backoff. <code>request_retry()</code> implements exponential backoff with &quot;full jitter&quot;,
+where each waiting time is generated from a uniform distribution, where the
+interval of support grows exponentially. A common alternative is &quot;equal
+jitter&quot;, which adds some noise to fixed, exponentially increasing waiting
+times.
+</p>
+<p>Either way our waiting times are based on a geometric series, which, by
+convention, is usually written in terms of powers of 2:</p>
+<pre>b , 2b, 4b, 8b, ...
+  = b * 2^0, b * 2^1, b * 2^2, b * 2^3, ...
+</pre>
+<p>The terms in this series require knowledge of <code>b</code>, the so-called exponential
+base, and many retry functions and libraries require the user to specify
+this. But most users find it easier to declare the total amount of waiting
+time they can tolerate for one request. Therefore <code>request_retry()</code> asks for
+that instead and solves for <code>b</code> internally. This is inspired by the Opnieuw
+Python library for retries. Opnieuw's interface is designed to eliminate
+uncertainty around:
+</p>
+
+<ul>
+<li><p> Units: Is this thing given in seconds? minutes? milliseconds?
+</p>
+</li>
+<li><p> Ambiguity around how things are counted: Are we starting at 0 or 1?
+Are we counting tries or just the retries?
+</p>
+</li>
+<li><p> Non-intuitive required inputs, e.g., the exponential base.
+</p>
+</li></ul>
+
+<p>Let <em>n</em> be the total number of tries we're willing to make (the argument
+<code>max_tries_total</code>) and let <em>W</em> be the total amount of seconds we're willing
+to dedicate to making and retrying this request (the argument
+<code>max_total_wait_time_in_seconds</code>). Here's how we determine <em>b</em>:</p>
+<pre>sum_{i=0}^(n - 1) b * 2^i = W
+b * sum_{i=0}^(n - 1) 2^i = W
+       b * ( (2 ^ n) - 1) = W
+                        b = W / ( (2 ^ n) - 1)
+</pre>
+
+
+<h3>Value</h3>
+
+<p>Object of class <code>response</code> from <a href="../../httr/html/httr-package.html">httr</a>.
+</p>
+
+
+<h3>Special cases</h3>
+
+<p><code>request_retry()</code> departs from exponential backoff in three special cases:
+</p>
+
+<ul>
+<li><p> It actually implements <em>truncated</em> exponential backoff. There is a floor
+and a ceiling on random wait times.
+</p>
+</li>
+<li> <p><code>Retry-After</code> header: If the response has a header named <code>Retry-After</code>
+(case-insensitive), it is assumed to provide a non-negative integer
+indicating the number of seconds to wait. If present, we wait this many
+seconds and do not generate a random waiting time. (In theory, this header
+can alternatively provide a datetime after which to retry, but we have no
+first-hand experience with this variant for a Google API.)
+</p>
+</li>
+<li><p> Sheets API quota exhaustion: In the course of googlesheets4 development,
+we've grown very familiar with the <code style="white-space: pre;">429 RESOURCE_EXHAUSTED</code> error. The
+Sheets API v4 has &quot;a limit of 500 requests per 100 seconds per project and
+100 requests per 100 seconds per user. Limits for reads and writes are
+tracked separately.&quot; In our experience, the &quot;100 (read or write) requests
+per 100 seconds per user&quot; limit is the one you hit most often. If we detect
+this specific failure, the first wait time is a bit more than 100 seconds,
+then we revert to exponential backoff.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/">https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/</a>
+</p>
+</li>
+<li> <p><a href="https://tech.channable.com/posts/2020-02-05-opnieuw.html">https://tech.channable.com/posts/2020-02-05-opnieuw.html</a>
+</p>
+</li>
+<li> <p><a href="https://github.com/channable/opnieuw">https://github.com/channable/opnieuw</a>
+</p>
+</li>
+<li> <p><a href="https://cloud.google.com/storage/docs/retry-strategy">https://cloud.google.com/storage/docs/retry-strategy</a>
+</p>
+</li>
+<li> <p><a href="https://tools.ietf.org/html/rfc7231#section-7.1.3">https://tools.ietf.org/html/rfc7231#section-7.1.3</a>
+</p>
+</li>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/limits">https://developers.google.com/sheets/api/reference/limits</a>
+</p>
+</li>
+<li> <p><a href="https://googleapis.dev/python/google-api-core/latest/retry.html">https://googleapis.dev/python/google-api-core/latest/retry.html</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+req &lt;- gargle::request_build(
+  method = "GET",
+  path = "path/to/the/resource",
+  token = "PRETEND_I_AM_TOKEN"
+)
+gargle::request_retry(req)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

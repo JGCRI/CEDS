@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Pandoc options for an output format</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pandoc_options {rmarkdown}"><tr><td>pandoc_options {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Pandoc options for an output format</h2>
+
+<h3>Description</h3>
+
+<p>Define the pandoc options for an R Markdown output format.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pandoc_options(
+  to,
+  from = rmarkdown_format(),
+  args = NULL,
+  keep_tex = FALSE,
+  latex_engine = c("pdflatex", "lualatex", "xelatex", "tectonic"),
+  ext = NULL,
+  lua_filters = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>to</code></td>
+<td>
+<p>Pandoc format to convert to</p>
+</td></tr>
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>Pandoc format to convert from</p>
+</td></tr>
+<tr valign="top"><td><code>args</code></td>
+<td>
+<p>Character vector of command line arguments to pass to pandoc</p>
+</td></tr>
+<tr valign="top"><td><code>keep_tex</code></td>
+<td>
+<p>Keep the intermediate tex file used in the conversion to PDF
+(applies only to 'latex' and 'beamer' target formats)</p>
+</td></tr>
+<tr valign="top"><td><code>latex_engine</code></td>
+<td>
+<p>LaTeX engine to producing PDF output (applies only to
+'latex' and 'beamer' target formats)</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>File extension (e.g. &quot;.tex&quot;) for output file (if <code>NULL</code>
+chooses default based on <code>to</code>). This is typically used to force
+the final output of a latex or beamer conversion to be <code>.tex</code>
+rather than <code>.pdf</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lua_filters</code></td>
+<td>
+<p>Character vector of file paths to Lua filters to use with
+this format. They will be added to pandoc command line call using
+<code>--lua-filter</code> argument. See <code>vignette("lua-filters", package =
+"rmarkdown")</code> to know more about Lua filters.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>from</code> argument should be used very cautiously as it's
+important for users to be able to rely on a stable definition of supported
+markdown extensions.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An list that can be passed as the <code>pandoc</code> argument of the
+<code><a href="output_format.html">output_format</a></code> function.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="output_format.html">output_format</a>, <a href="rmarkdown_format.html">rmarkdown_format</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

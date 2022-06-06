@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Remove a style</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drop_style {crayon}"><tr><td>drop_style {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Remove a style</h2>
+
+<h3>Description</h3>
+
+<p>Remove a style
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drop_style(style)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>The name of the style to remove. No error is given
+for non-existing names.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Nothing.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other styles: 
+<code><a href="make_style.html">make_style</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+make_style(new_style = "maroon", bg = TRUE)
+cat(style("I am maroon", "new_style"), "\n")
+drop_style("new_style")
+"new_style" %in% names(styles())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Adjective-animal hash</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hash_animal {cli}"><tr><td>hash_animal {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Adjective-animal hash</h2>
+
+<h3>Description</h3>
+
+<p>Adjective-animal hash
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hash_animal(x, n_adj = 2)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character vector. <code>NA</code> entries will have an <code>NA</code> hash.</p>
+</td></tr>
+<tr valign="top"><td><code>n_adj</code></td>
+<td>
+<p>Number of adjectives to use. It must be between 0 and 3.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It uses the first 13 hexadecimal characters (out of the 32) of the MD5
+hash of the input, and converts them into an adjective-animal form to
+create a human readable hash.
+</p>
+
+
+<h4>Number of possible hash values</h4>
+
+<p><code>hash_animals()</code> uses 1748 animal names and
+8946 different adjectives. The number of
+different hashes you can get for different values of <code>n_adj</code>:</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: right;">
+   <code>n_adj</code> </td><td style="text-align: right;"> size of the hash table space </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+   0 </td><td style="text-align: right;"> 1,748 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+   1 </td><td style="text-align: right;"> 15,637,608 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+   2 </td><td style="text-align: right;"> 139,894,041,168 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+   3 </td><td style="text-align: right;"> 1,251,492,092,288,928 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+</td>
+</tr>
+
+</table>
+
+
+
+
+<h4>Source</h4>
+
+<p>The list of adjectives and animals comes from the ids package,
+and in turn from
+<a href="https://github.com/a-type/adjective-adjective-animal">https://github.com/a-type/adjective-adjective-animal</a>, and
+from <a href="https://gfycat.com">https://gfycat.com</a>.
+</p>
+
+
+
+<h3>Value</h3>
+
+<p>A data frame with columns
+</p>
+
+<ul>
+<li> <p><code>hash</code>: the hash value, a string.
+</p>
+</li>
+<li> <p><code>words</code>: list column with the adjectives and the animal name in a
+character vector.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>the ids package for generating random adjective-animal ids
+</p>
+<p>Other hash functions: 
+<code><a href="hash_emoji.html">hash_emoji</a>()</code>,
+<code><a href="hash_md5.html">hash_md5</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+hash_animal(c("foo", "bar"))
+
+# if you increase `n_adj`, the shorter hash is a suffix of the longer:
+hash_animal("cli package", 0)$hash
+hash_animal("cli package", 1)$hash
+hash_animal("cli package", 2)$hash
+hash_animal("cli package", 3)$hash
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Capture output to console</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for capture_output {testthat}"><tr><td>capture_output {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Capture output to console</h2>
+
+<h3>Description</h3>
+
+<p>Evaluates <code>code</code> in a special context in which all output is captured,
+similar to <code><a href="../../utils/html/capture.output.html">capture.output()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+capture_output(code, print = FALSE, width = 80)
+
+capture_output_lines(code, print = FALSE, width = 80)
+
+testthat_print(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to evaluate.</p>
+</td></tr>
+<tr valign="top"><td><code>print</code></td>
+<td>
+<p>If <code>TRUE</code> and the result of evaluating <code>code</code> is
+visible, print the result using <code>testthat_print()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Number of characters per line of output. This does not
+inherit from <code>getOption("width")</code> so that tests always use the same
+output width, minimising spurious differences.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Results are printed using the <code>testthat_print()</code> generic, which defaults
+to <code>print()</code>, giving you the ability to customise the printing of your
+object in tests, if needed.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>capture_output()</code> returns a single string. <code>capture_output_lines()</code>
+returns a character vector with one entry for each line
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+capture_output({
+  cat("Hi!\n")
+  cat("Bye\n")
+})
+
+capture_output_lines({
+  cat("Hi!\n")
+  cat("Bye\n")
+})
+
+capture_output("Hi")
+capture_output("Hi", print = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

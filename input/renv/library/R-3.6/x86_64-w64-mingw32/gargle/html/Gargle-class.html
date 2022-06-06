@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: OAuth2 token objects specific to Google APIs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Gargle-class {gargle}"><tr><td>Gargle-class {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>OAuth2 token objects specific to Google APIs</h2>
+
+<h3>Description</h3>
+
+<p><code>Gargle2.0</code> is based on the <code><a href="../../httr/html/Token-class.html">Token2.0</a></code> class provided in
+httr. The preferred way to create a <code>Gargle2.0</code> token is through the
+constructor function <code><a href="gargle2.0_token.html">gargle2.0_token()</a></code>. Key differences with <code>Token2.0</code>:
+</p>
+
+<ul>
+<li><p> The key for a cached <code>Token2.0</code> comes from hashing the endpoint, app, and
+scopes. For the <code>Gargle2.0</code> subclass, the identifier or key is expanded to
+include the email address associated with the token. This makes it easier to
+work with Google APIs with multiple identities.
+</p>
+</li>
+<li> <p><code>Gargle2.0</code> tokens are cached, by default, below
+<code>"~/.R/gargle/gargle-oauth"</code>, i.e. at the user level. In contrast, the
+default location for <code>Token2.0</code> is <code>./.httr-oauth</code>, i.e. in current working
+directory. <code>Gargle2.0</code> behaviour makes it easier to reuse tokens across
+projects and makes it less likely that tokens are accidentally synced to a
+remote location like GitHub or DropBox.
+</p>
+</li>
+<li><p> Each <code>Gargle2.0</code> token is cached in its own file. The token cache is a
+directory of such files. In contrast, <code>Token2.0</code> tokens are cached as
+components of a list, which is typically serialized to <code>./.httr-oauth</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Super classes</h3>
+
+<p><code><a href="../../httr/html/Token.html">httr::Token</a></code> -&gt; <code><a href="../../httr/html/Token2.0.html">httr::Token2.0</a></code> -&gt; <code>Gargle2.0</code>
+</p>
+
+
+<h3>Public fields</h3>
+
+<div class="r6-fields">
+
+<dl>
+<dt><code>email</code></dt><dd><p>Email associated with the token.</p>
+</dd>
+<dt><code>package</code></dt><dd><p>Name of the package requesting a token. Used in messages.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<h3>Methods</h3>
+
+
+
+<h4>Public methods</h4>
+
+
+<ul>
+<li> <p><a href="#method-new"><code>Gargle2.0$new()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-format"><code>Gargle2.0$format()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-print"><code>Gargle2.0$print()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-hash"><code>Gargle2.0$hash()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-cache"><code>Gargle2.0$cache()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-load_from_cache"><code>Gargle2.0$load_from_cache()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-refresh"><code>Gargle2.0$refresh()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-init_credentials"><code>Gargle2.0$init_credentials()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-clone"><code>Gargle2.0$clone()</code></a>
+</p>
+</li></ul>
+
+
+
+<details open ><summary>Inherited methods</summary>
+
+<ul>
+<li> <span class="pkg-link" data-pkg="httr" data-topic="Token2.0" data-id="can_refresh"><p><a href="../../httr/html/Token2.0.html#method-can_refresh"><code>httr::Token2.0$can_refresh()</code></a></span>
+</p>
+</li>
+<li> <span class="pkg-link" data-pkg="httr" data-topic="Token2.0" data-id="revoke"><p><a href="../../httr/html/Token2.0.html#method-revoke"><code>httr::Token2.0$revoke()</code></a></span>
+</p>
+</li>
+<li> <span class="pkg-link" data-pkg="httr" data-topic="Token2.0" data-id="sign"><p><a href="../../httr/html/Token2.0.html#method-sign"><code>httr::Token2.0$sign()</code></a></span>
+</p>
+</li>
+<li> <span class="pkg-link" data-pkg="httr" data-topic="Token2.0" data-id="validate"><p><a href="../../httr/html/Token2.0.html#method-validate"><code>httr::Token2.0$validate()</code></a></span>
+</p>
+</li></ul>
+
+</details>
+
+<hr>
+<a id="method-new"></a>
+
+
+
+<h4>Method <code>new()</code></h4>
+
+<p>Create a Gargle2.0 token
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$new(
+  email = gargle_oauth_email(),
+  app = gargle_app(),
+  package = "gargle",
+  credentials = NULL,
+  params = list(),
+  cache_path = gargle_oauth_cache()
+)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>email</code></dt><dd><p>Optional email address. See <code><a href="gargle2.0_token.html">gargle2.0_token()</a></code> for full details.</p>
+</dd>
+<dt><code>app</code></dt><dd><p>An OAuth consumer application.</p>
+</dd>
+<dt><code>package</code></dt><dd><p>Name of the package requesting a token. Used in messages.</p>
+</dd>
+<dt><code>credentials</code></dt><dd><p>Exists largely for testing purposes.</p>
+</dd>
+<dt><code>params</code></dt><dd><p>A list of parameters for <code><a href="../../httr/html/init_oauth2.0.html">httr::init_oauth2.0()</a></code>. Some we
+actively use in gargle: <code>scope</code>, <code>use_oob</code>. Most we do not:
+<code>user_params</code>, <code>type</code>, <code>as_header</code>, <code>use_basic_auth</code>, <code>config_init</code>,
+<code>client_credentials</code>.</p>
+</dd>
+<dt><code>cache_path</code></dt><dd><p>Specifies the OAuth token cache. Read more in
+<code><a href="gargle_options.html">gargle_oauth_cache()</a></code>.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>A Gargle2.0 token.
+</p>
+
+
+<hr>
+<a id="method-format"></a>
+
+
+
+<h4>Method <code>format()</code></h4>
+
+<p>Format a Gargle2.0 token
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$format(...)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>...</code></dt><dd><p>Not used.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-print"></a>
+
+
+
+<h4>Method <code>print()</code></h4>
+
+<p>Print a Gargle2.0 token
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$print(...)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>...</code></dt><dd><p>Not used.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-hash"></a>
+
+
+
+<h4>Method <code>hash()</code></h4>
+
+<p>Generate the email-augmented hash of a Gargle2.0 token
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$hash()</pre></div>
+
+
+<hr>
+<a id="method-cache"></a>
+
+
+
+<h4>Method <code>cache()</code></h4>
+
+<p>Put a Gargle2.0 token into the cache
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$cache()</pre></div>
+
+
+<hr>
+<a id="method-load_from_cache"></a>
+
+
+
+<h4>Method <code>load_from_cache()</code></h4>
+
+<p>(Attempt to) get a Gargle2.0 token from the cache
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$load_from_cache()</pre></div>
+
+
+<hr>
+<a id="method-refresh"></a>
+
+
+
+<h4>Method <code>refresh()</code></h4>
+
+<p>(Attempt to) refresh a Gargle2.0 token
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$refresh()</pre></div>
+
+
+<hr>
+<a id="method-init_credentials"></a>
+
+
+
+<h4>Method <code>init_credentials()</code></h4>
+
+<p>Initiate a new Gargle2.0 token
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$init_credentials()</pre></div>
+
+
+<hr>
+<a id="method-clone"></a>
+
+
+
+<h4>Method <code>clone()</code></h4>
+
+<p>The objects of this class are cloneable with this method.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>Gargle2.0$clone(deep = FALSE)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

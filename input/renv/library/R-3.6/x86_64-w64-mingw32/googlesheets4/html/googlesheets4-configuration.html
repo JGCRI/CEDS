@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: googlesheets4 configuration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for googlesheets4-configuration {googlesheets4}"><tr><td>googlesheets4-configuration {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>googlesheets4 configuration</h2>
+
+<h3>Description</h3>
+
+<p>Some aspects of googlesheets4 behaviour can be controlled via an option.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+local_gs4_quiet(env = parent.frame())
+
+with_gs4_quiet(code)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The environment to use for scoping</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to execute quietly</p>
+</td></tr>
+</table>
+
+
+<h3>Messages</h3>
+
+<p>The <code>googlesheets4_quiet</code> option can be used to suppress messages from
+googlesheets4. By default, googlesheets4 always messages, i.e. it is <em>not</em>
+quiet.
+</p>
+<p>Set <code>googlesheets4_quiet</code> to <code>TRUE</code> to suppress messages, by one of these
+means, in order of decreasing scope:
+</p>
+
+<ul>
+<li><p> Put <code>options(googlesheets4_quiet = TRUE)</code> in a start-up file, such as
+<code>.Rprofile</code>, or in your R script
+</p>
+</li>
+<li><p> Use <code>local_gs4_quiet()</code> to silence googlesheets4 in a specific scope
+</p>
+</li>
+<li><p> Use <code>with_gs4_quiet()</code> to run a small bit of code silently
+</p>
+</li></ul>
+
+<p><code>local_gs4_quiet()</code> and <code>with_gs4_quiet()</code> follow the conventions of the
+the withr package (<a href="https://withr.r-lib.org">https://withr.r-lib.org</a>).
+</p>
+
+
+<h3>Auth</h3>
+
+<p>Read about googlesheets4's main auth function, <code><a href="gs4_auth.html">gs4_auth()</a></code>. It is powered
+by the gargle package, which consults several options:
+</p>
+
+<ul>
+<li><p> Default Google user or, more precisely, <code>email</code>: see
+<code><a href="../../gargle/html/gargle_options.html">gargle::gargle_oauth_email()</a></code>
+</p>
+</li>
+<li><p> Whether or where to cache OAuth tokens: see
+<code><a href="../../gargle/html/gargle_options.html">gargle::gargle_oauth_cache()</a></code>
+</p>
+</li>
+<li><p> Whether to prefer &quot;out-of-band&quot; auth: see
+<code><a href="../../gargle/html/gargle_options.html">gargle::gargle_oob_default()</a></code>
+</p>
+</li>
+<li><p> Application Default Credentials: see <code><a href="../../gargle/html/credentials_app_default.html">gargle::credentials_app_default()</a></code>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  # message: "Creating new Sheet ..."
+  (ss &lt;- gs4_create("gs4-quiet-demo", sheets = "alpha"))
+
+  # message: "Editing ..., Writing ..."
+  range_write(ss, data = data.frame(x = 1, y = "a"))
+
+  # suppress messages for a small amount of code
+  with_gs4_quiet(
+    ss %&gt;% sheet_append(data.frame(x = 2, y = "b"))
+  )
+
+  # message: "Writing ..., Appending ..."
+  ss %&gt;% sheet_append(data.frame(x = 3, y = "c"))
+
+  # suppress messages until end of current scope
+  local_gs4_quiet()
+  ss %&gt;% sheet_append(data.frame(x = 4, y = "d"))
+
+  # see that all the data was, in fact, written
+  read_sheet(ss)
+
+  # clean up
+  gs4_find("gs4-quiet-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

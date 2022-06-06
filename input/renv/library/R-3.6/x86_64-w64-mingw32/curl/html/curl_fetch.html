@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Fetch the contents of a URL</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curl_fetch_memory {curl}"><tr><td>curl_fetch_memory {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Fetch the contents of a URL</h2>
+
+<h3>Description</h3>
+
+<p>Low-level bindings to write data from a URL into memory, disk or a callback
+function. These are mainly intended for <code>httr</code>, most users will be better
+off using the <code><a href="curl.html">curl</a></code> or <code><a href="curl_download.html">curl_download</a></code> function, or the
+http specific wrappers in the <code>httr</code> package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+curl_fetch_memory(url, handle = new_handle())
+
+curl_fetch_disk(url, path, handle = new_handle())
+
+curl_fetch_stream(url, fun, handle = new_handle())
+
+curl_fetch_multi(
+  url,
+  done = NULL,
+  fail = NULL,
+  pool = NULL,
+  data = NULL,
+  handle = new_handle()
+)
+
+curl_fetch_echo(url, handle = new_handle())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>A character string naming the URL of a resource to be downloaded.</p>
+</td></tr>
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>a curl handle object</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to save results</p>
+</td></tr>
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>Callback function. Should have one argument, which will be
+a raw vector.</p>
+</td></tr>
+<tr valign="top"><td><code>done</code></td>
+<td>
+<p>callback function for completed request. Single argument with
+response data in same structure as <a href="curl_fetch.html">curl_fetch_memory</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>fail</code></td>
+<td>
+<p>callback function called on failed request. Argument contains
+error message.</p>
+</td></tr>
+<tr valign="top"><td><code>pool</code></td>
+<td>
+<p>a multi handle created by <a href="multi.html">new_pool</a>. Default uses a global pool.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>(advanced) callback function, file path, or connection object for writing
+incoming data. This callback should only be used for <em>streaming</em> applications,
+where small pieces of incoming data get written before the request has completed. The
+signature for the callback function is <code>write(data, final = FALSE)</code>. If set
+to <code>NULL</code> the entire response gets buffered internally and returned by in
+the <code>done</code> callback (which is usually what you want).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The curl_fetch functions automatically raise an error upon protocol problems
+(network, disk, ssl) but do not implement application logic. For example for
+you need to check the status code of http requests yourself in the response,
+and deal with it accordingly.
+</p>
+<p>Both <code>curl_fetch_memory</code> and <code>curl_fetch_disk</code> have a blocking and
+non-blocking C implementation. The latter is slightly slower but allows for
+interrupting the download prematurely (using e.g. CTRL+C or ESC). Interrupting
+is enabled when R runs in interactive mode or when
+<code>getOption("curl_interrupt") == TRUE</code>.
+</p>
+<p>The <code>curl_fetch_multi</code> function is the asynchronous equivalent of
+<code>curl_fetch_memory</code>. It wraps <code>multi_add</code> to schedule requests which
+are executed concurrently when calling <code>multi_run</code>. For each successful
+request the <code>done</code> callback is triggered with response data. For failed
+requests (when <code>curl_fetch_memory</code> would raise an error), the <code>fail</code>
+function is triggered with the error message.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Load in memory
+res &lt;- curl_fetch_memory("http://httpbin.org/cookies/set?foo=123&amp;bar=ftw")
+res$content
+
+# Save to disk
+res &lt;- curl_fetch_disk("http://httpbin.org/stream/10", tempfile())
+res$content
+readLines(res$content)
+
+# Stream with callback
+res &lt;- curl_fetch_stream("http://www.httpbin.org/drip?duration=3&amp;numbytes=15&amp;code=200", function(x){
+  cat(rawToChar(x))
+})
+
+# Async API
+data &lt;- list()
+success &lt;- function(res){
+  cat("Request done! Status:", res$status, "\n")
+  data &lt;&lt;- c(data, list(res))
+}
+failure &lt;- function(msg){
+  cat("Oh noes! Request failed!", msg, "\n")
+}
+curl_fetch_multi("http://httpbin.org/get", success, failure)
+curl_fetch_multi("http://httpbin.org/status/418", success, failure)
+curl_fetch_multi("https://urldoesnotexist.xyz", success, failure)
+multi_run()
+str(data)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

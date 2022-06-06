@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compiling R scripts to a notebook</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for compile_notebook {rmarkdown}"><tr><td>compile_notebook {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compiling R scripts to a notebook</h2>
+
+<h3>Description</h3>
+
+<p>R Markdown can also compile R scripts to a notebook which includes
+commentary, source code, and script output. Notebooks can be compiled to any
+output format including HTML, PDF, and MS Word.
+</p>
+
+
+<h3>Overview</h3>
+
+<p>To compile a notebook from an R script you simply pass the script to
+<code><a href="render.html">render</a></code>. For example:
+</p>
+<pre>
+rmarkdown::render("analysis.R")
+rmarkdown::render("analysis.R", "pdf_document")
+</pre>
+<p>The first call to <code><a href="render.html">render</a></code> creates an HTML document, whereas
+the second creates a PDF document.
+</p>
+<p>By default the name of the script, username, and current date and time are
+included in the header of the generated notebook. You can override this
+default behavior by including explicit metadata in a specially formatted R
+comment:
+</p>
+<pre>
+#' ---
+#' title: "Crop Analysis Q3 2013"
+#' author: "John Smith"
+#' date: "May 3rd, 2014"
+#' ---
+</pre>
+
+
+<h3>Including Markdown</h3>
+
+<p>Note that the R comment used above to add a title, author, and date
+includes a single-quote as a special prefix character. This is a
+<span class="pkg">roxygen2</span> style comment, and it's actually possible to include many
+such comments in an R script, all of which will be converted to markdown
+content within the generated notebook. For example:
+</p>
+<pre>#' A script comment that includes **markdown** formatting.</pre>
+<p>Rather than displaying as an R comment in the compiled notebook any
+<span class="pkg">roxygen2</span> style comment will be treated as markdown and rendered
+accordingly.
+</p>
+
+
+<h3>knitr Spin</h3>
+
+<p>Including markdown within R comments is possible because <code><a href="render.html">render</a></code>
+calls the <code><a href="../../knitr/html/spin.html">knitr spin</a></code> function to convert the R
+script to an Rmd file. The <code>spin</code> function also enables you to add
+knitr
+chunk options with another special comment prefix (<code>#+</code>).
+</p>
+<p>Here's an example of a script that uses the various features of <code>spin</code>:
+</p>
+<p><a href="https://github.com/yihui/knitr/blob/master/inst/examples/knitr-spin.R">https://github.com/yihui/knitr/blob/master/inst/examples/knitr-spin.R</a>
+</p>
+<p>For more details on <code>knitr::spin</code> see the following documentation:
+</p>
+<p><a href="https://yihui.org/knitr/demo/stitch/">https://yihui.org/knitr/demo/stitch/</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

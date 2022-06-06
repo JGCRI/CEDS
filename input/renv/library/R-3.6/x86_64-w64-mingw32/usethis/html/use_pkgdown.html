@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use pkgdown</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_pkgdown {usethis}"><tr><td>use_pkgdown {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use pkgdown</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://pkgdown.r-lib.org">pkgdown</a> makes it easy to turn your package into
+a beautiful website. usethis provides two functions to help you use pkgdown:
+</p>
+
+<ul>
+<li> <p><code>use_pkgdown()</code>: creates a pkgdown config file and adds relevant files or
+directories to <code>.Rbuildignore</code> and <code>.gitignore</code>.
+</p>
+</li>
+<li> <p><code>use_pkgdown_github_pages()</code>: implements the GitHub setup needed to
+automatically publish your pkgdown site to GitHub pages:
+</p>
+
+<ul>
+<li><p> (first, it calls <code>use_pkgdown()</code>)
+</p>
+</li>
+<li> <p><code><a href="use_github_pages.html">use_github_pages()</a></code> prepares to publish the pkgdown site from the
+<code>github-pages</code> branch
+</p>
+</li>
+<li> <p><code><a href="github_actions.html">use_github_action(&quot;pkgdown&quot;)</a></code> configures a
+GitHub Action to automatically build the pkgdown site and deploy it via
+GitHub Pages
+</p>
+</li>
+<li><p> The pkgdown site's URL is added to the pkgdown configuration file,
+to the URL field of DESCRIPTION, and to the GitHub repo.
+</p>
+</li>
+<li><p> Packages owned by certain GitHub organizations (tidyverse, r-lib, and
+tidymodels) get some special treatment, in terms of anticipating the
+(eventual) site URL and the use of a pkgdown template.
+</p>
+</li></ul>
+
+</li></ul>
+
+<p><code>use_pkgdown_travis()</code> is deprecated; we no longer recommend that you use
+Travis-CI.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_pkgdown(config_file = "_pkgdown.yml", destdir = "docs")
+
+use_pkgdown_github_pages()
+
+use_pkgdown_travis()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>config_file</code></td>
+<td>
+<p>Path to the pkgdown yaml config file</p>
+</td></tr>
+<tr valign="top"><td><code>destdir</code></td>
+<td>
+<p>Target directory for pkgdown docs</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://pkgdown.r-lib.org/articles/pkgdown.html#configuration">https://pkgdown.r-lib.org/articles/pkgdown.html#configuration</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

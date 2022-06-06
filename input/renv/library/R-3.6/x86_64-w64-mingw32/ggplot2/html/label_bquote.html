@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Label with mathematical expressions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for label_bquote {ggplot2}"><tr><td>label_bquote {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Label with mathematical expressions</h2>
+
+<h3>Description</h3>
+
+<p><code>label_bquote()</code> offers a flexible way of labelling
+facet rows or columns with plotmath expressions. Backquoted
+variables will be replaced with their value in the facet.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+label_bquote(rows = NULL, cols = NULL, default)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>Backquoted labelling expression for rows.</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Backquoted labelling expression for columns.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>Unused, kept for compatibility.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="labellers.html">labellers</a>, <code><a href="labeller.html">labeller()</a></code>,
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# The variables mentioned in the plotmath expression must be
+# backquoted and referred to by their names.
+p &lt;- ggplot(mtcars, aes(wt, mpg)) + geom_point()
+p + facet_grid(vs ~ ., labeller = label_bquote(alpha ^ .(vs)))
+p + facet_grid(. ~ vs, labeller = label_bquote(cols = .(vs) ^ .(vs)))
+p + facet_grid(. ~ vs + am, labeller = label_bquote(cols = .(am) ^ .(vs)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code return the expected value?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for equality-expectations {testthat}"><tr><td>equality-expectations {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code return the expected value?</h2>
+
+<h3>Description</h3>
+
+<p>These functions provide two levels of strictness when comparing a
+computation to a reference value. <code>expect_identical()</code> is the baseline;
+<code>expect_equal()</code> relaxes the test to ignore small numeric differences.
+</p>
+<p>In the 2nd edition, <code>expect_identical()</code> uses <code><a href="../../base/html/identical.html">identical()</a></code> and
+<code>expect_equal</code> uses <code><a href="../../base/html/all.equal.html">all.equal()</a></code>. In the 3rd edition, both functions use
+<a href="https://github.com/r-lib/waldo">waldo</a>. They differ only in that
+<code>expect_equal()</code> sets <code>tolerance = testthat_tolerance()</code> so that small
+floating point differences are ignored; this also implies that (e.g.) <code>1</code>
+and <code>1L</code> are treated as equal.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_equal(
+  object,
+  expected,
+  ...,
+  tolerance = if (edition_get() &gt;= 3) testthat_tolerance(),
+  info = NULL,
+  label = NULL,
+  expected.label = NULL
+)
+
+expect_identical(
+  object,
+  expected,
+  info = NULL,
+  label = NULL,
+  expected.label = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object, expected</code></td>
+<td>
+<p>Computation and value to compare it to.
+</p>
+<p>Both arguments supports limited unquoting to make it easier to generate
+readable failures within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p><strong>3e</strong>: passed on to <code><a href="../../waldo/html/compare.html">waldo::compare()</a></code>. See its docs to see other
+ways to control comparison.
+</p>
+<p><strong>2e</strong>: passed on to <code><a href="compare.html">compare()</a></code>/<code><a href="../../base/html/identical.html">identical()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>tolerance</code></td>
+<td>
+<p><strong>3e</strong>: passed on to <code><a href="../../waldo/html/compare.html">waldo::compare()</a></code>. If non-<code>NULL</code>, will
+ignore small floating point differences. It uses same algorithm as
+<code><a href="../../base/html/all.equal.html">all.equal()</a></code> so the tolerance is usually relative (i.e.
+<code style="white-space: pre;">mean(abs(x - y) / mean(abs(y)) &lt; tolerance</code>), except when the differences
+are very small, when it becomes absolute (i.e. <code style="white-space: pre;">mean(abs(x - y) &lt; tolerance</code>).
+See waldo documentation for more details.
+</p>
+<p><strong>2e</strong>: passed on to <code><a href="compare.html">compare()</a></code>, if set. It's hard to
+reason about exactly what tolerance means because depending on the precise
+code path it could be either an absolute or relative tolerance.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label, expected.label</code></td>
+<td>
+<p>Used to customise failure messages. For expert
+use only.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="expect_setequal.html">expect_setequal()</a></code>/<code><a href="expect_setequal.html">expect_mapequal()</a></code> to test for set equality.
+</p>
+</li>
+<li> <p><code><a href="expect_reference.html">expect_reference()</a></code> to test if two names point to same memory address.
+</p>
+</li></ul>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+a &lt;- 10
+expect_equal(a, 10)
+
+# Use expect_equal() when testing for numeric equality
+## Not run: 
+expect_identical(sqrt(2) ^ 2, 2)
+
+## End(Not run)
+expect_equal(sqrt(2) ^ 2, 2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

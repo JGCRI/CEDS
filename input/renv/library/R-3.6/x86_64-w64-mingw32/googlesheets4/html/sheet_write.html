@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: (Over)write new data into a Sheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_write {googlesheets4}"><tr><td>sheet_write {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>(Over)write new data into a Sheet</h2>
+
+<h3>Description</h3>
+
+<p>This is one of the main ways to write data with googlesheets4. This function
+writes a data frame into a (work)sheet inside a (spread)Sheet. The target
+sheet is styled as a table:
+</p>
+
+<ul>
+<li><p> Special formatting is applied to the header row, which holds column
+names.
+</p>
+</li>
+<li><p> The first row (header row) is frozen.
+</p>
+</li>
+<li><p> The sheet's dimensions are set to &quot;shrink wrap&quot; the <code>data</code>.
+</p>
+</li></ul>
+
+<p>If no existing Sheet is specified via <code>ss</code>, this function delegates to
+<code><a href="gs4_create.html">gs4_create()</a></code> and the new Sheet's name is randomly generated. If that's
+undesirable, call <code><a href="gs4_create.html">gs4_create()</a></code> directly to get more control.
+</p>
+<p>If no <code>sheet</code> is specified or if <code>sheet</code> doesn't identify an existing sheet,
+a new sheet is added to receive the <code>data</code>. If <code>sheet</code> specifies an existing
+sheet, it is effectively overwritten! All pre-existing values, formats, and
+dimensions are cleared and the targeted sheet gets new values and dimensions
+from <code>data</code>.
+</p>
+<p>This function goes by two names, because we want it to make sense in two
+contexts:
+</p>
+
+<ul>
+<li> <p><code>write_sheet()</code> evokes other table-writing functions, like
+<code>readr::write_csv()</code>. The <code>sheet</code> here technically refers to an individual
+(work)sheet (but also sort of refers to the associated Google
+(spread)Sheet).
+</p>
+</li>
+<li> <p><code>sheet_write()</code> is the right name according to the naming convention used
+throughout the googlesheets4 package.
+</p>
+</li></ul>
+
+<p><code>write_sheet()</code> and <code>sheet_write()</code> are synonyms and you can use either one.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_write(data, ss = NULL, sheet = NULL)
+
+write_sheet(data, ss = NULL, sheet = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A data frame. If it has zero rows, we send one empty pseudo-row
+of data, so that we can apply the usual table styling. This empty row goes
+away (gets filled, actually) the first time you send more data with
+<code><a href="sheet_append.html">sheet_append()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to write into, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other write functions: 
+<code><a href="gs4_create.html">gs4_create</a>()</code>,
+<code><a href="gs4_formula.html">gs4_formula</a>()</code>,
+<code><a href="range_delete.html">range_delete</a>()</code>,
+<code><a href="range_flood.html">range_flood</a>()</code>,
+<code><a href="range_write.html">range_write</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>
+</p>
+<p>Other worksheet functions: 
+<code><a href="sheet_add.html">sheet_add</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_delete.html">sheet_delete</a>()</code>,
+<code><a href="sheet_properties.html">sheet_properties</a>()</code>,
+<code><a href="sheet_relocate.html">sheet_relocate</a>()</code>,
+<code><a href="sheet_rename.html">sheet_rename</a>()</code>,
+<code><a href="sheet_resize.html">sheet_resize</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  df &lt;- data.frame(
+    x = 1:3,
+    y = letters[1:3]
+  )
+
+  # specify only a data frame, get a new Sheet, with a random name
+  ss &lt;- write_sheet(df)
+  read_sheet(ss)
+
+  # clean up
+  googledrive::drive_trash(ss)
+
+  # create a Sheet with some initial, placeholder data
+  ss &lt;- gs4_create(
+    "sheet-write-demo",
+    sheets = list(alpha = data.frame(x = 1), omega = data.frame(x = 1))
+  )
+
+  # write df into its own, new sheet
+  sheet_write(df, ss = ss)
+
+  # write mtcars into the sheet named "omega"
+  sheet_write(mtcars, ss = ss, sheet = "omega")
+
+  # get an overview of the sheets
+  sheet_properties(ss)
+
+  # view your magnificent creation in the browser
+  gs4_browse(ss)
+
+  # clean up
+  gs4_find("sheet-write-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

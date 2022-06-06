@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Loads Rcpp modules on package startup</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for loadRcppModules-deprecated {Rcpp}"><tr><td>loadRcppModules-deprecated {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Loads Rcpp modules on package startup
+</h2>
+
+<h3>Description</h3>
+
+<p><em>Note:</em> As of release 0.12.5, this function is deprecated;
+<code><a href="loadModule.html">loadModule</a></code> should be used instead.
+</p>
+<p>Function to simplify loading Rcpp modules contained in a package.
+This function must be called from the <code>.onLoad</code> function of a package.
+It uses the <code>RcppModules</code> field of the package <code>DESCRIPTION</code> file
+to query the names of the modules that the package should export, loads each module,
+and <code><a href="populate.html">populate</a></code> each module into the package NAMESPACE.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+  loadRcppModules(direct=TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>direct</code></td>
+<td>
+<p>if <code>TRUE</code> the content of the module is exposed in the
+namespace. Otherwise, the module is exposed. </p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="populate.html">populate</a></code>, <code><a href="loadModule.html">loadModule</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

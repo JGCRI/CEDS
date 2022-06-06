@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Uncompress 'zip' Archives</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for unzip {zip}"><tr><td>unzip {zip}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Uncompress 'zip' Archives</h2>
+
+<h3>Description</h3>
+
+<p><code>unzip()</code> always restores modification times of the extracted files and
+directories.
+</p>
+<link rel="stylesheet" type="text/css" href="../doc/assets/extra.css">
+<script src="../doc/assets/rd.js"></script>
+
+
+<h3>Usage</h3>
+
+<pre>
+unzip(zipfile, files = NULL, overwrite = TRUE, junkpaths = FALSE, exdir = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>zipfile</code></td>
+<td>
+<p>Path to the zip file to uncompress.</p>
+</td></tr>
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>Character vector of files to extract from the archive.
+Files within directories can be specified, but they must use a forward
+slash as path separator, as this is what zip files use internally.
+If <code>NULL</code>, all files will be extracted.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Whether to overwrite existing files. If <code>FALSE</code> and
+a file already exists, then an error is thrown.</p>
+</td></tr>
+<tr valign="top"><td><code>junkpaths</code></td>
+<td>
+<p>Whether to ignore all directory paths when creating
+files. If <code>TRUE</code>, all files will be created in <code>exdir</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>exdir</code></td>
+<td>
+<p>Directory to uncompress the archive to. If it does not
+exist, it will be created.</p>
+</td></tr>
+</table>
+
+
+<h3>Permissions</h3>
+
+<p>If the zip archive stores permissions and was created on Unix,
+the permissions will be restored.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## temporary directory, to avoid messing up the user's workspace.
+dir.create(tmp &lt;- tempfile())
+dir.create(file.path(tmp, "mydir"))
+cat("first file", file = file.path(tmp, "mydir", "file1"))
+cat("second file", file = file.path(tmp, "mydir", "file2"))
+
+zipfile &lt;- tempfile(fileext = ".zip")
+zip::zip(zipfile, "mydir", root = tmp)
+
+## List contents
+zip_list(zipfile)
+
+## Extract
+tmp2 &lt;- tempfile()
+unzip(zipfile, exdir = tmp2)
+dir(tmp2, recursive = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>zip</em> version 2.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

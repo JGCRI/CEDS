@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Download file to disk</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curl_download {curl}"><tr><td>curl_download {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Download file to disk</h2>
+
+<h3>Description</h3>
+
+<p>Libcurl implementation of <code>C_download</code> (the &quot;internal&quot; download method)
+with added support for https, ftps, gzip, etc. Default behavior is identical
+to <code><a href="../../utils/html/download.file.html">download.file</a></code>, but request can be fully configured by passing
+a custom <code><a href="handle.html">handle</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+curl_download(url, destfile, quiet = TRUE, mode = "wb", handle = new_handle())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>A character string naming the URL of a resource to be downloaded.</p>
+</td></tr>
+<tr valign="top"><td><code>destfile</code></td>
+<td>
+<p>A character string with the name where the downloaded file
+is saved. Tilde-expansion is performed.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If <code>TRUE</code>, suppress status messages (if any), and the
+progress bar.</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>A character string specifying the mode with which to write the file.
+Useful values are <code>"w"</code>, <code>"wb"</code> (binary), <code>"a"</code> (append)
+and <code>"ab"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>a curl handle object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The main difference between <code>curl_download</code> and <code>curl_fetch_disk</code>
+is that <code>curl_download</code> checks the http status code before starting the
+download, and raises an error when status is non-successful. The behavior of
+<code>curl_fetch_disk</code> on the other hand is to proceed as normal and write
+the error page to disk in case of a non success response.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Path of downloaded file (invisibly).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Download large file
+## Not run: 
+url &lt;- "http://www2.census.gov/acs2011_5yr/pums/csv_pus.zip"
+tmp &lt;- tempfile()
+curl_download(url, tmp)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

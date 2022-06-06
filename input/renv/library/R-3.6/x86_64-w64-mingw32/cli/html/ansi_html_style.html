@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: CSS styles for the output of 'ansi_html()'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ansi_html_style {cli}"><tr><td>ansi_html_style {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>CSS styles for the output of <code>ansi_html()</code></h2>
+
+<h3>Description</h3>
+
+<p>CSS styles for the output of <code>ansi_html()</code>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ansi_html_style(
+  colors = TRUE,
+  palette = c("vscode", "dichro", "vga", "winxp", "win10", "macos", "putty", "mirc",
+    "xterm", "ubuntu", "eclipse", "iterm", "iterm-pastel", "iterm-smoooooth",
+    "iterm-snazzy", "iterm-solarized", "iterm-tango")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>colors</code></td>
+<td>
+<p>Whether or not to include colors. <code>FALSE</code> will not include
+colors, <code>TRUE</code> or <code>8</code> will include eight colors (plus their bright
+variants), <code>256</code> will include 256 colors.</p>
+</td></tr>
+<tr valign="top"><td><code>palette</code></td>
+<td>
+<p>Character scalar, palette to use for the first eight colors
+plus their bright variants. Terminals define these colors differently,
+and cli includes a couple of examples. Sources of palettes:
+</p>
+
+<ul>
+<li><p> https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+</p>
+</li>
+<li><p> iTerm2 builtin palettes
+</p>
+</li>
+<li> <p><a href="https://github.com/sindresorhus/iterm2-snazzy">https://github.com/sindresorhus/iterm2-snazzy</a>
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Named list of CSS declaration blocks, where the names are
+CSS selectors. It has a <code>format()</code> and <code>print()</code> methods, which you
+can use to write the output to a CSS or HTML file.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other ANSI to HTML conversion: 
+<code><a href="ansi_html.html">ansi_html</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ansi_html_style(colors = FALSE)
+ansi_html_style(colors = 8, palette = "iterm-snazzy")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

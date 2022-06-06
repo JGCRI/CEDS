@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delete cell data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for deleteData {openxlsx}"><tr><td>deleteData {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delete cell data</h2>
+
+<h3>Description</h3>
+
+<p>Delete contents and styling from a cell.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+deleteData(wb, sheet, cols, rows, gridExpand = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>columns to delete data from.</p>
+</td></tr>
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>Rows to delete data from.</p>
+</td></tr>
+<tr valign="top"><td><code>gridExpand</code></td>
+<td>
+<p>If <code>TRUE</code>, all data in rectangle min(rows):max(rows) X min(cols):max(cols)
+will be removed.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## write some data
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Worksheet 1")
+x &lt;- data.frame(matrix(runif(200), ncol = 10))
+writeData(wb, sheet = 1, x = x, startCol = 2, startRow = 3, colNames = FALSE)
+
+## delete some data
+deleteData(wb, sheet = 1, cols = 3:5, rows = 5:7, gridExpand = TRUE)
+deleteData(wb, sheet = 1, cols = 7:9, rows = 5:7, gridExpand = TRUE)
+deleteData(wb, sheet = 1, cols = LETTERS, rows = 18, gridExpand = TRUE)
+## Not run: 
+saveWorkbook(wb, "deleteDataExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Include Content From a File</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for include {htmltools}"><tr><td>include {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Include Content From a File</h2>
+
+<h3>Description</h3>
+
+<p>Load HTML, text, or rendered Markdown from a file and turn into HTML.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+includeHTML(path)
+
+includeText(path)
+
+includeMarkdown(path)
+
+includeCSS(path, ...)
+
+includeScript(path, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The path of the file to be included. It is highly recommended to
+use a relative path (the base path being the Shiny application directory),
+not an absolute path.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Any additional attributes to be applied to the generated tag.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions provide a convenient way to include an extensive amount of
+HTML, textual, Markdown, CSS, or JavaScript content, rather than using a
+large literal R string.
+</p>
+
+
+<h3>Note</h3>
+
+<p><code>includeText</code> escapes its contents, but does no other processing.
+This means that hard breaks and multiple spaces will be rendered as they
+usually are in HTML: as a single space character. If you are looking for
+preformatted text, wrap the call with <code><a href="builder.html">pre()</a></code>, or consider using
+<code>includeMarkdown</code> instead.
+</p>
+<p>The <code>includeMarkdown</code> function requires the <code>markdown</code>
+package.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

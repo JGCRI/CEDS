@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Converts a decimal to a date</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for date_decimal {lubridate}"><tr><td>date_decimal {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Converts a decimal to a date</h2>
+
+<h3>Description</h3>
+
+<p>Converts a decimal to a date
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+date_decimal(decimal, tz = "UTC")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>decimal</code></td>
+<td>
+<p>a numeric object</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>the time zone required</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a POSIXct object, whose year corresponds to the integer part of
+decimal. The months, days, hours, minutes and seconds elements are picked so
+the date-time will accurately represent the fraction of the year expressed by
+decimal.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+date &lt;- ymd("2009-02-10")
+decimal &lt;- decimal_date(date)  # 2009.11
+date_decimal(decimal) # "2009-02-10 UTC"
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

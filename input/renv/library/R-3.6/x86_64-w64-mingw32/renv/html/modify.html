@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Open the Lockfile for Editing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for modify {renv}"><tr><td>modify {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Open the Lockfile for Editing</h2>
+
+<h3>Description</h3>
+
+<p>Open a project's lockfile (if any) for editing. After edit, if the lockfile
+edited is associated with the active project, any state-related changes
+(e.g. to <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> repositories) will be updated in the current session.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+modify(project = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The project directory, invisibly. Note that this function is normally
+called for its side effects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# modify an existing lockfile
+if (interactive())
+  renv::modify()
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

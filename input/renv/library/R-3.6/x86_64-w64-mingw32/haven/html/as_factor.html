@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert input to a factor.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_factor {haven}"><tr><td>as_factor {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert input to a factor.</h2>
+
+<h3>Description</h3>
+
+<p>The base function <code>as.factor()</code> is not a generic, but this variant
+is. Methods are provided for factors, character vectors, labelled
+vectors, and data frames. By default, when applied to a data frame,
+it only affects <a href="labelled.html">labelled</a> columns.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'data.frame'
+as_factor(x, ..., only_labelled = TRUE)
+
+## S3 method for class 'haven_labelled'
+as_factor(
+  x,
+  levels = c("default", "labels", "values", "both"),
+  ordered = FALSE,
+  ...
+)
+
+## S3 method for class 'labelled'
+as_factor(
+  x,
+  levels = c("default", "labels", "values", "both"),
+  ordered = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to coerce to a factor.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed down to method.</p>
+</td></tr>
+<tr valign="top"><td><code>only_labelled</code></td>
+<td>
+<p>Only apply to labelled columns?</p>
+</td></tr>
+<tr valign="top"><td><code>levels</code></td>
+<td>
+<p>How to create the levels of the generated factor:
+</p>
+
+<ul>
+<li><p> &quot;default&quot;: uses labels where available, otherwise the values.
+Labels are sorted by value.
+</p>
+</li>
+<li><p> &quot;both&quot;: like &quot;default&quot;, but pastes together the level and value
+</p>
+</li>
+<li><p> &quot;label&quot;: use only the labels; unlabelled values become <code>NA</code>
+</p>
+</li>
+<li><p> &quot;values: use only the values
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>ordered</code></td>
+<td>
+<p>If <code>TRUE</code> create an ordered (ordinal) factor, if
+<code>FALSE</code> (the default) create a regular (nominal) factor.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Includes methods for both class <code>haven_labelled</code> and <code>labelled</code>
+for backward compatibility.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))
+
+# Default method uses values where available
+as_factor(x)
+# You can also extract just the labels
+as_factor(x, levels = "labels")
+# Or just the values
+as_factor(x, levels = "values")
+# Or combine value and label
+as_factor(x, levels = "both")
+
+# as_factor() will preserve SPSS missing values from values and ranges
+y &lt;- labelled_spss(1:10, na_values = c(2, 4), na_range = c(8, 10))
+as_factor(y)
+# use zap_missing() first to convert to NAs
+zap_missing(y)
+as_factor(zap_missing(y))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

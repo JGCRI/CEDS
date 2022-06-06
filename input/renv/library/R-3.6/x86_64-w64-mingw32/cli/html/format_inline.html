@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format and returns a line of text</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for format_inline {cli}"><tr><td>format_inline {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format and returns a line of text</h2>
+
+<h3>Description</h3>
+
+<p>You can use this function to format a line of cli text, without emitting
+it to the screen. It uses <code><a href="cli_text.html">cli_text()</a></code> internally.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+format_inline(..., .envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed to <code><a href="cli_text.html">cli_text()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>Environment to evaluate the expressions in.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>format_inline()</code> performs no width-wrapping.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Character scalar, the formatted string.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+format_inline("A message for {.emph later}, thanks {.fn format_inline}.")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

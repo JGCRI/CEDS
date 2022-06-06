@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build package in the background</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pkgbuild_process {pkgbuild}"><tr><td>pkgbuild_process {pkgbuild}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build package in the background</h2>
+
+<h3>Description</h3>
+
+<p>This R6 class is a counterpart of the <code><a href="build.html">build()</a></code> function, and
+represents a background process that builds an R package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>bp &lt;- pkgbuild_process$new(path = ".", dest_path = NULL,
+         binary = FALSE, vignettes = TRUE, manual = FALSE, args = NULL)
+bp$get_dest_path()
+</pre>
+<p>Other methods are inherited from <a href="../../callr/html/rcmd_process.html">callr::rcmd_process</a> and
+<code>processx::process</code>.
+</p>
+
+
+<h3>Arguments</h3>
+
+<p>See the corresponding arguments of <code><a href="build.html">build()</a></code>.
+</p>
+
+
+<h3>Details</h3>
+
+<p>Most methods are inherited from <a href="../../callr/html/rcmd_process.html">callr::rcmd_process</a> and
+<code>processx::process</code>.
+</p>
+<p><code>bp$get_dest_path()</code> returns the path to the built package.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>## Here we are just waiting, but in a more realistic example, you
+## would probably run some other code instead...
+bp &lt;- pkgbuild_process$new("mypackage", dest_path = tempdir())
+bp$is_alive()
+bp$get_pid()
+bp$wait()
+bp$read_all_output_lines()
+bp$read_all_error_lines()
+bp$get_exit_status()
+bp$get_dest_path()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgbuild</em> version 1.3.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

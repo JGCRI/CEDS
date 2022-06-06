@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine the SQL data type of an object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbDataType {DBI}"><tr><td>dbDataType {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine the SQL data type of an object</h2>
+
+<h3>Description</h3>
+
+<p>Returns an SQL string that describes the SQL data type to be used for an
+object.
+The default implementation of this generic determines the SQL type of an
+R object according to the SQL 92 specification, which may serve as a starting
+point for driver implementations. DBI also provides an implementation
+for data.frame which will return a character vector giving the type for each
+column in the dataframe.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbDataType(dbObj, obj, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dbObj</code></td>
+<td>
+<p>A object inheriting from <a href="DBIDriver-class.html">DBIDriver</a>
+or <a href="DBIConnection-class.html">DBIConnection</a></p>
+</td></tr>
+<tr valign="top"><td><code>obj</code></td>
+<td>
+<p>An R object whose SQL type we want to determine.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The data types supported by databases are different than the data types in R,
+but the mapping between the primitive types is straightforward:
+</p>
+
+<ul>
+<li><p> Any of the many fixed and varying length character types are mapped to
+character vectors
+</p>
+</li>
+<li><p> Fixed-precision (non-IEEE) numbers are mapped into either numeric or
+integer vectors.
+</p>
+</li></ul>
+
+<p>Notice that many DBMS do not follow IEEE arithmetic, so there are potential
+problems with under/overflows and loss of precision.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>dbDataType()</code> returns the SQL type that corresponds to the <code>obj</code> argument
+as a non-empty
+character string.
+For data frames, a character vector with one element per column
+is returned.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>An error is raised for invalid values for the <code>obj</code> argument such as a
+<code>NULL</code> value.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>The backend can override the <code><a href="dbDataType.html">dbDataType()</a></code> generic
+for its driver class.
+</p>
+<p>This generic expects an arbitrary object as second argument.
+To query the values returned by the default implementation,
+run <code>example(dbDataType, package = "DBI")</code>.
+If the backend needs to override this generic,
+it must accept all basic R data types as its second argument, namely
+<a href="../../base/html/logical.html">logical</a>,
+<a href="../../base/html/integer.html">integer</a>,
+<a href="../../base/html/numeric.html">numeric</a>,
+<a href="../../base/html/character.html">character</a>,
+dates (see <a href="../../base/html/Dates.html">Dates</a>),
+date-time (see <a href="../../base/html/DateTimeClasses.html">DateTimeClasses</a>),
+and <a href="../../base/html/difftime.html">difftime</a>.
+If the database supports blobs,
+this method also must accept lists of <a href="../../base/html/raw.html">raw</a> vectors,
+and <a href="../../blob/html/blob.html">blob::blob</a> objects.
+As-is objects (i.e., wrapped by <code><a href="../../base/html/AsIs.html">I()</a></code>) must be
+supported and return the same results as their unwrapped counterparts.
+The SQL data type for <a href="../../base/html/factor.html">factor</a>
+and <a href="../../base/html/factor.html">ordered</a> is the same as for character.
+The behavior for other object types is not specified.
+</p>
+<p>All data types returned by <code>dbDataType()</code> are usable in an SQL statement
+of the form
+<code>"CREATE TABLE test (a ...)"</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIDriver generics: 
+<code><a href="DBIDriver-class.html">DBIDriver-class</a></code>,
+<code><a href="dbCanConnect.html">dbCanConnect</a>()</code>,
+<code><a href="dbConnect.html">dbConnect</a>()</code>,
+<code><a href="dbDriver.html">dbDriver</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListConnections.html">dbListConnections</a>()</code>
+</p>
+<p>Other DBIConnection generics: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbCreateTable.html">dbCreateTable</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetException.html">dbGetException</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetQuery.html">dbGetQuery</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbListTables.html">dbListTables</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+<p>Other DBIConnector generics: 
+<code><a href="DBIConnector-class.html">DBIConnector-class</a></code>,
+<code><a href="dbConnect.html">dbConnect</a>()</code>,
+<code><a href="dbGetConnectArgs.html">dbGetConnectArgs</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+dbDataType(ANSI(), 1:5)
+dbDataType(ANSI(), 1)
+dbDataType(ANSI(), TRUE)
+dbDataType(ANSI(), Sys.Date())
+dbDataType(ANSI(), Sys.time())
+dbDataType(ANSI(), Sys.time() - as.POSIXct(Sys.Date()))
+dbDataType(ANSI(), c("x", "abc"))
+dbDataType(ANSI(), list(raw(10), raw(20)))
+dbDataType(ANSI(), I(3))
+
+dbDataType(ANSI(), iris)
+
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbDataType(con, 1:5)
+dbDataType(con, 1)
+dbDataType(con, TRUE)
+dbDataType(con, Sys.Date())
+dbDataType(con, Sys.time())
+dbDataType(con, Sys.time() - as.POSIXct(Sys.Date()))
+dbDataType(con, c("x", "abc"))
+dbDataType(con, list(raw(10), raw(20)))
+dbDataType(con, I(3))
+
+dbDataType(con, iris)
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

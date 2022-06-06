@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Select top (or bottom) n rows (by value)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for top_n {dplyr}"><tr><td>top_n {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Select top (or bottom) n rows (by value)</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+<code>top_n()</code> has been superseded in favour of <code><a href="slice.html">slice_min()</a></code>/<code><a href="slice.html">slice_max()</a></code>.
+While it will not be deprecated in the near future, retirement means
+that we will only perform critical bug fixes, so we recommend moving to the
+newer alternatives.
+</p>
+<p><code>top_n()</code> was superseded because the name was fundamentally confusing as
+it returned what you might reasonably consider to be the <em>bottom</em>
+rows. Additionally, the <code>wt</code> variable had a confusing name, and strange
+default (the last column in the data frame). Unfortunately we could not
+see an easy way to fix the existing <code>top_n()</code> function without breaking
+existing code, so we created a new alternative.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+top_n(x, n, wt)
+
+top_frac(x, n, wt)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Number of rows to return for <code>top_n()</code>, fraction of rows to
+return for <code>top_frac()</code>. If <code>n</code> is positive, selects the top rows.
+If negative, selects the bottom rows.
+If <code>x</code> is grouped, this is the number (or fraction) of rows per group.
+Will include more rows if there are ties.</p>
+</td></tr>
+<tr valign="top"><td><code>wt</code></td>
+<td>
+<p>(Optional). The variable to use for ordering. If not
+specified, defaults to the last variable in the tbl.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- data.frame(x = c(6, 4, 1, 10, 3, 1, 1))
+
+df %&gt;% top_n(2)  # highest values
+df %&gt;% top_n(-2) # lowest values
+# now use
+df %&gt;% slice_max(x, n = 2)
+df %&gt;% slice_min(x, n = 2)
+
+# top_frac() -&gt; prop argument of slice_min()/slice_max()
+df %&gt;% top_frac(.5)
+# -&gt;
+df %&gt;% slice_max(x, prop = 0.5)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

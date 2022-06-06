@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add a style to a set of cells</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for addStyle {openxlsx}"><tr><td>addStyle {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add a style to a set of cells</h2>
+
+<h3>Description</h3>
+
+<p>Function adds a style to a specified set of cells.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+addStyle(wb, sheet, style, rows, cols, gridExpand = FALSE, stack = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A Workbook object containing a worksheet.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A worksheet to apply the style to.</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>A style object returned from createStyle()</p>
+</td></tr>
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>Rows to apply style to.</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>columns to apply style to.</p>
+</td></tr>
+<tr valign="top"><td><code>gridExpand</code></td>
+<td>
+<p>If <code>TRUE</code>, style will be applied to all combinations of rows and cols.</p>
+</td></tr>
+<tr valign="top"><td><code>stack</code></td>
+<td>
+<p>If <code>TRUE</code> the new style is merged with any existing cell styles.  If FALSE, any
+existing style is replaced by the new style.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="createStyle.html">createStyle()</a></code>
+</p>
+<p>expand.grid
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## See package vignette for more examples.
+
+## Create a new workbook
+wb &lt;- createWorkbook("My name here")
+
+## Add a worksheets
+addWorksheet(wb, "Expenditure", gridLines = FALSE)
+
+## write data to worksheet 1
+writeData(wb, sheet = 1, USPersonalExpenditure, rowNames = TRUE)
+
+## create and add a style to the column headers
+headerStyle &lt;- createStyle(
+  fontSize = 14, fontColour = "#FFFFFF", halign = "center",
+  fgFill = "#4F81BD", border = "TopBottom", borderColour = "#4F81BD"
+)
+
+## style for body
+bodyStyle &lt;- createStyle(border = "TopBottom", borderColour = "#4F81BD")
+addStyle(wb, sheet = 1, bodyStyle, rows = 2:6, cols = 1:6, gridExpand = TRUE)
+setColWidths(wb, 1, cols = 1, widths = 21) ## set column width for row names column
+## Not run: 
+saveWorkbook(wb, "addStyleExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

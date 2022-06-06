@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Trim grouping structure</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group_trim {dplyr}"><tr><td>group_trim {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Trim grouping structure</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+Drop unused levels of all factors that are used as grouping variables,
+then recalculates the grouping structure.
+</p>
+<p><code>group_trim()</code> is particularly useful after a <code><a href="filter.html">filter()</a></code> that is intended
+to select a subset of groups.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+group_trim(.tbl, .drop = group_by_drop_default(.tbl))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.tbl</code></td>
+<td>
+<p>A <a href="grouped_df.html">grouped data frame</a></p>
+</td></tr>
+<tr valign="top"><td><code>.drop</code></td>
+<td>
+<p>See <code><a href="group_by.html">group_by()</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <a href="grouped_df.html">grouped data frame</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other grouping functions: 
+<code><a href="group_by.html">group_by</a>()</code>,
+<code><a href="group_map.html">group_map</a>()</code>,
+<code><a href="group_nest.html">group_nest</a>()</code>,
+<code><a href="group_split.html">group_split</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+iris %&gt;%
+  group_by(Species) %&gt;%
+  filter(Species == "setosa", .preserve = TRUE) %&gt;%
+  group_trim()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

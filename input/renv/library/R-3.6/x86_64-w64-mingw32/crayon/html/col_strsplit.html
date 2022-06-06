@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Split an ANSI colored string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for col_strsplit {crayon}"><tr><td>col_strsplit {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Split an ANSI colored string</h2>
+
+<h3>Description</h3>
+
+<p>This is the color-aware counterpart of <code><a href="../../base/html/strsplit.html">base::strsplit()</a></code>.
+It works almost exactly like the original, but keeps the colors in the
+substrings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+col_strsplit(x, split, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character vector, potentially ANSI styled, or a vector to
+coarced to character.</p>
+</td></tr>
+<tr valign="top"><td><code>split</code></td>
+<td>
+<p>Character vector of length 1 (or object which can be coerced to
+such) containing regular expression(s) (unless <code>fixed = TRUE</code>) to use
+for splitting.  If empty matches occur, in particular if <code>split</code> has
+zero characters, <code>x</code> is split into single characters.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Extra arguments are passed to <code>base::strsplit()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of the same length as <code>x</code>, the <i>i</i>-th element of
+which contains the vector of splits of <code>x[i]</code>. ANSI styles are
+retained.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other ANSI string operations: 
+<code><a href="col_align.html">col_align</a>()</code>,
+<code><a href="col_nchar.html">col_nchar</a>()</code>,
+<code><a href="col_substring.html">col_substring</a>()</code>,
+<code><a href="col_substr.html">col_substr</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+str &lt;- red("I am red---") %+%
+  green("and I am green-") %+%
+  underline("I underlined")
+
+cat(str, "\n")
+
+# split at dashes, keep color
+cat(col_strsplit(str, "[-]+")[[1]], sep = "\n")
+strsplit(strip_style(str), "[-]+")
+
+# split to characters, keep color
+cat(col_strsplit(str, "")[[1]], "\n", sep = " ")
+strsplit(strip_style(str), "")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

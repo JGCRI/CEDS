@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine if Diff Object Has Differences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for any,Diff-method {diffobj}"><tr><td>any,Diff-method {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine if Diff Object Has Differences</h2>
+
+<h3>Description</h3>
+
+<p>Determine if Diff Object Has Differences
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'Diff'
+any(x, ..., na.rm = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a <code>Diff</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>unused, for compatibility with generic</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>unused, for compatibility with generic</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>TRUE if there are differences, FALSE if not, FALSE with warning if
+there are no differences but objects are not <code><a href="../../base/html/all.equal.html">all.equal</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+any(diffChr(letters, letters))
+any(diffChr(letters, letters[-c(1, 5, 8)]))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

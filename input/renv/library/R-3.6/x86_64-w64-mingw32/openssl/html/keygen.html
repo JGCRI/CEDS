@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate Key pair</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for keygen {openssl}"><tr><td>keygen {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate Key pair</h2>
+
+<h3>Description</h3>
+
+<p>The <code>keygen</code> functions generate a random private key. Use <code>as.list(key)$pubkey</code>
+to derive the corresponding public key. Use <a href="write_pem.html">write_pem</a> to save a private key
+to a file, optionally with a password.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rsa_keygen(bits = 2048)
+
+dsa_keygen(bits = 1024)
+
+ec_keygen(curve = c("P-256", "P-384", "P-521"))
+
+x25519_keygen()
+
+ed25519_keygen()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bits</code></td>
+<td>
+<p>bitsize of the generated RSA/DSA key</p>
+</td></tr>
+<tr valign="top"><td><code>curve</code></td>
+<td>
+<p>which NIST curve to use</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate keypair
+key &lt;- rsa_keygen()
+pubkey &lt;- as.list(key)$pubkey
+
+# Write/read the key with a passphrase
+write_pem(key, "id_rsa", password = "supersecret")
+read_key("id_rsa", password = "supersecret")
+unlink("id_rsa")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

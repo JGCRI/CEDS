@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Change file permissions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file_chmod {fs}"><tr><td>file_chmod {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Change file permissions</h2>
+
+<h3>Description</h3>
+
+<p>Change file permissions
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_chmod(path, mode)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>A character representation of the mode, in either hexidecimal or symbolic format.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><strong>Cross-compatibility warning:</strong> File permissions differ on Windows
+from POSIX systems. Windows does not use an executable bit, so attempting
+to change this will have no effect. Windows also does not have user
+groups, so only the user permissions (<code>u</code>) are relevant.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+file_create("foo", mode = "000")
+file_chmod("foo", "777")
+file_info("foo")$permissions
+
+file_chmod("foo", "u-x")
+file_info("foo")$permissions
+
+file_chmod("foo", "a-wrx")
+file_info("foo")$permissions
+
+file_chmod("foo", "u+wr")
+file_info("foo")$permissions
+
+# It is also vectorized
+files &lt;- c("foo", file_create("bar", mode = "000"))
+file_chmod(files, "a+rwx")
+file_info(files)$permissions
+
+file_chmod(files, c("644", "600"))
+file_info(files)$permissions
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

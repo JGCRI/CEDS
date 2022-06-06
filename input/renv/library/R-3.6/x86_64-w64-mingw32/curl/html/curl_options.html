@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List curl version and options.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curl_options {curl}"><tr><td>curl_options {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List curl version and options.</h2>
+
+<h3>Description</h3>
+
+<p><code>curl_version()</code> shows the versions of libcurl, libssl and zlib and
+supported protocols. <code>curl_options()</code> lists all options available in
+the current version of libcurl.  The dataset <code>curl_symbols</code> lists all
+symbols (including options) provides more information about the symbols,
+including when support was added/removed from libcurl.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+curl_options(filter = "")
+
+curl_symbols(filter = "")
+
+curl_version()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filter</code></td>
+<td>
+<p>string: only return options with string in name</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Available options
+curl_options()
+
+# List proxy options
+curl_options("proxy")
+
+# Symbol table
+curl_symbols("proxy")
+# Curl/ssl version info
+curl_version()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

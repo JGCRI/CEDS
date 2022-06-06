@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is an error informative?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_informative_error {testthat}"><tr><td>is_informative_error {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is an error informative?</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>is_informative_error()</code> is a generic predicate that indicates
+whether testthat users should explicitly test for an error
+class. Since we no longer recommend you do that, this generic
+has been deprecated.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_informative_error(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An error object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots are for future extensions and must be empty.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>A few classes are hard-coded as uninformative:
+</p>
+
+<ul>
+<li> <p><code>simpleError</code>
+</p>
+</li>
+<li> <p><code>rlang_error</code> unless a subclass is detected
+</p>
+</li>
+<li> <p><code>Rcpp::eval_error</code>
+</p>
+</li>
+<li> <p><code>Rcpp::exception</code>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

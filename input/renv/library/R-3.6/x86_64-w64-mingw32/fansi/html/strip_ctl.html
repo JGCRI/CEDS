@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Strip Control Sequences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for strip_ctl {fansi}"><tr><td>strip_ctl {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Strip Control Sequences</h2>
+
+<h3>Description</h3>
+
+<p>Removes <em>Control Sequences</em> from strings.  By default it will
+strip all known <em>Control Sequences</em>, including CSI/OSC sequences, two
+character sequences starting with ESC, and all C0 control characters,
+including newlines.  You can fine tune this behavior with the <code>ctl</code>
+parameter.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+strip_ctl(x, ctl = "all", warn = getOption("fansi.warn", TRUE), strip)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character vector or object that can be coerced to such.</p>
+</td></tr>
+<tr valign="top"><td><code>ctl</code></td>
+<td>
+<p>character, any combination of the following values (see details):
+</p>
+
+<ul>
+<li><p> &quot;nl&quot;: strip newlines.
+</p>
+</li>
+<li><p> &quot;c0&quot;: strip all other &quot;C0&quot; control characters (i.e. x01-x1f, x7F),
+except for newlines and the actual ESC character.
+</p>
+</li>
+<li><p> &quot;sgr&quot;: strip ANSI CSI SGR sequences.
+</p>
+</li>
+<li><p> &quot;csi&quot;: strip all non-SGR csi sequences.
+</p>
+</li>
+<li><p> &quot;esc&quot;: strip all other escape sequences.
+</p>
+</li>
+<li><p> &quot;all&quot;: all of the above, except when used in combination with any of the
+above, in which case it means &quot;all but&quot; (see details).
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to warn when potentially
+problematic <em>Control Sequences</em> are encountered.  These could cause the
+assumptions <code>fansi</code> makes about how strings are rendered on your display
+to be incorrect, for example by moving the cursor (see <code><a href="fansi.html">?fansi</a></code>).
+At most one warning will be issued per element in each input vector.  Will
+also warn about some badly encoded UTF-8 strings, but a lack of UTF-8
+warnings is not a guarantee of correct encoding (use <code><a href="../../base/html/validUTF8.html">validUTF8</a></code> for
+that).</p>
+</td></tr>
+<tr valign="top"><td><code>strip</code></td>
+<td>
+<p>character, deprecated in favor of <code>ctl</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>ctl</code> value contains the names of <strong>non-overlapping</strong> subsets of the
+known <em>Control Sequences</em> (e.g. &quot;csi&quot; does not contain &quot;sgr&quot;, and &quot;c0&quot; does
+not contain newlines).  The one exception is &quot;all&quot; which means strip every
+known sequence.  If you combine &quot;all&quot; with any other options then everything
+<strong>but</strong> those options will be stripped.
+</p>
+
+
+<h3>Value</h3>
+
+<p>character vector of same length as x with ANSI escape sequences
+stripped
+</p>
+
+
+<h3>Note</h3>
+
+<p>Non-ASCII strings are converted to and returned in UTF-8 encoding.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="fansi.html">?fansi</a></code> for details on how <em>Control Sequences</em> are
+interpreted, particularly if you are getting unexpected results,
+<code><a href="unhandled_ctl.html">unhandled_ctl</a></code> for detecting bad control sequences.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+string &lt;- "hello\033k\033[45p world\n\033[31mgoodbye\a moon"
+strip_ctl(string)
+strip_ctl(string, c("nl", "c0", "sgr", "csi", "esc")) # equivalently
+strip_ctl(string, "sgr")
+strip_ctl(string, c("c0", "esc"))
+
+## everything but C0 controls, we need to specify "nl"
+## in addition to "c0" since "nl" is not part of "c0"
+## as far as the `strip` argument is concerned
+strip_ctl(string, c("all", "nl", "c0"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

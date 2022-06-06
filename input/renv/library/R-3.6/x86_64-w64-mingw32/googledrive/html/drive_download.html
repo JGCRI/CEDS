@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Download a Drive file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_download {googledrive}"><tr><td>drive_download {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Download a Drive file</h2>
+
+<h3>Description</h3>
+
+<p>This function downloads a file from Google Drive. Native Google
+file types, such as Google Docs, Google Sheets, and Google Slides, must be
+exported to a conventional local file type. This can be specified:
+</p>
+
+<ul>
+<li><p> explicitly via <code>type</code>
+</p>
+</li>
+<li><p> implicitly via the file extension of <code>path</code>
+</p>
+</li>
+<li><p> not at all, i.e. rely on the built-in default
+</p>
+</li></ul>
+
+<p>To see what export file types are even possible, see the <a href="https://developers.google.com/drive/api/v3/ref-export-formats">Drive API documentation</a>
+or the result of <code>drive_about()$exportFormats</code>. The returned dribble
+includes a <code>local_path</code> column.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_download(
+  file,
+  path = NULL,
+  type = NULL,
+  overwrite = FALSE,
+  verbose = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file of interest on your Google
+Drive. Can be a name or path, a file id or URL marked with <code><a href="as_id.html">as_id()</a></code>, or a
+<code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Character. Path for output file. If absent, the default file name
+is the file's name on Google Drive and the default location is working
+directory, possibly with an added file extension.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. Only consulted if <code>file</code> is a native Google file.
+Specifies the desired type of the exported file. Will be processed via
+<code><a href="drive_mime_type.html">drive_mime_type()</a></code>, so either a file extension like <code>"pdf"</code> or a full MIME
+type like <code>"application/pdf"</code> is acceptable.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>A logical scalar. If local <code>path</code> already exists, do you
+want to overwrite it?</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://developers.google.com/drive/api/v3/manage-downloads">Download files</a>, in the
+Drive API documentation.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Target one of the official example files
+(src_file &lt;- drive_example_remote("chicken_sheet"))
+
+# Download Sheet as csv, explicit type
+downloaded_file &lt;- drive_download(src_file, type = "csv")
+
+# See local path to new file
+downloaded_file$local_path
+
+# Download as csv, type implicit in file extension
+drive_download(src_file, path = "my_csv_file.csv")
+
+# Download with default name and type (xlsx)
+drive_download(src_file)
+
+# Clean up
+unlink(c("chicken_sheet.csv", "chicken_sheet.xlsx", "my_csv_file.csv"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

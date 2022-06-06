@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: ANSI escape sequences of crayon styles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for styles {crayon}"><tr><td>styles {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>ANSI escape sequences of crayon styles</h2>
+
+<h3>Description</h3>
+
+<p>You can use this function to list all availables crayon styles,
+via <code>names(styles())</code>, or to explicitly apply an ANSI
+escape seauence to a string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+styles()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>A named list. Each list element is a list of two
+strings, named &lsquo;open&rsquo; and &lsquo;close&rsquo;.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="crayon.html">crayon()</a></code> for the beginning of the crayon manual.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+names(styles())
+cat(styles()[["bold"]]$close)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

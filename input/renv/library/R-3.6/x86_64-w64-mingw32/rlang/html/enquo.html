@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defuse function arguments</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for enquo {rlang}"><tr><td>enquo {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defuse function arguments</h2>
+
+<h3>Description</h3>
+
+<p><code>enquo()</code> and <code>enquos()</code> <a href="topic-defuse.html">defuse</a> function arguments.
+A defused expression can be examined, modified, and injected into
+other expressions.
+</p>
+<p>Defusing function arguments is useful for:
+</p>
+
+<ul>
+<li><p> Creating data-masking functions.
+</p>
+</li>
+<li><p> Interfacing with another <a href="topic-data-mask.html">data-masking</a> function
+using the <a href="topic-metaprogramming.html">defuse-and-inject</a> pattern.
+</p>
+</li></ul>
+
+<p>These are advanced tools. Make sure to first learn about the embrace
+operator <code><a href="embrace-operator.html">{{</a></code> in <a href="topic-data-mask-programming.html">Data mask programming patterns</a>.
+<code style="white-space: pre;">{{</code> is easier to work with with less theory, and it is sufficient
+in most applications.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+enquo(arg)
+
+enquos(
+  ...,
+  .named = FALSE,
+  .ignore_empty = c("trailing", "none", "all"),
+  .unquote_names = TRUE,
+  .homonyms = c("keep", "first", "last", "error"),
+  .check_assign = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>arg</code></td>
+<td>
+<p>An unquoted argument name. The expression
+supplied to that argument is defused and returned.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Names of arguments to defuse.</p>
+</td></tr>
+<tr valign="top"><td><code>.named</code></td>
+<td>
+<p>If <code>TRUE</code>, unnamed inputs are automatically named
+with <code><a href="as_label.html">as_label()</a></code>. This is equivalent to applying
+<code><a href="exprs_auto_name.html">exprs_auto_name()</a></code> on the result. If <code>FALSE</code>, unnamed elements
+are left as is and, if fully unnamed, the list is given minimal
+names (a vector of <code>""</code>). If <code>NULL</code>, fully unnamed results are
+left with <code>NULL</code> names.</p>
+</td></tr>
+<tr valign="top"><td><code>.ignore_empty</code></td>
+<td>
+<p>Whether to ignore empty arguments. Can be one
+of <code>"trailing"</code>, <code>"none"</code>, <code>"all"</code>. If <code>"trailing"</code>, only the
+last argument is ignored if it is empty. Named arguments are not
+considered empty.</p>
+</td></tr>
+<tr valign="top"><td><code>.unquote_names</code></td>
+<td>
+<p>Whether to treat <code style="white-space: pre;">:=</code> as <code>=</code>. Unlike <code>=</code>, the
+<code style="white-space: pre;">:=</code> syntax supports <a href="glue-operators.html">names injection</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.homonyms</code></td>
+<td>
+<p>How to treat arguments with the same name. The
+default, <code>"keep"</code>, preserves these arguments. Set <code>.homonyms</code> to
+<code>"first"</code> to only keep the first occurrences, to <code>"last"</code> to keep
+the last occurrences, and to <code>"error"</code> to raise an informative
+error and indicate what arguments have duplicated names.</p>
+</td></tr>
+<tr valign="top"><td><code>.check_assign</code></td>
+<td>
+<p>Whether to check for <code style="white-space: pre;">&lt;-</code> calls. When <code>TRUE</code> a
+warning recommends users to use <code>=</code> if they meant to match a
+function parameter or wrap the <code style="white-space: pre;">&lt;-</code> call in curly braces otherwise.
+This ensures assignments are explicit.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>enquo()</code> returns a <a href="topic-quosure.html">quosure</a> and <code>enquos()</code>
+returns a list of quosures.
+</p>
+
+
+<h3>Implicit injection</h3>
+
+<p>Arguments defused with <code>enquo()</code> and <code>enquos()</code> automatically gain
+<a href="topic-inject.html">injection</a> support.<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  var &lt;- enquo(var)
+  dplyr::summarise(data, mean(!!var))
+}
+
+# Can now use `!!` and `{{`
+my_mean(mtcars, !!sym("cyl"))
+</pre></div>
+<p>See <code><a href="defusing-advanced.html">enquo0()</a></code> and <code><a href="defusing-advanced.html">enquos0()</a></code> for variants that don't enable
+injection.
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-defuse.html">Defusing R expressions</a> for an overview.
+</p>
+</li>
+<li> <p><code><a href="expr.html">expr()</a></code> to defuse your own local expressions.
+</p>
+</li>
+<li> <p><a href="defusing-advanced.html">Advanced defusal operators</a>.
+</p>
+</li>
+<li> <p><code><a href="../../base/html/eval.html">base::eval()</a></code> and <code><a href="eval_bare.html">eval_bare()</a></code> for resuming evaluation
+of a defused expression.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# `enquo()` defuses the expression supplied by your user
+f &lt;- function(arg) {
+  enquo(arg)
+}
+
+f(1 + 1)
+
+# `enquos()` works with arguments and dots. It returns a list of
+# expressions
+f &lt;- function(...) {
+  enquos(...)
+}
+
+f(1 + 1, 2 * 10)
+
+
+# `enquo()` and `enquos()` enable _injection_ and _embracing_ for
+# your users
+g &lt;- function(arg) {
+  f({{ arg }} * 2)
+}
+g(100)
+
+column &lt;- sym("cyl")
+g(!!column)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

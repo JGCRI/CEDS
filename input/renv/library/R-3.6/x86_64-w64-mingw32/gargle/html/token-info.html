@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get info from a token</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for token-info {gargle}"><tr><td>token-info {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get info from a token</h2>
+
+<h3>Description</h3>
+
+<p>These functions send the <code>token</code> to Google endpoints that return info about a
+token or a user.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+token_userinfo(token)
+
+token_email(token)
+
+token_tokeninfo(token)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>token</code></td>
+<td>
+<p>A token with class <a href="../../httr/html/Token-class.html">Token2.0</a> or an object of
+httr's class <code>request</code>, i.e. a token that has been prepared with
+<code><a href="../../httr/html/config.html">httr::config()</a></code> and has a <a href="../../httr/html/Token-class.html">Token2.0</a> in the
+<code>auth_token</code> component.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It's hard to say exactly what info will be returned by the &quot;userinfo&quot;
+endpoint targetted by <code>token_userinfo()</code>. It depends on the token's scopes.
+OAuth2 tokens obtained via the gargle package include the
+<code style="white-space: pre;">https://www.googleapis.com/auth/userinfo.email</code> scope, which guarantees we
+can learn the email associated with the token. If the token has the
+<code style="white-space: pre;">https://www.googleapis.com/auth/userinfo.profile</code> scope, there will be even
+more information available. But for a token with unknown or arbitrary scopes,
+we can't make any promises about what information will be returned.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A list containing:
+</p>
+
+<ul>
+<li> <p><code>token_userinfo()</code>: user info
+</p>
+</li>
+<li> <p><code>token_email()</code>: user's email (obtained from a call to <code>token_userinfo()</code>)
+</p>
+</li>
+<li> <p><code>token_tokeninfo()</code>: token info
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# with service account token
+t &lt;- token_fetch(
+  scopes = "https://www.googleapis.com/auth/drive",
+  path   = "path/to/service/account/token/blah-blah-blah.json"
+)
+# or with an OAuth token
+t &lt;- token_fetch(
+  scopes = "https://www.googleapis.com/auth/drive",
+  email  = "janedoe@example.com"
+)
+token_userinfo(t)
+token_email(t)
+tokens_tokeninfo(t)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

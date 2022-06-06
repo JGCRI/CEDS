@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Singleton manipulation functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for singleton_tools {htmltools}"><tr><td>singleton_tools {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Singleton manipulation functions</h2>
+
+<h3>Description</h3>
+
+<p>Functions for manipulating <code><a href="singleton.html">singleton()</a></code> objects in tag
+hierarchies. Intended for framework authors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+surroundSingletons(ui)
+
+takeSingletons(ui, singletons = character(0), desingleton = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ui</code></td>
+<td>
+<p>Tag object or lists of tag objects. See <a href="builder.html">builder</a> topic.</p>
+</td></tr>
+<tr valign="top"><td><code>singletons</code></td>
+<td>
+<p>Character vector of singleton signatures that have already
+been encountered (i.e. returned from previous calls to
+<code>takeSingletons</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>desingleton</code></td>
+<td>
+<p>Logical value indicating whether singletons that are
+encountered should have the singleton attribute removed.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>surroundSingletons</code> preprocesses a tag object by changing any
+singleton X into <code style="white-space: pre;">&lt;!--SHINY.SINGLETON[sig]--&gt;X'&lt;!--/SHINY.SINGLETON[sig]--&gt;</code>
+where sig is the sha1 of X, and X' is X minus the singleton attribute.
+</p>
+<p><code>takeSingletons</code> returns a list with the elements <code>ui</code> (the
+processed tag objects with any duplicate singleton objects removed) and
+<code>singletons</code> (the list of known singleton signatures).
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

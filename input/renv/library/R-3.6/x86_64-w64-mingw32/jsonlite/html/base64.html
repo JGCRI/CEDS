@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Encode/decode base64</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for base64 {jsonlite}"><tr><td>base64 {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Encode/decode base64</h2>
+
+<h3>Description</h3>
+
+<p>Simple in-memory base64 encoder and decoder. Used internally for converting
+raw vectors to text. Interchangeable with encoder from <code>base64enc</code> or
+<code>openssl</code> package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+base64_dec(input)
+
+base64_enc(input)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>string or raw vector to be encoded/decoded</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+str &lt;- base64_enc(serialize(iris, NULL))
+out &lt;- unserialize(base64_dec(str))
+stopifnot(identical(out, iris))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

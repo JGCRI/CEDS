@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tools for Bioconductor repositories</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bioc_version {remotes}"><tr><td>bioc_version {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tools for Bioconductor repositories</h2>
+
+<h3>Description</h3>
+
+<p><code>bioc_version()</code> returns the Bioconductor version for the current or the
+specified R version.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bioc_version(r_ver = getRversion())
+
+bioc_install_repos(r_ver = getRversion(), bioc_ver = bioc_version(r_ver))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>r_ver</code></td>
+<td>
+<p>R version to use. For <code>bioc_install_repos()</code> it is
+ignored if <code>bioc_ver</code> is specified.</p>
+</td></tr>
+<tr valign="top"><td><code>bioc_ver</code></td>
+<td>
+<p>Bioconductor version to use. Defaults to the default one
+corresponding to <code>r_ver</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>bioc_install_repos()</code> deduces the URLs of the Bioconductor repositories.
+</p>
+<p>Both functions observe the <code>R_BIOC_VERSION</code> environment variable, which
+can be set to force a Bioconductor version. If this is set, then the
+<code>r_ver</code> and <code>bioc_ver</code> arguments are ignored.
+</p>
+<p><code>bioc_install_repos()</code> observes the <code>R_BIOC_MIRROR</code> environment variable
+and also the <code>BioC_mirror</code> option, which can be set to the desired
+Bioconductor mirror. The option takes precedence if both are set. Its
+default value is <code style="white-space: pre;">https://bioconductor.org</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>bioc_version()</code> returns a Bioconductor version, a <code>package_version</code>
+object.
+</p>
+<p><code>bioc_install_repos()</code> returns a named character vector of the URLs of
+the Bioconductor repositories, appropriate for the current or the
+specified R version.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bioc_version()
+bioc_version("3.4")
+bioc_install_repos()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

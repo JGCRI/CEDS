@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Translate Characters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_trans_char {stringi}"><tr><td>stri_trans_char {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Translate Characters</h2>
+
+<h3>Description</h3>
+
+<p>Translates Unicode code points in each input string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_trans_char(str, pattern, replacement)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>a single character string providing code points to be translated</p>
+</td></tr>
+<tr valign="top"><td><code>replacement</code></td>
+<td>
+<p>a single character string giving translated code points</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and with respect to each code point
+in <code>pattern</code> and <code>replacement</code>.
+</p>
+<p>If <code>pattern</code> and <code>replacement</code> consist of a different number
+of code points, then the extra code points in the longer of the two
+are ignored, with a warning.
+</p>
+<p>If code points in a given <code>pattern</code> are not unique, the
+last corresponding replacement code point is used.
+</p>
+<p>Time complexity for each string in <code>str</code> is
+O(<code>stri_length(str)*stri_length(pattern)</code>).
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other transform: 
+<code><a href="stri_trans_general.html">stri_trans_general</a>()</code>,
+<code><a href="stri_trans_list.html">stri_trans_list</a>()</code>,
+<code><a href="stri_trans_nf.html">stri_trans_nfc</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_trans_char('id.123', '.', '_')
+stri_trans_char('babaab', 'ab', '01')
+stri_trans_char('GCUACGGAGCUUCGGAGCUAG', 'ACGT', 'TGCA')
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

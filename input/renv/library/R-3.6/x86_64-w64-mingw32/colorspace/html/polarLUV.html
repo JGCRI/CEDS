@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create polarLUV (HCL) Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for polarLUV {colorspace}"><tr><td>polarLUV {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create polarLUV (HCL) Colors</h2>
+
+<h3>Description</h3>
+
+<p>This function creates colors of class &ldquo;polarLUV&rdquo;; a subclass of the
+virtual <code><a href="color-class.html">color-class</a></code> class.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+polarLUV(L, C, H, names)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>L, C, H</code></td>
+<td>
+<p>these arguments give the L, C and H coordinates of the colors.
+The values can be provided in separate <code>L</code>, <code>C</code> and <code>H</code>
+vectors or in a three-column matrix passed as <code>L</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>A vector of names for the colors (by default the row names of
+<code>L</code> are used).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The polarLUV space is a transformation of the CIE <i>L*u*v*</i>
+space so that the <i>u</i> and <i>v</i> values are converted to polar
+coordinates.  The radial component <i>C</i> measures chroma and the angular
+coordinate <i>H</i> is measures hue. It is also known as the HCL
+(hue-chroma-luminance) space.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code>polarLUV</code> which inherits from class <code>color</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="RGB.html">RGB</a></code>, <code><a href="HSV.html">HSV</a></code>, <code><a href="XYZ.html">XYZ</a></code>,
+<code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>, <code><a href="LUV.html">LUV</a></code>,
+<code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Show the polarLUV space
+set.seed(1)
+x &lt;- RGB(runif(1000), runif(1000), runif(1000))
+y &lt;- as(x, "polarLUV")
+head(x)
+head(y)
+plot(y)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

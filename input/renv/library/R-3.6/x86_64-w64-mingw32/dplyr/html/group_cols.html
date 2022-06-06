@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Select grouping variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group_cols {dplyr}"><tr><td>group_cols {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Select grouping variables</h2>
+
+<h3>Description</h3>
+
+<p>This selection helpers matches grouping variables. It can be used
+in <code><a href="select.html">select()</a></code> or <code><a href="vars.html">vars()</a></code> selections.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+group_cols(vars = NULL, data = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>vars</code></td>
+<td>
+<p>Deprecated; please use data instead.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>For advanced use only. The default <code>NULL</code> automatically
+finds the &quot;current&quot; data frames.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="group_data.html">groups()</a></code> and <code><a href="group_data.html">group_vars()</a></code> for retrieving the grouping
+variables outside selection contexts.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+gdf &lt;- iris %&gt;% group_by(Species)
+gdf %&gt;% select(group_cols())
+
+# Remove the grouping variables from mutate selections:
+gdf %&gt;% mutate_at(vars(-group_cols()), `/`, 100)
+# -&gt; No longer necessary with across()
+gdf %&gt;% mutate(across(everything(), ~ . / 100))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Call a function in a new R session via 'Rscript()'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Rscript_call {xfun}"><tr><td>Rscript_call {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Call a function in a new R session via <code>Rscript()</code></h2>
+
+<h3>Description</h3>
+
+<p>Save the argument values of a function in a temporary RDS file, open a new R
+session via <code><a href="Rscript.html">Rscript</a>()</code>, read the argument values, call the
+function, and read the returned value back to the current R session.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Rscript_call(
+  fun,
+  args = list(),
+  options = NULL,
+  ...,
+  wait = TRUE,
+  fail = sprintf("Failed to run '%s' in a new R session.",
+    deparse(substitute(fun))[1])
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>A function, or a character string that can be parsed and evaluated
+to a function.</p>
+</td></tr>
+<tr valign="top"><td><code>args</code></td>
+<td>
+<p>A list of argument values.</p>
+</td></tr>
+<tr valign="top"><td><code>options</code></td>
+<td>
+<p>A character vector of options to passed to
+<code><a href="Rscript.html">Rscript</a></code>, e.g., <code>"--vanilla"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>..., wait</code></td>
+<td>
+<p>Arguments to be passed to <code><a href="../../base/html/system2.html">system2</a>()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fail</code></td>
+<td>
+<p>The desired error message when an error occurred in calling the
+function.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The returned value of the function in the new R session.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+factorial(10)
+# should return the same value
+xfun::Rscript_call("factorial", list(10))
+
+# the first argument can be either a character string or a function
+xfun::Rscript_call(factorial, list(10))
+
+# Run Rscript starting a vanilla R session
+xfun::Rscript_call(factorial, list(10), options = c("--vanilla"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

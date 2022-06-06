@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Colorize Character Vectors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fansi_lines {fansi}"><tr><td>fansi_lines {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Colorize Character Vectors</h2>
+
+<h3>Description</h3>
+
+<p>Color each element in input with one of the &quot;256 color&quot; ANSI CSI SGR codes.
+This is intended for testing and demo purposes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fansi_lines(txt, step = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>txt</code></td>
+<td>
+<p>character vector or object that can be coerced to character vector</p>
+</td></tr>
+<tr valign="top"><td><code>step</code></td>
+<td>
+<p>integer(1L) how quickly to step through the color palette</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>character vector with each element colored
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+NEWS &lt;- readLines(file.path(R.home('doc'), 'NEWS'))
+writeLines(fansi_lines(NEWS[1:20]))
+writeLines(fansi_lines(NEWS[1:20], step=8))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

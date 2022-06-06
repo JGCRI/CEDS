@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add one or more (work)sheets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_add {googlesheets4}"><tr><td>sheet_add {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add one or more (work)sheets</h2>
+
+<h3>Description</h3>
+
+<p>Adds one or more (work)sheets to an existing (spread)Sheet. Note that sheet
+names must be unique.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_add(ss, sheet = NULL, ..., .before = NULL, .after = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>One or more new sheet names. If unspecified, one new sheet is
+added and Sheets autogenerates a name of the form &quot;SheetN&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional parameters to specify additional properties, common to
+all of the new sheet(s). Not relevant to most users. Specify fields of the
+<a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/sheets#SheetProperties"><code>SheetProperties</code> schema</a>
+in <code>name = value</code> form.</p>
+</td></tr>
+<tr valign="top"><td><code>.before, .after</code></td>
+<td>
+<p>Optional specification of where to put the new sheet(s). Specify, at most, one of <code>.before</code> and <code>.after</code>. Refer to an existing sheet by name (via a string) or by position (via a number). If unspecified, Sheets puts the new sheet(s) at the end.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes a batch of <code>AddSheetRequest</code>s (one per sheet):
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#addsheetrequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#addsheetrequest</a>
+</p>
+</li></ul>
+
+<p>Other worksheet functions: 
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_delete.html">sheet_delete</a>()</code>,
+<code><a href="sheet_properties.html">sheet_properties</a>()</code>,
+<code><a href="sheet_relocate.html">sheet_relocate</a>()</code>,
+<code><a href="sheet_rename.html">sheet_rename</a>()</code>,
+<code><a href="sheet_resize.html">sheet_resize</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  ss &lt;- gs4_create("add-sheets-to-me")
+
+  # the only required argument is the target spreadsheet
+  ss %&gt;% sheet_add()
+
+  # but you CAN specify sheet name and/or position
+  ss %&gt;% sheet_add("apple", .after = 1)
+  ss %&gt;% sheet_add("banana", .after = "apple")
+
+  # add multiple sheets at once
+  ss %&gt;% sheet_add(c("coconut", "dragonfruit"))
+
+  # keeners can even specify additional sheet properties
+  ss %&gt;%
+    sheet_add(
+      sheet = "eggplant",
+      .before = 1,
+      gridProperties = list(
+        rowCount = 3, columnCount = 6, frozenRowCount = 1
+      )
+    )
+
+  # get an overview of the sheets
+  sheet_properties(ss)
+
+  # clean up
+  gs4_find("add-sheets-to-me") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

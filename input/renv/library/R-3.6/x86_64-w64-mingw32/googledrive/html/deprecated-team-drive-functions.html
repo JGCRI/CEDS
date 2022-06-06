@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Deprecated Team Drive functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for deprecated-team-drive-functions {googledrive}"><tr><td>deprecated-team-drive-functions {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Deprecated Team Drive functions</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p>Team Drives have been rebranded as <em>shared drives</em> and, as of googledrive
+v2.0.0, all <code style="white-space: pre;">team_drive_*()</code> functions have been deprecated, in favor of
+<code style="white-space: pre;">shared_drive_*()</code> successors.
+</p>
+<p>The changes in googledrive reflect that the Team Drives resource collection
+has been deprecated in the Drive API v3, in favor of the new (shared) Drives
+resource collection. Read more
+</p>
+
+<ul>
+<li> <p><a href="https://cloud.google.com/blog/products/application-development/upcoming-changes-to-the-google-drive-api-and-google-picker-api">https://cloud.google.com/blog/products/application-development/upcoming-changes-to-the-google-drive-api-and-google-picker-api</a>
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+team_drive_find(pattern = NULL, n_max = Inf, ..., verbose = deprecated())
+
+team_drive_get(name = NULL, id = NULL, verbose = deprecated())
+
+team_drive_create(name, verbose = deprecated())
+
+team_drive_rm(team_drive = NULL, verbose = deprecated())
+
+team_drive_update(team_drive, ..., verbose = deprecated())
+
+as_team_drive(x, ...)
+
+is_team_drive(d)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>Character. If provided, only the items whose names match this
+regular expression are returned. This is implemented locally on the results
+returned by the API.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Integer. An upper bound on the number of items to return. This
+applies to the results requested from the API, which may be further
+filtered locally, via the <code>pattern</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters to pass along in the request, such as <code>pageSize</code>
+or <code>useDomainAdminAccess</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Character vector of names. A character vector marked with
+<code><a href="as_id.html">as_id()</a></code> is treated as if it was provided via the <code>id</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>id</code></td>
+<td>
+<p>Character vector of shared drive ids or URLs (it is first processed
+with <code><a href="as_id.html">as_id()</a></code>). If both <code>name</code> and <code>id</code> are non-<code>NULL</code>, <code>id</code> is silently
+ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>team_drive</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> Google Drive and the
+Drive API have replaced Team Drives with shared drives.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector of shared drive names, a vector of shared drive ids marked
+with <code><a href="as_id.html">as_id()</a></code>, a list of Drives resource objects, or a suitable data
+frame.</p>
+</td></tr>
+<tr valign="top"><td><code>d</code></td>
+<td>
+<p>A <code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per shared drive.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

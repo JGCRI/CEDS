@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Nest a tibble using a grouping specification</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group_nest {dplyr}"><tr><td>group_nest {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Nest a tibble using a grouping specification</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>Nest a tibble using a grouping specification
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+group_nest(.tbl, ..., .key = "data", keep = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.tbl</code></td>
+<td>
+<p>A tbl</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Grouping specification, forwarded to <code><a href="group_by.html">group_by()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>.key</code></td>
+<td>
+<p>the name of the list column</p>
+</td></tr>
+<tr valign="top"><td><code>keep</code></td>
+<td>
+<p>Should the grouping columns be kept in the list column.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tbl with one row per unique combination of the grouping variables.
+The first columns are the grouping variables, followed by a list column of tibbles
+with matching rows of the remaining columns.
+</p>
+
+
+<h3>Grouped data frames</h3>
+
+<p>The primary use case for <code><a href="group_nest.html">group_nest()</a></code> is with already grouped data frames,
+typically a result of <code><a href="group_by.html">group_by()</a></code>. In this case <code><a href="group_nest.html">group_nest()</a></code> only uses
+the first argument, the grouped tibble, and warns when <code>...</code> is used.
+</p>
+
+
+<h3>Ungrouped data frames</h3>
+
+<p>When used on ungrouped data frames, <code><a href="group_nest.html">group_nest()</a></code> forwards the <code>...</code> to
+<code><a href="group_by.html">group_by()</a></code> before nesting, therefore the <code>...</code> are subject to the data mask.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other grouping functions: 
+<code><a href="group_by.html">group_by</a>()</code>,
+<code><a href="group_map.html">group_map</a>()</code>,
+<code><a href="group_split.html">group_split</a>()</code>,
+<code><a href="group_trim.html">group_trim</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+#----- use case 1: a grouped data frame
+iris %&gt;%
+  group_by(Species) %&gt;%
+  group_nest()
+
+# this can be useful if the grouped data has been altered before nesting
+iris %&gt;%
+  group_by(Species) %&gt;%
+  filter(Sepal.Length &gt; mean(Sepal.Length)) %&gt;%
+  group_nest()
+
+#----- use case 2: using group_nest() on a ungrouped data frame with
+#                  a grouping specification that uses the data mask
+starwars %&gt;%
+  group_nest(species, homeworld)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

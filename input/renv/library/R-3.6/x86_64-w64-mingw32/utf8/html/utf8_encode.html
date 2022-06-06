@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Encode Character Object as for UTF-8 Printing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for utf8_encode {utf8}"><tr><td>utf8_encode {utf8}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Encode Character Object as for UTF-8 Printing</h2>
+
+<h3>Description</h3>
+
+<p>Escape the strings in a character object, optionally adding
+quotes or spaces, adjusting the width for display.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+utf8_encode(x, width = 0L, quote = FALSE, justify = "left", escapes = NULL,
+            display = FALSE, utf8 = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character object.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>integer giving the minimum field width; specify
+<code>NULL</code> or <code>NA</code> for no minimum.</p>
+</td></tr>
+<tr valign="top"><td><code>quote</code></td>
+<td>
+<p>logical scalar indicating whether to surround results
+with double-quotes and escape internal double-quotes.</p>
+</td></tr>
+<tr valign="top"><td><code>justify</code></td>
+<td>
+<p>justification; one of <code>"left"</code>, <code>"right"</code>,
+<code>"centre"</code>, or <code>"none"</code>. Can be abbreviated.</p>
+</td></tr>
+<tr valign="top"><td><code>escapes</code></td>
+<td>
+<p>a character string specifying the display style for
+the backslash escapes, as an ANSI SGR parameter string,
+or NULL for no styling.</p>
+</td></tr>
+<tr valign="top"><td><code>display</code></td>
+<td>
+<p>logical scalar indicating whether to optimize the
+encoding for display, not byte-for-byte data transmission.</p>
+</td></tr>
+<tr valign="top"><td><code>utf8</code></td>
+<td>
+<p>logical scalar indicating whether to encode for a UTF-8
+capable display (ASCII-only otherwise), or <code>NULL</code> to
+encode for output capabilities as determined by
+<code>output_utf8()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>utf8_encode</code> encodes a character object for printing on a UTF-8
+device by escaping controls characters and other non-printable
+characters. When <code>display = TRUE</code>, the function optimizes the
+encoding for display by removing default ignorable characters (soft
+hyphens, zero-width spaces, etc.) and placing zero-width spaces after
+wide emoji. When <code>output_utf8()</code> is <code>FALSE</code> the function
+escapes all non-ASCII characters and gives the same results on all
+platforms.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character object with the same attributes as <code>x</code> but with
+<code>Encoding</code> set to <code>"UTF-8"</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="utf8_print.html">utf8_print</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# the second element is encoded in latin-1, but declared as UTF-8
+x &lt;- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
+Encoding(x) &lt;- c("UTF-8", "UTF-8", "bytes")
+
+# encoding
+utf8_encode(x)
+
+# add style to the escapes
+cat(utf8_encode("hello\nstyled\\world", escapes = "1"), "\n")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>utf8</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

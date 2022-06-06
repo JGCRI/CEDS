@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: write a cell comment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for writeComment {openxlsx}"><tr><td>writeComment {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>write a cell comment</h2>
+
+<h3>Description</h3>
+
+<p>Write a Comment object to a worksheet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+writeComment(wb, sheet, col, row, comment, xy = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A vector of names or indices of worksheets</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>Column a column number of letter</p>
+</td></tr>
+<tr valign="top"><td><code>row</code></td>
+<td>
+<p>A row number.</p>
+</td></tr>
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>A Comment object. See <code><a href="createComment.html">createComment()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>xy</code></td>
+<td>
+<p>An alternative to specifying <code>col</code> and
+<code>row</code> individually.  A vector of the form
+<code>c(col, row)</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="createComment.html">createComment()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+
+c1 &lt;- createComment(comment = "this is comment")
+writeComment(wb, 1, col = "B", row = 10, comment = c1)
+
+s1 &lt;- createStyle(fontSize = 12, fontColour = "red", textDecoration = c("BOLD"))
+s2 &lt;- createStyle(fontSize = 9, fontColour = "black")
+
+c2 &lt;- createComment(comment = c("This Part Bold red\n\n", "This part black"), style = c(s1, s2))
+c2
+
+writeComment(wb, 1, col = 6, row = 3, comment = c2)
+## Not run: 
+saveWorkbook(wb, file = "writeCommentExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

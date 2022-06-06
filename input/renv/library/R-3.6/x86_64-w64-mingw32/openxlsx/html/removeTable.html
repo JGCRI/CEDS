@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Remove an Excel table in a workbook</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for removeTable {openxlsx}"><tr><td>removeTable {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Remove an Excel table in a workbook</h2>
+
+<h3>Description</h3>
+
+<p>List Excel tables in a workbook
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+removeTable(wb, sheet, table)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>table</code></td>
+<td>
+<p>Name of table to remove. See <code><a href="getTables.html">getTables()</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>character vector of table names on the specified sheet
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+wb &lt;- createWorkbook()
+addWorksheet(wb, sheetName = "Sheet 1")
+addWorksheet(wb, sheetName = "Sheet 2")
+writeDataTable(wb, sheet = "Sheet 1", x = iris, tableName = "iris")
+writeDataTable(wb, sheet = 1, x = mtcars, tableName = "mtcars", startCol = 10)
+
+
+removeWorksheet(wb, sheet = 1) ## delete worksheet removes table objects
+
+writeDataTable(wb, sheet = 1, x = iris, tableName = "iris")
+writeDataTable(wb, sheet = 1, x = mtcars, tableName = "mtcars", startCol = 10)
+
+## removeTable() deletes table object and all data
+getTables(wb, sheet = 1)
+removeTable(wb = wb, sheet = 1, table = "iris")
+writeDataTable(wb, sheet = 1, x = iris, tableName = "iris", startCol = 1)
+
+getTables(wb, sheet = 1)
+removeTable(wb = wb, sheet = 1, table = "iris")
+writeDataTable(wb, sheet = 1, x = iris, tableName = "iris", startCol = 1)
+## Not run: 
+saveWorkbook(wb = wb, file = "removeTableExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

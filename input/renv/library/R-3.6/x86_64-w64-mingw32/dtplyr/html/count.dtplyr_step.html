@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count observations by group</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for count.dtplyr_step {dtplyr}"><tr><td>count.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count observations by group</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the dplyr <code><a href="../../dplyr/html/count.html">count()</a></code> generic. It is translated using
+<code>.N</code> in the <code>j</code> argument, and supplying groups to <code>keyby</code> as appropriate.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+count(.data, ..., wt = NULL, sort = FALSE, name = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../dplyr/html/dplyr_data_masking.html">data-masking</a></code>&gt; Variables to group by.</p>
+</td></tr>
+<tr valign="top"><td><code>wt</code></td>
+<td>
+<p>&lt;<code><a href="../../dplyr/html/dplyr_data_masking.html">data-masking</a></code>&gt; Frequency weights.
+Can be <code>NULL</code> or a variable:
+</p>
+
+<ul>
+<li><p> If <code>NULL</code> (the default), counts the number of rows in each group.
+</p>
+</li>
+<li><p> If a variable, computes <code>sum(wt)</code> for each group.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>sort</code></td>
+<td>
+<p>If <code>TRUE</code>, will show the largest groups at the top.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name of the new column in the output.
+</p>
+<p>If omitted, it will default to <code>n</code>. If there's already a column called <code>n</code>,
+it will error, and require you to specify the name.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+dt &lt;- lazy_dt(dplyr::starwars)
+dt %&gt;% count(species)
+dt %&gt;% count(species, sort = TRUE)
+dt %&gt;% count(species, wt = mass, sort = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

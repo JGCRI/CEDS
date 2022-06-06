@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convenience function to remove missing values from a...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for remove_missing {ggplot2}"><tr><td>remove_missing {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convenience function to remove missing values from a data.frame</h2>
+
+<h3>Description</h3>
+
+<p>Remove all non-complete rows, with a warning if <code>na.rm = FALSE</code>.
+ggplot is somewhat more accommodating of missing values than R generally.
+For those stats which require complete data, missing values will be
+automatically removed with a warning. If <code>na.rm = TRUE</code> is supplied
+to the statistic, the warning will be suppressed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+remove_missing(df, na.rm = FALSE, vars = names(df), name = "", finite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>data.frame</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If true, will suppress warning message.</p>
+</td></tr>
+<tr valign="top"><td><code>vars</code></td>
+<td>
+<p>Character vector of variables to check for missings in</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Optional function name to improve error message.</p>
+</td></tr>
+<tr valign="top"><td><code>finite</code></td>
+<td>
+<p>If <code>TRUE</code>, will also remove non-finite values.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

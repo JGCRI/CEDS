@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: reprex output format</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reprex_document {reprex}"><tr><td>reprex_document {reprex}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>reprex output format</h2>
+
+<h3>Description</h3>
+
+<p>This is an R Markdown output format designed specifically for making
+&quot;reprexes&quot;, typically created via the <code><a href="reprex.html">reprex()</a></code> function, which ultimately
+renders the document with <code><a href="reprex_render.html">reprex_render()</a></code>. It is a heavily modified version
+of <code><a href="../../rmarkdown/html/md_document.html">rmarkdown::md_document()</a></code>. The arguments have different spheres of
+influence:
+</p>
+
+<ul>
+<li> <p><code>venue</code> potentially affects input preparation and <code><a href="reprex_render.html">reprex_render()</a></code>.
+</p>
+</li>
+<li><p> Add content to the primary input, prior to rendering:
+</p>
+
+<ul>
+<li> <p><code>advertise</code>
+</p>
+</li>
+<li> <p><code>session_info</code>
+</p>
+</li>
+<li> <p><code>std_out_err</code> (also consulted by <code><a href="reprex_render.html">reprex_render()</a></code>)
+</p>
+</li></ul>
+
+</li>
+<li><p> Influence knitr package or chunk options:
+</p>
+
+<ul>
+<li> <p><code>style</code>
+</p>
+</li>
+<li> <p><code>comment</code>
+</p>
+</li>
+<li> <p><code>tidyverse_quiet</code>
+</p>
+</li></ul>
+
+</li></ul>
+
+<p>RStudio users can create new R Markdown documents with the
+<code>reprex_document()</code> format using built-in templates. Do
+<em>File &gt; New File &gt; R Markdown ... &gt; From Template</em> and choose one of:
+</p>
+
+<ul>
+<li><p> reprex (minimal)
+</p>
+</li>
+<li><p> reprex (lots of features)
+</p>
+</li></ul>
+
+<p>Both include <code>knit: reprex::reprex_render</code> in the YAML, which causes the
+RStudio &quot;Knit&quot; button to use <code>reprex_render()</code>. If you render these documents
+yourself, you should do same.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+reprex_document(
+  venue = c("gh", "r", "rtf", "html", "slack", "so", "ds"),
+  advertise = NULL,
+  session_info = opt(FALSE),
+  style = opt(FALSE),
+  comment = opt("#&gt;"),
+  tidyverse_quiet = opt(TRUE),
+  std_out_err = opt(FALSE),
+  pandoc_args = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>venue</code></td>
+<td>
+<p>Character. Must be one of the following (case insensitive):
+</p>
+
+<ul>
+<li><p> &quot;gh&quot; for <a href="https://github.github.com/gfm/">GitHub-Flavored Markdown</a>, the
+default
+</p>
+</li>
+<li><p> &quot;r&quot; for a runnable R script, with commented output interleaved. Also useful
+for <a href="https://slack.com/intl/en-ca/slack-tips/share-code-snippets">Slack code snippets</a>;
+select &quot;R&quot; from the &quot;Type&quot; drop-down menu to enjoy nice syntax
+highlighting.
+</p>
+</li>
+<li><p> &quot;rtf&quot; for
+<a href="https://en.wikipedia.org/wiki/Rich_Text_Format">Rich Text Format</a>
+(not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;html&quot; for an HTML fragment suitable for inclusion in a larger HTML
+document (not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;slack&quot; for pasting into a Slack message. Works best if you opt out of
+Slack's WYSIWYG interface and, instead, go to <strong>Preferences &gt; Advanced</strong>
+and select &quot;Format messages with markup&quot;.
+</p>
+</li>
+<li><p> &quot;so&quot; for
+<a href="https://stackoverflow.com/editing-help#syntax-highlighting">Stack Overflow Markdown</a>.
+Note: this is just an alias for &quot;gh&quot;, since Stack Overflow started to
+support CommonMark-style fenced code blocks in January 2019.
+</p>
+</li>
+<li><p> &quot;ds&quot; for Discourse, e.g.,
+<a href="https://community.rstudio.com">community.rstudio.com</a>. Note: this is
+currently just an alias for &quot;gh&quot;.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>advertise</code></td>
+<td>
+<p>Logical. Whether to include a footer that describes when and
+how the reprex was created. If unspecified, the option <code>reprex.advertise</code>
+is consulted and, if that is not defined, default is <code>TRUE</code> for venues
+<code>"gh"</code>, <code>"html"</code>, <code>"so"</code>, <code>"ds"</code> and <code>FALSE</code> for <code>"r"</code>, <code>"rtf"</code>, <code>"slack"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>session_info</code></td>
+<td>
+<p>Logical. Whether to include
+<code><a href="../../sessioninfo/html/session_info.html">sessioninfo::session_info()</a></code>, if available, or <code><a href="../../utils/html/sessionInfo.html">sessionInfo()</a></code> at the end
+of the reprex. When <code>venue</code> is &quot;gh&quot;, the session info is wrapped in a
+collapsible details tag. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>Logical. Whether to set the knitr chunk option <code>tidy = "styler"</code>, which re-styles code with the <a href="https://styler.r-lib.org">styler package</a>. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>Character. Prefix with which to comment out output, defaults
+to <code>"#&gt;"</code>. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>tidyverse_quiet</code></td>
+<td>
+<p>Logical. Sets the options <code>tidyverse.quiet</code> and
+<code>tidymodels.quiet</code>, which suppress (<code>TRUE</code>, the default) or include
+(<code>FALSE</code>) the startup messages for the tidyverse and tidymodels packages.
+Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>std_out_err</code></td>
+<td>
+<p>Logical. Whether to append a section for output sent to
+stdout and stderr by the reprex rendering process. This can be necessary to
+reveal output if the reprex spawns child processes or <code>system()</code> calls.
+Note this cannot be properly interleaved with output from the main R
+process, nor is there any guarantee that the lines from standard output and
+standard error are in correct chronological order. See <code><a href="../../callr/html/r.html">callr::r()</a></code> for
+more. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>pandoc_args</code></td>
+<td>
+<p>Additional command line options to pass to pandoc</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An R Markdown output format to pass to <code><a href="../../rmarkdown/html/render.html">rmarkdown::render()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+reprex_document()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>reprex</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

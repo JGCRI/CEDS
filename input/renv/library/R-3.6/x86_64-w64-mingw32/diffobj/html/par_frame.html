@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get Parent Frame of S4 Call Stack</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for par_frame {diffobj}"><tr><td>par_frame {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get Parent Frame of S4 Call Stack</h2>
+
+<h3>Description</h3>
+
+<p>Implementation of the <code>function(x=parent.frame()) ...</code> pattern for the
+<code><a href="diffPrint.html">diff*</a></code> methods since the normal pattern does not
+work with S4 methods.  Works by looking through the call stack and
+identifying what call likely initiated the S4 dispatch.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+par_frame()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>The function is not exported and intended only for use as the default value
+for the <code>frame</code> argument for the <code><a href="diffPrint.html">diff*</a></code>
+methods.
+</p>
+<p>Matching is done purely by looking for the last repeated call followed
+by <code>.local(target, current, ...)</code> that is not a call to <code>eval</code>.
+This pattern seems to match the correct call most of the time.
+Since methods can be renamed by the user we make no attempt to verify method
+names.  This method could potentially be tricked if you implement custom
+<code><a href="diffPrint.html">diff*</a></code> methods that somehow
+issue two identical sequential calls before calling <code>callNextMethod</code>.
+Failure in this case means the wrong <code>frame</code> will be returned.
+</p>
+
+
+<h3>Value</h3>
+
+<p>an environment
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

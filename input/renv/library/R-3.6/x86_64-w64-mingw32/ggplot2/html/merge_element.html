@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Merge a parent element into a child element</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for merge_element {ggplot2}"><tr><td>merge_element {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Merge a parent element into a child element</h2>
+
+<h3>Description</h3>
+
+<p>This is a generic and element classes must provide an implementation of this
+method
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+merge_element(new, old)
+
+## Default S3 method:
+merge_element(new, old)
+
+## S3 method for class 'element_blank'
+merge_element(new, old)
+
+## S3 method for class 'element'
+merge_element(new, old)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p>The child element in the theme hierarchy</p>
+</td></tr>
+<tr valign="top"><td><code>old</code></td>
+<td>
+<p>The parent element in the theme hierarchy</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A modified version of <code>new</code> updated with the properties of
+<code>old</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+new &lt;- element_text(colour = "red")
+old &lt;- element_text(colour = "blue", size = 10)
+
+# Adopt size but ignore colour
+merge_element(new, old)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

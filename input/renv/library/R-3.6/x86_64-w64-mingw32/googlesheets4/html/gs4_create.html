@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new Sheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gs4_create {googlesheets4}"><tr><td>gs4_create {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new Sheet</h2>
+
+<h3>Description</h3>
+
+<p>Creates an entirely new (spread)Sheet (or, in Excel-speak, workbook).
+Optionally, you can also provide names and/or data for the initial set of
+(work)sheets. Any initial data provided via <code>sheets</code> is styled as a table,
+as described in <code><a href="sheet_write.html">sheet_write()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gs4_create(name = gs4_random(), ..., sheets = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name of the new spreadsheet.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional spreadsheet properties that can be set through this API
+endpoint, such as locale and time zone.</p>
+</td></tr>
+<tr valign="top"><td><code>sheets</code></td>
+<td>
+<p>Optional input for initializing (work)sheets. If unspecified,
+the Sheets API automatically creates an empty &quot;Sheet1&quot;. You can provide a
+vector of sheet names, a data frame, or a (possibly named) list of data
+frames. See the examples.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>spreadsheets.create</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create</a>
+</p>
+</li></ul>
+
+<p>There is an article on writing Sheets:
+</p>
+
+<ul>
+<li> <p><a href="https://googlesheets4.tidyverse.org/articles/articles/write-sheets.html">https://googlesheets4.tidyverse.org/articles/articles/write-sheets.html</a>
+</p>
+</li></ul>
+
+<p>Other write functions: 
+<code><a href="gs4_formula.html">gs4_formula</a>()</code>,
+<code><a href="range_delete.html">range_delete</a>()</code>,
+<code><a href="range_flood.html">range_flood</a>()</code>,
+<code><a href="range_write.html">range_write</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  gs4_create("gs4-create-demo-1")
+
+  gs4_create("gs4-create-demo-2", locale = "en_CA")
+
+  gs4_create(
+    "gs4-create-demo-3",
+    locale = "fr_FR",
+    timeZone = "Europe/Paris"
+  )
+
+  gs4_create(
+    "gs4-create-demo-4",
+    sheets = c("alpha", "beta")
+  )
+
+  my_data &lt;- data.frame(x = 1)
+  gs4_create(
+    "gs4-create-demo-5",
+    sheets = my_data
+  )
+
+  gs4_create(
+    "gs4-create-demo-6",
+    sheets = list(chickwts = head(chickwts), mtcars = head(mtcars))
+  )
+
+  # clean up
+  gs4_find("gs4-create-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

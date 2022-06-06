@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert Strings To Native Encoding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_tonative {stringi}"><tr><td>stri_enc_tonative {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert Strings To Native Encoding</h2>
+
+<h3>Description</h3>
+
+<p>Converts character strings with declared encodings
+to the current native encoding.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_tonative(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>a character vector to be converted</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function just calls <code><a href="stri_encode.html">stri_encode</a>(str, NULL, NULL)</code>.
+The current native encoding can be read with <code><a href="stri_enc_set.html">stri_enc_get</a></code>.
+Character strings declared to be in <code>bytes</code> encoding will fail here.
+</p>
+<p>Note that if working in a UTF-8 environment,
+resulting strings will be marked with <code>UTF-8</code>
+and not <code>native</code>, see <code><a href="stri_enc_mark.html">stri_enc_mark</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_conversion: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_fromutf32.html">stri_enc_fromutf32</a>()</code>,
+<code><a href="stri_enc_toascii.html">stri_enc_toascii</a>()</code>,
+<code><a href="stri_enc_toutf32.html">stri_enc_toutf32</a>()</code>,
+<code><a href="stri_enc_toutf8.html">stri_enc_toutf8</a>()</code>,
+<code><a href="stri_encode.html">stri_encode</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

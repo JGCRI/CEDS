@@ -1,0 +1,485 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert to an ioslides Presentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ioslides_presentation {rmarkdown}"><tr><td>ioslides_presentation {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert to an ioslides Presentation</h2>
+
+<h3>Description</h3>
+
+<p>Format for converting from R Markdown to an
+<a href="https://code.google.com/archive/p/io-2012-slides/">ioslides</a> presentation.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ioslides_presentation(
+  number_sections = FALSE,
+  logo = NULL,
+  slide_level = 2,
+  incremental = FALSE,
+  fig_width = 7.5,
+  fig_height = 4.5,
+  fig_retina = 2,
+  fig_caption = TRUE,
+  dev = "png",
+  df_print = "default",
+  smart = TRUE,
+  self_contained = TRUE,
+  widescreen = FALSE,
+  smaller = FALSE,
+  transition = "default",
+  mathjax = "default",
+  analytics = NULL,
+  template = NULL,
+  css = NULL,
+  includes = NULL,
+  keep_md = FALSE,
+  lib_dir = NULL,
+  md_extensions = NULL,
+  pandoc_args = NULL,
+  extra_dependencies = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>number_sections</code></td>
+<td>
+<p><code>TRUE</code> to number section headings</p>
+</td></tr>
+<tr valign="top"><td><code>logo</code></td>
+<td>
+<p>Path to file that includes a logo for use in the presentation
+(should be square and at least 128x128).</p>
+</td></tr>
+<tr valign="top"><td><code>slide_level</code></td>
+<td>
+<p>Header level to consider as slide separator (Defaults to
+header 2).</p>
+</td></tr>
+<tr valign="top"><td><code>incremental</code></td>
+<td>
+<p><code>TRUE</code> to render slide bullets incrementally.
+Note that if you want to reverse the default incremental behavior for an
+individual bullet you can preceded it with <code>&gt;</code>.
+For example: <em><code>&gt; - Bullet Text</code></em>.</p>
+</td></tr>
+<tr valign="top"><td><code>fig_width</code></td>
+<td>
+<p>Default width (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_height</code></td>
+<td>
+<p>Default height (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_retina</code></td>
+<td>
+<p>Scaling to perform for retina displays (defaults to 2, which
+currently works for all widely used retina displays). Set to <code>NULL</code> to
+prevent retina scaling. Note that this will always be <code>NULL</code> when
+<code>keep_md</code> is specified (this is because <code>fig_retina</code> relies on
+outputting HTML directly into the markdown document).</p>
+</td></tr>
+<tr valign="top"><td><code>fig_caption</code></td>
+<td>
+<p><code>TRUE</code> to render figures with captions</p>
+</td></tr>
+<tr valign="top"><td><code>dev</code></td>
+<td>
+<p>Graphics device to use for figure output (defaults to png)</p>
+</td></tr>
+<tr valign="top"><td><code>df_print</code></td>
+<td>
+<p>Method to be used for printing data frames. Valid values
+include &quot;default&quot;, &quot;kable&quot;, &quot;tibble&quot;, and &quot;paged&quot;. The &quot;default&quot; method
+uses a corresponding S3 method of <code>print</code>, typically
+<code>print.data.frame</code>. The &quot;kable&quot; method uses the
+<code><a href="../../knitr/html/kable.html">knitr::kable</a></code> function. The &quot;tibble&quot; method uses
+the <span class="pkg">tibble</span> package to print a summary of the data frame. The &quot;paged&quot;
+method creates a paginated HTML table (note that this method is only valid
+for formats that produce HTML). In addition to the named methods you can
+also pass an arbitrary function to be used for printing data frames. You
+can disable the <code>df_print</code> behavior entirely by setting the option
+<code>rmarkdown.df_print</code> to <code>FALSE</code>. See
+<a href="https://bookdown.org/yihui/rmarkdown/html-document.html#data-frame-printing">Data
+frame printing section</a> in bookdown book for examples.</p>
+</td></tr>
+<tr valign="top"><td><code>smart</code></td>
+<td>
+<p>Produce typographically correct output, converting straight
+quotes to curly quotes, <code>---</code> to em-dashes, <code>--</code> to en-dashes, and
+<code>...</code> to ellipses.</p>
+</td></tr>
+<tr valign="top"><td><code>self_contained</code></td>
+<td>
+<p>Produce a standalone HTML file with no external
+dependencies, using data: URIs to incorporate the contents of linked
+scripts, stylesheets, images, and videos. Note that even for self contained
+documents MathJax is still loaded externally (this is necessary because of
+its size).</p>
+</td></tr>
+<tr valign="top"><td><code>widescreen</code></td>
+<td>
+<p>Display presentation with wider dimensions.</p>
+</td></tr>
+<tr valign="top"><td><code>smaller</code></td>
+<td>
+<p>Use smaller text on all slides. You can also enable this for
+individual slides by adding the <code>.smaller</code> attribute to the slide
+header (see <em>Presentation Size</em> below for details).</p>
+</td></tr>
+<tr valign="top"><td><code>transition</code></td>
+<td>
+<p>Speed of slide transitions. This can be &quot;default&quot;,
+&quot;slower&quot;, &quot;faster&quot;, or a numeric value with a number of seconds (e.g. 0.5).</p>
+</td></tr>
+<tr valign="top"><td><code>mathjax</code></td>
+<td>
+<p>Include mathjax. The &quot;default&quot; option uses an https URL from a
+MathJax CDN. The &quot;local&quot; option uses a local version of MathJax (which is
+copied into the output directory). You can pass an alternate URL or pass
+<code>NULL</code> to exclude MathJax entirely.</p>
+</td></tr>
+<tr valign="top"><td><code>analytics</code></td>
+<td>
+<p>A Google analytics property ID.</p>
+</td></tr>
+<tr valign="top"><td><code>template</code></td>
+<td>
+<p>Pandoc template to use for rendering. Pass &quot;default&quot; to use
+the rmarkdown package default template; pass <code>NULL</code> to use pandoc's
+built-in template; pass a path to use a custom template that you've created.
+Note that if you don't use the &quot;default&quot; template then some features of
+<code>html_document</code> won't be available (see the Templates section below for
+more details).</p>
+</td></tr>
+<tr valign="top"><td><code>css</code></td>
+<td>
+<p>One or more css files to include.</p>
+</td></tr>
+<tr valign="top"><td><code>includes</code></td>
+<td>
+<p>Named list of additional content to include within the
+document (typically created using the <code><a href="includes.html">includes</a></code> function).</p>
+</td></tr>
+<tr valign="top"><td><code>keep_md</code></td>
+<td>
+<p>Keep the markdown file generated by knitting.</p>
+</td></tr>
+<tr valign="top"><td><code>lib_dir</code></td>
+<td>
+<p>Directory to copy dependent HTML libraries (e.g. jquery,
+bootstrap, etc.) into. By default this will be the name of the document with
+<code>_files</code> appended to it.</p>
+</td></tr>
+<tr valign="top"><td><code>md_extensions</code></td>
+<td>
+<p>Markdown extensions to be added or removed from the
+default definition or R Markdown. See the <code><a href="rmarkdown_format.html">rmarkdown_format</a></code> for
+additional details.</p>
+</td></tr>
+<tr valign="top"><td><code>pandoc_args</code></td>
+<td>
+<p>Additional command line options to pass to pandoc</p>
+</td></tr>
+<tr valign="top"><td><code>extra_dependencies</code></td>
+<td>
+<p>Additional function arguments to pass to the
+base R Markdown HTML output formatter <code><a href="html_document_base.html">html_document_base</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional function arguments to pass to the
+base R Markdown HTML output formatter <code><a href="html_document_base.html">html_document_base</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>See the <a href="https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html">
+online documentation</a> for additional details on using the
+<code>ioslides_presentation</code> format.
+</p>
+<p>Note that, if a <code>before_body</code> include is specified in <code>includes</code>,
+then it will replace the standard title slide entirely.
+</p>
+
+
+<h3>Value</h3>
+
+<p>R Markdown output format to pass to <code><a href="render.html">render</a></code>.
+</p>
+
+
+<h3>Slide Basics</h3>
+
+<p>You can create a slide show broken up into sections by using the # and ##
+heading tags (you can also create a new slide without a header using a
+horizontal rule (<code>----------</code>). For example here's a simple slide show:
+</p>
+<pre>
+---
+title: "Habits"
+author: John Doe
+date: March 22, 2005
+output: ioslides_presentation
+---
+
+# In the morning
+
+## Getting up
+
+- Turn off alarm
+- Get out of bed
+
+## Breakfast
+
+- Eat eggs
+- Drink coffee
+
+# In the evening
+
+## Dinner
+
+- Eat spaghetti
+- Drink wine
+
+----------
+
+![picture of spaghetti](images/spaghetti.jpg)
+
+## Going to sleep
+
+- Get in bed
+- Count sheep
+
+</pre>
+<p>You can add a subtitle to a slide or section by including text after the
+pipe (|) character. For example:
+</p>
+<pre>## Getting up | What I like to do first thing</pre>
+
+
+<h3>Display Modes</h3>
+
+<p>The following single character keyboard shortcuts enable alternate display
+modes:
+</p>
+
+<ul>
+<li><p><code>'f'</code>      enable fullscreen mode
+</p>
+</li>
+<li><p><code>'w'</code>      toggle widescreen mode
+</p>
+</li>
+<li><p><code>'o'</code>      enable overview mode
+</p>
+</li>
+<li><p><code>'h'</code>      enable code highlight mode
+</p>
+</li>
+<li><p><code>'p'</code>      show presenter notes
+</p>
+</li></ul>
+
+<p>Pressing <code>Esc</code> exits all of these modes. See the sections below on
+<em>Code Highlighting</em> and <em>Presenter Mode</em> for additional
+detail on those modes.
+</p>
+
+
+<h3>Incremental Bullets</h3>
+
+<p>You can render bullets incrementally by adding the <code>incremental</code>
+option:
+</p>
+<pre>
+---
+output:
+  ioslides_presentation:
+    incremental: true
+---
+</pre>
+<p>If you want to render bullets incrementally for some slides but not
+others you can use this syntax:
+</p>
+<pre>
+&gt; - Eat eggs
+&gt; - Drink coffee
+</pre>
+
+
+<h3>Presentation Size</h3>
+
+<p>You can display the presentation using a wider form factor using the
+<code>widescreen</code> option. You can specify that smaller text be used with
+the <code>smaller</code> option. For example:
+</p>
+<pre>
+---
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
+</pre>
+<p>You can also enable the <code>smaller</code> option on a slide-by-slide basis
+by adding the <code>.smaller</code> attibute to the slide header:
+</p>
+<pre>## Getting up {.smaller}</pre>
+
+
+<h3>Adding a Logo</h3>
+
+<p>You can add a logo to the presentation using the <code>logo</code> option (the
+logo should be square and at least 128x128). For example:
+</p>
+<pre>
+---
+output:
+  ioslides_presentation:
+    logo: logo.png
+---
+</pre>
+<p>A 128x128 version of the logo graphic will be added to the title slide and
+an icon version of the logo will be included in the bottom-left footer of
+each slide.
+</p>
+
+
+<h3>Build Slides</h3>
+
+<p>Slides can also have a <code>.build</code> attribute that indicate that their
+content should be displayed incrementally. For example:
+</p>
+<pre>## Getting up {.build}</pre>
+<p>Slide attributes can be combined if you need to specify more than one,
+for example:
+</p>
+<pre>## Getting up {.smaller .build}</pre>
+
+
+<h3>Code Highlighting</h3>
+
+<p>It's possible to select subsets of code for additional emphasis by adding a
+special &quot;highlight&quot; comment around the code. For example:
+</p>
+<pre>
+### &lt;b&gt;
+x &lt;- 10
+y &lt;- x * 2
+### &lt;/b&gt;
+</pre>
+<p>The highlighted region will be displayed with a bold font. When you want to
+help the audience focus exclusively on the highlighted region press the
+<code>'h'</code> key and the rest of the code will fade away.
+</p>
+
+
+<h3>Tables</h3>
+
+<p>The ioslides template has an attractive default style for tables so you
+shouldn't hesitate to add tables for presenting more complex sets of
+information. Pandoc markdown supports several syntaxes for defining
+tables which are described in the
+<a href="https://pandoc.org/MANUAL.html">pandoc online documentation</a>.
+</p>
+
+
+<h3>Advanced Layout</h3>
+
+<p>You can center content on a slide by adding the <code>.flexbox</code>
+and <code>.vcenter</code> attributes to the slide title. For example:
+</p>
+<pre>## Dinner {.flexbox .vcenter}</pre>
+<p>You can horizontally center content by enclosing it in a <code>div</code> tag
+with class <code>centered</code>. For example:
+</p>
+<pre>
+&lt;div class="centered"&gt;
+This text is centered.
+&lt;/div&gt;
+</pre>
+<p>You can do a two-column layout using the <code>columns-2</code> class.
+For example:
+</p>
+<pre>
+&lt;div class="columns-2"&gt;
+  ![Image](image.png)
+
+  - Bullet 1
+  - Bullet 2
+  - Bullet 3
+&lt;/div&gt;
+</pre>
+<p>Note that content will flow across the columns so if you want to
+have an image on one side and text on the other you should make
+sure that the image has sufficient height to force the text to
+the other side of the slide.
+</p>
+
+
+<h3>Text Color</h3>
+
+<p>You can color content using base color classes red, blue, green, yellow,
+and gray (or variations of them e.g. red2, red3, blue2, blue3, etc.).
+For example:
+</p>
+<pre>
+&lt;div class="red2"&gt;
+This text is red
+&lt;/div&gt;
+</pre>
+
+
+<h3>Presenter Mode</h3>
+
+<p>A separate presenter window can also be opened (ideal for when you are
+presenting on one screen but have another screen that's private to you).
+The window stays in sync with the main presentation window and also
+shows presenter notes and a thumbnail of the next slide. To enable
+presenter mode add <code>?presentme=true</code> to the URL of the presentation,
+for example:
+</p>
+<pre>mypresentation.html?presentme=true</pre>
+<p>The presenter mode window will open and will always re-open with the
+presentation until it's disabled with:
+</p>
+<pre>mypresentation.html?presentme=false</pre>
+<p>To add presenter notes to a slide you include it within a &quot;notes&quot;
+<code>div</code>. For example:
+</p>
+<pre>
+&lt;div class="notes"&gt;
+This is my *note*.
+
+- It can contain markdown
+- like this list
+
+&lt;/div&gt;
+</pre>
+
+
+<h3>Printing and PDF Output</h3>
+
+<p>You can print an ioslides presentation from within browsers that have
+good support for print CSS (i.e. as of this writing Google Chrome
+has the best support). Printing maintains most of the visual styles
+of the HTML version of the presentation.
+</p>
+<p>To create a PDF version of a presentation you can use Print to PDF
+from Google Chrome.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

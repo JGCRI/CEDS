@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Include content within output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for includes {rmarkdown}"><tr><td>includes {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Include content within output</h2>
+
+<h3>Description</h3>
+
+<p>Specify additional content to be included within an output document.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+includes(in_header = NULL, before_body = NULL, after_body = NULL)
+
+includes_to_pandoc_args(includes, filter = identity)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>in_header</code></td>
+<td>
+<p>One or more files with content to be included in the
+header of the document.</p>
+</td></tr>
+<tr valign="top"><td><code>before_body</code></td>
+<td>
+<p>One or more files with content to be included before
+the document body.</p>
+</td></tr>
+<tr valign="top"><td><code>after_body</code></td>
+<td>
+<p>One or more files with content to be included after the
+document body.</p>
+</td></tr>
+<tr valign="top"><td><code>includes</code></td>
+<td>
+<p>Includes to convert to pandoc args.</p>
+</td></tr>
+<tr valign="top"><td><code>filter</code></td>
+<td>
+<p>Filter to pre-process includes with.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Non-absolute paths for resources referenced from the
+<code>in_header</code>, <code>before_body</code>, and <code>after_body</code>
+parameters are resolved relative to the directory of the input document.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Includes list or pandoc args
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+
+html_document(includes = includes(before_body = "header.htm"))
+
+pdf_document(includes = includes(after_body = "footer.tex"))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

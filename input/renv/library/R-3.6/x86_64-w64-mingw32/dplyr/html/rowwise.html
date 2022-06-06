@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Group input by rows</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rowwise {dplyr}"><tr><td>rowwise {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Group input by rows</h2>
+
+<h3>Description</h3>
+
+<p><code>rowwise()</code> allows you to compute on a data frame a row-at-a-time.
+This is most useful when a vectorised function doesn't exist.
+</p>
+<p>Most dplyr verbs preserve row-wise grouping. The exception is <code><a href="summarise.html">summarise()</a></code>,
+which return a <a href="grouped_df.html">grouped_df</a>. You can explicitly ungroup with <code><a href="group_by.html">ungroup()</a></code>
+or <code><a href="reexports.html">as_tibble()</a></code>, or convert to a <a href="grouped_df.html">grouped_df</a> with <code><a href="group_by.html">group_by()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rowwise(data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Input data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; Variables to be preserved
+when calling <code><a href="summarise.html">summarise()</a></code>. This is typically a set of variables whose
+combination uniquely identify each row.
+</p>
+<p><strong>NB</strong>: unlike <code>group_by()</code> you can not create new variables here but
+instead you can select multiple variables with (e.g.) <code>everything()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A row-wise data frame with class <code>rowwise_df</code>. Note that a
+<code>rowwise_df</code> is implicitly grouped by row, but is not a <code>grouped_df</code>.
+</p>
+
+
+<h3>List-columns</h3>
+
+<p>Because a rowwise has exactly one row per group it offers a small
+convenience for working with list-columns. Normally, <code>summarise()</code> and
+<code>mutate()</code> extract a groups worth of data with <code>[</code>. But when you index
+a list in this way, you get back another list. When you're working with
+a <code>rowwise</code> tibble, then dplyr will use <code>[[</code> instead of <code>[</code> to make your
+life a little easier.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="nest_by.html">nest_by()</a></code> for a convenient way of creating rowwise data frames
+with nested data.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- tibble(x = runif(6), y = runif(6), z = runif(6))
+# Compute the mean of x, y, z in each row
+df %&gt;% rowwise() %&gt;% mutate(m = mean(c(x, y, z)))
+# use c_across() to more easily select many variables
+df %&gt;% rowwise() %&gt;% mutate(m = mean(c_across(x:z)))
+
+# Compute the minimum of x and y in each row
+df %&gt;% rowwise() %&gt;% mutate(m = min(c(x, y, z)))
+# In this case you can use an existing vectorised function:
+df %&gt;% mutate(m = pmin(x, y, z))
+# Where these functions exist they'll be much faster than rowwise
+# so be on the lookout for them.
+
+# rowwise() is also useful when doing simulations
+params &lt;- tribble(
+ ~sim, ~n, ~mean, ~sd,
+    1,  1,     1,   1,
+    2,  2,     2,   4,
+    3,  3,    -1,   2
+)
+# Here I supply variables to preserve after the summary
+params %&gt;%
+  rowwise(sim) %&gt;%
+  summarise(z = rnorm(n, mean, sd))
+
+# If you want one row per simulation, put the results in a list()
+params %&gt;%
+  rowwise(sim) %&gt;%
+  summarise(z = list(rnorm(n, mean, sd)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

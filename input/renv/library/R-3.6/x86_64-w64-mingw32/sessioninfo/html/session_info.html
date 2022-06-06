@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Print session information</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for session_info {sessioninfo}"><tr><td>session_info {sessioninfo}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Print session information</h2>
+
+<h3>Description</h3>
+
+<p>This is <code><a href="../../utils/html/sessionInfo.html">utils::sessionInfo()</a></code> re-written from scratch to both exclude
+data that's rarely useful (e.g., the full collate string or base packages
+loaded) and include stuff you'd like to know (e.g., where a package was
+installed from).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+session_info(
+  pkgs = c("loaded", "attached", "installed")[1],
+  include_base = FALSE,
+  info = c("auto", "all", "platform", "packages", "python", "external"),
+  dependencies = NA,
+  to_file = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkgs</code></td>
+<td>
+<p>Which packages to show. It may be:
+</p>
+
+<ul>
+<li> <p><code>NULL</code> or <code>"loaded"</code>: show all loaded packages,
+</p>
+</li>
+<li> <p><code>"attached"</code>: show all attached packages,
+</p>
+</li>
+<li> <p><code>"installed"</code>: show all installed packages,
+</p>
+</li>
+<li><p> a character vector of package names. Their (hard) dependencies are
+also shown by default, see the <code>dependencies</code> argument.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>include_base</code></td>
+<td>
+<p>Include base packages in summary? By default this is
+false since base packages should always match the R version.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>What information to show, it can be <code>"auto"</code> to choose
+automatically, <code>"all"</code> to show everything, or a character vector
+with elements from:
+</p>
+
+<ul>
+<li> <p><code>"platform"</code>: show platform information via <code><a href="platform_info.html">platform_info()</a></code>,
+</p>
+</li>
+<li> <p><code>"packages"</code>: show package information via <code><a href="package_info.html">package_info()</a></code>,
+</p>
+</li>
+<li> <p><code>"python"</code>: show Python configuration via <code><a href="python_info.html">python_info()</a></code>,
+</p>
+</li>
+<li> <p><code>"external"</code>: show information about external software, via
+<code><a href="external_info.html">external_info()</a></code>.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>Whether to include the (recursive) dependencies
+as well. See the <code>dependencies</code> argument of <code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>to_file</code></td>
+<td>
+<p>Whether to print the session information to a file.
+If <code>TRUE</code> the name of the file will be <code>session-info.txt</code>, but
+<code>to_file</code> may also be a string to specify the file name.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Columns in the <em>printed</em> package list:
+</p>
+
+<ul>
+<li> <p><code>package</code>: package name
+</p>
+</li>
+<li> <p><code>*</code>: whether the package is attached to the search path
+</p>
+</li>
+<li> <p><code>version</code>: package version. If the version is marked with <code style="white-space: pre;">(!)</code> that
+means that the loaded and the on-disk version of the package are
+different.
+</p>
+</li>
+<li> <p><code>date</code>: when the package was built, if this information is available.
+This is the <code>Date/Publication</code> or the <code>Built</code> field from
+<code>DESCRIPTION</code>. (These are usually added automatically by R.)
+Sometimes this data is not available, then it is <code>NA</code>.
+</p>
+</li>
+<li> <p><code>source</code>: where the package was built or installed from, if available.
+Examples: <code style="white-space: pre;">CRAN (R 3.3.2)</code>, <code style="white-space: pre;">Github (r-lib/pkgbuild@8aab60b)</code>,
+<code>Bioconductor</code>, <code>local</code>.
+</p>
+</li></ul>
+
+<p>See <code><a href="package_info.html">package_info()</a></code> for the list of columns in the data frame that
+is <em>returned</em> (as opposed to <em>printed</em>).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>session_info</code> object.
+</p>
+<p>If <code>to_file</code> is not <code>FALSE</code> then it is
+returned invisibly. (To print it to both a file and to the screen,
+use <code>(session_info(to_file = TRUE))</code>.)
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+session_info()
+session_info("sessioninfo")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>sessioninfo</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render R Markdown</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for render {rmarkdown}"><tr><td>render {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render R Markdown</h2>
+
+<h3>Description</h3>
+
+<p>Render the input file to the specified output format using pandoc. If the
+input requires knitting then <code><a href="../../knitr/html/knit.html">knit</a></code> is called prior
+to pandoc.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+render(
+  input,
+  output_format = NULL,
+  output_file = NULL,
+  output_dir = NULL,
+  output_options = NULL,
+  output_yaml = NULL,
+  intermediates_dir = NULL,
+  knit_root_dir = NULL,
+  runtime = c("auto", "static", "shiny", "shinyrmd", "shiny_prerendered"),
+  clean = TRUE,
+  params = NULL,
+  knit_meta = NULL,
+  envir = parent.frame(),
+  run_pandoc = TRUE,
+  quiet = FALSE,
+  encoding = "UTF-8"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>The input file to be rendered. This can be an R script (.R),
+an R Markdown document (.Rmd), or a plain markdown document.</p>
+</td></tr>
+<tr valign="top"><td><code>output_format</code></td>
+<td>
+<p>The R Markdown output format to convert to. The option
+<code>"all"</code> will render all formats defined within the file. The option can
+be the name of a format (e.g. <code>"html_document"</code>) and that will render
+the document to that single format. One can also use a vector of format
+names to render to multiple formats. Alternatively, you can pass an output
+format object (e.g. <code>html_document()</code>). If using <code>NULL</code> then the
+output format is the first one defined in the YAML frontmatter in the input
+file (this defaults to HTML if no format is specified there).
+If you pass an output format object to <code>output_format</code>, the options
+specified in the YAML header or <code>_output.yml</code> will be ignored and you
+must explicitly set all the options you want when you construct the object.
+If you pass a string, the output format will use the output parameters in
+the YAML header or <code>_output.yml</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>output_file</code></td>
+<td>
+<p>The name of the output file. If using <code>NULL</code> then the
+output filename will be based on filename for the input file. If a filename
+is provided, a path to the output file can also be provided. Note that the
+<code>output_dir</code> option allows for specifying the output file path as well,
+however, if also specifying the path, the directory must exist. If
+<code>output_file</code> is specified but does not have a file extension, an
+extension will be automatically added according to the output format. To
+avoid the automatic file extension, put the <code>output_file</code> value in
+<code><a href="../../base/html/AsIs.html">I</a>()</code>, e.g., <code>I('my-output')</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>output_dir</code></td>
+<td>
+<p>The output directory for the rendered <code>output_file</code>.
+This allows for a choice of an alternate directory to which the output file
+should be written (the default output directory of that of the input file).
+If a path is provided with a filename in <code>output_file</code> the directory
+specified here will take precedence. Please note that any directory path
+provided will create any necessary directories if they do not exist.</p>
+</td></tr>
+<tr valign="top"><td><code>output_options</code></td>
+<td>
+<p>List of output options that can override the options
+specified in metadata (e.g. could be used to force <code>self_contained</code> or
+<code>mathjax = "local"</code>). Note that this is only valid when the output
+format is read from metadata (i.e. not a custom format object passed to
+<code>output_format</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>output_yaml</code></td>
+<td>
+<p>Paths to YAML files specifying output formats and their
+configurations. The first existing one is used. If none are found, then
+the function searches YAML files specified to the <code>output_yaml</code> top-level
+parameter in the YAML front matter, _output.yml or _output.yaml, and then uses
+the first existing one.</p>
+</td></tr>
+<tr valign="top"><td><code>intermediates_dir</code></td>
+<td>
+<p>Intermediate files directory. If a path is specified
+then intermediate files will be written to that path. If <code>NULL</code>,
+intermediate files are written to the same directory as the input file.</p>
+</td></tr>
+<tr valign="top"><td><code>knit_root_dir</code></td>
+<td>
+<p>The working directory in which to knit the document;
+uses knitr's <code>root.dir</code> knit option. If <code>NULL</code> then the behavior
+will follow the knitr default, which is to use the parent directory of the
+document.</p>
+</td></tr>
+<tr valign="top"><td><code>runtime</code></td>
+<td>
+<p>The runtime target for rendering. The <code>static</code> option
+produces output intended for static files; <code>shiny</code> produces output
+suitable for use in a Shiny document (see <code><a href="run.html">run</a></code>). The default,
+<code>auto</code>, allows the <code>runtime</code> target specified in the YAML metadata
+to take precedence, and renders for a <code>static</code> runtime target otherwise.</p>
+</td></tr>
+<tr valign="top"><td><code>clean</code></td>
+<td>
+<p>Using <code>TRUE</code> will clean intermediate files that are created
+during rendering.</p>
+</td></tr>
+<tr valign="top"><td><code>params</code></td>
+<td>
+<p>A list of named parameters that override custom params
+specified within the YAML front-matter (e.g. specifying a dataset to read or
+a date range to confine output to). Pass <code>"ask"</code> to start an
+application that helps guide parameter configuration.</p>
+</td></tr>
+<tr valign="top"><td><code>knit_meta</code></td>
+<td>
+<p>(This option is reserved for expert use.) Metadata
+generated by <span class="pkg">knitr</span>.</p>
+</td></tr>
+<tr valign="top"><td><code>envir</code></td>
+<td>
+<p>The environment in which the code chunks are to be evaluated
+during knitting (can use <code><a href="../../base/html/environment.html">new.env</a>()</code> to guarantee an empty new
+environment).</p>
+</td></tr>
+<tr valign="top"><td><code>run_pandoc</code></td>
+<td>
+<p>An option for whether to run pandoc to convert Markdown
+output.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>An option to suppress printing during rendering from knitr,
+pandoc command line and others. To only suppress printing of the last
+&quot;Output created: &quot; message, you can set <code>rmarkdown.render.message</code> to
+<code>FALSE</code></p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>Ignored. The encoding is always assumed to be UTF-8.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that the <span class="pkg">knitr</span> <code>error</code> option is set to <code>FALSE</code> during
+rendering (which is different from the <span class="pkg">knitr</span> default value of
+<code>TRUE</code>).
+</p>
+<p>For additional details on rendering R scripts see
+<a href="compile_notebook.html">Compiling R scripts to a notebook</a>.
+</p>
+<p>If no <code>output_format</code> parameter is specified then the output format is
+read from the YAML front-matter of the input file. For example, the
+following YAML would yield a PDF document:
+</p>
+<pre>
+output: pdf_document
+</pre>
+<p>Additional format options can also be specified in metadata. For example:
+</p>
+<pre>
+output:
+  pdf_document:
+    toc: true
+    highlight: zenburn
+</pre>
+<p>Multiple formats can be specified in metadata. If no <code>output_format</code>
+is passed to <code>render</code> then the first one defined will be used:
+</p>
+<pre>
+output:
+  pdf_document:
+    toc: true
+    highlight: zenburn
+  html_document:
+    toc: true
+    theme: united
+</pre>
+<p>Formats specified in metadata can be any one of the built in formats (e.g.
+<code><a href="html_document.html">html_document</a></code>, <code><a href="pdf_document.html">pdf_document</a></code>) or a format defined
+in another package (e.g. <code>pkg::custom_format</code>).
+</p>
+<p>If there is no format defined in the YAML then
+<code><a href="html_document.html">html_document</a></code> will be used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>When <code>run_pandoc = TRUE</code>, the compiled document is written into
+the output file, and the path of the output file is returned. When
+<code>run_pandoc = FALSE</code>, the path of the Markdown output file, with
+attributes <code>knit_meta</code> (the <span class="pkg">knitr</span> meta data collected from code
+chunks) and <code>intermediates</code> (the intermediate files/directories
+generated by <code>render()</code>).
+</p>
+
+
+<h3>R Markdown</h3>
+
+<p>R Markdown supports all of the base pandoc markdown features as well as some
+optional features for compatibility with GitHub Flavored Markdown (which
+previous versions of R Markdown were based on). See
+<code><a href="rmarkdown_format.html">rmarkdown_format</a></code> for details.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../knitr/html/knit.html">knit</a>, <a href="output_format.html">output_format</a>,
+<a href="https://pandoc.org">https://pandoc.org</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+
+# Render the default (first) format defined in the file
+render("input.Rmd")
+
+# Render all formats defined in the file
+render("input.Rmd", "all")
+
+# Render a single format, using parameters for \code{html_document} from
+# the YAML header parameters.
+render("input.Rmd", "html_document")
+
+# Render a single format, ignoring parameters for \code{html_document} in
+# the YAML header. Any parameters not passed as arguments to
+# \code{html_document()} will be assigned to their default values, regardless
+# of anything in the YAML header
+render("input.Rmd", html_document(toc = TRUE, toc_depth = 2))
+
+# Render multiple formats
+render("input.Rmd", c("html_document", "pdf_document"))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

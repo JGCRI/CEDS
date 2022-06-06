@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Temporarily change bindings of an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for local_bindings {rlang}"><tr><td>local_bindings {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Temporarily change bindings of an environment</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>local_bindings()</code> temporarily changes bindings in <code>.env</code> (which
+is by default the caller environment). The bindings are reset to
+their original values when the current frame (or an arbitrary one
+if you specify <code>.frame</code>) goes out of scope.
+</p>
+</li>
+<li> <p><code>with_bindings()</code> evaluates <code>expr</code> with temporary bindings. When
+<code>with_bindings()</code> returns, bindings are reset to their original
+values. It is a simple wrapper around <code>local_bindings()</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+local_bindings(..., .env = .frame, .frame = caller_env())
+
+with_bindings(.expr, ..., .env = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Pairs of names and values. These dots support splicing
+(with value semantics) and name unquoting.</p>
+</td></tr>
+<tr valign="top"><td><code>.env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>.frame</code></td>
+<td>
+<p>The frame environment that determines the scope of
+the temporary bindings. When that frame is popped from the call
+stack, bindings are switched back to their original values.</p>
+</td></tr>
+<tr valign="top"><td><code>.expr</code></td>
+<td>
+<p>An expression to evaluate with temporary bindings.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>local_bindings()</code> returns the values of old bindings
+invisibly; <code>with_bindings()</code> returns the value of <code>expr</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+foo &lt;- "foo"
+bar &lt;- "bar"
+
+# `foo` will be temporarily rebinded while executing `expr`
+with_bindings(paste(foo, bar), foo = "rebinded")
+paste(foo, bar)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new &quot;with&quot; or &quot;local&quot; function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for local_ {withr}"><tr><td>local_ {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new &quot;with&quot; or &quot;local&quot; function</h2>
+
+<h3>Description</h3>
+
+<p>These are constructors for <code>with_...</code> or <code>local_...</code> functions.
+They are only needed if you want to alter some global state which is not
+covered by the existing <code>with_...</code> functions, see <a href="withr.html">withr</a>
+for an overview.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+local_(set, reset = set, envir = parent.frame(), new = TRUE, dots = FALSE)
+
+with_(set, reset = set, envir = parent.frame(), new = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>set</code></td>
+<td>
+<p><code style="white-space: pre;">[function(...)]</code><br /> Function used to set the state.
+The function can have arbitrarily many arguments, they will be replicated
+in the formals of the returned function.</p>
+</td></tr>
+<tr valign="top"><td><code>reset</code></td>
+<td>
+<p><code style="white-space: pre;">[function(x)]</code><br /> Function used to reset the state.
+The first argument can be named arbitrarily, further arguments with default
+values, or a &quot;dots&quot; argument, are supported but not used: The function will
+be called as <code>reset(old)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> Environment of the returned function.</p>
+</td></tr>
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p><code style="white-space: pre;">[logical(1)]</code><br /> Replace the first argument of the <code>set</code> function
+by <code>new</code>? Set to <code>FALSE</code> if the <code>set</code> function only has optional arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>with_...</code> functions reset the state immediately after the
+<code>code</code> argument has been evaluated. The <code>local_...</code> functions
+reset their arguments after they go out of scope, usually at the end of the
+function body.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code style="white-space: pre;">[function(new, code, ...)]</code> A function with at least two arguments,
+</p>
+
+<ul>
+<li> <p><code>new</code>: New state to use
+</p>
+</li>
+<li> <p><code>code</code>: Code to run in that state.
+</p>
+</li></ul>
+
+<p>If there are more arguments to the function passed in <code>set</code> they are
+added to the returned function.  If <code>set</code> does not have arguments,
+or <code>new</code> is <code>FALSE</code>, the returned function does not have a <code>code</code> argument.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+with_(setwd)
+
+global_stack &lt;- list()
+set_global_state &lt;- function(state, msg = "Changing global state.") {
+  global_stack &lt;- c(list(state), global_stack)
+  message(msg)
+  state
+}
+reset_global_state &lt;- function(state) {
+  old_state &lt;- global_stack[[1]]
+  global_stack &lt;- global_stack[-1]
+  stopifnot(identical(state, old_state))
+}
+with_(set_global_state, reset_global_state)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

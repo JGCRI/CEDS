@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Internal page for hidden aliases</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hidden_aliases {DBI}"><tr><td>hidden_aliases {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Internal page for hidden aliases</h2>
+
+<h3>Description</h3>
+
+<p>For S4 methods that require a documentation entry but only clutter the index.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'DBIObject'
+SQLKeywords(dbObj, ...)
+
+## S4 method for signature 'missing'
+SQLKeywords(dbObj, ...)
+
+## S4 method for signature 'DBIConnection'
+dbAppendTable(conn, name, value, ..., row.names = NULL)
+
+## S4 method for signature 'DBIDriver'
+dbCanConnect(drv, ...)
+
+## S4 method for signature 'DBIConnector'
+dbConnect(drv, ...)
+
+## S4 method for signature 'DBIConnection'
+dbCreateTable(conn, name, fields, ..., row.names = NULL, temporary = FALSE)
+
+## S4 method for signature 'DBIConnector'
+dbDataType(dbObj, obj, ...)
+
+## S4 method for signature 'DBIObject'
+dbDataType(dbObj, obj, ...)
+
+## S4 method for signature 'character'
+dbDriver(drvName, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbExecute(conn, statement, ...)
+
+## S4 method for signature 'DBIConnection,Id'
+dbExistsTable(conn, name, ...)
+
+## S4 method for signature 'DBIResult'
+dbFetch(res, n = -1, ...)
+
+## S4 method for signature 'DBIConnector'
+dbGetConnectArgs(drv, eval = TRUE, ...)
+
+## S4 method for signature 'DBIResult'
+dbGetInfo(dbObj, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbGetQuery(conn, statement, ..., n = -1L)
+
+## S4 method for signature 'DBIConnector'
+dbIsReadOnly(dbObj, ...)
+
+## S4 method for signature 'DBIObject'
+dbIsReadOnly(dbObj, ...)
+
+## S4 method for signature 'DBIConnection,Id'
+dbListFields(conn, name, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbListFields(conn, name, ...)
+
+## S4 method for signature 'DBIConnection'
+dbListObjects(conn, prefix = NULL, ...)
+
+## S4 method for signature 'DBIConnection,ANY'
+dbQuoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbQuoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,SQL'
+dbQuoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,Id'
+dbQuoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'DBIConnection'
+dbQuoteLiteral(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,ANY'
+dbQuoteString(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbQuoteString(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,SQL'
+dbQuoteString(conn, x, ...)
+
+## S4 method for signature 'DBIConnection,Id'
+dbReadTable(conn, name, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbReadTable(conn, name, ..., row.names = FALSE, check.names = TRUE)
+
+## S4 method for signature 'DBIConnection,Id'
+dbRemoveTable(conn, name, ...)
+
+## S4 method for signature 'DBIConnection,character'
+dbSendStatement(conn, statement, ...)
+
+## S4 method for signature 'DBIConnection'
+dbUnquoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'DBIConnection'
+dbWithTransaction(conn, code)
+
+## S4 method for signature 'DBIConnection,Id'
+dbWriteTable(conn, name, value, ...)
+
+## S4 method for signature 'DBIObject,character'
+isSQLKeyword(
+  dbObj,
+  name,
+  keywords = .SQL92Keywords,
+  case = c("lower", "upper", "any")[3],
+  ...
+)
+
+## S4 method for signature 'DBIObject,character'
+make.db.names(
+  dbObj,
+  snames,
+  keywords = .SQL92Keywords,
+  unique = TRUE,
+  allow.keywords = TRUE,
+  ...
+)
+
+## S4 method for signature 'AnsiConnection'
+show(object)
+
+## S4 method for signature 'DBIConnection'
+show(object)
+
+## S4 method for signature 'DBIConnector'
+show(object)
+
+## S4 method for signature 'DBIDriver'
+show(object)
+
+## S4 method for signature 'DBIResult'
+show(object)
+
+## S4 method for signature 'Id'
+show(object)
+
+## S4 method for signature 'SQL'
+show(object)
+
+## S4 method for signature 'DBIConnection'
+sqlAppendTable(con, table, values, row.names = NA, ...)
+
+## S4 method for signature 'DBIConnection'
+sqlCreateTable(con, table, fields, row.names = NA, temporary = FALSE, ...)
+
+## S4 method for signature 'DBIConnection'
+sqlData(con, value, row.names = NA, ...)
+
+## S4 method for signature 'DBIConnection'
+sqlInterpolate(conn, sql, ..., .dots = list())
+
+## S4 method for signature 'DBIConnection'
+sqlParseVariables(conn, sql, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Number of rows to fetch, default -1</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Table object to print</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

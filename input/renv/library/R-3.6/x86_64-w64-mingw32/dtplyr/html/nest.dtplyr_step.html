@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Nest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nest.dtplyr_step {dtplyr}"><tr><td>nest.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Nest</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the tidyr <code><a href="../../tidyr/html/nest.html">tidyr::nest()</a></code> generic. It is translated
+using the non-nested variables in the <code>by</code> argument and <code>.SD</code> in the <code>j</code>
+argument.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+nest(.data, ..., .names_sep = NULL, .key = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../tidyr/html/tidyr_tidy_select.html">tidy-select</a></code>&gt; Columns to nest, specified
+using name-variable pairs of the form <code>new_col = c(col1, col2, col3)</code>.
+The right hand side can be any valid tidy select expression.</p>
+</td></tr>
+<tr valign="top"><td><code>.names_sep</code></td>
+<td>
+<p>If <code>NULL</code>, the default, the names will be left
+as is. In <code>nest()</code>, inner names will come from the former outer names;
+in <code>unnest()</code>, the new outer names will come from the inner names.
+</p>
+<p>If a string, the inner and outer names will be used together. In <code>nest()</code>,
+the names of the new outer columns will be formed by pasting together the
+outer and the inner column names, separated by <code>names_sep</code>. In <code>unnest()</code>,
+the new inner names will have the outer names (+ <code>names_sep</code>) automatically
+stripped. This makes <code>names_sep</code> roughly symmetric between nesting and
+unnesting.</p>
+</td></tr>
+<tr valign="top"><td><code>.key</code></td>
+<td>
+<p>Not supported.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require("tidyr", quietly = TRUE)) {
+  dt &lt;- lazy_dt(tibble(x = c(1, 2, 1), y = c("a", "a", "b")))
+  dt %&gt;% nest(data = y)
+
+  dt %&gt;% dplyr::group_by(x) %&gt;% nest()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

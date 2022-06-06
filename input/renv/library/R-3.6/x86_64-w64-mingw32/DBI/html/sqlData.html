@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert a data frame into form suitable for upload to an SQL...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sqlData {DBI}"><tr><td>sqlData {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert a data frame into form suitable for upload to an SQL database</h2>
+
+<h3>Description</h3>
+
+<p>This is a generic method that coerces R objects into vectors suitable for
+upload to the database. The output will vary a little from method to
+method depending on whether the main upload device is through a single
+SQL string or multiple parameterized queries.
+This method is mostly useful for backend implementers.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sqlData(con, value, row.names = NA, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>A database connection.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>A data frame</p>
+</td></tr>
+<tr valign="top"><td><code>row.names</code></td>
+<td>
+<p>Either <code>TRUE</code>, <code>FALSE</code>, <code>NA</code> or a string.
+</p>
+<p>If <code>TRUE</code>, always translate row names to a column called &quot;row_names&quot;.
+If <code>FALSE</code>, never translate row names. If <code>NA</code>, translate
+rownames only if they're a character vector.
+</p>
+<p>A string is equivalent to <code>TRUE</code>, but allows you to override the
+default name.
+</p>
+<p>For backward compatibility, <code>NULL</code> is equivalent to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments used by individual methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The default method:
+</p>
+
+<ul>
+<li><p> Converts factors to characters
+</p>
+</li>
+<li><p> Quotes all strings
+</p>
+</li>
+<li><p> Converts all columns to strings
+</p>
+</li>
+<li><p> Replaces NA with NULL
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+sqlData(con, head(iris))
+sqlData(con, head(mtcars))
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

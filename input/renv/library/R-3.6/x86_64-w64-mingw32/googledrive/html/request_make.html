@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make a request for the Google Drive v3 API</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for request_make {googledrive}"><tr><td>request_make {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make a request for the Google Drive v3 API</h2>
+
+<h3>Description</h3>
+
+<p>Low-level functions to execute one or more Drive API requests and, perhaps,
+process the response(s). Most users should, instead, use higher-level
+wrappers that facilitate common tasks, such as uploading or downloading Drive
+files. The functions here are intended for internal use and for programming
+around the Drive API. Three functions are documented here:
+</p>
+
+<ul>
+<li> <p><code>request_make()</code> does the bare minimum: calls <code><a href="../../gargle/html/request_make.html">gargle::request_make()</a></code>,
+only adding the googledrive user agent. Typically the input is created
+with <code><a href="request_generate.html">request_generate()</a></code> and the output is processed with
+<code><a href="../../gargle/html/response_process.html">gargle::response_process()</a></code>.
+</p>
+</li>
+<li> <p><code>do_request()</code> is simply
+<code>gargle::response_process(request_make(x, ...))</code>. It exists only because
+we had to make <code>do_paginated_request()</code> and it felt weird to not make the
+equivalent for a single request.
+</p>
+</li>
+<li> <p><code>do_paginated_request()</code> executes the input request <strong>with page
+traversal</strong>. It is impossible to separate paginated requests into a &quot;make
+request&quot; step and a &quot;process request&quot; step, because the token for the
+next page must be extracted from the content of the current page.
+Therefore this function does both and returns a list of processed
+responses, one per page.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+request_make(x, ...)
+
+do_request(x, ...)
+
+do_paginated_request(
+  x,
+  ...,
+  n_max = Inf,
+  n = function(res) 1,
+  verbose = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>List, holding the components for an HTTP request, presumably created
+with <code><a href="request_generate.html">request_generate()</a></code> Should contain the <code>method</code>, <code>url</code>, <code>body</code>,
+and <code>token</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments passed through to the HTTP method.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Maximum number of items to return. Defaults to <code>Inf</code>, i.e. there
+is no limit and we keep making requests until we get all items.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Function that computes the number of items in one response or page.
+The default function always returns <code>1</code> and therefore treats each page as
+an item. If you know more about the structure of the response, you can
+pass another function to count and threshhold, for example, the number of
+files or comments.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>request_make()</code>: Object of class <code>response</code> from <a href="../../httr/html/httr-package.html">httr</a>.
+</p>
+<p><code>do_request()</code>: List representing the content returned by a single
+request.
+</p>
+<p><code>do_paginated_request()</code>: List of lists, representing the returned
+content, one component per page.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other low-level API functions: 
+<code><a href="drive_has_token.html">drive_has_token</a>()</code>,
+<code><a href="drive_token.html">drive_token</a>()</code>,
+<code><a href="request_generate.html">request_generate</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# build a request for an endpoint that is:
+#   * paginated
+#   * NOT privileged in googledrive, i.e. not covered by request_generate()
+# "comments" are a great example
+# https://developers.google.com/drive/v3/reference/comments
+#
+# Practice with a target file with &gt; 2 comments
+# Note that we request 2 items (comments) per page
+req &lt;- build_request(
+  path = "drive/v3/files/{fileId}/comments",
+  method = "GET",
+  params = list(
+    fileId = "your-file-id-goes-here",
+    fields = "*",
+    pageSize = 2
+  ),
+  token = googledrive::drive_token()
+)
+# make the paginated request, but cap it at 1 page
+# should get back exactly two comments
+do_paginated_request(req, n_max = 1)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

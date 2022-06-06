@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List Localizable Date-Time Formatting Data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_datetime_symbols {stringi}"><tr><td>stri_datetime_symbols {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List Localizable Date-Time Formatting Data</h2>
+
+<h3>Description</h3>
+
+<p>Returns a list of all localizable date-time formatting data,
+including month and weekday names, localized AM/PM strings, etc.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_datetime_symbols(locale = NULL, context = "standalone", width = "wide")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for default locale,
+or a single string with locale identifier</p>
+</td></tr>
+<tr valign="top"><td><code>context</code></td>
+<td>
+<p>single string; one of: <code>'format'</code>, <code>'standalone'</code></p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>single string; one of: <code>'abbreviated'</code>, <code>'wide'</code>, <code>'narrow'</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>context</code> stands for a selector for date formatting context
+and <code>width</code> - for date formatting width.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a list with the following named components:
+</p>
+
+<ol>
+<li> <p><code>Month</code> - month names,
+</p>
+</li>
+<li> <p><code>Weekday</code> - weekday names,
+</p>
+</li>
+<li> <p><code>Quarter</code> - quarter names,
+</p>
+</li>
+<li> <p><code>AmPm</code> - AM/PM names,
+</p>
+</li>
+<li> <p><code>Era</code> - era names.
+</p>
+</li></ol>
+
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Calendar</em> - ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/datetime/calendar/">https://unicode-org.github.io/icu/userguide/datetime/calendar/</a>
+</p>
+<p><em>DateFormatSymbols</em> class &ndash; ICU API Documentation,
+<a href="https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1DateFormatSymbols.html">https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1DateFormatSymbols.html</a>
+</p>
+<p><em>Formatting Dates and Times</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/format_parse/datetime/">https://unicode-org.github.io/icu/userguide/format_parse/datetime/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_datetime_symbols() # uses the Gregorian calendar in most locales
+stri_datetime_symbols('@calendar=hebrew')
+stri_datetime_symbols('he_IL@calendar=hebrew')
+stri_datetime_symbols('@calendar=islamic')
+stri_datetime_symbols('@calendar=persian')
+stri_datetime_symbols('@calendar=indian')
+stri_datetime_symbols('@calendar=coptic')
+stri_datetime_symbols('@calendar=japanese')
+
+stri_datetime_symbols('ja_JP_TRADITIONAL') # uses the Japanese calendar by default
+stri_datetime_symbols('th_TH_TRADITIONAL') # uses the Buddhist calendar
+
+stri_datetime_symbols('pl_PL', context='format')
+stri_datetime_symbols('pl_PL', context='standalone')
+
+stri_datetime_symbols(width='wide')
+stri_datetime_symbols(width='abbreviated')
+stri_datetime_symbols(width='narrow')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set operations</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for setops {generics}"><tr><td>setops {generics}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set operations</h2>
+
+<h3>Description</h3>
+
+<p>Union (<code>union()</code>), intersect (<code>intersect()</code>), difference (<code>setdiff()</code>),
+and equality (<code>setequal()</code>) for two vectors representing sets. Determine
+membership with <code>is.element()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+intersect(x, y, ...)
+
+union(x, y, ...)
+
+setdiff(x, y, ...)
+
+setequal(x, y, ...)
+
+is.element(el, set, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>Vectors to combine.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>el, set</code></td>
+<td>
+<p>Element and set to compare.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions override the set functions provided in base to make them
+generic so that packages can provide methods for different data types. The
+default methods call the base versions.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>union()</code>, <code>intersect()</code>, and <code>setdiff()</code>, a vector with all
+duplicate removed.
+</p>
+<p>For <code>setequal()</code> and <code>is.element()</code>,  a logical <code>TRUE</code> or <code>FALSE</code>.'
+</p>
+
+
+<h3>Methods</h3>
+
+
+
+<h4><code>intersect()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h4><code>union()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h4><code>setdiff()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h4><code>setequal()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h4><code>is.element()</code></h4>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+intersect(1:5, 4:8)
+union(1:5, 4:8)
+
+setdiff(1:5, 4:8)
+setdiff(4:8, 1:5)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>generics</em> version 0.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

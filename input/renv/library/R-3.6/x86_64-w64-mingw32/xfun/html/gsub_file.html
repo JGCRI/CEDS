@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Search and replace strings in files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gsub_file {xfun}"><tr><td>gsub_file {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Search and replace strings in files</h2>
+
+<h3>Description</h3>
+
+<p>These functions provide the &quot;file&quot; version of <code><a href="../../base/html/grep.html">gsub</a>()</code>, i.e.,
+they perform searching and replacement in files via <code>gsub()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gsub_file(file, ..., rw_error = TRUE)
+
+gsub_files(files, ...)
+
+gsub_dir(..., dir = ".", recursive = TRUE, ext = NULL, mimetype = ".*")
+
+gsub_ext(ext, ..., dir = ".", recursive = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Path of a single file.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>gsub_file()</code>, arguments passed to <code>gsub()</code>. For
+other functions, arguments passed to <code>gsub_file()</code>. Note that the
+argument <code>x</code> of <code>gsub()</code> is the content of the file.</p>
+</td></tr>
+<tr valign="top"><td><code>rw_error</code></td>
+<td>
+<p>Whether to signal an error if the file cannot be read or
+written. If <code>FALSE</code>, the file will be ignored (with a warning).</p>
+</td></tr>
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>A vector of file paths.</p>
+</td></tr>
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>Path to a directory (all files under this directory will be
+replaced).</p>
+</td></tr>
+<tr valign="top"><td><code>recursive</code></td>
+<td>
+<p>Whether to find files recursively under a directory.</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>A vector of filename extensions (without the leading periods).</p>
+</td></tr>
+<tr valign="top"><td><code>mimetype</code></td>
+<td>
+<p>A regular expression to filter files based on their MIME
+types, e.g., <code>'^text/'</code> for plain text files. This requires the
+<span class="pkg">mime</span> package.</p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p>These functions perform in-place replacement, i.e., the files will be
+overwritten. Make sure you backup your files in advance, or use version
+control!
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+f = tempfile()
+writeLines(c("hello", "world"), f)
+gsub_file(f, "world", "woRld", fixed = TRUE)
+readLines(f)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

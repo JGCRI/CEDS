@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Explain details of a tbl</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for explain {dplyr}"><tr><td>explain {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Explain details of a tbl</h2>
+
+<h3>Description</h3>
+
+<p>This is a generic function which gives more details about an object than
+<code><a href="../../base/html/print.html">print()</a></code>, and is more focused on human readable output than
+<code><a href="../../utils/html/str.html">str()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+explain(x, ...)
+
+show_query(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to explain</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters possibly used by generic</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The first argument, invisibly.
+</p>
+
+
+<h3>Databases</h3>
+
+<p>Explaining a <code>tbl_sql</code> will run the SQL <code>EXPLAIN</code> command which
+will describe the query plan. This requires a little bit of knowledge about
+how <code>EXPLAIN</code> works for your database, but is very useful for
+diagnosing performance problems.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+if (require("dbplyr")) {
+
+lahman_s &lt;- lahman_sqlite()
+batting &lt;- tbl(lahman_s, "Batting")
+batting %&gt;% show_query()
+batting %&gt;% explain()
+
+# The batting database has indices on all ID variables:
+# SQLite automatically picks the most restrictive index
+batting %&gt;% filter(lgID == "NL" &amp; yearID == 2000L) %&gt;% explain()
+
+# OR's will use multiple indexes
+batting %&gt;% filter(lgID == "NL" | yearID == 2000) %&gt;% explain()
+
+# Joins will use indexes in both tables
+teams &lt;- tbl(lahman_s, "Teams")
+batting %&gt;% left_join(teams, c("yearID", "teamID")) %&gt;% explain()
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

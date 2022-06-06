@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculate the element properties, by inheriting properties...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for calc_element {ggplot2}"><tr><td>calc_element {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculate the element properties, by inheriting properties from its parents</h2>
+
+<h3>Description</h3>
+
+<p>Calculate the element properties, by inheriting properties from its parents
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+calc_element(element, theme, verbose = FALSE, skip_blank = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>element</code></td>
+<td>
+<p>The name of the theme element to calculate</p>
+</td></tr>
+<tr valign="top"><td><code>theme</code></td>
+<td>
+<p>A theme object (like <code><a href="ggtheme.html">theme_grey()</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>If TRUE, print out which elements this one inherits from</p>
+</td></tr>
+<tr valign="top"><td><code>skip_blank</code></td>
+<td>
+<p>If TRUE, elements of type <code>element_blank</code> in the
+inheritance hierarchy will be ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+t &lt;- theme_grey()
+calc_element('text', t)
+
+# Compare the "raw" element definition to the element with calculated inheritance
+t$axis.text.x
+calc_element('axis.text.x', t, verbose = TRUE)
+
+# This reports that axis.text.x inherits from axis.text,
+# which inherits from text. You can view each of them with:
+t$axis.text.x
+t$axis.text
+t$text
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

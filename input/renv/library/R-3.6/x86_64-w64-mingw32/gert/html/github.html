@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: GitHub Wrappers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_checkout_pull_request {gert}"><tr><td>git_checkout_pull_request {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>GitHub Wrappers</h2>
+
+<h3>Description</h3>
+
+<p>Fetch and checkout pull requests.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_checkout_pull_request(pr = 1, remote = NULL, repo = ".")
+
+git_fetch_pull_requests(pr = "*", remote = NULL, repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pr</code></td>
+<td>
+<p>number with PR to fetch or check out. Use <code>"*"</code> to fetch all
+pull requests.</p>
+</td></tr>
+<tr valign="top"><td><code>remote</code></td>
+<td>
+<p>Optional. Name of a remote listed in <code><a href="git_remote.html">git_remote_list()</a></code>. If
+unspecified and the current branch is already tracking branch a remote
+branch, that remote is honored. Otherwise, defaults to <code>origin</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>By default <code>git_fetch_pull_requests</code> will download all PR branches. To
+remove these again simply use <code>git_fetch(prune = TRUE)</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

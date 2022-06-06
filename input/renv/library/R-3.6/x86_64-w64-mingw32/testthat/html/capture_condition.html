@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Capture conditions, including messages, warnings,...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for capture_condition {testthat}"><tr><td>capture_condition {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Capture conditions, including messages, warnings, expectations, and errors.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p>These functions allow you to capture the side-effects of a function call
+including printed output, messages and warnings. We no longer recommend
+that you use these functions, instead relying on the <code><a href="expect_error.html">expect_message()</a></code>
+and friends to bubble up unmatched conditions. If you just want to silence
+unimportant warnings, use <code><a href="../../base/html/warning.html">suppressWarnings()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+capture_condition(code, entrace = FALSE)
+
+capture_error(code, entrace = FALSE)
+
+capture_expectation(code, entrace = FALSE)
+
+capture_message(code, entrace = FALSE)
+
+capture_warning(code, entrace = FALSE)
+
+capture_messages(code)
+
+capture_warnings(code)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to evaluate</p>
+</td></tr>
+<tr valign="top"><td><code>entrace</code></td>
+<td>
+<p>Whether to add a <a href="../../rlang/html/trace_back.html">backtrace</a> to
+the captured condition.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Singular functions (<code>capture_condition</code>, <code>capture_expectation</code> etc)
+return a condition object. <code>capture_messages()</code> and <code>capture_warnings</code>
+return a character vector of message text.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function() {
+  message("First")
+  warning("Second")
+  message("Third")
+}
+
+capture_message(f())
+capture_messages(f())
+
+capture_warning(f())
+capture_warnings(f())
+
+# Condition will capture anything
+capture_condition(f())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

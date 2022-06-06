@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compare two objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for compare {waldo}"><tr><td>compare {waldo}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compare two objects</h2>
+
+<h3>Description</h3>
+
+<p>This compares two R objects, identifying the key differences. It:
+</p>
+
+<ul>
+<li><p> Orders the differences from most important to least important.
+</p>
+</li>
+<li><p> Displays the values of atomic vectors that are actually different.
+</p>
+</li>
+<li><p> Carefully uses colour to emphasise changes (while still being readable
+when colour isn't available).
+</p>
+</li>
+<li><p> Uses R code (not a text description) to show where differences arise.
+</p>
+</li>
+<li><p> Where possible, it compares elements by name, rather than by position.
+</p>
+</li>
+<li><p> Errs on the side of producing too much output, rather than too little.
+</p>
+</li></ul>
+
+<p><code>compare()</code> is an alternative to <code><a href="../../base/html/all.equal.html">all.equal()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+compare(
+  x,
+  y,
+  ...,
+  x_arg = "old",
+  y_arg = "new",
+  tolerance = NULL,
+  max_diffs = if (in_ci()) Inf else 10,
+  ignore_srcref = TRUE,
+  ignore_attr = "waldo_opts",
+  ignore_encoding = TRUE,
+  ignore_function_env = FALSE,
+  ignore_formula_env = FALSE,
+  list_as_map = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>Objects to compare. <code>y</code> is treated as the reference object
+so messages describe how <code>x</code> is different to <code>y</code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>A handful of other arguments are supported with a warning for
+backward compatability. These include:
+</p>
+
+<ul>
+<li> <p><code>all.equal()</code> arguments <code>checkNames</code> and <code>check.attributes</code>
+</p>
+</li>
+<li> <p><code>testthat::compare()</code> argument <code>tol</code>
+</p>
+</li></ul>
+
+<p>All other arguments are ignored with a warning.</p>
+</td></tr>
+<tr valign="top"><td><code>x_arg, y_arg</code></td>
+<td>
+<p>Name of <code>x</code> and <code>y</code> arguments, used when generated paths
+to internal components. These default to &quot;old&quot; and &quot;new&quot; since it's
+most natural to supply the previous value then the new value.</p>
+</td></tr>
+<tr valign="top"><td><code>tolerance</code></td>
+<td>
+<p>If non-<code>NULL</code>, used as threshold for ignoring small
+floating point difference when comparing numeric vectors. Setting to
+any non-<code>NULL</code> value will cause integer and double vectors to be compared
+based on their values, rather than their types.
+</p>
+<p>It uses the same algorithm as <code><a href="../../base/html/all.equal.html">all.equal()</a></code>, i.e., first we generate
+<code>x_diff</code> and <code>y_diff</code> by subsetting <code>x</code> and <code>y</code> to look only locations
+with differences. Then we check that
+<code>mean(abs(x_diff - y_diff)) / mean(abs(y_diff))</code> (or just
+<code>mean(abs(x_diff - y_diff))</code> if <code>y_diff</code> is small) is less than
+<code>tolerance</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>max_diffs</code></td>
+<td>
+<p>Control the maximum number of differences shown. The
+default shows 10 differences when run interactively and all differences
+when run in CI. Set <code>max_diffs = Inf</code> to see all differences.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_srcref</code></td>
+<td>
+<p>Ignore differences in function <code>srcref</code>s? <code>TRUE</code> by
+default since the <code>srcref</code> does not change the behaviour of a function,
+only its printed representation.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_attr</code></td>
+<td>
+<p>Ignore differences in specified attributes?
+Supply a character vector to ignore differences in named attributes.
+By default the <code>"waldo_opts"</code> attribute is listed in <code>ignore_attr</code> so
+that changes to it are not reported; if you customize <code>ignore_attr</code>, you
+will probably want to do this yourself.
+</p>
+<p>For backward compatibility with <code>all.equal()</code>, you can also use <code>TRUE</code>,
+to all ignore differences in all attributes. This is not generally
+recommended as it is a blunt tool that will ignore many important
+functional differences.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_encoding</code></td>
+<td>
+<p>Ignore string encoding? <code>TRUE</code> by default, because
+this is R's default behaviour. Use <code>FALSE</code> when specifically concerned
+with the encoding, not just the value of the string.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_function_env, ignore_formula_env</code></td>
+<td>
+<p>Ignore the environments of
+functions and formulas, respectively? These are provided primarily for
+backward compatibility with <code>all.equal()</code> which always ignores these
+environments.</p>
+</td></tr>
+<tr valign="top"><td><code>list_as_map</code></td>
+<td>
+<p>Compare lists as if they are mappings between names and
+values. Concretely, this drops <code>NULLs</code> in both objects and sorts named
+components.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector with class &quot;waldo_compare&quot;. If there are no
+differences it will have length 0; otherwise each element contains the
+description of a single difference.
+</p>
+
+
+<h3>Controlling comparisons</h3>
+
+<p>There are two ways for an object (rather than the person calling <code>compare()</code>
+or <code>expect_equal()</code> to control how it is compared to other objects.
+First, if the object has an S3 class, you can provide a <code><a href="compare_proxy.html">compare_proxy()</a></code>
+method that provides an alternative representation of the object; this is
+particularly useful if important data is stored outside of R, e.g. in
+an external pointer.
+</p>
+<p>Alternatively, you can attach an attribute called <code>"waldo_opts"</code> to your
+object. This should be a list of compare options, using the same names
+and possible values as the arguments to this function. This option
+is ignored by default (<code>ignore_attr</code>) so that you can set the options in
+the object that you control. (If you don't want to see the attributes
+interactively, you could attach them in a <code><a href="compare_proxy.html">compare_proxy()</a></code> method.)
+</p>
+<p>Options supplied in this way also affect all the children. This means
+options are applied in the following order, from lowest to highest
+precedence:
+</p>
+
+<ol>
+<li><p> Defaults from <code>compare()</code>.
+</p>
+</li>
+<li><p> The <code>waldo_opts</code> for the parents of <code>x</code>.
+</p>
+</li>
+<li><p> The <code>waldo_opts</code> for the parents of <code>y</code>.
+</p>
+</li>
+<li><p> The <code>waldo_opts</code> for <code>x</code>.
+</p>
+</li>
+<li><p> The <code>waldo_opts</code> for <code>y</code>.
+</p>
+</li>
+<li><p> User-specified arguments to <code>compare()</code>.
+</p>
+</li></ol>
+
+<p>Use these techniques with care. If you accidentally cover up an important
+difference you can create a confusing situation where <code>x</code> and <code>y</code> behave
+differently but <code>compare()</code> reports no differences in the underlying objects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Thanks to diffobj package comparison of atomic vectors shows differences
+# with a little context
+compare(letters, c("z", letters[-26]))
+compare(c(1, 2, 3), c(1, 3))
+compare(c(1, 2, 3), c(1, 3, 4, 5))
+compare(c(1, 2, 3), c(1, 2, 5))
+
+# More complex objects are traversed, stopping only when the types are
+# different
+compare(
+  list(x = list(y = list(structure(1, z = 2)))),
+  list(x = list(y = list(structure(1, z = "a"))))
+)
+
+# Where possible, recursive structures are compared by name
+compare(iris, rev(iris))
+
+compare(list(x = "x", y = "y"), list(y = "y", x = "x"))
+# Otherwise they're compared by position
+compare(list("x", "y"), list("x", "z"))
+compare(list(x = "x", x = "y"), list(x = "x", y = "z"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>waldo</em> version 0.3.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

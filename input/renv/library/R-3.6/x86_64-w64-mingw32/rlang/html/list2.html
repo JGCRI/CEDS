@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Collect dynamic dots in a list</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for list2 {rlang}"><tr><td>list2 {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Collect dynamic dots in a list</h2>
+
+<h3>Description</h3>
+
+<p><code>list2(...)</code> is equivalent to <code>list(...)</code> with a few additional
+features, collectively called <a href="dyn-dots.html">dynamic dots</a>. While
+<code>list2()</code> hard-code these features, <code>dots_list()</code> is a lower-level
+version that offers more control.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+list2(...)
+
+dots_list(
+  ...,
+  .named = FALSE,
+  .ignore_empty = c("trailing", "none", "all"),
+  .preserve_empty = FALSE,
+  .homonyms = c("keep", "first", "last", "error"),
+  .check_assign = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to collect in a list. These dots are
+<a href="dyn-dots.html">dynamic</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.named</code></td>
+<td>
+<p>If <code>TRUE</code>, unnamed inputs are automatically named
+with <code><a href="as_label.html">as_label()</a></code>. This is equivalent to applying
+<code><a href="exprs_auto_name.html">exprs_auto_name()</a></code> on the result. If <code>FALSE</code>, unnamed elements
+are left as is and, if fully unnamed, the list is given minimal
+names (a vector of <code>""</code>). If <code>NULL</code>, fully unnamed results are
+left with <code>NULL</code> names.</p>
+</td></tr>
+<tr valign="top"><td><code>.ignore_empty</code></td>
+<td>
+<p>Whether to ignore empty arguments. Can be one
+of <code>"trailing"</code>, <code>"none"</code>, <code>"all"</code>. If <code>"trailing"</code>, only the
+last argument is ignored if it is empty.</p>
+</td></tr>
+<tr valign="top"><td><code>.preserve_empty</code></td>
+<td>
+<p>Whether to preserve the empty arguments that
+were not ignored. If <code>TRUE</code>, empty arguments are stored with
+<code><a href="missing_arg.html">missing_arg()</a></code> values. If <code>FALSE</code> (the default) an error is
+thrown when an empty argument is detected.</p>
+</td></tr>
+<tr valign="top"><td><code>.homonyms</code></td>
+<td>
+<p>How to treat arguments with the same name. The
+default, <code>"keep"</code>, preserves these arguments. Set <code>.homonyms</code> to
+<code>"first"</code> to only keep the first occurrences, to <code>"last"</code> to keep
+the last occurrences, and to <code>"error"</code> to raise an informative
+error and indicate what arguments have duplicated names.</p>
+</td></tr>
+<tr valign="top"><td><code>.check_assign</code></td>
+<td>
+<p>Whether to check for <code style="white-space: pre;">&lt;-</code> calls. When <code>TRUE</code> a
+warning recommends users to use <code>=</code> if they meant to match a
+function parameter or wrap the <code style="white-space: pre;">&lt;-</code> call in curly braces otherwise.
+This ensures assignments are explicit.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list containing the <code>...</code> inputs.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Let's create a function that takes a variable number of arguments:
+numeric &lt;- function(...) {
+  dots &lt;- list2(...)
+  num &lt;- as.numeric(dots)
+  set_names(num, names(dots))
+}
+numeric(1, 2, 3)
+
+# The main difference with list(...) is that list2(...) enables
+# the `!!!` syntax to splice lists:
+x &lt;- list(2, 3)
+numeric(1, !!! x, 4)
+
+# As well as unquoting of names:
+nm &lt;- "yup!"
+numeric(!!nm := 1)
+
+
+# One useful application of splicing is to work around exact and
+# partial matching of arguments. Let's create a function taking
+# named arguments and dots:
+fn &lt;- function(data, ...) {
+  list2(...)
+}
+
+# You normally cannot pass an argument named `data` through the dots
+# as it will match `fn`'s `data` argument. The splicing syntax
+# provides a workaround:
+fn("wrong!", data = letters)  # exact matching of `data`
+fn("wrong!", dat = letters)   # partial matching of `data`
+fn(some_data, !!!list(data = letters))  # no matching
+
+
+# Empty arguments trigger an error by default:
+try(fn(, ))
+
+# You can choose to preserve empty arguments instead:
+list3 &lt;- function(...) dots_list(..., .preserve_empty = TRUE)
+
+# Note how the last empty argument is still ignored because
+# `.ignore_empty` defaults to "trailing":
+list3(, )
+
+# The list with preserved empty arguments is equivalent to:
+list(missing_arg())
+
+
+# Arguments with duplicated names are kept by default:
+list2(a = 1, a = 2, b = 3, b = 4, 5, 6)
+
+# Use the `.homonyms` argument to keep only the first of these:
+dots_list(a = 1, a = 2, b = 3, b = 4, 5, 6, .homonyms = "first")
+
+# Or the last:
+dots_list(a = 1, a = 2, b = 3, b = 4, 5, 6, .homonyms = "last")
+
+# Or raise an informative error:
+try(dots_list(a = 1, a = 2, b = 3, b = 4, 5, 6, .homonyms = "error"))
+
+
+# dots_list() can be configured to warn when a `&lt;-` call is
+# detected:
+my_list &lt;- function(...) dots_list(..., .check_assign = TRUE)
+my_list(a &lt;- 1)
+
+# There is no warning if the assignment is wrapped in braces.
+# This requires users to be explicit about their intent:
+my_list({ a &lt;- 1 })
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Objects for Specifying Pager Settings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Pager {diffobj}"><tr><td>Pager {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Objects for Specifying Pager Settings</h2>
+
+<h3>Description</h3>
+
+<p>Initializers for pager configuration objects that modify pager behavior.
+These objects can be used as the <code>pager</code> argument to the
+<code><a href="diffPrint.html">diff*</a></code> methods, or as the <code>pager</code> slot for
+<code><a href="Style.html">Style</a></code> objects.  In this documentation we use the &ldquo;pager&rdquo;
+term loosely and intend it to refer to any device other than the terminal
+that can be used to render output.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Pager(
+  pager = function(x) writeLines(readLines(x)),
+  file.ext = "",
+  threshold = 0L,
+  ansi = FALSE,
+  file.path = NA_character_,
+  make.blocking = FALSE
+)
+
+PagerOff(...)
+
+PagerSystem(pager = file.show, threshold = -1L, file.ext = "", ...)
+
+PagerSystemLess(
+  pager = file.show,
+  threshold = -1L,
+  flags = "R",
+  file.ext = "",
+  ansi = TRUE,
+  ...
+)
+
+PagerBrowser(
+  pager = view_or_browse,
+  threshold = 0L,
+  file.ext = "html",
+  make.blocking = NA,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pager</code></td>
+<td>
+<p>a function that accepts at least one parameter and does not
+require a parameter other than the first parameter.  This function will be
+called with a file path passed as the first argument.  The referenced file
+will contain the text of the diff.  By default this is a temporary file that
+will be deleted as soon as the pager function completes evaluation.
+<code>PagerSystem</code> and <code>PagerSystemLess</code> use <code><a href="../../base/html/file.show.html">file.show</a></code>
+by default, and <code>PagerBrowser</code> uses
+<code><a href="view_or_browse.html">view_or_browse</a></code> for HTML output.  For asynchronous pagers such
+as <code>view_or_browse</code> it is important to make the pager function
+blocking by setting the <code>make.blocking</code> parameter to TRUE, or to
+specify a pager file path explicitly with <code>file.path</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>file.ext</code></td>
+<td>
+<p>character(1L) an extension to append to file path passed to
+<code>pager</code>, <em>without</em> the period.  For example, <code>PagerBrowser</code>
+uses &ldquo;html&rdquo; to cause <code><a href="../../utils/html/browseURL.html">browseURL</a></code> to launch the web
+browser.  This parameter will be overridden if <code>file.path</code> is used.</p>
+</td></tr>
+<tr valign="top"><td><code>threshold</code></td>
+<td>
+<p>integer(1L) number of lines of output that triggers the use
+of the pager; negative values lead to using
+<code><a href="console_lines.html">console_lines</a> + 1</code>, and zero leads to always using the pager
+irrespective of how many lines the output has.</p>
+</td></tr>
+<tr valign="top"><td><code>ansi</code></td>
+<td>
+<p>TRUE or FALSE, whether the pager supports ANSI CSI SGR sequences.</p>
+</td></tr>
+<tr valign="top"><td><code>file.path</code></td>
+<td>
+<p>character(1L), if not NA the diff will be written to this
+location, ignoring the value of <code>file.ext</code>.  If NA_character_
+(default), a temporary file is used and removed after the pager function
+completes evaluation.  If not NA, the file is preserved.  Beware that the
+file will be overwritten if it already exists.</p>
+</td></tr>
+<tr valign="top"><td><code>make.blocking</code></td>
+<td>
+<p>TRUE, FALSE, or NA. Whether to wrap <code>pager</code> with
+<code><a href="make_blocking.html">make_blocking</a></code> prior to calling it.  This suspends R code
+execution until there is user input so that temporary diff files are not
+deleted before the pager has a chance to read them.  This typically
+defaults to FALSE, except for <code>PagerBrowser</code> where it defaults to NA,
+which resolves to <code>is.na(file.path)</code> (i.e. it is TRUE if the diff is
+being written to a temporary file, and FALSE otherwise).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments to pass on to <code>new</code> that are passed on
+to parent classes.</p>
+</td></tr>
+<tr valign="top"><td><code>flags</code></td>
+<td>
+<p>character(1L), only for <code>PagerSystemLess</code>, what flags to
+set with the <code>LESS</code> system environment variable.  By default the
+&ldquo;R&rdquo; flag is set to ensure ANSI escape sequences are interpreted if
+it appears your terminal supports ANSI escape sequences.  If you want to
+leave the output on the screen after you exit the pager you can use
+&ldquo;RX&rdquo;.  You should only provide the flag letters (e.g. &ldquo;&quot;RX&quot;&rdquo;,
+not <code>"-RX"</code>).  The system variable is only modified for the duration
+of the evaluation and is reset / unset afterwards. <em>Note:</em> you must
+specify this slot via the constructor as in the example.  If you set the
+slot directly it will not have any effect.</p>
+</td></tr>
+</table>
+
+
+<h3>Default Output Behavior</h3>
+
+<p><code><a href="diffPrint.html">diff*</a></code> methods use &ldquo;pagers&rdquo; to help
+manage large outputs and also to provide an alternative colored diff when the
+terminal does not support them directly.
+</p>
+<p>For OS X and *nix systems where <code>less</code> is the pager and the
+terminal supports ANSI escape sequences, output is colored with ANSI escape
+sequences.  If the output exceeds one screen height in size (as estimated by
+<code><a href="console_lines.html">console_lines</a></code>) it is sent to the pager.
+</p>
+<p>If the terminal does not support ANSI escape sequences, or if the system
+pager is not <code>less</code> as detected by <code><a href="pager_is_less.html">pager_is_less</a></code>, then the
+output is rendered in HTML and sent to the IDE viewer
+(<code>getOption("viewer")</code>) if defined, or to the browser with
+<code><a href="../../utils/html/browseURL.html">browseURL</a></code> if not.  This behavior may seem sub-optimal for
+systems that have ANSI aware terminals and ANSI aware pagers other than
+<code>less</code>, but these should be rare and it is possible to configure
+<code>diffobj</code> to produce the correct output for them (see examples).
+</p>
+
+
+<h3>Pagers and Styles</h3>
+
+<p>There is a close relationship between pagers and <code><a href="Style.html">Style</a></code>.  The
+<code>Style</code> objects control whether the output is raw text, formatted
+with ANSI escape sequences, or marked up with HTML.  In order for these
+different types of outputs to render properly, they need to be sent to the
+right device.  For this reason <code><a href="Style.html">Style</a></code> objects come with a
+<code>Pager</code> configuration object pre-assigned so the output can render
+correctly.  The exact <code>Pager</code> configuration object depends on the
+<code><a href="Style.html">Style</a></code> as well as the system configuration.
+</p>
+<p>In any call to the <code><a href="diffPrint.html">diff*</a></code> methods you can always
+specify both the <code><a href="Style.html">Style</a></code> and <code>Pager</code> configuration object
+directly for full control of output formatting and rendering.  We have tried
+to set-up sensible defaults for most likely use cases, but given the complex
+interactions involved it is possible you may need to configure things
+explicitly.  Should you need to define explicit configurations you can save
+them as option values with
+<code>options(diffobj.pager=..., diffobj.style=...)</code> so that you do not need
+to specify them each time you use <code>diffobj</code>.
+</p>
+
+
+<h3>Pager Configuration Objects</h3>
+
+<p>The <code>Pager</code> configuration objects allow you to specify what device to
+use as the pager and under what circumstances the pager should be used.
+Several pre-defined pager configuration objects are available via
+constructor functions:
+</p>
+
+<ul>
+<li> <p><code>Pager</code>: Generic pager just outputs directly to terminal; not
+useful unless the default parameters are modified.
+</p>
+</li>
+<li> <p><code>PagerOff</code>: Turn off pager
+</p>
+</li>
+<li> <p><code>PagerSystem</code>: Use the system pager as invoked by
+<code><a href="../../base/html/file.show.html">file.show</a></code>
+</p>
+</li>
+<li> <p><code>PagerSystemLess</code>: Like <code>PagerSystem</code>, but provides
+additional configuration options if the system pager is <code>less</code>.
+Note this object does not change the system pager; it only allows you to
+configure it via the <code>$LESS</code> environment variable which will have
+no effect unless the system pager is set to be <code>less</code>.
+</p>
+</li>
+<li> <p><code>PagerBrowser</code>: Use <code>getOption("viewer")</code> if defined, or
+<code><a href="../../utils/html/browseURL.html">browseURL</a></code> if not
+</p>
+</li></ul>
+
+<p>The default configuration for <code>PagerSystem</code> and <code>PagerSystemLess</code>
+leads to output being sent to the pager if it exceeds the estimated window
+size, whereas <code>PagerBrowser</code> always sends output to the pager.  This
+behavior can be configured via the <code>threshold</code> parameter.
+</p>
+<p><code>PagerSystemLess</code>'s primary role is to correctly configure the
+<code>$LESS</code> system variable so that <code>less</code> renders the ANSI escape
+sequences as intended.  On OS X <code>more</code> is a faux-alias to <code>less</code>,
+except it does not appear to read the <code>$LESS</code> system variable.
+Should you configure your system pager to be the <code>more</code> version of
+<code>less</code>, <code><a href="pager_is_less.html">pager_is_less</a></code> will be tricked into thinking you
+are using a &ldquo;normal&rdquo; version of <code>less</code> and you will likely end up
+seeing gibberish in the pager.  If this is your use case you will need to
+set-up a custom pager configuration object that sets the correct system
+variables.
+</p>
+
+
+<h3>Custom Pager Configurations</h3>
+
+<p>In most cases the simplest way to generate new pager configurations is to use
+a list specification in the <code><a href="diffPrint.html">diff*</a></code> call.
+Alternatively you can start with an existing <code>Pager</code> object and change
+the defaults.  Both these cases are covered in the examples.
+</p>
+<p>You can change what system pager is used by <code>PagerSystem</code> by changing it
+with <code>options(pager=...)</code> or by changing the <code>$PAGER</code> environment
+variable.  You can also explicitly set a function to act as the pager when
+you instantiate the <code>Pager</code> configuration object (see examples).
+</p>
+<p>If you wish to define your own pager object you should do so by extending the
+any of the <code>Pager</code> classes.  If the function you use to handle the
+actual paging is non-blocking (i.e. allows R code evaluation to continue
+after it is spawned, you should set the <code>make.blocking</code> parameter to
+TRUE to pause execution prior to deleting the temporary file that contains
+the diff.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="Style.html">Style</a></code>, <code><a href="pager_is_less.html">pager_is_less</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## We `dontrun` these examples as they involve pagers that should only be run
+## in interactive mode
+## Not run: 
+## Specify Pager parameters via list; this lets the `diff*` functions pick
+## their preferred pager based on format and other output parameters, but
+## allows you to modify the pager behavior.
+
+f &lt;- tempfile()
+diffChr(1:200, 180:300, format='html', pager=list(file.path=f))
+head(readLines(f))  # html output
+unlink(f)
+
+## Assuming system pager is `less` and terminal supports ANSI ESC sequences
+## Equivalent to running `less -RFX`
+
+diffChr(1:200, 180:300, pager=PagerSystemLess(flags="RFX"))
+
+## If the auto-selected pager would be the system pager, we could
+## equivalently use:
+
+diffChr(1:200, 180:300, pager=list(flags="RFX"))
+
+## System pager is not less, but it supports ANSI escape sequences
+
+diffChr(1:200, 180:300, pager=PagerSystem(ansi=TRUE))
+
+## Use a custom pager, in this case we make up a trivial one and configure it
+## always page (`threshold=0L`)
+
+page.fun &lt;- function(x) cat(paste0("| ", readLines(x)), sep="\n")
+page.conf &lt;- PagerSystem(pager=page.fun, threshold=0L)
+diffChr(1:200, 180:300, pager=page.conf, disp.width=getOption("width") - 2)
+
+## Set-up the custom pager as the default pager
+
+options(diffobj.pager=page.conf)
+diffChr(1:200, 180:300)
+
+## A blocking pager (this is effectively very similar to what `PagerBrowser`
+## does); need to block b/c otherwise temp file with diff could be deleted
+## before the device has a chance to read it since `browseURL` is not
+## blocking itself.  On OS X we need to specify the extension so the correct
+## program opens it (in this case `TextEdit`):
+
+page.conf &lt;- Pager(pager=browseURL, file.ext="txt", make.blocking=TRUE)
+diffChr(1:200, 180:300, pager=page.conf, format='raw')
+
+## An alternative to a blocking pager is to disable the
+## auto-file deletion; here we also specify a file location
+## explicitly so we can recover the diff text.
+
+f &lt;- paste0(tempfile(), ".html")  # must specify .html
+diffChr(1:5, 2:6, format='html', pager=list(file.path=f))
+tail(readLines(f))
+unlink(f)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

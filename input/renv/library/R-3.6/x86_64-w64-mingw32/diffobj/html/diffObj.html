@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Diff Objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for diffObj {diffobj}"><tr><td>diffObj {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Diff Objects</h2>
+
+<h3>Description</h3>
+
+<p>Compare either the <code>print</code>ed or <code>str</code> screen representation of
+R objects depending on which is estimated to produce the most useful
+diff.  The selection process tries to minimize screen lines while maximizing
+differences shown subject to display constraints.  The decision algorithm is
+likely to evolve over time, so do not rely on this function making
+a particular selection under specific circumstances.  Instead, use
+<code><a href="diffPrint.html">diffPrint</a></code> or <code><a href="diffStr.html">diffStr</a></code> if you require one or the
+other output.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+diffObj(target, current, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>target</code></td>
+<td>
+<p>the reference object</p>
+</td></tr>
+<tr valign="top"><td><code>current</code></td>
+<td>
+<p>the object being compared to <code>target</code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>unused, for compatibility of methods with generics</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a <code>Diff</code> object; see <code><a href="diffPrint.html">diffPrint</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="diffPrint.html">diffPrint</a></code> for details on the <code>diff*</code> methods,
+<code><a href="diffStr.html">diffStr</a></code>,
+<code><a href="diffChr.html">diffChr</a></code> to compare character vectors directly
+<code><a href="diffDeparse.html">diffDeparse</a></code> to compare deparsed objects,
+<code><a href="ses.html">ses</a></code> for a minimal and fast diff
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## `pager="off"` for CRAN compliance; you may omit in normal use
+diffObj(letters, c(letters[1:10], LETTERS[11:26]), pager="off")
+with(mtcars, diffObj(lm(mpg ~ hp)$qr, lm(mpg ~ disp)$qr, pager="off"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Poke an object in an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_poke {rlang}"><tr><td>env_poke {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Poke an object in an environment</h2>
+
+<h3>Description</h3>
+
+<p><code>env_poke()</code> will assign or reassign a binding in <code>env</code> if <code>create</code>
+is <code>TRUE</code>. If <code>create</code> is <code>FALSE</code> and a binding does not already
+exists, an error is issued.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_poke(env = caller_env(), nm, value, inherit = FALSE, create = !inherit)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>nm</code></td>
+<td>
+<p>Names of bindings. <code>nm</code> must be a single string.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The value for a new binding.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>Whether to look for bindings in the parent
+environments.</p>
+</td></tr>
+<tr valign="top"><td><code>create</code></td>
+<td>
+<p>Whether to create a binding if it does not already
+exist in the environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If <code>inherit</code> is <code>TRUE</code>, the parents environments are checked for
+an existing binding to reassign. If not found and <code>create</code> is
+<code>TRUE</code>, a new binding is created in <code>env</code>. The default value for
+<code>create</code> is a function of <code>inherit</code>: <code>FALSE</code> when inheriting,
+<code>TRUE</code> otherwise.
+</p>
+<p>This default makes sense because the inheriting case is mostly
+for overriding an existing binding. If not found, something
+probably went wrong and it is safer to issue an error. Note that
+this is different to the base R operator <code style="white-space: pre;">&lt;&lt;-</code> which will create
+a binding in the global environment instead of the current
+environment when no existing binding is found in the parents.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The old value of <code>nm</code> or a <a href="zap.html">zap sentinel</a> if the
+binding did not exist yet.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="env_bind.html">env_bind()</a></code> for binding multiple elements. <code><a href="env_cache.html">env_cache()</a></code>
+for a variant of <code>env_poke()</code> designed to cache values.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

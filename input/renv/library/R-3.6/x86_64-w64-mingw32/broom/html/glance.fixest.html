@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Glance at a(n) fixest object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glance.fixest {broom}"><tr><td>glance.fixest {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Glance at a(n) fixest object</h2>
+
+<h3>Description</h3>
+
+<p>Glance accepts a model object and returns a <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code>
+with exactly one row of model summaries. The summaries are typically
+goodness of fit measures, p-values for hypothesis tests on residuals,
+or model convergence information.
+</p>
+<p>Glance never returns information from the original call to the modeling
+function. This includes the name of the modeling function or any
+arguments passed to the modeling function.
+</p>
+<p>Glance does not calculate summary measures. Rather, it farms out these
+computations to appropriate methods and gathers the results together.
+Sometimes a goodness of fit measure will be undefined. In these cases
+the measure will be reported as <code>NA</code>.
+</p>
+<p>Glance returns the same number of columns regardless of whether the
+model matrix is rank-deficient or not. If so, entries in columns
+that no longer have a well-defined value are filled in with an <code>NA</code>
+of the appropriate type.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'fixest'
+glance(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>fixest</code> object returned from any of the <code>fixest</code> estimators</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code>summary</code> and <code>confint</code>. Important
+arguments are <code>se</code> and <code>cluster</code>. Other arguments are <code>dof</code>, <code>exact_dof</code>,
+<code>forceCovariance</code>, and <code>keepBounded</code>.
+See <code><a href="../../fixest/html/summary.fixest.html">summary.fixest</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with exactly one row and columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>adj.r.squared</code></td>
+<td>
+<p>Adjusted R squared statistic, which is like the R squared statistic except taking degrees of freedom into account.</p>
+</td></tr>
+<tr valign="top"><td><code>AIC</code></td>
+<td>
+<p>Akaike's Information Criterion for the model.</p>
+</td></tr>
+<tr valign="top"><td><code>BIC</code></td>
+<td>
+<p>Bayesian Information Criterion for the model.</p>
+</td></tr>
+<tr valign="top"><td><code>logLik</code></td>
+<td>
+<p>The log-likelihood of the model. [stats::logLik()] may be a useful reference.</p>
+</td></tr>
+<tr valign="top"><td><code>nobs</code></td>
+<td>
+<p>Number of observations used.</p>
+</td></tr>
+<tr valign="top"><td><code>pseudo.r.squared</code></td>
+<td>
+<p>Like the R squared statistic, but for situations when the R squared statistic isn't defined.</p>
+</td></tr>
+<tr valign="top"><td><code>r.squared</code></td>
+<td>
+<p>R squared statistic, or the percent of variation explained by the model. Also known as the coefficient of determination.</p>
+</td></tr>
+<tr valign="top"><td><code>sigma</code></td>
+<td>
+<p>Estimated standard error of the residuals.</p>
+</td></tr>
+<tr valign="top"><td><code>within.r.squared</code></td>
+<td>
+<p>R squared within fixed-effect groups.</p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p>All columns listed below will be returned, but some will be <code>NA</code>,
+depending on the type of model estimated. <code>sigma</code>, <code>r.squared</code>,
+<code>adj.r.squared</code>, and <code>within.r.squared</code> will be NA for any model other than
+<code>feols</code>. <code>pseudo.r.squared</code> will be NA for <code>feols</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+if (requireNamespace("fixest", quietly = TRUE)) {
+
+
+library(fixest)
+
+gravity &lt;- feols(log(Euros) ~ log(dist_km) | Origin + Destination + Product + Year, trade)
+
+tidy(gravity)
+glance(gravity)
+augment(gravity, trade)
+
+## To get robust or clustered SEs, users can either:
+# 1) Or, specify the arguments directly in the tidy() call
+
+tidy(gravity, conf.int = TRUE, cluster = c("Product", "Year"))
+
+tidy(gravity, conf.int = TRUE, se = "threeway")
+
+# 2) Feed tidy() a summary.fixest object that has already accepted these arguments
+
+gravity_summ &lt;- summary(gravity, cluster = c("Product", "Year"))
+tidy(gravity_summ, conf.int = TRUE)
+
+# Approach (1) is preferred.
+
+
+
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

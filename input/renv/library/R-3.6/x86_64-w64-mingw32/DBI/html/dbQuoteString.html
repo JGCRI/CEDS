@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Quote literal strings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbQuoteString {DBI}"><tr><td>dbQuoteString {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Quote literal strings</h2>
+
+<h3>Description</h3>
+
+<p>Call this method to generate a string that is suitable for
+use in a query as a string literal, to make sure that you
+generate valid SQL and protect against SQL injection attacks.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbQuoteString(conn, x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector to quote as string.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>dbQuoteString()</code> returns an object that can be coerced to <a href="../../base/html/character.html">character</a>,
+of the same length as the input.
+For an empty character vector this function returns a length-0 object.
+</p>
+<p>When passing the returned object again to <code>dbQuoteString()</code>
+as <code>x</code>
+argument, it is returned unchanged.
+Passing objects of class <a href="SQL.html">SQL</a> should also return them unchanged.
+(For backends it may be most convenient to return <a href="SQL.html">SQL</a> objects
+to achieve this behavior, but this is not required.)
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>Passing a numeric,
+integer,
+logical,
+or raw vector,
+or a list
+for the <code>x</code> argument raises an error.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>The returned expression can be used in a <code style="white-space: pre;">SELECT ...</code> query,
+and for any scalar character <code>x</code> the value of
+<code>dbGetQuery(paste0("SELECT ", dbQuoteString(x)))[[1]]</code>
+must be identical to <code>x</code>,
+even if <code>x</code> contains
+spaces,
+tabs,
+quotes (single
+or double),
+backticks,
+or newlines
+(in any combination)
+or is itself the result of a <code>dbQuoteString()</code> call coerced back to
+character (even repeatedly).
+If <code>x</code> is <code>NA</code>, the result must merely satisfy <code><a href="../../base/html/NA.html">is.na()</a></code>.
+The strings <code>"NA"</code> or <code>"NULL"</code> are not treated specially.
+</p>
+<p><code>NA</code> should be translated to an unquoted SQL <code>NULL</code>,
+so that the query <code style="white-space: pre;">SELECT * FROM (SELECT 1) a WHERE ... IS NULL</code>
+returns one row.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Quoting ensures that arbitrary input is safe for use in a query
+name &lt;- "Robert'); DROP TABLE Students;--"
+dbQuoteString(ANSI(), name)
+
+# NAs become NULL
+dbQuoteString(ANSI(), c("x", NA))
+
+# SQL vectors are always passed through as is
+var_name &lt;- SQL("select")
+var_name
+dbQuoteString(ANSI(), var_name)
+
+# This mechanism is used to prevent double escaping
+dbQuoteString(ANSI(), dbQuoteString(ANSI(), name))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

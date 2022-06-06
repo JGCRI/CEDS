@@ -54,6 +54,8 @@ moveFileList <- function( fn_list, new_dir ) {
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 final_emissions_read <- readData ( "MED_OUT" , paste0(em,'_total_CEDS_emissions') )
+#final_emissions_read <- final_emissions_read %>% mutate(sector = str_replace(sector,"2C_Metal-production","2C4_Non-Ferrous-other-metals"))
+#write.csv(final_emissions_read,"../SO2_total_CEDS_emissions_edited_from_master.csv")
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
 
 # ---------------------------------------------------------------------------
@@ -371,7 +373,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   }
 
   # Warn the user about CH4 and N2O extension
-  # Chemical industry emissions, for example, are 20% of EDGAR NOx emissions in 1970, but no sector 
+  # Chemical industry emissions, for example, are 20% of EDGAR NOx emissions in 1970, but no sector
   # specific data is included in CEDS for extending these emissions.
   if( em %in% c( 'CH4', 'N2O' ) ){
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )

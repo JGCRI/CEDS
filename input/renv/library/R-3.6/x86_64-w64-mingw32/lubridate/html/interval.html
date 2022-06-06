@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Utilities for creation and manipulation of 'Interval' objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for interval {lubridate}"><tr><td>interval {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Utilities for creation and manipulation of <code>Interval</code> objects</h2>
+
+<h3>Description</h3>
+
+<p><code>interval()</code> creates an <a href="Interval-class.html">Interval</a> object with the specified start and
+end dates. If the start date occurs before the end date, the interval will be
+positive. Otherwise, it will be negative. Character vectors in ISO 8601
+format are supported from v1.7.2.
+</p>
+<p><code>int_start()</code>/<code>int_end()</code> and <code style="white-space: pre;">int_start&lt;-()</code>/<code style="white-space: pre;">int_end&lt;-()</code> are
+&quot;accessors&quot; and &quot;setters&quot; respectively of the start/end date of an
+interval.
+</p>
+<p><code>int_flip()</code> reverses the order of the start date and end date in an
+interval. The new interval takes place during the same timespan as the
+original interval, but has the opposite direction.
+</p>
+<p><code>int_shift()</code> shifts the start and end dates of an interval up or down the
+timeline by a specified amount. Note that this may change the exact length of
+the interval if the interval is shifted by a Period object. Intervals shifted
+by a Duration or difftime object will retain their exact length in seconds.
+</p>
+<p><code>int_overlaps()</code> tests if two intervals overlap.
+</p>
+<p><code>int_standardize()</code> ensures all intervals in an interval object are
+positive. If an interval is not positive, flip it so that it retains its
+endpoints but becomes positive.
+</p>
+<p><code>int_aligns()</code> tests if two intervals share an endpoint. The direction of
+each interval is ignored. int_align tests whether the earliest or latest
+moments of each interval occur at the same time.
+</p>
+<p><code>int_diff()</code> returns the intervals that occur between the elements of a
+vector of date-times. <code>int_diff()</code> is similar to the POSIXt and Date
+methods of <code><a href="../../base/html/diff.html">diff()</a></code>, but returns an <a href="Interval-class.html">Interval</a> object instead
+of a difftime object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+interval(start = NULL, end = NULL, tzone = tz(start))
+
+start %--% end
+
+is.interval(x)
+
+int_start(int)
+
+int_start(int) &lt;- value
+
+int_end(int)
+
+int_end(int) &lt;- value
+
+int_length(int)
+
+int_flip(int)
+
+int_shift(int, by)
+
+int_overlaps(int1, int2)
+
+int_standardize(int)
+
+int_aligns(int1, int2)
+
+int_diff(times)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>start, end</code></td>
+<td>
+<p>POSIXt, Date or a character vectors. When <code>start</code> is a
+character vector and end is <code>NULL</code>, ISO 8601 specification is assumed but
+with much more permisive lubridate style parsing both for dates and periods
+(see examples).</p>
+</td></tr>
+<tr valign="top"><td><code>tzone</code></td>
+<td>
+<p>a recognized timezone to display the interval in</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an R object</p>
+</td></tr>
+<tr valign="top"><td><code>int</code></td>
+<td>
+<p>an interval object</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>interval's start/end to be assigned to <code>int</code></p>
+</td></tr>
+<tr valign="top"><td><code>by</code></td>
+<td>
+<p>A period or duration object to shift by (for <code>int_shift</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>int1</code></td>
+<td>
+<p>an Interval object (for <code>int_overlaps()</code>, <code>int_aligns()</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>int2</code></td>
+<td>
+<p>an Interval object (for <code>int_overlaps()</code>, <code>int_aligns()</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>times</code></td>
+<td>
+<p>A vector of POSIXct, POSIXlt or Date class date-times (for
+<code>int_diff()</code>)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Intervals are time spans bound by two real date-times.  Intervals can be
+accurately converted to either period or duration objects using
+<code><a href="as.period.html">as.period()</a></code>, <code><a href="as.duration.html">as.duration()</a></code>. Since an interval is anchored to a fixed
+history of time, both the exact number of seconds that passed and the number
+of variable length time units that occurred during the interval can be
+calculated.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>interval()</code> &ndash; <a href="Interval-class.html">Interval</a> object.
+</p>
+<p><code>int_start()</code> and <code>int_end()</code> return a POSIXct date object when
+used as an accessor. Nothing when used as a setter.
+</p>
+<p><code>int_length()</code> &ndash; numeric length of the interval in
+seconds. A negative number connotes a negative interval.
+</p>
+<p><code>int_flip()</code> &ndash; flipped interval object
+</p>
+<p><code>int_shift()</code> &ndash; an Interval object
+</p>
+<p><code>int_overlaps()</code> &ndash; logical, TRUE if int1 and int2 overlap by at
+least one second. FALSE otherwise
+</p>
+<p><code>int_aligns()</code> &ndash; logical, TRUE if int1 and int2 begin or end on the
+same moment. FALSE otherwise
+</p>
+<p><code>int_diff()</code> &ndash; interval object that contains the n-1 intervals
+between the n date-time in times
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="Interval-class.html">Interval</a>, <code><a href="as.interval.html">as.interval()</a></code>, <code><a href="within-interval.html">%within%</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+interval(ymd(20090201), ymd(20090101))
+
+date1 &lt;- ymd_hms("2009-03-08 01:59:59")
+date2 &lt;- ymd_hms("2000-02-29 12:00:00")
+interval(date2, date1)
+interval(date1, date2)
+span &lt;- interval(ymd(20090101), ymd(20090201))
+
+### ISO Intervals
+
+interval("2007-03-01T13:00:00Z/2008-05-11T15:30:00Z")
+interval("2007-03-01T13:00:00Z/P1Y2M10DT2H30M")
+interval("P1Y2M10DT2H30M/2008-05-11T15:30:00Z")
+interval("2008-05-11/P2H30M")
+
+### More permisive parsing (as long as there are no intermittent / characters)
+interval("2008 05 11/P2hours 30minutes")
+interval("08 05 11/P 2h 30m")
+
+is.interval(period(months= 1, days = 15)) # FALSE
+is.interval(interval(ymd(20090801), ymd(20090809))) # TRUE
+int &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int_start(int)
+int_start(int) &lt;- ymd("2001-06-01")
+int
+
+int &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int_end(int)
+int_end(int) &lt;- ymd("2002-06-01")
+int
+int &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int_length(int)
+int &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int_flip(int)
+int &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int_shift(int, duration(days = 11))
+int_shift(int, duration(hours = -1))
+int1 &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int2 &lt;- interval(ymd("2001-06-01"), ymd("2002-06-01"))
+int3 &lt;- interval(ymd("2003-01-01"), ymd("2004-01-01"))
+
+int_overlaps(int1, int2) # TRUE
+int_overlaps(int1, int3) # FALSE
+int &lt;- interval(ymd("2002-01-01"), ymd("2001-01-01"))
+int_standardize(int)
+int1 &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int2 &lt;- interval(ymd("2001-06-01"), ymd("2002-01-01"))
+int3 &lt;- interval(ymd("2003-01-01"), ymd("2004-01-01"))
+
+int_aligns(int1, int2) # TRUE
+int_aligns(int1, int3) # FALSE
+dates &lt;- now() + days(1:10)
+int_diff(dates)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

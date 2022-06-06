@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Identify Unhandled Control Sequences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for unhandled_ctl {fansi}"><tr><td>unhandled_ctl {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Identify Unhandled Control Sequences</h2>
+
+<h3>Description</h3>
+
+<p>Will return position and types of unhandled <em>Control Sequences</em> in a
+character vector.  Unhandled sequences may cause <code>fansi</code> to interpret strings
+in a way different to your display.  See <a href="fansi.html">fansi</a> for details.  Functions that
+interpret <em>Special Sequences</em> (CSI SGR or OSC hyperlinks) might omit bad
+<em>Special Sequences</em> or some of their components in output substrings,
+particularly if they are leading or trailing.  Some functions are more
+tolerant of bad inputs than others.  For example <code><a href="nchar_ctl.html">nchar_ctl</a></code> will not
+report unsupported colors because it only cares about counts or widths.
+<code>unhandled_ctl</code> will report all potentially problematic sequences.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+unhandled_ctl(x, term.cap = getOption("fansi.term.cap", dflt_term_cap()))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>term.cap</code></td>
+<td>
+<p>character a vector of the capabilities of the terminal, can
+be any combination of &quot;bright&quot; (SGR codes 90-97, 100-107), &quot;256&quot; (SGR codes
+starting with &quot;38;5&quot; or &quot;48;5&quot;), &quot;truecolor&quot; (SGR codes starting with
+&quot;38;2&quot; or &quot;48;2&quot;), and &quot;all&quot;. &quot;all&quot; behaves as it does for the <code>ctl</code>
+parameter: &quot;all&quot; combined with any other value means all terminal
+capabilities except that one.  <code>fansi</code> will warn if it encounters SGR codes
+that exceed the terminal capabilities specified (see <code><a href="term_cap_test.html">term_cap_test</a></code>
+for details).  In versions prior to 1.0, <code>fansi</code> would also skip exceeding
+SGRs entirely instead of interpreting them.  You may add the string &quot;old&quot;
+to any otherwise valid <code>term.cap</code> spec to restore the pre 1.0 behavior.
+&quot;old&quot; will not interact with &quot;all&quot; the way other valid values for this
+parameter do.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>To work around tabs present in input, you can use <code><a href="tabs_as_spaces.html">tabs_as_spaces</a></code> or the
+<code>tabs.as.spaces</code> parameter on functions that have it, or the <code><a href="strip_ctl.html">strip_ctl</a></code>
+function to remove the troublesome sequences.  Alternatively, you can use
+<code>warn=FALSE</code> to suppress the warnings.
+</p>
+<p>This is a debugging function that is not optimized for speed and the precise
+output of which might change with <code>fansi</code> versions.
+</p>
+<p>The return value is a data frame with five columns:
+</p>
+
+<ul>
+<li><p> index: integer the index in <code>x</code> with the unhandled sequence
+</p>
+</li>
+<li><p> start: integer the start position of the sequence (in characters)
+</p>
+</li>
+<li><p> stop: integer the end of the sequence (in characters), but note that if
+there are multiple ESC sequences abutting each other they will all be
+treated as one, even if some of those sequences are valid.
+</p>
+</li>
+<li><p> error: the reason why the sequence was not handled:
+</p>
+
+<ul>
+<li><p> unknown-substring: SGR substring with a value that does not correspond
+to a known SGR code or OSC hyperlink with unsupported parameters.
+</p>
+</li>
+<li><p> invalid-substr: SGR contains uncommon characters in &quot;:&lt;=&gt;&quot;,
+intermediate bytes, other invalid characters, or there is an invalid
+subsequence (e.g. &quot;ESC[38;2m&quot; which should specify an RGB triplet
+but does not).  OSCs contain invalid bytes, or OSC hyperlinks contain
+otherwise valid OSC bytes in 0x08-0x0d.
+</p>
+</li>
+<li><p> exceed-term-cap: contains color codes not supported by the terminal
+(see <a href="term_cap_test.html">term_cap_test</a>).  Bright colors with color codes in the 90-97 and
+100-107 range in terminals that do not support them are not considered
+errors, whereas 256 or truecolor codes in terminals that do not support
+them are.  This is because the latter are often misinterpreted by
+terminals that do not support them, whereas the former are typically
+silently ignored.
+</p>
+</li>
+<li><p> CSI/OSC: a non-SGR CSI sequence, or non-hyperlink OSC sequence.
+</p>
+</li>
+<li><p> CSI/OSC-bad-substr: a CSI or OSC sequence containing invalid
+characters.
+</p>
+</li>
+<li><p> malformed-CSI/OSC: a malformed CSI or OSC sequence, typically one that
+never encounters its closing sequence before the end of a string.
+</p>
+</li>
+<li><p> non-CSI/OSC: a non-CSI or non-OSC escape sequence, i.e. one where the
+ESC is followed by something other than &quot;[&quot; or &quot;]&quot;.  Since we
+assume all non-CSI sequences are only 2 characters long include the
+ESC, this type of sequence is the most likely to cause problems as some
+are not actually two characters long.
+</p>
+</li>
+<li><p> malformed-ESC: a malformed two byte ESC sequence (i.e. one not ending
+in 0x40-0x7e).
+</p>
+</li>
+<li><p> C0: a &quot;C0&quot; control character (e.g. tab, bell, etc.).
+</p>
+</li>
+<li><p> malformed-UTF8: illegal UTF8 encoding.
+</p>
+</li>
+<li><p> non-ASCII: non-ASCII bytes in escape sequences.
+</p>
+</li></ul>
+
+</li>
+<li><p> translated: whether the string was translated to UTF-8, might be helpful in
+odd cases were character offsets change depending on encoding.  You should
+only worry about this if you cannot tie out the <code>start</code>/<code>stop</code> values to
+the escape sequence shown.
+</p>
+</li>
+<li><p> esc: character the unhandled escape sequence
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p>Data frame with as many rows as there are unhandled escape
+sequences and columns containing useful information for debugging the
+problem.  See details.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Non-ASCII strings are converted to UTF-8 encoding.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="fansi.html">?fansi</a></code> for details on how <em>Control Sequences</em> are
+interpreted, particularly if you are getting unexpected results,
+<code><a href="unhandled_ctl.html">unhandled_ctl</a></code> for detecting bad control sequences.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+string &lt;- c(
+  "\033[41mhello world\033[m", "foo\033[22&gt;m", "\033[999mbar",
+  "baz \033[31#3m", "a\033[31k", "hello\033m world"
+)
+unhandled_ctl(string)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

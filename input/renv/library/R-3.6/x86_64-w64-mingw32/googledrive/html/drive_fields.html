@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Request partial resources</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_fields {googledrive}"><tr><td>drive_fields {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Request partial resources</h2>
+
+<h3>Description</h3>
+
+<p>You may be able to improve the performance of your API calls by
+requesting only the metadata that you actually need. This function is
+primarily for internal use and is currently focused on the <a href="https://developers.google.com/drive/api/v3/reference/files">Files resource</a>. Note
+that high-level googledrive functions assume that the <code>name</code>, <code>id</code>, and
+<code>kind</code> fields are included, at a bare minimum. Assuming that <code>resource = "files"</code> (the default), input provided via <code>fields</code> is checked for validity
+against the known field names and the validated fields are returned. To see
+a tibble containing all possible fields and a short description of each,
+call <code>drive_fields(expose())</code>.
+</p>
+<p><code>prep_fields()</code> prepares fields for inclusion as query
+parameters.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_fields(fields = NULL, resource = "files")
+
+prep_fields(fields, resource = "files")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fields</code></td>
+<td>
+<p>Character vector of field names. If <code>resource = "files"</code>, they
+are checked for validity. Otherwise, they are passed through.</p>
+</td></tr>
+<tr valign="top"><td><code>resource</code></td>
+<td>
+<p>Character, naming the API resource of interest. Currently,
+only the Files resource is anticipated.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>drive_fields()</code>: Character vector of field names. <code>prep_fields()</code>: a
+string.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://developers.google.com/drive/api/v3/performance">Improve performance</a>, in
+the Drive API documentation.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get a tibble of all fields for the Files resource + indicator of defaults
+drive_fields(expose())
+
+# invalid fields are removed and throw warning
+drive_fields(c("name", "parents", "ownedByMe", "pancakes!"))
+
+# prepare fields for query
+prep_fields(c("name", "parents", "kind"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

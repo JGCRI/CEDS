@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Do anything</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do {dplyr}"><tr><td>do {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Do anything</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p><code>do()</code> is superseded as of dplyr 1.0.0, because its syntax never really
+felt like it belong with the rest of dplyr. It's replaced by a combination
+of <code><a href="summarise.html">summarise()</a></code> (which can now produce multiple rows and multiple columns),
+<code><a href="nest_by.html">nest_by()</a></code> (which creates a <a href="rowwise.html">rowwise</a> tibble of nested data),
+and <code><a href="across.html">across()</a></code> (which allows you to access the data for the &quot;current&quot; group).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do(.data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>a tbl</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Expressions to apply to each group. If named, results will be
+stored in a new column. If unnamed, should return a data frame. You can
+use <code>.</code> to refer to the current group. You can not mix named and
+unnamed arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# do() with unnamed arguments becomes summarise()
+# . becomes across()
+by_cyl &lt;- mtcars %&gt;% group_by(cyl)
+by_cyl %&gt;% do(head(., 2))
+# -&gt;
+by_cyl %&gt;% summarise(head(across(), 2))
+by_cyl %&gt;% slice_head(n = 2)
+
+# Can refer to variables directly
+by_cyl %&gt;% do(mean = mean(.$vs))
+# -&gt;
+by_cyl %&gt;% summarise(mean = mean(vs))
+
+# do() with named arguments becomes nest_by() + mutate() &amp; list()
+models &lt;- by_cyl %&gt;% do(mod = lm(mpg ~ disp, data = .))
+# -&gt;
+models &lt;- mtcars %&gt;%
+  nest_by(cyl) %&gt;%
+  mutate(mod = list(lm(mpg ~ disp, data = data)))
+models %&gt;% summarise(rsq = summary(mod)$r.squared)
+
+# use broom to turn models into data
+models %&gt;% do(data.frame(
+  var = names(coef(.$mod)),
+  coef(summary(.$mod)))
+)
+# -&gt;
+if (requireNamespace("broom")) {
+  models %&gt;% summarise(broom::tidy(mod))
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

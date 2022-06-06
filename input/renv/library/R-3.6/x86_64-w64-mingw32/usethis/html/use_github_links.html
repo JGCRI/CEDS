@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use GitHub links in URL and BugReports</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_github_links {usethis}"><tr><td>use_github_links {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use GitHub links in URL and BugReports</h2>
+
+<h3>Description</h3>
+
+<p>Populates the <code>URL</code> and <code>BugReports</code> fields of a GitHub-using R package with
+appropriate links. The GitHub repo to link to is determined from the current
+project's GitHub remotes:
+</p>
+
+<ul>
+<li><p> If we are not working with a fork, this function expects <code>origin</code> to be a
+GitHub remote and the links target that repo.
+</p>
+</li>
+<li><p> If we are working in a fork, this function expects to find two GitHub
+remotes: <code>origin</code> (the fork) and <code>upstream</code> (the fork's parent) remote. In
+an interactive session, the user can confirm which repo to use for the
+links. In a noninteractive session, links are formed using <code>upstream</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+use_github_links(
+  auth_token = deprecated(),
+  host = deprecated(),
+  overwrite = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>host, auth_token</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>: No longer consulted
+now that usethis consults the current project's GitHub remotes to get the
+<code>host</code> and then relies on gh to discover an appropriate token.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>By default, <code>use_github_links()</code> will not overwrite existing
+fields. Set to <code>TRUE</code> to overwrite existing links.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+use_github_links()
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Changes the components of a date object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for DateTimeUpdate {lubridate}"><tr><td>DateTimeUpdate {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Changes the components of a date object</h2>
+
+<h3>Description</h3>
+
+<p><code>update.Date()</code> and <code>update.POSIXt()</code> return a date with the specified
+elements updated.  Elements not specified will be left unaltered. update.Date
+and update.POSIXt do not add the specified values to the existing date, they
+substitute them for the appropriate parts of the existing date.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'POSIXt'
+update(
+  object,
+  ...,
+  roll = FALSE,
+  week_start = getOption("lubridate.week.start", 7),
+  simple = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a date-time object</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>named arguments: years, months, ydays, wdays, mdays, days, hours,
+minutes, seconds, tzs (time zone component)</p>
+</td></tr>
+<tr valign="top"><td><code>roll</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, and the resulting date-time lands on a
+non-existent civil time instant (DST, 29th February, etc.) roll the date
+till next valid point. When <code>FALSE</code>, the default, produce NA for non
+existing date-times.</p>
+</td></tr>
+<tr valign="top"><td><code>week_start</code></td>
+<td>
+<p>week starting day (Default is 7, Sunday). Set
+<code>lubridate.week.start</code> option to control this.</p>
+</td></tr>
+<tr valign="top"><td><code>simple</code></td>
+<td>
+<p>logical. Deprecated. Same as <code>roll</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a date object with the requested elements updated. The object will
+retain its original class unless an element is updated which the original
+class does not support. In this case, the date returned will be a POSIXlt
+date object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+date &lt;- ymd("2009-02-10")
+update(date, year = 2010, month = 1, mday = 1)
+
+update(date, year =2010, month = 13, mday = 1)
+
+update(date, minute = 10, second = 3)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

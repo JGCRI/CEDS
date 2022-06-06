@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Explicitly draw plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for print.ggplot {ggplot2}"><tr><td>print.ggplot {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Explicitly draw plot</h2>
+
+<h3>Description</h3>
+
+<p>Generally, you do not need to print or plot a ggplot2 plot explicitly: the
+default top-level print method will do it for you. You will, however, need
+to call <code>print()</code> explicitly if you want to draw a plot inside a
+function or for loop.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'ggplot'
+print(x, newpage = is.null(vp), vp = NULL, ...)
+
+## S3 method for class 'ggplot'
+plot(x, newpage = is.null(vp), vp = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>plot to display</p>
+</td></tr>
+<tr valign="top"><td><code>newpage</code></td>
+<td>
+<p>draw new (empty) page first?</p>
+</td></tr>
+<tr valign="top"><td><code>vp</code></td>
+<td>
+<p>viewport to draw plot in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other arguments not used by this method</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Invisibly returns the result of <code><a href="ggplot_build.html">ggplot_build()</a></code>, which
+is a list with components that contain the plot itself, the data,
+information about the scales, panels etc.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+colours &lt;- list(~class, ~drv, ~fl)
+
+# Doesn't seem to do anything!
+for (colour in colours) {
+  ggplot(mpg, aes_(~ displ, ~ hwy, colour = colour)) +
+    geom_point()
+}
+
+# Works when we explicitly print the plots
+for (colour in colours) {
+  print(ggplot(mpg, aes_(~ displ, ~ hwy, colour = colour)) +
+    geom_point())
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

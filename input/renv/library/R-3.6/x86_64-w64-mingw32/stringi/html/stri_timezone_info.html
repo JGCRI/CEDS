@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query a Given Time Zone</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_timezone_info {stringi}"><tr><td>stri_timezone_info {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query a Given Time Zone</h2>
+
+<h3>Description</h3>
+
+<p>Provides some basic information on a given time zone identifier.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_timezone_info(tz = NULL, locale = NULL, display_type = "long")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for default time zone,
+or a single string with time zone ID otherwise</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for default locale,
+or a single string with locale identifier</p>
+</td></tr>
+<tr valign="top"><td><code>display_type</code></td>
+<td>
+<p>single string;
+one of <code>'short'</code>, <code>'long'</code>, <code>'generic_short'</code>,
+<code>'generic_long'</code>, <code>'gmt_short'</code>, <code>'gmt_long'</code>,
+<code>'common'</code>, <code>'generic_location'</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Used to fetch basic information
+on any supported time zone.
+</p>
+<p>For more information on time zone representation in <span class="pkg">ICU</span>,
+see <code><a href="stri_timezone_list.html">stri_timezone_list</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a list with the following named components:
+</p>
+
+<ol>
+<li> <p><code>ID</code> (time zone identifier),
+</p>
+</li>
+<li> <p><code>Name</code> (localized human-readable time zone name),
+</p>
+</li>
+<li> <p><code>Name.Daylight</code> (localized human-readable time zone
+name when DST is used, if available),
+</p>
+</li>
+<li> <p><code>Name.Windows</code> (Windows time zone ID, if available),
+</p>
+</li>
+<li> <p><code>RawOffset</code> (raw GMT offset, in hours, before taking
+daylight savings into account), and
+</p>
+</li>
+<li> <p><code>UsesDaylightTime</code> (states whether a time zone uses
+daylight savings time in the current Gregorian calendar year).
+</p>
+</li></ol>
+
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+<p>Other timezone: 
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_timezone_info()
+stri_timezone_info(locale='sk_SK')
+sapply(c('short', 'long', 'generic_short', 'generic_long',
+         'gmt_short', 'gmt_long', 'common', 'generic_location'),
+  function(e) stri_timezone_info('Europe/London', display_type=e))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

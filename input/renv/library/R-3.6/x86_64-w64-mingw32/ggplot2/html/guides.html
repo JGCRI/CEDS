@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set guides for each scale</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for guides {ggplot2}"><tr><td>guides {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set guides for each scale</h2>
+
+<h3>Description</h3>
+
+<p>Guides for each scale can be set scale-by-scale with the <code>guide</code>
+argument, or en masse with <code>guides()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+guides(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>List of scale name-guide pairs.  The guide can either
+be a string (i.e. &quot;colorbar&quot; or &quot;legend&quot;), or a call to a guide function
+(i.e. <code><a href="guide_colourbar.html">guide_colourbar()</a></code> or <code><a href="guide_legend.html">guide_legend()</a></code>)
+specifying additional arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list containing the mapping between scale and guide.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other guides: 
+<code><a href="guide_bins.html">guide_bins</a>()</code>,
+<code><a href="guide_colourbar.html">guide_colourbar</a>()</code>,
+<code><a href="guide_coloursteps.html">guide_coloursteps</a>()</code>,
+<code><a href="guide_legend.html">guide_legend</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# ggplot object
+
+dat &lt;- data.frame(x = 1:5, y = 1:5, p = 1:5, q = factor(1:5),
+ r = factor(1:5))
+p &lt;-
+  ggplot(dat, aes(x, y, colour = p, size = q, shape = r)) +
+  geom_point()
+
+# without guide specification
+p
+
+# Show colorbar guide for colour.
+# All these examples below have a same effect.
+
+p + guides(colour = "colorbar", size = "legend", shape = "legend")
+p + guides(colour = guide_colorbar(), size = guide_legend(),
+  shape = guide_legend())
+p +
+ scale_colour_continuous(guide = "colorbar") +
+ scale_size_discrete(guide = "legend") +
+ scale_shape(guide = "legend")
+
+ # Remove some guides
+ p + guides(colour = "none")
+ p + guides(colour = "colorbar",size = "none")
+
+# Guides are integrated where possible
+
+p +
+  guides(
+    colour = guide_legend("title"),
+    size = guide_legend("title"),
+    shape = guide_legend("title")
+ )
+# same as
+g &lt;- guide_legend("title")
+p + guides(colour = g, size = g, shape = g)
+
+p + theme(legend.position = "bottom")
+
+# position of guides
+
+# Set order for multiple guides
+ggplot(mpg, aes(displ, cty)) +
+  geom_point(aes(size = hwy, colour = cyl, shape = drv)) +
+  guides(
+   colour = guide_colourbar(order = 1),
+   shape = guide_legend(order = 2),
+   size = guide_legend(order = 3)
+ )
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

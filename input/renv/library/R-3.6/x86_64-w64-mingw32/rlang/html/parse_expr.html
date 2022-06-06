@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse R code</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for parse_expr {rlang}"><tr><td>parse_expr {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse R code</h2>
+
+<h3>Description</h3>
+
+<p>These functions parse and transform text into R expressions. This
+is the first step to interpret or evaluate a piece of R code
+written by a programmer.
+</p>
+
+<ul>
+<li> <p><code>parse_expr()</code> returns one expression. If the text contains more
+than one expression (separated by semicolons or new lines), an
+error is issued. On the other hand <code>parse_exprs()</code> can handle
+multiple expressions. It always returns a list of expressions
+(compare to <code><a href="../../base/html/parse.html">base::parse()</a></code> which returns a base::expression
+vector). All functions also support R connections.
+</p>
+</li>
+<li> <p><code>parse_quo()</code> and <code>parse_quos()</code> are variants that create a
+<a href="defusing-advanced.html">quosure</a> that inherits from the global environment by
+default. This is appropriate when you're parsing external user
+input to be evaluated in user context (rather than the private
+contexts of your functions).
+</p>
+<p>Unlike quosures created with <code><a href="enquo.html">enquo()</a></code>, <code><a href="enquo.html">enquos()</a></code>, or <code style="white-space: pre;">{{</code>, a
+parsed quosure never contains injected quosures. It is thus safe
+to evaluate them with <code>eval()</code> instead of <code><a href="eval_tidy.html">eval_tidy()</a></code>, though
+the latter is more convenient as you don't need to extract <code>expr</code>
+and <code>env</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+parse_expr(x)
+
+parse_exprs(x)
+
+parse_quo(x, env = global_env())
+
+parse_quos(x, env = global_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Text containing expressions to parse_expr for
+<code>parse_expr()</code> and <code>parse_exprs()</code>. Can also be an R connection,
+for instance to a file. If the supplied connection is not open,
+it will be automatically closed and destroyed.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The environment for the quosures. The <a href="search_envs.html">global environment</a> (the default) may be the right choice
+when you are parsing external user inputs. You might also want to
+evaluate the R code in an isolated context (perhaps a child of
+the global environment or of the <a href="search_envs.html">base environment</a>).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>parse_expr()</code> returns an <a href="is_expression.html">expression</a>,
+<code>parse_exprs()</code> returns a list of expressions. Note that for the
+plural variants the length of the output may be greater than the
+length of the input. This would happen is one of the strings
+contain several expressions (such as <code>"foo; bar"</code>). The names of
+<code>x</code> are preserved (and recycled in case of multiple expressions).
+The <code style="white-space: pre;">_quo</code> suffixed variants return quosures.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../base/html/parse.html">base::parse()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# parse_expr() can parse any R expression:
+parse_expr("mtcars %&gt;% dplyr::mutate(cyl_prime = cyl / sd(cyl))")
+
+# A string can contain several expressions separated by ; or \n
+parse_exprs("NULL; list()\n foo(bar)")
+
+# Use names to figure out which input produced an expression:
+parse_exprs(c(foo = "1; 2", bar = "3"))
+
+# You can also parse source files by passing a R connection. Let's
+# create a file containing R code:
+path &lt;- tempfile("my-file.R")
+cat("1; 2; mtcars", file = path)
+
+# We can now parse it by supplying a connection:
+parse_exprs(file(path))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

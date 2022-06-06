@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Un-render a reprex</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for un-reprex {reprex}"><tr><td>un-reprex {reprex}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Un-render a reprex</h2>
+
+<h3>Description</h3>
+
+<p>Recover clean, runnable code from a reprex captured in the wild and write it
+to user's clipboard. The code is also returned invisibly and optionally
+written to file. Three different functions address various forms of
+wild-caught reprex.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+reprex_invert(
+  input = NULL,
+  wd = NULL,
+  venue = c("gh", "r"),
+  comment = opt("#&gt;"),
+  outfile = "DEPRECATED"
+)
+
+reprex_clean(
+  input = NULL,
+  wd = NULL,
+  comment = opt("#&gt;"),
+  outfile = "DEPRECATED"
+)
+
+reprex_rescue(
+  input = NULL,
+  wd = NULL,
+  prompt = getOption("prompt"),
+  continue = getOption("continue"),
+  outfile = "DEPRECATED"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>Character. If has length one and lacks a terminating newline,
+interpreted as the path to a file containing the reprex. Otherwise,
+assumed to hold the reprex as a character vector. If not provided, the
+clipboard is consulted for input. If the clipboard is unavailable and
+we're in RStudio, the current selection is used.</p>
+</td></tr>
+<tr valign="top"><td><code>wd</code></td>
+<td>
+<p>An optional filepath that is consulted when <code>input</code> is not a
+filepath. (By default, all work is done, quietly, in a subdirectory of the
+session temp directory.)
+</p>
+<p>The most common use of <code>wd</code> is to set <code>wd = "."</code>, which means &quot;reprex right
+HERE in the current working directory&quot;. Do this if you really must
+demonstrate something with local files.</p>
+</td></tr>
+<tr valign="top"><td><code>venue</code></td>
+<td>
+<p>Character. Must be one of the following (case insensitive):
+</p>
+
+<ul>
+<li><p> &quot;gh&quot; for <a href="https://github.github.com/gfm/">GitHub-Flavored Markdown</a>, the
+default
+</p>
+</li>
+<li><p> &quot;r&quot; for a runnable R script, with commented output interleaved. Also useful
+for <a href="https://slack.com/intl/en-ca/slack-tips/share-code-snippets">Slack code snippets</a>;
+select &quot;R&quot; from the &quot;Type&quot; drop-down menu to enjoy nice syntax
+highlighting.
+</p>
+</li>
+<li><p> &quot;rtf&quot; for
+<a href="https://en.wikipedia.org/wiki/Rich_Text_Format">Rich Text Format</a>
+(not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;html&quot; for an HTML fragment suitable for inclusion in a larger HTML
+document (not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;slack&quot; for pasting into a Slack message. Works best if you opt out of
+Slack's WYSIWYG interface and, instead, go to <strong>Preferences &gt; Advanced</strong>
+and select &quot;Format messages with markup&quot;.
+</p>
+</li>
+<li><p> &quot;so&quot; for
+<a href="https://stackoverflow.com/editing-help#syntax-highlighting">Stack Overflow Markdown</a>.
+Note: this is just an alias for &quot;gh&quot;, since Stack Overflow started to
+support CommonMark-style fenced code blocks in January 2019.
+</p>
+</li>
+<li><p> &quot;ds&quot; for Discourse, e.g.,
+<a href="https://community.rstudio.com">community.rstudio.com</a>. Note: this is
+currently just an alias for &quot;gh&quot;.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>regular expression that matches commented output lines</p>
+</td></tr>
+<tr valign="top"><td><code>outfile</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> in favor of <code>wd</code> or
+providing a filepath to <code>input</code>. To reprex in current working directory,
+use <code>wd = "."</code> now, instead of <code>outfile = NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>prompt</code></td>
+<td>
+<p>character, the prompt at the start of R commands</p>
+</td></tr>
+<tr valign="top"><td><code>continue</code></td>
+<td>
+<p>character, the prompt for continuation lines</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector holding just the clean R code, invisibly
+</p>
+
+
+<h3>Functions</h3>
+
+
+<ul>
+<li> <p><code>reprex_invert</code>: Attempts to reverse the effect of <code><a href="reprex.html">reprex()</a></code>. When
+<code>venue = "r"</code>, this just calls <code>reprex_clean()</code>.
+</p>
+</li>
+<li> <p><code>reprex_clean</code>: Assumes R code is top-level, possibly interleaved with
+commented output, e.g., a displayed reprex copied from GitHub or the direct
+output of <code>reprex(..., venue = "R")</code>. This function removes commented
+output.
+</p>
+</li>
+<li> <p><code>reprex_rescue</code>: Assumes R code lines start with a prompt and that
+printed output is top-level, e.g., what you'd get from copy/paste from the
+R Console. Removes lines of output and strips prompts from lines holding R
+commands.
+</p>
+</li></ul>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# a roundtrip: R code --&gt; rendered reprex, as gfm --&gt; R code
+original &lt;- file.path(tempdir(), "original.R")
+writeLines(glue::glue("
+  #' Some text
+  #+ chunk-label-and-options-cannot-be-recovered, message = TRUE
+  (x &lt;- 1:4)
+  #' More text
+  y &lt;- 2:5
+  x + y"), con = original)
+reprex(input = original, html_preview = FALSE, advertise = FALSE)
+reprexed &lt;- sub("[.]R$", "_reprex.md", original)
+writeLines(readLines(reprexed))
+unreprexed &lt;- reprex_invert(input = reprexed)
+writeLines(unreprexed)
+
+# clean up
+file.remove(
+  list.files(dirname(original), pattern = "original", full.names = TRUE)
+)
+
+## End(Not run)
+## Not run: 
+# a roundtrip: R code --&gt; rendered reprex, as R code --&gt; original R code
+code_in &lt;- c(
+  "# a regular comment, which is retained",
+  "(x &lt;- 1:4)",
+  "median(x)"
+)
+reprexed &lt;- reprex(input = code_in, venue = "r", advertise = FALSE)
+writeLines(reprexed)
+code_out &lt;- reprex_clean(input = reprexed)
+writeLines(code_out)
+identical(code_in, code_out)
+
+## End(Not run)
+## Not run: 
+# rescue a reprex that was copied from a live R session
+from_r_console &lt;- c(
+  "&gt; # a regular comment, which is retained",
+  "&gt; (x &lt;- 1:4)",
+  "[1] 1 2 3 4",
+  "&gt; median(x)",
+  "[1] 2.5"
+)
+rescued &lt;- reprex_rescue(input = from_r_console)
+writeLines(rescued)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>reprex</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

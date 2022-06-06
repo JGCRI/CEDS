@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set or Get Default Character Encoding in 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_set {stringi}"><tr><td>stri_enc_set {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set or Get Default Character Encoding in <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p><code>stri_enc_set</code> sets the encoding used to re-encode strings
+internally (i.e., by <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>) declared to be in native encoding,
+see <a href="about_encoding.html">stringi-encoding</a> and <code><a href="stri_enc_mark.html">stri_enc_mark</a></code>.
+<code>stri_enc_get</code> returns the currently used default encoding.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_set(enc)
+
+stri_enc_get()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>enc</code></td>
+<td>
+<p>single string; character encoding name,
+see <code><a href="stri_enc_list.html">stri_enc_list</a></code> for the list of supported encodings.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>stri_enc_get</code> is the same as
+<code><a href="stri_enc_info.html">stri_enc_info</a>(NULL)$Name.friendly</code>.
+</p>
+<p>Note that changing the default encoding may have undesired consequences.
+Unless you are an expert user and you know what you are doing,
+<code>stri_enc_set</code> should only be used if <span class="pkg">ICU</span> fails to detect
+your system's encoding correctly (while testing <span class="pkg">stringi</span>
+we only encountered such a situation on a very old Solaris machine).
+Note that <span class="pkg">ICU</span> tries to match the encoding part of the <code>LC_CTYPE</code>
+category as given by <code><a href="../../base/html/locales.html">Sys.getlocale</a></code>.
+</p>
+<p>If you set a default encoding that is neither a superset of ASCII,
+nor an 8-bit encoding, a warning will be generated,
+see <a href="about_encoding.html">stringi-encoding</a> for discussion.
+</p>
+<p><code>stri_enc_set</code> has no effect if the system ICU assumes that
+the default charset is always UTF-8 (i.e., where the internal
+<code>U_CHARSET_IS_UTF8</code> is defined and set to 1), see
+<code><a href="stri_info.html">stri_info</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>stri_enc_set</code> returns a string with
+previously used character encoding, invisibly.
+</p>
+<p><code>stri_enc_get</code> returns a string with current default character
+encoding.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_management: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_info.html">stri_enc_info</a>()</code>,
+<code><a href="stri_enc_list.html">stri_enc_list</a>()</code>,
+<code><a href="stri_enc_mark.html">stri_enc_mark</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

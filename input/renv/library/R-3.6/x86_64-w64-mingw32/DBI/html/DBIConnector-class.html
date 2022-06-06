@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: DBIConnector class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for DBIConnector-class {DBI}"><tr><td>DBIConnector-class {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>DBIConnector class</h2>
+
+<h3>Description</h3>
+
+<p>Wraps objects of the <a href="DBIDriver-class.html">DBIDriver</a> class to include connection options.
+The purpose of this class is to store both the driver
+and the connection options.
+A database connection can be established
+with a call to <code><a href="dbConnect.html">dbConnect()</a></code>, passing only that object
+without additional arguments.
+</p>
+
+
+<h3>Details</h3>
+
+<p>To prevent leakage of passwords and other credentials,
+this class supports delayed evaluation.
+All arguments can optionally be a function (callable without arguments).
+In such a case, the function is evaluated transparently when connecting in
+<code><a href="dbGetConnectArgs.html">dbGetConnectArgs()</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBI classes: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="DBIDriver-class.html">DBIDriver-class</a></code>,
+<code><a href="DBIObject-class.html">DBIObject-class</a></code>,
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>
+</p>
+<p>Other DBIConnector generics: 
+<code><a href="dbConnect.html">dbConnect</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbGetConnectArgs.html">dbGetConnectArgs</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Create a connector:
+cnr &lt;- new("DBIConnector",
+  .drv = RSQLite::SQLite(),
+  .conn_args = list(dbname = ":memory:")
+)
+cnr
+
+# Establish a connection through this connector:
+con &lt;- dbConnect(cnr)
+con
+
+# Access the database through this connection:
+dbGetQuery(con, "SELECT 1 AS a")
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

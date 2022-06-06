@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Eager pipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pipe-eager {magrittr}"><tr><td>pipe-eager {magrittr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Eager pipe</h2>
+
+<h3>Description</h3>
+
+<p>Whereas <code style="white-space: pre;">%&gt;%</code> is lazy and only evaluates the piped expressions when
+needed, <code style="white-space: pre;">%!&gt;%</code> is eager and evaluates the piped input at each step.
+This produces more intuitive behaviour when functions are called
+for their side effects, such as displaying a message.
+</p>
+<p>Note that you can also solve this by making your function
+strict. Call <code>force()</code> on the first argument in your function to
+force sequential evaluation, even with the lazy <code style="white-space: pre;">%&gt;%</code> pipe.
+See the examples section.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lhs %!&gt;% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>A value or the magrittr placeholder.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>A function call using the magrittr semantics.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(x) {
+  message("foo")
+  x
+}
+g &lt;- function(x) {
+  message("bar")
+  x
+}
+h &lt;- function(x) {
+  message("baz")
+  invisible(x)
+}
+
+# The following lazy pipe sequence is equivalent to `h(g(f()))`.
+# Given R's lazy evaluation behaviour,`f()` and `g()` are lazily
+# evaluated when `h()` is already running. This causes the messages
+# to appear in reverse order:
+NULL %&gt;% f() %&gt;% g() %&gt;% h()
+
+# Use the eager pipe to fix this:
+NULL %!&gt;% f() %!&gt;% g() %!&gt;% h()
+
+# Or fix this by calling `force()` on the function arguments
+f &lt;- function(x) {
+  force(x)
+  message("foo")
+  x
+}
+g &lt;- function(x) {
+  force(x)
+  message("bar")
+  x
+}
+h &lt;- function(x) {
+  force(x)
+  message("baz")
+  invisible(x)
+}
+
+# With strict functions, the arguments are evaluated sequentially
+NULL %&gt;% f() %&gt;% g() %&gt;% h()
+
+# Instead of forcing, you can also check the type of your functions.
+# Type-checking also has the effect of making your function lazy.
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>magrittr</em> version 2.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

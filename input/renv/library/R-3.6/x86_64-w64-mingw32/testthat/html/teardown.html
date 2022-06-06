@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run code before/after tests</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for teardown {testthat}"><tr><td>teardown {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run code before/after tests</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p>We no longer recommend using <code>setup()</code> and <code>teardown()</code>; instead
+we think it's better practice to use a <strong>test fixture</strong> as described in
+<code>vignette("test-fixtures")</code>.
+</p>
+<p>Code in a <code>setup()</code> block is run immediately in a clean environment.
+Code in a <code>teardown()</code> block is run upon completion of a test file,
+even if it exits with an error. Multiple calls to <code>teardown()</code> will be
+executed in the order they were created.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+teardown(code, env = parent.frame())
+
+setup(code, env = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to evaluate</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which code will be evaluated. For expert
+use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# Old approach
+tmp &lt;- tempfile()
+setup(writeLines("some test data", tmp))
+teardown(unlink(tmp))
+
+## End(Not run)
+
+# Now recommended:
+local_test_data &lt;- function(env = parent.frame()) {
+  tmp &lt;- tempfile()
+  writeLines("some test data", tmp)
+  withr::defer(unlink(tmp), env)
+
+  tmp
+}
+# Then call local_test_data() in your tests
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

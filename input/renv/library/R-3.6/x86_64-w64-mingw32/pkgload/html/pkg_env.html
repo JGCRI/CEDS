@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return package environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pkg_env {pkgload}"><tr><td>pkg_env {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return package environment</h2>
+
+<h3>Description</h3>
+
+<p>This is an environment like <code style="white-space: pre;">&lt;package:pkg&gt;</code>. The package
+environment contains the exported objects from a package. It is
+attached, so it is an ancestor of <code>R_GlobalEnv</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pkg_env(package)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>package name.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>When a package is loaded the normal way, using <code><a href="../../base/html/library.html">library()</a></code>,
+this environment contains only the exported objects from the
+namespace. However, when loaded with <code><a href="load_all.html">load_all()</a></code>, this
+environment will contain all the objects from the namespace, unless
+<code>load_all</code> is used with <code>export_all=FALSE</code>.
+</p>
+<p>If the package is not attached, this function returns <code>NULL</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="ns_env.html">ns_env()</a></code> for the namespace environment that
+all the objects (exported and not exported).
+</p>
+<p><code><a href="imports_env.html">imports_env()</a></code> for the environment that contains
+imported objects for the package.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

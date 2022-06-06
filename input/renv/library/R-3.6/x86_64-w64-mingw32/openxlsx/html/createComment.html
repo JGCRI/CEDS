@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: create a Comment object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for createComment {openxlsx}"><tr><td>createComment {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>create a Comment object</h2>
+
+<h3>Description</h3>
+
+<p>Create a cell Comment object to pass to writeComment()
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+createComment(
+  comment,
+  author = Sys.getenv("USERNAME"),
+  style = NULL,
+  visible = TRUE,
+  width = 2,
+  height = 4
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>Comment text. Character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>author</code></td>
+<td>
+<p>Author of comment. Character vector of length 1</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>A Style object or list of style objects the same length as comment vector. See <code><a href="createStyle.html">createStyle()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>visible</code></td>
+<td>
+<p>TRUE or FALSE. Is comment visible.</p>
+</td></tr>
+<tr valign="top"><td><code>width, height</code></td>
+<td>
+<p>Width and height of textbook (in number of cells);
+doubles are rounded with <code>base::round()</code></p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="writeComment.html">writeComment()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+
+c1 &lt;- createComment(comment = "this is comment")
+writeComment(wb, 1, col = "B", row = 10, comment = c1)
+
+s1 &lt;- createStyle(fontSize = 12, fontColour = "red", textDecoration = c("BOLD"))
+s2 &lt;- createStyle(fontSize = 9, fontColour = "black")
+
+c2 &lt;- createComment(comment = c("This Part Bold red\n\n", "This part black"), style = c(s1, s2))
+c2
+
+writeComment(wb, 1, col = 6, row = 3, comment = c2)
+## Not run: 
+saveWorkbook(wb, file = "createCommentExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

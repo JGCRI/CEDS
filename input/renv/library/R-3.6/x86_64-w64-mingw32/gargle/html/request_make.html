@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make a Google API request</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for request_make {gargle}"><tr><td>request_make {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make a Google API request</h2>
+
+<h3>Description</h3>
+
+<p>Intended primarily for internal use in client packages that provide
+high-level wrappers for users. <code>request_make()</code> does relatively little:
+</p>
+
+<ul>
+<li><p> Calls an HTTP method.
+</p>
+</li>
+<li><p> Adds a user agent.
+</p>
+</li>
+<li><p> Enforces <code>"json"</code> as the default for <code>encode</code>. This differs from httr's
+default behaviour, but aligns better with Google APIs.
+</p>
+</li></ul>
+
+<p>Typically the input is created with <code><a href="request_develop.html">request_build()</a></code> and the output is
+processed with <code><a href="response_process.html">response_process()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+request_make(x, ..., encode = "json", user_agent = gargle_user_agent())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>List. Holds the components for an HTTP request, presumably created
+with <code><a href="request_develop.html">request_develop()</a></code> or <code><a href="request_develop.html">request_build()</a></code>. Must contain a <code>method</code> and
+<code>url</code>. If present, <code>body</code> and <code>token</code> are used.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments passed through to the HTTP method. Currently
+neither gargle nor httr checks that all are used, so be aware that unused
+arguments may be silently ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>encode</code></td>
+<td>
+<p>If the body is a named list, how should it be encoded? Can be
+one of form (application/x-www-form-urlencoded), multipart,
+(multipart/form-data), or json (application/json).
+</p>
+<p>For &quot;multipart&quot;, list elements can be strings or objects created by
+<code><a href="../../httr/html/upload_file.html">upload_file()</a></code>. For &quot;form&quot;, elements are coerced to strings
+and escaped, use <code>I()</code> to prevent double-escaping. For &quot;json&quot;,
+parameters are automatically &quot;unboxed&quot; (i.e. length 1 vectors are
+converted to scalars). To preserve a length 1 vector as a vector,
+wrap in <code>I()</code>. For &quot;raw&quot;, either a character or raw vector. You'll
+need to make sure to set the <code><a href="../../httr/html/content_type.html">content_type()</a></code> yourself.</p>
+</td></tr>
+<tr valign="top"><td><code>user_agent</code></td>
+<td>
+<p>A user agent string, prepared by <code><a href="../../httr/html/user_agent.html">httr::user_agent()</a></code>. When
+in doubt, a client package should have an internal function that extends
+<code>gargle_user_agent()</code> by prepending its return value with the client
+package's name and version.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Object of class <code>response</code> from <a href="../../httr/html/httr-package.html">httr</a>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other requests and responses: 
+<code><a href="request_develop.html">request_develop</a>()</code>,
+<code><a href="response_process.html">response_process</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+req &lt;- gargle::request_build(
+  method = "GET",
+  path = "path/to/the/resource",
+  token = "PRETEND_I_AM_TOKEN"
+)
+gargle::request_make(req)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

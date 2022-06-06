@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Remove column widths from a worksheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for removeColWidths {openxlsx}"><tr><td>removeColWidths {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Remove column widths from a worksheet</h2>
+
+<h3>Description</h3>
+
+<p>Remove column widths from a worksheet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+removeColWidths(wb, sheet, cols)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Indices of columns to remove custom width (if any) from.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="setColWidths.html">setColWidths()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- loadWorkbook(file = system.file("extdata", "loadExample.xlsx", package = "openxlsx"))
+
+## remove column widths in columns 1 to 20
+removeColWidths(wb, 1, cols = 1:20)
+## Not run: 
+saveWorkbook(wb, "removeColWidthsExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

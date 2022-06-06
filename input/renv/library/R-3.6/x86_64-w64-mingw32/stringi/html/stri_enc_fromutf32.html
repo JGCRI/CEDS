@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert From UTF-32</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_enc_fromutf32 {stringi}"><tr><td>stri_enc_fromutf32 {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert From UTF-32</h2>
+
+<h3>Description</h3>
+
+<p>This function converts integer vectors,
+representing sequences of UTF-32 code points, to UTF-8 strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_enc_fromutf32(vec)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>vec</code></td>
+<td>
+<p>a list of integer vectors (or objects coercible to such vectors)
+or <code>NULL</code>s. For convenience, a single integer vector can also
+be given.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>UTF-32 is a 32-bit encoding where each Unicode code point
+corresponds to exactly one integer value.
+</p>
+<p>This function is a vectorized version of
+<code><a href="../../base/html/utf8Conversion.html">intToUtf8</a></code>. As usual in <span class="pkg">stringi</span>,
+it returns character strings in UTF-8.
+See <code><a href="stri_enc_toutf32.html">stri_enc_toutf32</a></code> for a dual operation.
+</p>
+<p>If an ill-defined code point is given, a warning is generated
+and the corresponding string is set to <code>NA</code>.
+Note that <code>0</code>s are not allowed in <code>vec</code>, as they are used
+internally to mark the end of a string (in the C API).
+</p>
+<p>See also <code><a href="stri_encode.html">stri_encode</a></code> for decoding arbitrary byte sequences
+from any given encoding.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector (in UTF-8).
+<code>NULL</code>s in the input list are converted to <code>NA_character_</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other encoding_conversion: 
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="stri_enc_toascii.html">stri_enc_toascii</a>()</code>,
+<code><a href="stri_enc_tonative.html">stri_enc_tonative</a>()</code>,
+<code><a href="stri_enc_toutf32.html">stri_enc_toutf32</a>()</code>,
+<code><a href="stri_enc_toutf8.html">stri_enc_toutf8</a>()</code>,
+<code><a href="stri_encode.html">stri_encode</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

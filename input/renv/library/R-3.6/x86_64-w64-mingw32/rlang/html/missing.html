@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Missing values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for missing {rlang}"><tr><td>missing {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Missing values</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p>Missing values are represented in R with the general symbol
+<code>NA</code>. They can be inserted in almost all data containers: all
+atomic vectors except raw vectors can contain missing values. To
+achieve this, R automatically converts the general <code>NA</code> symbol to a
+typed missing value appropriate for the target vector. The objects
+provided here are aliases for those typed <code>NA</code> objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+na_lgl
+
+na_int
+
+na_dbl
+
+na_chr
+
+na_cpl
+</pre>
+
+
+<h3>Format</h3>
+
+<p>An object of class <code>logical</code> of length 1.
+</p>
+<p>An object of class <code>integer</code> of length 1.
+</p>
+<p>An object of class <code>numeric</code> of length 1.
+</p>
+<p>An object of class <code>character</code> of length 1.
+</p>
+<p>An object of class <code>complex</code> of length 1.
+</p>
+
+
+<h3>Details</h3>
+
+<p>Typed missing values are necessary because R needs sentinel values
+of the same type (i.e. the same machine representation of the data)
+as the containers into which they are inserted. The official typed
+missing values are <code>NA_integer_</code>, <code>NA_real_</code>, <code>NA_character_</code> and
+<code>NA_complex_</code>. The missing value for logical vectors is simply the
+default <code>NA</code>. The aliases provided in rlang are consistently named
+and thus simpler to remember. Also, <code>na_lgl</code> is provided as an
+alias to <code>NA</code> that makes intent clearer.
+</p>
+<p>Since <code>na_lgl</code> is the default <code>NA</code>, expressions such as <code>c(NA, NA)</code>
+yield logical vectors as no data is available to give a clue of the
+target type. In the same way, since lists and environments can
+contain any types, expressions like <code>list(NA)</code> store a logical
+<code>NA</code>.
+</p>
+
+
+<h3>Life cycle</h3>
+
+<p>These shortcuts might be moved to the vctrs package at some
+point. This is why they are marked as questioning.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+typeof(NA)
+typeof(na_lgl)
+typeof(na_int)
+
+# Note that while the base R missing symbols cannot be overwritten,
+# that's not the case for rlang's aliases:
+na_dbl &lt;- NA
+typeof(na_dbl)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

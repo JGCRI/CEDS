@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Register an inline plugin</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for registerPlugin {Rcpp}"><tr><td>registerPlugin {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Register an inline plugin
+</h2>
+
+<h3>Description</h3>
+
+<p>Register an <a href="../../inline/html/plugins.html">inline plugin</a> for use with 
+<code><a href="sourceCpp.html">sourceCpp</a></code> or <code><a href="cppFunction.html">cppFunction</a></code>. Inline plugins are functions
+that return a list with additional includes, environment variables, and
+other compilation context. 
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+registerPlugin(name, plugin)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of the inline plugin</p>
+</td></tr>
+<tr valign="top"><td><code>plugin</code></td>
+<td>
+<p>Inline plugin function</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Plugins can be added to <code><a href="sourceCpp.html">sourceCpp</a></code> compilations using the
+<code><a href="pluginsAttribute.html">Rcpp::plugins</a></code> attribute.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pluginsAttribute.html">Rcpp::plugins</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

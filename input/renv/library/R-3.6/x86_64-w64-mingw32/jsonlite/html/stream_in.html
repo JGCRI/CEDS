@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Streaming JSON input/output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stream_in, stream_out {jsonlite}"><tr><td>stream_in, stream_out {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Streaming JSON input/output</h2>
+
+<h3>Description</h3>
+
+<p>The <code>stream_in</code> and <code>stream_out</code> functions implement line-by-line processing
+of JSON data over a <a href="../../base/html/connections.html">connection</a>, such as a socket, url, file or pipe. JSON
+streaming requires the <a href="http://ndjson.org">ndjson</a> format, which slightly differs
+from <code><a href="fromJSON.html">fromJSON()</a></code> and <code><a href="fromJSON.html">toJSON()</a></code>, see details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stream_in(con, handler = NULL, pagesize = 500, verbose = TRUE, ...)
+
+stream_out(x, con = stdout(), pagesize = 500, verbose = TRUE, prefix = "", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>a <a href="../../base/html/connections.html">connection</a> object. If the connection is not open,
+<code>stream_in</code> and <code>stream_out</code> will automatically open
+and later close (and destroy) the connection. See details.</p>
+</td></tr>
+<tr valign="top"><td><code>handler</code></td>
+<td>
+<p>a custom function that is called on each page of JSON data. If not specified,
+the default handler stores all pages and binds them into a single data frame that will be
+returned by <code>stream_in</code>. See details.</p>
+</td></tr>
+<tr valign="top"><td><code>pagesize</code></td>
+<td>
+<p>number of lines to read/write from/to the connection per iteration.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>print some information on what is going on.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments for <code><a href="fromJSON.html">fromJSON()</a></code> and <code><a href="fromJSON.html">toJSON()</a></code> that
+control JSON formatting/parsing where applicable. Use with caution.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>object to be streamed out. Currently only data frames are supported.</p>
+</td></tr>
+<tr valign="top"><td><code>prefix</code></td>
+<td>
+<p>string to write before each line (use <code>"\u001e"</code> to write rfc7464 text sequences)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Because parsing huge JSON strings is difficult and inefficient, JSON streaming is done
+using <strong>lines of minified JSON records</strong>, a.k.a. <a href="http://ndjson.org">ndjson</a>.
+This is pretty standard: JSON databases such as <a href="https://github.com/dat-ecosystem-archive/dat">dat</a>
+or MongoDB use the same format to import/export datasets. Note that this means that the
+total stream combined is not valid JSON itself; only the individual lines are. Also note
+that because line-breaks are used as separators, prettified JSON is not permitted: the
+JSON lines <em>must</em> be minified. In this respect, the format is a bit different from
+<code><a href="fromJSON.html">fromJSON()</a></code> and <code><a href="fromJSON.html">toJSON()</a></code> where all lines are part of a single JSON
+structure with optional line breaks.
+</p>
+<p>The <code>handler</code> is a callback function which is called for each page (batch) of
+JSON data with exactly one argument (usually a data frame with <code>pagesize</code> rows).
+If <code>handler</code> is missing or <code>NULL</code>, a default handler is used which stores all
+intermediate pages of data, and at the very end binds all pages together into one single
+data frame that is returned by <code>stream_in</code>. When a custom <code>handler</code> function
+is specified, <code>stream_in</code> does not store any intermediate results and always returns
+<code>NULL</code>. It is then up to the <code>handler</code> to process or store data pages.
+A <code>handler</code> function that does not store intermediate results in memory (for
+example by writing output to another connection) results in a pipeline that can process an
+unlimited amount of data. See example.
+</p>
+<p>Note that a vector of JSON strings already in R can parsed with <code>stream_in</code> by
+creating a connection to it with <code><a href="../../base/html/textconnections.html">textConnection()</a></code>.
+</p>
+<p>If a connection is not opened yet, <code>stream_in</code> and <code>stream_out</code>
+will automatically open and later close the connection. Because R destroys connections
+when they are closed, they cannot be reused. To use a single connection for multiple
+calls to <code>stream_in</code> or <code>stream_out</code>, it needs to be opened
+beforehand. See example.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The <code>stream_out</code> function always returns <code>NULL</code>.
+When no custom handler is specified, <code>stream_in</code> returns a data frame of all pages binded together.
+When a custom handler function is specified, <code>stream_in</code> always returns <code>NULL</code>.
+</p>
+
+
+<h3>References</h3>
+
+<p>MongoDB export format: <a href="https://docs.mongodb.com/database-tools/mongoexport/">https://docs.mongodb.com/database-tools/mongoexport/</a>
+</p>
+<p>Documentation for the JSON Lines text file format: <a href="https://jsonlines.org/">https://jsonlines.org/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="fromJSON.html">fromJSON()</a></code>, <code><a href="read_json.html">read_json()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# compare formats
+x &lt;- iris[1:3,]
+toJSON(x)
+stream_out(x)
+
+# Trivial example
+mydata &lt;- stream_in(url("http://httpbin.org/stream/100"))
+
+## Not run: 
+#stream large dataset to file and back
+library(nycflights13)
+stream_out(flights, file(tmp &lt;- tempfile()))
+flights2 &lt;- stream_in(file(tmp))
+unlink(tmp)
+all.equal(flights2, as.data.frame(flights))
+
+# stream over HTTP
+diamonds2 &lt;- stream_in(url("http://jeroen.github.io/data/diamonds.json"))
+
+# stream over HTTP with gzip compression
+flights3 &lt;- stream_in(gzcon(url("http://jeroen.github.io/data/nycflights13.json.gz")))
+all.equal(flights3, as.data.frame(flights))
+
+# stream over HTTPS (HTTP+SSL) via curl
+library(curl)
+flights4 &lt;- stream_in(gzcon(curl("https://jeroen.github.io/data/nycflights13.json.gz")))
+all.equal(flights4, as.data.frame(flights))
+
+# or alternatively:
+flights5 &lt;- stream_in(gzcon(pipe("curl https://jeroen.github.io/data/nycflights13.json.gz")))
+all.equal(flights5, as.data.frame(flights))
+
+# Full JSON IO stream from URL to file connection.
+# Calculate delays for flights over 1000 miles in batches of 5k
+library(dplyr)
+con_in &lt;- gzcon(url("http://jeroen.github.io/data/nycflights13.json.gz"))
+con_out &lt;- file(tmp &lt;- tempfile(), open = "wb")
+stream_in(con_in, handler = function(df){
+  df &lt;- dplyr::filter(df, distance &gt; 1000)
+  df &lt;- dplyr::mutate(df, delta = dep_delay - arr_delay)
+  stream_out(df, con_out, pagesize = 1000)
+}, pagesize = 5000)
+close(con_out)
+
+# stream it back in
+mydata &lt;- stream_in(file(tmp))
+nrow(mydata)
+unlink(tmp)
+
+# Data from http://openweathermap.org/current#bulk
+# Each row contains a nested data frame.
+daily14 &lt;- stream_in(gzcon(url("http://78.46.48.103/sample/daily_14.json.gz")), pagesize=50)
+subset(daily14, city$name == "Berlin")$data[[1]]
+
+# Or with dplyr:
+library(dplyr)
+daily14f &lt;- flatten(daily14)
+filter(daily14f, city.name == "Berlin")$data[[1]]
+
+# Stream import large data from zip file
+tmp &lt;- tempfile()
+download.file("http://jsonstudio.com/wp-content/uploads/2014/02/companies.zip", tmp)
+companies &lt;- stream_in(unz(tmp, "companies.json"))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

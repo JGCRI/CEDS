@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Insert an image into a worksheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for insertImage {openxlsx}"><tr><td>insertImage {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Insert an image into a worksheet</h2>
+
+<h3>Description</h3>
+
+<p>Insert an image into a worksheet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+insertImage(
+  wb,
+  sheet,
+  file,
+  width = 6,
+  height = 3,
+  startRow = 1,
+  startCol = 1,
+  units = "in",
+  dpi = 300
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>An image file. Valid file types are: jpeg, png, bmp</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of figure.</p>
+</td></tr>
+<tr valign="top"><td><code>height</code></td>
+<td>
+<p>Height of figure.</p>
+</td></tr>
+<tr valign="top"><td><code>startRow</code></td>
+<td>
+<p>Row coordinate of upper left corner of the image</p>
+</td></tr>
+<tr valign="top"><td><code>startCol</code></td>
+<td>
+<p>Column coordinate of upper left corner of the image</p>
+</td></tr>
+<tr valign="top"><td><code>units</code></td>
+<td>
+<p>Units of width and height. Can be &quot;in&quot;, &quot;cm&quot; or &quot;px&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>dpi</code></td>
+<td>
+<p>Image resolution used for conversion between units.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="insertPlot.html">insertPlot()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook("Ayanami")
+
+## Add some worksheets
+addWorksheet(wb, "Sheet 1")
+addWorksheet(wb, "Sheet 2")
+addWorksheet(wb, "Sheet 3")
+
+## Insert images
+img &lt;- system.file("extdata", "einstein.jpg", package = "openxlsx")
+insertImage(wb, "Sheet 1", img, startRow = 5, startCol = 3, width = 6, height = 5)
+insertImage(wb, 2, img, startRow = 2, startCol = 2)
+insertImage(wb, 3, img, width = 15, height = 12, startRow = 3, startCol = "G", units = "cm")
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "insertImageExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

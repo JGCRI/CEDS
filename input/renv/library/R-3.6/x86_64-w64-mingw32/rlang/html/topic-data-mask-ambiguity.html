@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The data mask ambiguity</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-data-mask-ambiguity {rlang}"><tr><td>topic-data-mask-ambiguity {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The data mask ambiguity</h2>
+
+<h3>Description</h3>
+
+<p><a href="topic-data-mask.html">Data masking</a> is an R feature that blends programming variables that live inside environments (env-variables) with statistical variables stored in data frames (data-variables). This mixture makes it easy to refer to data frame columns as well as objects defined in the current environment.<div class="sourceCode r"></p>
+<pre>x &lt;- 100
+mtcars %&gt;% dplyr::summarise(mean(disp / x))
+#&gt; # A tibble: 1 x 1
+#&gt;   `mean(disp/x)`
+#&gt;            &lt;dbl&gt;
+#&gt; 1           2.31
+</pre></div>
+<p>However this convenience introduces an ambiguity between data-variables and env-variables which might cause <strong>collisions</strong>.
+</p>
+
+
+<h4>Column collisions</h4>
+
+<p>In the following snippet, are we referring to the env-variable <code>x</code> or to the data-variable of the same name?<div class="sourceCode r"></p>
+<pre>df &lt;- data.frame(x = NA, y = 2)
+x &lt;- 100
+
+df %&gt;% dplyr::mutate(y = y / x)
+#&gt;    x  y
+#&gt; 1 NA NA
+</pre></div>
+<p>A column collision occurs when you want to use an object defined outside of the data frame, but a column of the same name happens to exist.
+</p>
+
+
+
+<h4>Object collisions</h4>
+
+<p>The opposite problem occurs when there is a typo in a data-variable name and an env-variable of the same name exists:<div class="sourceCode r"></p>
+<pre>df &lt;- data.frame(foo = "right")
+ffo &lt;- "wrong"
+
+df %&gt;% dplyr::mutate(foo = toupper(ffo))
+#&gt;     foo
+#&gt; 1 WRONG
+</pre></div>
+<p>Instead of a typo, it might also be that you were expecting a column in the data frame which is unexpectedly missing. In both cases, if a variable can't be found in the data mask, R looks for variables in the surrounding environment. This isn't what we intended here and it would have been better to fail early with a &quot;Column not found&quot; error.
+</p>
+
+
+
+<h4>Preventing collisions</h4>
+
+<p>In casual scripts or interactive programming, data mask ambiguity is not a huge deal compared to the payoff of iterating quickly while developing your analysis. However in production code and in package functions, the ambiguity might cause collision bugs in the long run.
+</p>
+<p>Fortunately it is easy to be explicit about the scoping of variables with a little more verbose code. This topic lists the solutions and workarounds that have been created to solve ambiguity issues in data masks.
+</p>
+
+
+<h5>The <code>.data</code> and <code>.env</code> pronouns</h5>
+
+<p>The simplest solution is to use the <code><a href="dot-data.html">.data</a></code> and <code><a href="dot-data.html">.env</a></code> pronouns to disambiguate between data-variables and env-variables.<div class="sourceCode r"></p>
+<pre>df &lt;- data.frame(x = 1, y = 2)
+x &lt;- 100
+
+df %&gt;% dplyr::mutate(y = .data$y / .env$x)
+#&gt;   x    y
+#&gt; 1 1 0.02
+</pre></div>
+<p>This is especially useful in functions because the data frame is not known in advance and potentially contain masking columns for any of the env-variables in scope in the function:<div class="sourceCode r"></p>
+<pre>my_rescale &lt;- function(data, var, factor = 10) {
+  data %&gt;% dplyr::mutate("{{ var }}" := {{ var }} / factor)
+}
+
+# This works
+data.frame(value = 1) %&gt;% my_rescale(value)
+#&gt;   value
+#&gt; 1   0.1
+
+# Oh no!
+data.frame(factor = 0, value = 1) %&gt;% my_rescale(value)
+#&gt;   factor value
+#&gt; 1      0   Inf
+</pre></div>
+<p>Subsetting function arguments with <code>.env</code> ensures we never hit a masking column:<div class="sourceCode r"></p>
+<pre>my_rescale &lt;- function(data, var, factor = 10) {
+  data %&gt;% dplyr::mutate("{{ var }}" := {{ var }} / .env$factor)
+}
+
+# Yay!
+data.frame(factor = 0, value = 1) %&gt;% my_rescale(value)
+#&gt;   factor value
+#&gt; 1      0   0.1
+</pre></div>
+
+
+
+<h5>Subsetting <code>.data</code> with env-variables</h5>
+
+<p>The <code><a href="dot-data.html">.data</a></code> pronoun may be used as a name-to-data-mask pattern (see <a href="topic-data-mask-programming.html">Data mask programming patterns</a>):<div class="sourceCode r"></p>
+<pre>var &lt;- "cyl"
+mtcars %&gt;% dplyr::summarise(mean = mean(.data[[var]]))
+#&gt; # A tibble: 1 x 1
+#&gt;    mean
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+</pre></div>
+<p>In this example, the env-variable <code>var</code> is used inside the data mask to subset the <code>.data</code> pronoun. Does this mean that <code>var</code> is at risk of a column collision if the input data frame contains a column of the same name? Fortunately not:<div class="sourceCode r"></p>
+<pre>var &lt;- "cyl"
+
+mtcars2 &lt;- mtcars
+mtcars2$var &lt;- "wrong"
+
+mtcars2 %&gt;% dplyr::summarise(mean = mean(.data[[var]]))
+#&gt; # A tibble: 1 x 1
+#&gt;    mean
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+</pre></div>
+<p>The evaluation of <code>.data[[var]]</code> is set up in such a way that there is no ambiguity. The <code>.data</code> pronoun can only be subsetted with env-variables, not data-variables. Technically, this is because <code>[[</code> behaves like an <em>injection operator</em> when applied to <code>.data</code>. It is evaluated very early before the data mask is even created. See the <code style="white-space: pre;">!!</code> section below.
+</p>
+
+
+
+<h5>Injecting env-variables with <code style="white-space: pre;">!!</code></h5>
+
+<p><a href="topic-inject.html">Injection operators</a> such as <code><a href="injection-operator.html">!!</a></code> have interesting properties regarding the ambiguity problem. They modify a piece of code early on by injecting objects or other expressions before any data-masking logic comes into play. If you inject the <em>value</em> of a variable, it becomes inlined in the expression. R no longer needs to look up any variable to find the value.
+</p>
+<p>Taking the earlier division example, let's use <code style="white-space: pre;">!!</code> to inject the value of the env-variable <code>x</code> inside the division expression:<div class="sourceCode r"></p>
+<pre>df &lt;- data.frame(x = NA, y = 2)
+x &lt;- 100
+
+df %&gt;% dplyr::mutate(y = y / !!x)
+#&gt;    x    y
+#&gt; 1 NA 0.02
+</pre></div>
+<p>While injection solves issues of ambiguity, it is a bit heavy handed compared to using the <code><a href="dot-data.html">.env</a></code> pronoun. Big objects inlined in expressions might cause issues in unexpected places, for instance they might make the calls in a <code><a href="../../base/html/traceback.html">traceback()</a></code> less readable.
+</p>
+
+
+
+
+<h4>No ambiguity in tidy selections</h4>
+
+<p><a href="https://tidyselect.r-lib.org/reference/language.html">Tidy selection</a> is a dialect of R that optimises column selection in tidyverse packages. Examples of functions that use tidy selections are <code>dplyr::select()</code> and <code>tidyr::pivot_longer()</code>.
+</p>
+<p>Unlike data masking, tidy selections do not suffer from ambiguity. The selection language is designed in such a way that evaluation of expressions is either scoped in the data mask only, or in the environment only. Take this example:<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% dplyr::select(gear:ncol(mtcars))
+</pre></div>
+<p><code>gear</code> is a symbol supplied to a selection operator <code>:</code> and thus scoped in the data mask only. Any other kind of expression, such as <code>ncol(mtcars)</code>, is evaluated as normal R code outside of any data context. This is why there is no column collision here:<div class="sourceCode r"></p>
+<pre>data &lt;- data.frame(x = 1, data = 1:3)
+
+data %&gt;% dplyr::select(data:ncol(data))
+#&gt;   data
+#&gt; 1    1
+#&gt; 2    2
+#&gt; 3    3
+</pre></div>
+<p>It is useful to introduce two new terms. Tidy selections distinguish data-expressions and env-expressions:
+</p>
+
+<ul>
+<li> <p><code>data</code> is a data-expression that refers to the data-variable.
+</p>
+</li>
+<li> <p><code>ncol(data)</code> is an env-expression that refers to the env-variable.
+</p>
+</li></ul>
+
+<p>To learn more about the difference between the two kinds of expressions, see the <a href="https://tidyselect.r-lib.org/articles/syntax.html">technical description of the tidy selection syntax</a>.
+</p>
+
+
+<h5>Names pattern with <code>all_of()</code></h5>
+
+<p><code>all_of()</code> is often used in functions as a <a href="topic-data-mask-programming.html">programming pattern</a> that connects column names to a data mask, similarly to the <code><a href="dot-data.html">.data</a></code> pronoun. A simple example is:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, vars) {
+  data %&gt;% dplyr::group_by(across(all_of(vars)))
+}
+</pre></div>
+<p>If tidy selections were affected by the data mask ambiguity, this function would be at risk of a column collision. It would break as soon as the user supplies a data frame containing a <code>vars</code> column. However, <code>all_of()</code> is an env-expression that is evaluated outside of the data mask, so there is no possibility of collisions.
+</p>
+
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

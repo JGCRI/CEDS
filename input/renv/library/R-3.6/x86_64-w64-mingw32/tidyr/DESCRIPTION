@@ -1,0 +1,42 @@
+Package: tidyr
+Title: Tidy Messy Data
+Version: 1.2.0
+Authors@R: c(
+    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
+    person("Maximilian", "Girlich", role = "aut"),
+    person("RStudio", role = "cph")
+  )
+Description: Tools to help to create tidy data, where each column is a
+    variable, each row is an observation, and each cell contains a single
+    value.  'tidyr' contains tools for changing the shape (pivoting) and
+    hierarchy (nesting and 'unnesting') of a dataset, turning deeply
+    nested lists into rectangular data frames ('rectangling'), and
+    extracting values out of string columns. It also includes tools for
+    working with missing values (both implicit and explicit).
+License: MIT + file LICENSE
+URL: https://tidyr.tidyverse.org, https://github.com/tidyverse/tidyr
+BugReports: https://github.com/tidyverse/tidyr/issues
+Depends: R (>= 3.1)
+Imports: dplyr (>= 1.0.0), ellipsis (>= 0.1.0), glue, lifecycle,
+        magrittr, purrr, rlang, tibble (>= 2.1.1), tidyselect (>=
+        1.1.0), utils, vctrs (>= 0.3.7)
+Suggests: covr, data.table, jsonlite, knitr, readr, repurrrsive (>=
+        1.0.0), rmarkdown, testthat (>= 3.0.0)
+LinkingTo: cpp11 (>= 0.4.0)
+VignetteBuilder: knitr
+Config/Needs/website: tidyverse/tidytemplate
+Config/testthat/edition: 3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+SystemRequirements: C++11
+NeedsCompilation: yes
+Packaged: 2022-01-27 19:03:06 UTC; davis
+Author: Hadley Wickham [aut, cre],
+  Maximilian Girlich [aut],
+  RStudio [cph]
+Maintainer: Hadley Wickham <hadley@rstudio.com>
+Repository: CRAN
+Date/Publication: 2022-02-01 08:40:02 UTC
+Built: R 3.6.3; x86_64-w64-mingw32; 2022-02-01 20:03:06 UTC; windows
+Archs: x64

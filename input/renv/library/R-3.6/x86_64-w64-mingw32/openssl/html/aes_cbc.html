@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Symmetric AES encryption</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for aes_cbc {openssl}"><tr><td>aes_cbc {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Symmetric AES encryption</h2>
+
+<h3>Description</h3>
+
+<p>Low-level symmetric encryption/decryption using the AES block cipher in CBC mode.
+The key is a raw vector, for example a hash of some secret. When no shared
+secret is available, a random key can be used which is exchanged via an
+asymmetric protocol such as RSA. See <code><a href="rsa_encrypt.html">rsa_encrypt</a></code> for a worked example
+or <code><a href="encrypt_envelope.html">encrypt_envelope</a></code> for a high-level wrapper combining AES and RSA.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+aes_ctr_encrypt(data, key, iv = rand_bytes(16))
+
+aes_ctr_decrypt(data, key, iv = attr(data, "iv"))
+
+aes_cbc_encrypt(data, key, iv = rand_bytes(16))
+
+aes_cbc_decrypt(data, key, iv = attr(data, "iv"))
+
+aes_gcm_encrypt(data, key, iv = rand_bytes(12))
+
+aes_gcm_decrypt(data, key, iv = attr(data, "iv"))
+
+aes_keygen(length = 16)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>raw vector or path to file with data to encrypt or decrypt</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>raw vector of length 16, 24 or 32, e.g. the hash of a shared secret</p>
+</td></tr>
+<tr valign="top"><td><code>iv</code></td>
+<td>
+<p>raw vector of length 16 (aes block size) or NULL. The initialization vector
+is not secret but should be random</p>
+</td></tr>
+<tr valign="top"><td><code>length</code></td>
+<td>
+<p>how many bytes to generate. Usually 16 (128-bit) or 12 (92-bit) for <code>aes_gcm</code></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# aes-256 requires 32 byte key
+passphrase &lt;- charToRaw("This is super secret")
+key &lt;- sha256(passphrase)
+
+# symmetric encryption uses same key for decryption
+x &lt;- serialize(iris, NULL)
+y &lt;- aes_cbc_encrypt(x, key = key)
+x2 &lt;- aes_cbc_decrypt(y, key = key)
+stopifnot(identical(x, x2))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

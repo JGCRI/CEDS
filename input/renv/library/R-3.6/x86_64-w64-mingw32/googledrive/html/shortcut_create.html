@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a shortcut to a Drive file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for shortcut_create {googledrive}"><tr><td>shortcut_create {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a shortcut to a Drive file</h2>
+
+<h3>Description</h3>
+
+<p>Creates a shortcut to the target Drive <code>file</code>, which could be a folder. A
+Drive shortcut functions like a symbolic or &quot;soft&quot; link and is primarily
+useful for creating a specific Drive user experience in the browser, i.e. to
+make a Drive file or folder appear in more than 1 place. Shortcuts are a
+relatively new feature in Drive; they were introduced when Drive stopped
+allowing a file to have more than 1 parent folder.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+shortcut_create(file, path = NULL, name = NULL, overwrite = NA)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file of interest on your Google
+Drive. Can be a name or path, a file id or URL marked with <code><a href="as_id.html">as_id()</a></code>, or a
+<code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Target destination for the new shortcut, i.e. a folder or a
+shared drive. Can be given as an actual path (character), a file id or URL
+marked with <code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>. Defaults to your &quot;My Drive&quot; root
+folder. If <code>path</code> is a shortcut to a folder, it is automatically resolved
+to its target folder.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Character, new shortcut name if not specified as part of
+<code>path</code>. This will force <code>path</code> to be interpreted as a folder, even if it
+is character and lacks a trailing slash. By default, the shortcut starts out with the same name as
+the target <code>file</code>. As a consequence, if you want to use
+<code>overwrite = TRUE</code> or <code>overwrite = FALSE</code>, you <strong>must</strong> explicitly
+specify the shortcut's <code>name</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Logical, indicating whether to check for a pre-existing file
+at the targetted &quot;filepath&quot;. The quotes around &quot;filepath&quot; refer to the fact
+that Drive does not impose a 1-to-1 relationship between filepaths and files,
+like a typical file system; read more about that in <code><a href="drive_get.html">drive_get()</a></code>.
+</p>
+
+<ul>
+<li> <p><code>NA</code> (default): Just do the operation, even if it results in multiple
+files with the same filepath.
+</p>
+</li>
+<li> <p><code>TRUE</code>: Check for a pre-existing file at the filepath. If there is
+zero or one, move a pre-existing file to the trash, then carry on. Note
+that the new file does not inherit any properties from the old one, such
+as sharing or publishing settings. It will have a new file ID. An error is
+thrown if two or more pre-existing files are found.
+</p>
+</li>
+<li> <p><code>FALSE</code>: Error if there is any pre-existing file at the filepath.
+</p>
+</li></ul>
+
+<p>Note that existence checks, based on filepath, are expensive operations, i.e.
+they require additional API calls.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/shortcuts">https://developers.google.com/drive/api/v3/shortcuts</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Target one of the official example files
+(src_file &lt;- drive_example_remote("chicken_sheet"))
+
+# Create a shortcut in the default location with the default name
+sc1 &lt;- shortcut_create(src_file)
+# This shortcut could now be moved, renamed, etc.
+
+# Create a shortcut in the default location with a custom name
+sc2 &lt;- src_file %&gt;%
+  shortcut_create(name = "chicken_sheet_second_shortcut")
+
+# Create a folder, then put a shortcut there, with default name
+folder &lt;- drive_mkdir("chicken_sheet_shortcut_folder")
+sc3 &lt;- src_file %&gt;%
+  shortcut_create(folder)
+
+# Look at all these shortcuts
+(dat &lt;- drive_find("chicken_sheet", type = "shortcut"))
+
+# Confirm the shortcuts all target the original file
+dat &lt;- dat %&gt;%
+  drive_reveal("shortcut_details")
+purrr::map_chr(dat$shortcut_details, "targetId")
+as_id(src_file)
+
+# Clean up
+drive_rm(sc1, sc2, sc3, folder)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

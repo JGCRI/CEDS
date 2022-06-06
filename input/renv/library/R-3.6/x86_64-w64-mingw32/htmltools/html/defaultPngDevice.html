@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine the best PNG device for your system</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for defaultPngDevice {htmltools}"><tr><td>defaultPngDevice {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine the best PNG device for your system</h2>
+
+<h3>Description</h3>
+
+<p>Returns the best PNG-based graphics device for your system, in the opinion of
+the <code>htmltools</code> maintainers. On Mac,
+<code><a href="../../grDevices/html/png.html">grDevices::png()</a></code> is used; on all other
+platforms, either <code><a href="../../ragg/html/agg_png.html">ragg::agg_png()</a></code> or
+<code><a href="../../Cairo/html/Cairo.html">Cairo::CairoPNG()</a></code> are used if their packages
+are installed. Otherwise, <code><a href="../../grDevices/html/png.html">grDevices::png()</a></code> is
+used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+defaultPngDevice()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>A graphics device function.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

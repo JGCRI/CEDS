@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Provide common HTML dependencies for R Markdown formats</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html-dependencies {rmarkdown}"><tr><td>html-dependencies {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Provide common HTML dependencies for R Markdown formats</h2>
+
+<h3>Description</h3>
+
+<p>These functions provide common HTML dependencies (e.g. jquery, bootstrap)
+for re-use by other R Markdown formats.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_dependency_jquery()
+
+html_dependency_jqueryui()
+
+html_dependency_bootstrap(theme)
+
+html_dependency_tocify()
+
+html_dependency_font_awesome()
+
+html_dependency_ionicons()
+
+html_dependency_pagedtable()
+
+html_dependency_highlightjs(highlight)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>theme</code></td>
+<td>
+<p>One of the following:
+</p>
+
+<ul>
+<li><p> A <code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> object (or a list of <code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> argument values)
+</p>
+
+<ul>
+<li><p> Use this option for custom themes using Bootstrap 4 or 3.
+</p>
+</li>
+<li><p> In this case, any <code>.scss</code>/<code>.sass</code> files provided to the <code>css</code>
+parameter may utilize the <code>theme</code>'s underlying Sass utilities
+(e.g., variables, mixins, etc).
+</p>
+</li></ul>
+
+</li>
+<li> <p><code>NULL</code> for no theme (i.e., no <code><a href="html-dependencies.html">html_dependency_bootstrap()</a></code>).
+</p>
+</li>
+<li><p> A character string specifying a <a href="https://bootswatch.com/3/">Bootswatch 3</a>
+theme name (for backwards-compatibility).
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>highlight</code></td>
+<td>
+<p>Highlighter to use</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

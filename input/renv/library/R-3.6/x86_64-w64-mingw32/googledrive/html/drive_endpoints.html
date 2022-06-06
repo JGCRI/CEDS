@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List Drive endpoints</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_endpoints {googledrive}"><tr><td>drive_endpoints {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List Drive endpoints</h2>
+
+<h3>Description</h3>
+
+<p>The googledrive package stores a named list of Drive API v3 endpoints (or
+&quot;methods&quot;, using Google's vocabulary) internally and these functions expose
+this data.
+</p>
+
+<ul>
+<li> <p><code>drive_endpoint()</code> returns one endpoint, i.e. it uses <code>[[</code>.
+</p>
+</li>
+<li> <p><code>drive_endpoints()</code> returns a list of endpoints, i.e. it uses <code>[</code>.
+</p>
+</li></ul>
+
+<p>The names of this list (or the <code>id</code> sub-elements) are the nicknames that can
+be used to specify an endpoint in <code><a href="request_generate.html">request_generate()</a></code>. For each endpoint, we
+store its nickname or <code>id</code>, the associated HTTP verb, the <code>path</code>, and details
+about the parameters. This list is derived programmatically from the <a href="https://www.googleapis.com/discovery/v1/apis/drive/v3/rest">Drive API v3 Discovery Document</a> using
+the approach described in the <a href="https://gargle.r-lib.org/articles/request-helper-functions.html#discovery-documents">Discovery Documents section</a>
+of the gargle vignette <a href="https://gargle.r-lib.org/articles/request-helper-functions.html">Request helper functions</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_endpoints(i = NULL)
+
+drive_endpoint(i)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>The name(s) or integer index(ices) of the endpoints to return. <code>i</code>
+is optional for <code>drive_endpoints()</code> and, if not given, the entire list is
+returned.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>One or more of the Drive API v3 endpoints that are used internally by
+googledrive.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+str(head(drive_endpoints(), 3), max.level = 2)
+drive_endpoint("drive.files.delete")
+drive_endpoint(4)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

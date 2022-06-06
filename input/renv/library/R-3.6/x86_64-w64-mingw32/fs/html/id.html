@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Lookup Users and Groups on a system</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for id {fs}"><tr><td>id {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Lookup Users and Groups on a system</h2>
+
+<h3>Description</h3>
+
+<p>These functions use the GETPWENT(3) and GETGRENT(3) system calls to query
+users and groups respectively.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+group_ids()
+
+user_ids()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>They return their results in a <code>data.frame</code>. On windows both
+functions return an empty <code>data.frame</code> because windows does not have user
+or group ids.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# list first 6 groups
+head(group_ids())
+
+# list first 6 users
+head(user_ids())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

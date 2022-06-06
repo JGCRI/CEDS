@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a quosure from components</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_quosure {rlang}"><tr><td>new_quosure {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a quosure from components</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>new_quosure()</code> wraps any R object (including expressions,
+formulas, or other quosures) into a <a href="topic-quosure.html">quosure</a>.
+</p>
+</li>
+<li> <p><code>as_quosure()</code> is similar but it does not rewrap formulas and
+quosures.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+new_quosure(expr, env = caller_env())
+
+as_quosure(x, env = NULL)
+
+is_quosure(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An expression to wrap in a quosure.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The environment in which the expression should be
+evaluated. Only used for symbols and calls. This should normally
+be the environment in which the expression was created.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="enquo.html">enquo()</a></code> and <code><a href="defusing-advanced.html">quo()</a></code> for creating a quosure by <a href="topic-defuse.html">argument defusal</a>.
+</p>
+</li>
+<li> <p><a href="topic-quosure.html">What are quosures and when are they needed?</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# `new_quosure()` creates a quosure from its components. These are
+# equivalent:
+new_quosure(quote(foo), current_env())
+
+quo(foo)
+
+# `new_quosure()` always rewraps its input into a new quosure, even
+# if the input is itself a quosure:
+new_quosure(quo(foo))
+
+# This is unlike `as_quosure()` which preserves its input if it's
+# already a quosure:
+as_quosure(quo(foo))
+
+
+# `as_quosure()` uses the supplied environment with naked expressions:
+env &lt;- env(var = "thing")
+as_quosure(quote(var), env)
+
+# If the expression already carries an environment, this
+# environment is preserved. This is the case for formulas and
+# quosures:
+as_quosure(~foo, env)
+
+as_quosure(~foo)
+
+# An environment must be supplied when the input is a naked
+# expression:
+try(
+  as_quosure(quote(var))
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

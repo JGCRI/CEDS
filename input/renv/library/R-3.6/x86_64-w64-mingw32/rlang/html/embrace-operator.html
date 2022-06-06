@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Embrace operator {{</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for embrace-operator {rlang}"><tr><td>embrace-operator {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Embrace operator <code style="white-space: pre;">{{</code></h2>
+
+<h3>Description</h3>
+
+<p>The embrace operator <code style="white-space: pre;">{{</code> is used to create functions that call
+other <a href="topic-data-mask.html">data-masking</a> functions. It transports a
+data-masked argument (an argument that can refer to columns of a
+data frame) from one function to another.<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  dplyr::summarise(data, mean = mean({{ var }}))
+}
+</pre></div>
+
+
+<h3>Under the hood</h3>
+
+<p><code style="white-space: pre;">{{</code> combines <code><a href="enquo.html">enquo()</a></code> and <code><a href="injection-operator.html">!!</a></code> in one
+step. The snippet above is equivalent to:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  var &lt;- enquo(var)
+  dplyr::summarise(data, mean = mean(!!var))
+}
+</pre></div>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-data-mask.html">What is data-masking and why do I need {{?</a>
+</p>
+</li>
+<li> <p><a href="topic-data-mask-programming.html">Data mask programming patterns</a>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find nodes that match an xpath expression.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_find_all {xml2}"><tr><td>xml_find_all {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find nodes that match an xpath expression.</h2>
+
+<h3>Description</h3>
+
+<p>Xpath is like regular expressions for trees - it's worth learning if
+you're trying to extract nodes from arbitrary locations in a document.
+Use <code>xml_find_all</code> to find all matches - if there's no match you'll
+get an empty result. Use <code>xml_find_first</code> to find a specific match -
+if there's no match you'll get an <code>xml_missing</code> node.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_find_all(x, xpath, ns = xml_ns(x), ...)
+
+## S3 method for class 'xml_nodeset'
+xml_find_all(x, xpath, ns = xml_ns(x), flatten = TRUE, ...)
+
+xml_find_first(x, xpath, ns = xml_ns(x))
+
+xml_find_num(x, xpath, ns = xml_ns(x))
+
+xml_find_chr(x, xpath, ns = xml_ns(x))
+
+xml_find_lgl(x, xpath, ns = xml_ns(x))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>xpath</code></td>
+<td>
+<p>A string containing an xpath (1.0) expression.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>Optionally, a named vector giving prefix-url pairs, as produced
+by <code><a href="xml_ns.html">xml_ns()</a></code>. If provided, all names will be explicitly
+qualified with the ns prefix, i.e. if the element <code>bar</code> is defined
+in namespace <code>foo</code>, it will be called <code>foo:bar</code>. (And
+similarly for attributes). Default namespaces must be given an explicit
+name. The ns is ignored when using <code><a href="xml_name.html">xml_name&lt;-()</a></code> and
+<code><a href="xml_name.html">xml_set_name()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further arguments passed to or from other methods.</p>
+</td></tr>
+<tr valign="top"><td><code>flatten</code></td>
+<td>
+<p>A logical indicating whether to return a single, flattened
+nodeset or a list of nodesets.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>xml_find_all</code> returns a nodeset if applied to a node, and a nodeset
+or a list of nodesets if applied to a nodeset. If there are no matches,
+the nodeset(s) will be empty. Within each nodeset, the result will always
+be unique; repeated nodes are automatically de-duplicated.
+</p>
+<p><code>xml_find_first</code> returns a node if applied to a node, and a nodeset
+if applied to a nodeset. The output is <em>always</em> the same size as
+the input. If there are no matches, <code>xml_find_first</code> will return a
+missing node; if there are multiple matches, it will return the first
+only.
+</p>
+<p><code>xml_find_num</code>, <code>xml_find_chr</code>, <code>xml_find_lgl</code> return
+numeric, character and logical results respectively.
+</p>
+
+
+<h3>Deprecated functions</h3>
+
+<p><code>xml_find_one()</code> has been deprecated. Instead use
+<code>xml_find_first()</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xml_ns_strip.html">xml_ns_strip()</a></code> to remove the default namespaces
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- read_xml("&lt;foo&gt;&lt;bar&gt;&lt;baz/&gt;&lt;/bar&gt;&lt;baz/&gt;&lt;/foo&gt;")
+xml_find_all(x, ".//baz")
+xml_path(xml_find_all(x, ".//baz"))
+
+# Note the difference between .// and //
+# //  finds anywhere in the document (ignoring the current node)
+# .// finds anywhere beneath the current node
+(bar &lt;- xml_find_all(x, ".//bar"))
+xml_find_all(bar, ".//baz")
+xml_find_all(bar, "//baz")
+
+# Find all vs find one -----------------------------------------------------
+x &lt;- read_xml("&lt;body&gt;
+  &lt;p&gt;Some &lt;b&gt;text&lt;/b&gt;.&lt;/p&gt;
+  &lt;p&gt;Some &lt;b&gt;other&lt;/b&gt; &lt;b&gt;text&lt;/b&gt;.&lt;/p&gt;
+  &lt;p&gt;No bold here!&lt;/p&gt;
+&lt;/body&gt;")
+para &lt;- xml_find_all(x, ".//p")
+
+# By default, if you apply xml_find_all to a nodeset, it finds all matches,
+# de-duplicates them, and returns as a single nodeset. This means you
+# never know how many results you'll get
+xml_find_all(para, ".//b")
+
+# If you set flatten to FALSE, though, xml_find_all will return a list of
+# nodesets, where each nodeset contains the matches for the corresponding
+# node in the original nodeset.
+xml_find_all(para, ".//b", flatten = FALSE)
+
+# xml_find_first only returns the first match per input node. If there are 0
+# matches it will return a missing node
+xml_find_first(para, ".//b")
+xml_text(xml_find_first(para, ".//b"))
+
+# Namespaces ---------------------------------------------------------------
+# If the document uses namespaces, you'll need use xml_ns to form
+# a unique mapping between full namespace url and a short prefix
+x &lt;- read_xml('
+ &lt;root xmlns:f = "http://foo.com" xmlns:g = "http://bar.com"&gt;
+   &lt;f:doc&gt;&lt;g:baz /&gt;&lt;/f:doc&gt;
+   &lt;f:doc&gt;&lt;g:baz /&gt;&lt;/f:doc&gt;
+ &lt;/root&gt;
+')
+xml_find_all(x, ".//f:doc")
+xml_find_all(x, ".//f:doc", xml_ns(x))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

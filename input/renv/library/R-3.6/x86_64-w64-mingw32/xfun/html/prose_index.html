@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find the indices of lines in Markdown that are prose (not...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for prose_index {xfun}"><tr><td>prose_index {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find the indices of lines in Markdown that are prose (not code blocks)</h2>
+
+<h3>Description</h3>
+
+<p>Filter out the indices of lines between code block fences such as <code style="white-space: pre;">```</code>
+(could be three or four or more backticks).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+prose_index(x, warn = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector of text in Markdown.</p>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>Whether to emit a warning when code fences are not balanced.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An integer vector of indices of lines that are prose in Markdown.
+</p>
+
+
+<h3>Note</h3>
+
+<p>If the code fences are not balanced (e.g., a starting fence without an
+ending fence), this function will treat all lines as prose.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+prose_index(c("a", "```", "b", "```", "c"))
+prose_index(c("a", "````", "```r", "1+1", "```", "````", "c"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

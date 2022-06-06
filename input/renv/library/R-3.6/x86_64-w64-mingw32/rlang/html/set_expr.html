@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set and get an expression</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for set_expr {rlang}"><tr><td>set_expr {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set and get an expression</h2>
+
+<h3>Description</h3>
+
+<p>These helpers are useful to make your function work generically
+with quosures and raw expressions. First call <code>get_expr()</code> to
+extract an expression. Once you're done processing the expression,
+call <code>set_expr()</code> on the original object to update the expression.
+You can return the result of <code>set_expr()</code>, either a formula or an
+expression depending on the input type. Note that <code>set_expr()</code> does
+not change its input, it creates a new object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+set_expr(x, value)
+
+get_expr(x, default = x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An expression, closure, or one-sided formula. In addition,
+<code>set_expr()</code> accept frames.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>An updated expression.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>A default expression to return when <code>x</code> is not an
+expression wrapper. Defaults to <code>x</code> itself.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The updated original input for <code>set_expr()</code>. A raw
+expression for <code>get_expr()</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="quosure-tools.html">quo_get_expr()</a></code> and <code><a href="quosure-tools.html">quo_set_expr()</a></code> for versions of
+<code><a href="set_expr.html">get_expr()</a></code> and <code><a href="set_expr.html">set_expr()</a></code> that only work on quosures.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- ~foo(bar)
+e &lt;- quote(foo(bar))
+frame &lt;- identity(identity(ctxt_frame()))
+
+get_expr(f)
+get_expr(e)
+get_expr(frame)
+
+set_expr(f, quote(baz))
+set_expr(e, quote(baz))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

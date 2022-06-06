@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does an object inherit from a given class?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_is {testthat}"><tr><td>expect_is {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does an object inherit from a given class?</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p><code>expect_is()</code> is an older form that uses <code><a href="../../base/html/class.html">inherits()</a></code> without checking
+whether <code>x</code> is S3, S4, or neither. Instead, I'd recommend using
+<code><a href="inheritance-expectations.html">expect_type()</a></code>, <code><a href="inheritance-expectations.html">expect_s3_class()</a></code> or <code><a href="inheritance-expectations.html">expect_s4_class()</a></code> to more clearly
+convey your  intent.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_is(object, class, info = NULL, label = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>Either a character vector of class names, or
+for <code>expect_s3_class()</code> and <code>expect_s4_class()</code>, an <code>NA</code> to assert
+that <code>object</code> isn't an S3 or S4 object.</p>
+</td></tr>
+</table>
+
+
+<h3>3rd edition</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>expect_is()</code> is formally deprecated in the 3rd edition.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

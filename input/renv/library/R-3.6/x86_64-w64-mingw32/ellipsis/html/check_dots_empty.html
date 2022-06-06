@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check that dots are unused</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_dots_empty {ellipsis}"><tr><td>check_dots_empty {ellipsis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check that dots are unused</h2>
+
+<h3>Description</h3>
+
+<p>Sometimes you just want to use <code>...</code> to force your users to fully name
+the details arguments. This function warns if <code>...</code> is not empty.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_dots_empty(env = parent.frame(), action = abort)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which to look for <code>...</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>action</code></td>
+<td>
+<p>The action to take when the dots have not been used. One of
+<code><a href="../../rlang/html/abort.html">rlang::abort()</a></code>, <code><a href="../../rlang/html/warn.html">rlang::warn()</a></code>, <code><a href="../../rlang/html/inform.html">rlang::inform()</a></code> or <code><a href="../../rlang/html/signal.html">rlang::signal()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(x, ..., foofy = 8) {
+  check_dots_empty()
+  x + foofy
+}
+
+try(f(1, foof = 4))
+f(1, foofy = 4)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ellipsis</em> version 0.3.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Deprecated Functions in the Rcpp Package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Rcpp-deprecated {Rcpp}"><tr><td>Rcpp-deprecated {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Deprecated Functions in the Rcpp Package</h2>
+
+<h3>Description</h3>
+
+<p>These functions are provided for compatibility with older versions of the
+<span class="pkg">Rcpp</span> package only, and may be removed in future versions.
+</p>
+
+
+<h3>Details</h3>
+
+
+<ul>
+<li> <p><code><a href="loadRcppModules-deprecated.html">loadRcppModules</a></code> calls should now be replaced by
+<code><a href="loadModule.html">loadModule</a></code> calls, one per Module.
+</p>
+</li>
+<li> <p><code><a href="RcppLdFlags.html">LdFlags</a></code> and <code><a href="RcppLdFlags.html">RcppLdFlags</a></code> are no
+longer required as no library is provided (or needed) by Rcpp (as it
+was up until release 0.10.1).
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Dirk Eddelbuettel and Romain Francois</p>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

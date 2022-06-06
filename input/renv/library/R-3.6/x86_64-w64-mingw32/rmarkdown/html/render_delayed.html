@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delay Rendering for an Expression</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for render_delayed {rmarkdown}"><tr><td>render_delayed {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delay Rendering for an Expression</h2>
+
+<h3>Description</h3>
+
+<p>In a Shiny document, evaluate the given expression after the document has
+finished rendering, instead of during render.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+render_delayed(expr)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>The expression to evaluate.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function is useful inside Shiny documents. It delays the
+evaluation of its argument until the document has finished its initial
+render, so that the document can be viewed before the calculation is
+finished.
+</p>
+<p>Any expression that returns HTML can be wrapped in <code>render_delayed</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object representing the expression.
+</p>
+
+
+<h3>Note</h3>
+
+<p><code>expr</code> is evaluated in a <strong>copy</strong> of the environment in which
+the <code>render_delayed</code> call appears. Consequently, no side effects
+created by <code>expr</code> are visible in succeeding expressions, nor are
+changes to the environment after the call to <code>render_delayed</code> visible
+to <code>expr</code>.
+</p>
+<p><code>expr</code> must be an expression that produces HTML.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# Add the following code to an R Markdown document
+
+div(Sys.time())
+
+render_delayed({
+ Sys.sleep(3)      # simulate an expensive computation
+ div(Sys.time())
+})
+
+div(Sys.time())
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Box a value</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for box {rlang}"><tr><td>box {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Box a value</h2>
+
+<h3>Description</h3>
+
+<p><code>new_box()</code> is similar to <code><a href="../../base/html/AsIs.html">base::I()</a></code> but it protects a value by
+wrapping it in a scalar list rather than by adding an attribute.
+<code>unbox()</code> retrieves the boxed value. <code>is_box()</code> tests whether an
+object is boxed with optional class. <code>as_box()</code> ensures that a
+value is wrapped in a box. <code>as_box_if()</code> does the same but only if
+the value matches a predicate.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_box(.x, class = NULL, ...)
+
+is_box(x, class = NULL)
+
+unbox(box)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>For <code>new_box()</code>, an additional class for the
+boxed value (in addition to <code>rlang_box</code>). For <code>is_box()</code>, a class
+or vector of classes passed to <code><a href="inherits_any.html">inherits_all()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional attributes passed to <code><a href="../../base/html/structure.html">base::structure()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x, .x</code></td>
+<td>
+<p>An R object.</p>
+</td></tr>
+<tr valign="top"><td><code>box</code></td>
+<td>
+<p>A boxed value to unbox.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+boxed &lt;- new_box(letters, "mybox")
+is_box(boxed)
+is_box(boxed, "mybox")
+is_box(boxed, "otherbox")
+
+unbox(boxed)
+
+# as_box() avoids double-boxing:
+boxed2 &lt;- as_box(boxed, "mybox")
+boxed2
+unbox(boxed2)
+
+# Compare to:
+boxed_boxed &lt;- new_box(boxed, "mybox")
+boxed_boxed
+unbox(unbox(boxed_boxed))
+
+# Use `as_box_if()` with a predicate if you need to ensure a box
+# only for a subset of values:
+as_box_if(NULL, is_null, "null_box")
+as_box_if("foo", is_null, "null_box")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

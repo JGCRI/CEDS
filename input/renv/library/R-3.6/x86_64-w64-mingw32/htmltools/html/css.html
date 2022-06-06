@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: CSS string helper</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for css {htmltools}"><tr><td>css {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>CSS string helper</h2>
+
+<h3>Description</h3>
+
+<p>Convenience function for building CSS style declarations (i.e. the string
+that goes into a style attribute, or the parts that go inside curly braces in
+a full stylesheet).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+css(..., collapse_ = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Named style properties, where the name is the property name and
+the argument is the property value. See Details for conversion rules.</p>
+</td></tr>
+<tr valign="top"><td><code>collapse_</code></td>
+<td>
+<p>(Note that the parameter name has a trailing underscore
+character.) Character to use to collapse properties into a single string;
+likely <code>""</code> (the default) for style attributes, and either <code>"\n"</code>
+or <code>NULL</code> for style blocks.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>CSS uses <code>'-'</code> (minus) as a separator character in property names, but
+this is an inconvenient character to use in an R function argument name.
+Instead, you can use <code>'.'</code> (period) and/or <code>'_'</code> (underscore) as
+separator characters. For example, <code>css(font.size = "12px")</code> yields
+<code>"font-size:12px;"</code>.
+</p>
+<p>To mark a property as <code>!important</code>, add a <code>'!'</code> character to the end
+of the property name. (Since <code>'!'</code> is not normally a character that can be
+used in an identifier in R, you'll need to put the name in double quotes or
+backticks.)
+</p>
+<p>Argument values will be converted to strings using
+<code>paste(collapse = " ")</code>. Any property with a value of <code>NULL</code> or
+<code>""</code> (after paste) will be dropped.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+padding &lt;- 6
+css(
+  font.family = "Helvetica, sans-serif",
+  margin = paste0(c(10, 20, 10, 20), "px"),
+  "padding!" = if (!is.null(padding)) padding
+)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

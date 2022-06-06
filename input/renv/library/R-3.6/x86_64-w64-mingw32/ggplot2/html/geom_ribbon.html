@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Ribbons and area plots</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for geom_ribbon {ggplot2}"><tr><td>geom_ribbon {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Ribbons and area plots</h2>
+
+<h3>Description</h3>
+
+<p>For each x value, <code>geom_ribbon()</code> displays a y interval defined
+by <code>ymin</code> and <code>ymax</code>. <code>geom_area()</code> is a special case of
+<code>geom_ribbon()</code>, where the <code>ymin</code> is fixed to 0 and <code>y</code> is used instead
+of <code>ymax</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+geom_ribbon(
+  mapping = NULL,
+  data = NULL,
+  stat = "identity",
+  position = "identity",
+  ...,
+  na.rm = FALSE,
+  orientation = NA,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  outline.type = "both"
+)
+
+geom_area(
+  mapping = NULL,
+  data = NULL,
+  stat = "identity",
+  position = "stack",
+  na.rm = FALSE,
+  orientation = NA,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  ...,
+  outline.type = "upper"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>stat</code></td>
+<td>
+<p>The statistical transformation to use on the data for this
+layer, as a string.</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>orientation</code></td>
+<td>
+<p>The orientation of the layer. The default (<code>NA</code>)
+automatically determines the orientation from the aesthetic mapping. In the
+rare event that this fails it can be given explicitly by setting <code>orientation</code>
+to either <code>"x"</code> or <code>"y"</code>. See the <em>Orientation</em> section for more detail.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>outline.type</code></td>
+<td>
+<p>Type of the outline of the area; <code>"both"</code> draws both the
+upper and lower lines, <code>"upper"</code>/<code>"lower"</code> draws the respective lines only.
+<code>"full"</code> draws a closed polygon around the area.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>An area plot is the continuous analogue of a stacked bar chart (see
+<code><a href="geom_bar.html">geom_bar()</a></code>), and can be used to show how composition of the
+whole varies over the range of x. Choosing the order in which different
+components is stacked is very important, as it becomes increasing hard to
+see the individual pattern as you move up the stack. See
+<code><a href="position_stack.html">position_stack()</a></code> for the details of stacking algorithm.
+</p>
+
+
+<h3>Orientation</h3>
+
+<p>This geom treats each axis differently and, thus, can thus have two orientations. Often the orientation is easy to deduce from a combination of the given mappings and the types of positional scales in use. Thus, ggplot2 will by default try to guess which orientation the layer should have. Under rare circumstances, the orientation is ambiguous and guessing may fail. In that case the orientation can be specified directly using the <code>orientation</code> parameter, which can be either <code>"x"</code> or <code>"y"</code>. The value gives the axis that the geom should run along, <code>"x"</code> being the default orientation you would expect for the geom.
+</p>
+
+
+<h3>Aesthetics</h3>
+
+<p><code>geom_ribbon()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code> <em>or</em> <code>y</code></strong>
+</p>
+</li>
+<li> <p><strong><code>ymin</code> <em>or</em> <code>xmin</code></strong>
+</p>
+</li>
+<li> <p><strong><code>ymax</code> <em>or</em> <code>xmax</code></strong>
+</p>
+</li>
+<li> <p><code>alpha</code>
+</p>
+</li>
+<li> <p><code>colour</code>
+</p>
+</li>
+<li> <p><code>fill</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>linetype</code>
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="geom_bar.html">geom_bar()</a></code> for discrete intervals (bars),
+<code><a href="geom_linerange.html">geom_linerange()</a></code> for discrete intervals (lines),
+<code><a href="geom_polygon.html">geom_polygon()</a></code> for general polygons
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate data
+huron &lt;- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
+h &lt;- ggplot(huron, aes(year))
+
+h + geom_ribbon(aes(ymin=0, ymax=level))
+h + geom_area(aes(y = level))
+
+# Orientation cannot be deduced by mapping, so must be given explicitly for
+# flipped orientation
+h + geom_area(aes(x = level, y = year), orientation = "y")
+
+# Add aesthetic mappings
+h +
+  geom_ribbon(aes(ymin = level - 1, ymax = level + 1), fill = "grey70") +
+  geom_line(aes(y = level))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

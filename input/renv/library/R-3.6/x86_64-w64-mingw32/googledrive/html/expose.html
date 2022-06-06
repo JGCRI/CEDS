@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: An expose object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expose {googledrive}"><tr><td>expose {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>An expose object</h2>
+
+<h3>Description</h3>
+
+<p><code>expose()</code> returns a sentinel object, similar in spirit to <code>NULL</code>, that tells
+the calling function to return its internal data structure. googledrive
+stores a lot of information about the Drive API, MIME types, etc., internally
+and then exploits it in helper functions, like <code><a href="drive_mime_type.html">drive_mime_type()</a></code>,
+<code><a href="drive_fields.html">drive_fields()</a></code>, <code><a href="drive_endpoints.html">drive_endpoints()</a></code>, etc. We use these objects to
+provide nice defaults, check input validity, or lookup something cryptic,
+like MIME type, based on something friendlier, like a file extension. Pass
+<code>expose()</code> to such a function if you want to inspect its internal object, in
+its full glory. This is inspired by the <code>waiver()</code> object in ggplot2.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expose()
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+drive_mime_type(expose())
+drive_fields(expose())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

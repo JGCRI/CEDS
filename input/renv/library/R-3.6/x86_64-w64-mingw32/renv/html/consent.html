@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Consent to usage of renv</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for consent {renv}"><tr><td>consent {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Consent to usage of renv</h2>
+
+<h3>Description</h3>
+
+<p>Provide consent to <code>renv</code>, allowing it to write and update certain files
+on your filesystem.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+consent(provided = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>provided</code></td>
+<td>
+<p>The default provided response. If you need to provide
+consent from a non-interactive <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> session, you can invoke
+<code>renv::consent(provided = TRUE)</code> explicitly.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>As part of its normal operation, <code>renv</code> will write and update some files
+in your project directory, as well as an application-specific cache
+directory. These paths are documented within <a href="paths.html">paths</a>.
+</p>
+<p>In accordance with the
+<a href="https://cran.r-project.org/web/packages/policies.html">CRAN Repository Policy</a>,
+<code>renv</code> must first obtain consent from you, the user, before these actions
+can be taken. Please call <code>renv::consent()</code> first to provide this consent.
+</p>
+<p>You can also set the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> option:</p>
+<pre>options(renv.consent = TRUE)
+</pre>
+<p>to implicitly provide consent for e.g. non-interactive <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> sessions.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>TRUE</code> if consent is provided, or an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> error otherwise.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

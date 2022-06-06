@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does {{ work on regular objects?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-embrace-non-args {rlang}"><tr><td>topic-embrace-non-args {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does <code style="white-space: pre;">{{</code> work on regular objects?</h2>
+
+<h3>Description</h3>
+
+<p>The embrace operator <code><a href="embrace-operator.html">{{</a></code> should be used exclusively with function arguments:<div class="sourceCode r"></p>
+<pre>fn &lt;- function(arg) {
+  quo(foo({{ arg }}))
+}
+
+fn(1 + 1)
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^foo(^1 + 1)
+#&gt; env:  0x7ffd89aac518
+</pre></div>
+<p>However you may have noticed that it also works on regular objects:<div class="sourceCode r"></p>
+<pre>fn &lt;- function(arg) {
+  arg &lt;- force(arg)
+  quo(foo({{ arg }}))
+}
+
+fn(1 + 1)
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^foo(^2)
+#&gt; env:  0x7ffd8a633398
+</pre></div>
+<p>In that case, <code style="white-space: pre;">{{</code> captures the <em>value</em> of the expression instead of a defused expression. That's because only function arguments can be defused.
+</p>
+<p>Note that this issue also applies to <code><a href="enquo.html">enquo()</a></code> (on which <code style="white-space: pre;">{{</code> is based).
+</p>
+
+
+<h3>Why is this not an error?</h3>
+
+<p>Ideally we would have made <code style="white-space: pre;">{{</code> on regular objects an error.  However this is not possible because in compiled R code it is not always possible to distinguish a regular variable from a function argument. See <a href="topic-embrace-constants.html">Why are strings and other constants enquosed in the empty environment?</a> for more about this.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

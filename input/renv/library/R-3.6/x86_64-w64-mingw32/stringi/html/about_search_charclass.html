@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Character Classes in 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for about_search_charclass {stringi}"><tr><td>about_search_charclass {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Character Classes in <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p>Here we describe how character classes (sets) can be specified
+in the <span class="pkg">stringi</span> package. These are useful for defining
+search patterns (note that the <span class="pkg">ICU</span> regex engine uses the same
+scheme for denoting character classes) or, e.g.,
+generating random code points with <code><a href="stri_rand_strings.html">stri_rand_strings</a></code>.
+</p>
+
+
+<h3>Details</h3>
+
+<p>All <code>stri_*_charclass</code> functions in <span class="pkg">stringi</span> perform
+a single character (i.e., Unicode code point) search-based operations.
+You may obtain the same results using <a href="about_search_regex.html">about_search_regex</a>.
+However, these very functions aim to be faster.
+</p>
+<p>Character classes are defined using <span class="pkg">ICU</span>'s <code>UnicodeSet</code>
+patterns. Below we briefly summarize their syntax.
+For more details refer to the bibliographic References below.
+</p>
+
+
+<h3><code>UnicodeSet</code> patterns</h3>
+
+<p>A <code>UnicodeSet</code> represents a subset of Unicode code points
+(recall that <span class="pkg">stringi</span> converts strings in your native encoding
+to Unicode automatically). Legal code points are U+0000 to U+10FFFF,
+inclusive.
+</p>
+<p>Patterns either consist of series of characters  bounded by
+square brackets
+(such patterns follow a syntax similar to that employed
+by regular expression character classes)
+or of Perl-like Unicode property set specifiers.
+</p>
+<p><code>[]</code> denotes an empty set, <code>[a]</code> &ndash;
+a set consisting of character &ldquo;a&rdquo;,
+<code>[\u0105]</code> &ndash; a set with character U+0105,
+and <code>[abc]</code> &ndash; a set with &ldquo;a&rdquo;, &ldquo;b&rdquo;, and &ldquo;c&rdquo;.
+</p>
+<p><code>[a-z]</code> denotes a set consisting of characters
+&ldquo;a&rdquo; through &ldquo;z&rdquo; inclusively, in Unicode code point order.
+</p>
+<p>Some set-theoretic operations are available.
+<code>^</code> denotes the complement, e.g., <code>[^a-z]</code> contains
+all characters but &ldquo;a&rdquo; through &ldquo;z&rdquo;.
+Moreover, <code>[[pat1][pat2]]</code>,
+<code>[[pat1]\&amp;[pat2]]</code>, and <code>[[pat1]-[pat2]]</code>
+denote union, intersection, and asymmetric difference of sets
+specified by <code>pat1</code> and <code>pat2</code>, respectively.
+</p>
+<p>Note that all white-spaces are ignored unless they are quoted or back-slashed
+(white spaces can be freely used for clarity, as <code>[a c d-f m]</code>
+means the same as <code>[acd-fm]</code>).
+<span class="pkg">stringi</span> does not allow including multi-character strings
+(see <code>UnicodeSet</code> API documentation).
+Also, empty string patterns are disallowed.
+</p>
+<p>Any character may be preceded by
+a backslash in order to remove its special meaning.
+</p>
+<p>A malformed pattern always results in an error.
+</p>
+<p>Set expressions at a glance
+(according to <a href="https://unicode-org.github.io/icu/userguide/strings/regexp.html">https://unicode-org.github.io/icu/userguide/strings/regexp.html</a>):
+</p>
+<p>Some examples:
+</p>
+
+<dl>
+<dt><code>[abc]</code></dt><dd><p>Match any of the characters a, b or c.</p>
+</dd>
+<dt><code>[^abc]</code></dt><dd><p>Negation &ndash; match any character except a, b or c.</p>
+</dd>
+<dt><code>[A-M]</code></dt><dd><p>Range &ndash; match any character from A to M. The characters
+to include are determined by Unicode code point ordering.</p>
+</dd>
+<dt><code>[\u0000-\U0010ffff]</code></dt><dd><p>Range &ndash; match all characters.</p>
+</dd>
+<dt><code>[\p{Letter}]</code> or <code>[\p{General_Category=Letter}]</code> or <code>[\p{L}]</code></dt><dd>
+<p>Characters with Unicode Category = Letter. All forms shown are equivalent.</p>
+</dd>
+<dt><code>[\P{Letter}]</code></dt><dd><p>Negated property
+(Note the upper case <code>\P</code>) &ndash; match everything except Letters.</p>
+</dd>
+<dt><code>[\p{numeric_value=9}]</code></dt><dd><p>Match all numbers with a numeric value of 9.
+Any Unicode Property may be used in set expressions.</p>
+</dd>
+<dt><code>[\p{Letter}&amp;\p{script=cyrillic}]</code></dt><dd><p>Set
+intersection &ndash; match the set of all Cyrillic letters.</p>
+</dd>
+<dt><code>[\p{Letter}-\p{script=latin}]</code></dt><dd><p>Set difference &ndash;
+match all non-Latin letters.</p>
+</dd>
+<dt><code>[[a-z][A-Z][0-9]]</code> or <code>[a-zA-Z0-9]</code></dt><dd><p>Implicit union of
+sets &ndash; match ASCII letters and digits (the two forms are equivalent).</p>
+</dd>
+<dt><code>[:script=Greek:]</code></dt><dd><p>Alternative POSIX-like syntax for properties &ndash;
+equivalent to <code>\p{script=Greek}</code>.</p>
+</dd>
+</dl>
+
+
+
+<h3>Unicode properties</h3>
+
+<p>Unicode property sets are specified with a POSIX-like syntax,
+e.g., <code>[:Letter:]</code>,
+or with a (extended) Perl-style syntax, e.g., <code>\p{L}</code>.
+The complements of the above sets are
+<code>[:^Letter:]</code> and <code>\P{L}</code>, respectively.
+</p>
+<p>The names are normalized before matching
+(for example, the match is case-insensitive).
+Moreover, many names have short aliases.
+</p>
+<p>Among predefined Unicode properties we find, e.g.:
+</p>
+
+<ul>
+<li><p> Unicode General Categories, e.g., <code>Lu</code> for uppercase letters,
+</p>
+</li>
+<li><p> Unicode Binary Properties, e.g., <code>WHITE_SPACE</code>,
+</p>
+</li></ul>
+
+<p>and many more (including Unicode scripts).
+</p>
+<p>Each property provides access to the large and comprehensive
+Unicode Character Database.
+Generally, the list of properties available in <span class="pkg">ICU</span>
+is not well-documented. Please refer to the References section
+for some links.
+</p>
+<p>Please note that some classes might overlap.
+However, e.g., General Category <code>Z</code> (some space) and Binary Property
+<code>WHITE_SPACE</code> matches different character sets.
+</p>
+
+
+<h3>Unicode General Categories</h3>
+
+<p>The Unicode General Category property of a code point provides the most
+general classification of that code point.
+Each code point falls into one and only one Category.
+</p>
+
+<dl>
+<dt><code>Cc</code></dt><dd><p>a C0 or C1 control code.</p>
+</dd>
+<dt><code>Cf</code></dt><dd><p>a format control character.</p>
+</dd>
+<dt><code>Cn</code></dt><dd><p>a reserved unassigned code point or a non-character.</p>
+</dd>
+<dt><code>Co</code></dt><dd><p>a private-use character.</p>
+</dd>
+<dt><code>Cs</code></dt><dd><p>a surrogate code point.</p>
+</dd>
+<dt><code>Lc</code></dt><dd><p>the union of Lu, Ll, Lt.</p>
+</dd>
+<dt><code>Ll</code></dt><dd><p>a lowercase letter.</p>
+</dd>
+<dt><code>Lm</code></dt><dd><p>a modifier letter.</p>
+</dd>
+<dt><code>Lo</code></dt><dd><p>other letters, including syllables and ideographs.</p>
+</dd>
+<dt><code>Lt</code></dt><dd><p>a digraphic character, with first part uppercase.</p>
+</dd>
+<dt><code>Lu</code></dt><dd><p>an uppercase letter.</p>
+</dd>
+<dt><code>Mc</code></dt><dd><p>a spacing combining mark (positive advance width).</p>
+</dd>
+<dt><code>Me</code></dt><dd><p>an enclosing combining mark.</p>
+</dd>
+<dt><code>Mn</code></dt><dd><p>a non-spacing combining mark (zero advance width).</p>
+</dd>
+<dt><code>Nd</code></dt><dd><p>a decimal digit.</p>
+</dd>
+<dt><code>Nl</code></dt><dd><p>a letter-like numeric character.</p>
+</dd>
+<dt><code>No</code></dt><dd><p>a numeric character of other type.</p>
+</dd>
+<dt><code>Pd</code></dt><dd><p>a dash or hyphen punctuation mark.</p>
+</dd>
+<dt><code>Ps</code></dt><dd><p>an opening punctuation mark (of a pair).</p>
+</dd>
+<dt><code>Pe</code></dt><dd><p>a closing punctuation mark (of a pair).</p>
+</dd>
+<dt><code>Pc</code></dt><dd><p>a connecting punctuation mark, like a tie.</p>
+</dd>
+<dt><code>Po</code></dt><dd><p>a punctuation mark of other type.</p>
+</dd>
+<dt><code>Pi</code></dt><dd><p>an initial quotation mark.</p>
+</dd>
+<dt><code>Pf</code></dt><dd><p>a final quotation mark.</p>
+</dd>
+<dt><code>Sm</code></dt><dd><p>a symbol of mathematical use.</p>
+</dd>
+<dt><code>Sc</code></dt><dd><p>a currency sign.</p>
+</dd>
+<dt><code>Sk</code></dt><dd><p>a non-letter-like modifier symbol.</p>
+</dd>
+<dt><code>So</code></dt><dd><p>a symbol of other type.</p>
+</dd>
+<dt><code>Zs</code></dt><dd><p>a space character (of non-zero width).</p>
+</dd>
+<dt><code>Zl</code></dt><dd><p>U+2028 LINE SEPARATOR only.</p>
+</dd>
+<dt><code>Zp</code></dt><dd><p>U+2029 PARAGRAPH SEPARATOR only.</p>
+</dd>
+<dt><code>C</code> </dt><dd><p>the union of Cc, Cf, Cs, Co, Cn.</p>
+</dd>
+<dt><code>L</code> </dt><dd><p>the union of Lu, Ll, Lt, Lm, Lo.</p>
+</dd>
+<dt><code>M</code> </dt><dd><p>the union of Mn, Mc, Me.</p>
+</dd>
+<dt><code>N</code> </dt><dd><p>the union of Nd, Nl, No.</p>
+</dd>
+<dt><code>P</code> </dt><dd><p>the union of Pc, Pd, Ps, Pe, Pi, Pf, Po.</p>
+</dd>
+<dt><code>S</code> </dt><dd><p>the union of Sm, Sc, Sk, So.</p>
+</dd>
+<dt><code>Z</code> </dt><dd><p>the union of Zs, Zl, Zp </p>
+</dd>
+</dl>
+
+
+
+<h3>Unicode Binary Properties</h3>
+
+<p>Each character may follow many Binary Properties at a time.
+</p>
+<p>Here is a comprehensive list of supported Binary Properties:
+</p>
+
+<dl>
+<dt><code>ALPHABETIC</code>     </dt><dd><p>alphabetic character.</p>
+</dd>
+<dt><code>ASCII_HEX_DIGIT</code></dt><dd><p>a character matching the <code>[0-9A-Fa-f]</code> charclass.</p>
+</dd>
+<dt><code>BIDI_CONTROL</code>   </dt><dd><p>a format control which have specific functions
+in the Bidi (bidirectional text) Algorithm.</p>
+</dd>
+<dt><code>BIDI_MIRRORED</code>  </dt><dd><p>a character that may change display in right-to-left text.</p>
+</dd>
+<dt><code>DASH</code>           </dt><dd><p>a kind of a dash character.</p>
+</dd>
+<dt><code>DEFAULT_IGNORABLE_CODE_POINT</code></dt><dd><p>characters that are ignorable in most
+text processing activities,
+e.g., &lt;2060..206F, FFF0..FFFB, E0000..E0FFF&gt;.</p>
+</dd>
+<dt><code>DEPRECATED</code>     </dt><dd><p>a deprecated character according
+to the current Unicode standard (the usage of deprecated characters
+is strongly discouraged).</p>
+</dd>
+<dt><code>DIACRITIC</code>      </dt><dd><p>a character that linguistically modifies
+the meaning of another character to which it applies.</p>
+</dd>
+<dt><code>EXTENDER</code>       </dt><dd><p>a character that extends the value
+or shape of a preceding alphabetic character,
+e.g., a length and iteration mark.</p>
+</dd>
+<dt><code>HEX_DIGIT</code>      </dt><dd><p>a character commonly
+used for hexadecimal numbers,
+see also <code>ASCII_HEX_DIGIT</code>.</p>
+</dd>
+<dt><code>HYPHEN</code></dt><dd><p>a dash used to mark connections between
+pieces of words, plus the Katakana middle dot.</p>
+</dd>
+<dt><code>ID_CONTINUE</code></dt><dd><p>a character that can continue an identifier,
+<code>ID_START</code>+<code>Mn</code>+<code>Mc</code>+<code>Nd</code>+<code>Pc</code>.</p>
+</dd>
+<dt><code>ID_START</code></dt><dd><p>a character that can start an identifier,
+<code>Lu</code>+<code>Ll</code>+<code>Lt</code>+<code>Lm</code>+<code>Lo</code>+<code>Nl</code>.</p>
+</dd>
+<dt><code>IDEOGRAPHIC</code></dt><dd><p>a CJKV (Chinese-Japanese-Korean-Vietnamese)
+ideograph.</p>
+</dd>
+<dt><code>LOWERCASE</code></dt><dd><p>...</p>
+</dd>
+<dt><code>MATH</code></dt><dd><p>...</p>
+</dd>
+<dt><code>NONCHARACTER_CODE_POINT</code></dt><dd><p>...</p>
+</dd>
+<dt><code>QUOTATION_MARK</code></dt><dd><p>...</p>
+</dd>
+<dt><code>SOFT_DOTTED</code></dt><dd><p>a character with a &ldquo;soft dot&rdquo;, like i or j,
+such that an accent placed on this character causes the dot to disappear.</p>
+</dd>
+<dt><code>TERMINAL_PUNCTUATION</code></dt><dd><p>a punctuation character that generally
+marks the end of textual units.</p>
+</dd>
+<dt><code>UPPERCASE</code></dt><dd><p>...</p>
+</dd>
+<dt><code>WHITE_SPACE</code></dt><dd><p>a space character or TAB or CR or LF or ZWSP or ZWNBSP.</p>
+</dd>
+<dt><code>CASE_SENSITIVE</code></dt><dd><p>...</p>
+</dd>
+<dt><code>POSIX_ALNUM</code></dt><dd><p>...</p>
+</dd>
+<dt><code>POSIX_BLANK</code></dt><dd><p>...</p>
+</dd>
+<dt><code>POSIX_GRAPH</code></dt><dd><p>...</p>
+</dd>
+<dt><code>POSIX_PRINT</code></dt><dd><p>...</p>
+</dd>
+<dt><code>POSIX_XDIGIT</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CASED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CASE_IGNORABLE</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CHANGES_WHEN_LOWERCASED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CHANGES_WHEN_UPPERCASED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CHANGES_WHEN_TITLECASED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CHANGES_WHEN_CASEFOLDED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CHANGES_WHEN_CASEMAPPED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>CHANGES_WHEN_NFKC_CASEFOLDED</code></dt><dd><p>...</p>
+</dd>
+<dt><code>EMOJI</code></dt><dd><p>Since ICU 57</p>
+</dd>
+<dt><code>EMOJI_PRESENTATION</code></dt><dd><p>Since ICU 57</p>
+</dd>
+<dt><code>EMOJI_MODIFIER</code></dt><dd><p>Since ICU 57</p>
+</dd>
+<dt><code>EMOJI_MODIFIER_BASE</code></dt><dd><p>Since ICU 57</p>
+</dd>
+</dl>
+
+
+
+<h3>POSIX Character Classes</h3>
+
+<p>Avoid using POSIX character classes,
+e.g., <code>[:punct:]</code>. The ICU User Guide (see below)
+states that in general they are not well-defined, so you may end up
+with something different than you expect.
+</p>
+<p>In particular, in POSIX-like regex engines, <code>[:punct:]</code> stands for
+the character class corresponding to the <code>ispunct()</code> classification
+function (check out <code>man 3 ispunct</code> on UNIX-like systems).
+According to ISO/IEC 9899:1990 (ISO C90), the <code>ispunct()</code> function
+tests for any printing character except for space or a character
+for which <code>isalnum()</code> is true. However, in a POSIX setting,
+the details of what characters belong into which class depend
+on the current locale. So the <code>[:punct:]</code> class does not lead
+to a portable code (again, in POSIX-like regex engines).
+</p>
+<p>Therefore, a POSIX flavor of <code>[:punct:]</code> is more like
+<code>[\p{P}\p{S}]</code> in <span class="pkg">ICU</span>. You have been warned.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>The Unicode Character Database</em> &ndash; Unicode Standard Annex #44,
+<a href="https://www.unicode.org/reports/tr44/">https://www.unicode.org/reports/tr44/</a>
+</p>
+<p><em>UnicodeSet</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/strings/unicodeset.html">https://unicode-org.github.io/icu/userguide/strings/unicodeset.html</a>
+</p>
+<p><em>Properties</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/strings/properties.html">https://unicode-org.github.io/icu/userguide/strings/properties.html</a>
+</p>
+<p><em>C/POSIX Migration</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/icu/posix.html">https://unicode-org.github.io/icu/userguide/icu/posix.html</a>
+</p>
+<p><em>Unicode Script Data</em>, <a href="https://www.unicode.org/Public/UNIDATA/Scripts.txt">https://www.unicode.org/Public/UNIDATA/Scripts.txt</a>
+</p>
+<p><em>icu::Unicodeset Class Reference</em> &ndash; ICU4C API Documentation,
+<a href="https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1UnicodeSet.html">https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1UnicodeSet.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_charclass: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_trim.html">stri_trim_both</a>()</code>
+</p>
+<p>Other stringi_general_topics: 
+<code><a href="about_arguments.html">about_arguments</a></code>,
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="about_search_fixed.html">about_search_fixed</a></code>,
+<code><a href="about_search_regex.html">about_search_regex</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="about_stringi.html">about_stringi</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

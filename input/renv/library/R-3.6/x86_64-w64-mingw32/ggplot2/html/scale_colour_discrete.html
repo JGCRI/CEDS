@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Discrete colour scales</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for scale_colour_discrete {ggplot2}"><tr><td>scale_colour_discrete {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Discrete colour scales</h2>
+
+<h3>Description</h3>
+
+<p>The default discrete colour scale. Defaults to <code><a href="scale_hue.html">scale_fill_hue()</a></code>/<code><a href="scale_brewer.html">scale_fill_brewer()</a></code>
+unless <code>type</code> (which defaults to the <code>ggplot2.discrete.fill</code>/<code>ggplot2.discrete.colour</code> options)
+is specified.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+scale_colour_discrete(..., type = getOption("ggplot2.discrete.colour"))
+
+scale_fill_discrete(..., type = getOption("ggplot2.discrete.fill"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters passed on to the scale type,</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>One of the following:
+</p>
+
+<ul>
+<li><p> A character vector of color codes. The codes are used for a 'manual' color
+scale as long as the number of codes exceeds the number of data levels
+(if there are more levels than codes, <code><a href="scale_hue.html">scale_colour_hue()</a></code>/<code><a href="scale_hue.html">scale_fill_hue()</a></code>
+are used to construct the default scale). If this is a named vector, then the color values
+will be matched to levels based on the names of the vectors. Data values that
+don't match will be set as <code>na.value</code>.
+</p>
+</li>
+<li><p> A list of character vectors of color codes. The minimum length vector that exceeds the
+number of data levels is chosen for the color scaling. This is useful if you
+want to change the color palette based on the number of levels.
+</p>
+</li>
+<li><p> A function that returns a discrete colour/fill scale (e.g., <code><a href="scale_hue.html">scale_fill_hue()</a></code>,
+<code><a href="scale_brewer.html">scale_fill_brewer()</a></code>, etc).
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Template function for creating densities grouped by a variable
+cty_by_var &lt;- function(var) {
+  ggplot(mpg, aes(cty, colour = factor({{var}}), fill = factor({{var}}))) +
+    geom_density(alpha = 0.2)
+}
+
+# The default, scale_fill_hue(), is not colour-blind safe
+cty_by_var(class)
+
+# (Temporarily) set the default to Okabe-Ito (which is colour-blind safe)
+okabe &lt;- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+withr::with_options(
+  list(ggplot2.discrete.fill = okabe),
+  print(cty_by_var(class))
+)
+
+# Define a collection of palettes to alter the default based on number of levels to encode
+discrete_palettes &lt;- list(
+  c("skyblue", "orange"),
+  RColorBrewer::brewer.pal(3, "Set2"),
+  RColorBrewer::brewer.pal(6, "Accent")
+)
+withr::with_options(
+  list(ggplot2.discrete.fill = discrete_palettes), {
+  # 1st palette is used when there 1-2 levels (e.g., year)
+  print(cty_by_var(year))
+  # 2nd palette is used when there are 3 levels
+  print(cty_by_var(drv))
+  # 3rd palette is used when there are 4-6 levels
+  print(cty_by_var(fl))
+})
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

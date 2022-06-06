@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make Functions That Wrap Text in HTML Tags</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tag_f {diffobj}"><tr><td>tag_f {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make Functions That Wrap Text in HTML Tags</h2>
+
+<h3>Description</h3>
+
+<p>Helper functions to generate functions to use as slots for the
+<code>StyleHtml@funs</code> classes.  These are functions that return
+<em>functions</em>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tag_f(tag, class = character(), style = character())
+
+div_f(class = character(), style = character())
+
+span_f(class = character(), style = character())
+
+cont_f(class = character())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>character(1L) a name of an HTML tag</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>character the CSS class(es)</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>named character inline styles, where the name is the CSS
+property and the value the value.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>tag_f</code> and related functions (<code>div_f</code>, <code>span_f</code>) produce
+functions that are  vectorized and will apply opening and closing tags to
+each element of a character vector.  <code>container_f</code> on the other hand
+produces a function will collapse a character vector into length 1, and only
+then applies the tags.  Additionally, <code>container_f</code> already comes with
+the &ldquo;diffobj-container&rdquo; class specified.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a function that accepts a character parameter.  If applied, each
+element in the character vector will be wrapped in the div tags
+</p>
+
+
+<h3>Note</h3>
+
+<p>inputs are assumed to be valid class names or CSS styles.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Assuming class 'ex1' has CSS styles defined elsewhere
+tag_f("div", "ex1")(LETTERS[1:5])
+## Use convenience function, and add some inline styles
+div_f("ex2", c(color="green", `font-family`="arial"))(LETTERS[1:5])
+## Notice how this is a div with pre-specifed class,
+## and only one div is created around the entire data
+cont_f()(LETTERS[1:5])
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

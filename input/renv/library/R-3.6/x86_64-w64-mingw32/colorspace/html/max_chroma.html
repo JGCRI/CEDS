@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute Maximum Chroma for Given Hue and Luminance in HCL</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for max_chroma {colorspace}"><tr><td>max_chroma {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute Maximum Chroma for Given Hue and Luminance in HCL</h2>
+
+<h3>Description</h3>
+
+<p>Compute approximately the maximum chroma possible for a given hue and
+luminance combination in the HCL color space.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+max_chroma(h, l, floor = FALSE)
+
+max_chroma_table
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>h</code></td>
+<td>
+<p>hue value in the HCL color description, has to be in [0, 360].</p>
+</td></tr>
+<tr valign="top"><td><code>l</code></td>
+<td>
+<p>luminance value in the HCL color description, has to be in [0, 100].</p>
+</td></tr>
+<tr valign="top"><td><code>floor</code></td>
+<td>
+<p>logical. Should the chroma value be rounded down to the next
+lower integer?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>As the possible combinations of chroma and luminance depend on hue, it is
+not obvious which maximum chroma can be used for a given combination of hue
+and luminance prior to calling <code><a href="polarLUV.html">polarLUV</a></code>. To avoid having to
+<code>fixup</code> the color upon conversion to RGB <code><a href="hex.html">hex</a></code> codes, the
+<code>max_chroma</code> function computes (approximately) the maximum chroma
+possible. The computations are based on interpolations of pre-computed
+maxima in <code>max_chroma_table</code>, containing the maximum chroma for a given
+hue-luminance combination (both in integers). Hence, the result may sometimes
+still be very slightly larger than the actual maximum which can be avoided
+by taking the <code>floor</code> of the approximate value.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector with the maximum chroma coordinates.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="polarLUV.html">polarLUV</a></code>, <code><a href="hex.html">hex</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+max_chroma(h = 0:36 * 10, l = 50)
+max_chroma(h = 120, l = 0:10 * 10)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

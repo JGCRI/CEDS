@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cache a value in an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_cache {rlang}"><tr><td>env_cache {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cache a value in an environment</h2>
+
+<h3>Description</h3>
+
+<p><code>env_cache()</code> is a wrapper around <code><a href="env_get.html">env_get()</a></code> and <code><a href="env_poke.html">env_poke()</a></code>
+designed to retrieve a cached value from <code>env</code>.
+</p>
+
+<ul>
+<li><p> If the <code>nm</code> binding exists, it returns its value.
+</p>
+</li>
+<li><p> Otherwise, it stores the default value in <code>env</code> and returns that.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+env_cache(env, nm, default)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>nm</code></td>
+<td>
+<p>Names of bindings. <code>nm</code> must be a single string.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>The default value to store in <code>env</code> if <code>nm</code> does not
+exist yet.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Either the value of <code>nm</code> or <code>default</code> if it did not exist
+yet.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+e &lt;- env(a = "foo")
+
+# Returns existing binding
+env_cache(e, "a", "default")
+
+# Creates a `b` binding and returns its default value
+env_cache(e, "b", "default")
+
+# Now `b` is defined
+e$b
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

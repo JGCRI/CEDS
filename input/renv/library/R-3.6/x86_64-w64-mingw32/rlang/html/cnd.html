@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a condition object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cnd {rlang}"><tr><td>cnd {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a condition object</h2>
+
+<h3>Description</h3>
+
+<p>These constructors create subclassed conditions, the objects that
+power the error, warning, and message system in R.
+</p>
+
+<ul>
+<li> <p><code>cnd()</code> creates bare conditions that only inherit from
+<code>condition</code>.
+</p>
+</li>
+<li><p> Conditions created with <code>error_cnd()</code>, <code>warning_cnd()</code>, and
+<code>message_cnd()</code> inherit from <code>"error"</code>, <code>"warning"</code>, or <code>"message"</code>.
+</p>
+</li>
+<li> <p><code>error_cnd()</code> creates subclassed errors. See
+<code><a href="rlang_error.html">&quot;rlang_error&quot;</a></code>.
+</p>
+</li></ul>
+
+<p>Use <code><a href="cnd_signal.html">cnd_signal()</a></code> to emit the relevant signal for a particular
+condition class.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cnd(class, ..., message = "", call = NULL, use_cli_format = NULL)
+
+error_cnd(
+  class = NULL,
+  ...,
+  message = "",
+  call = NULL,
+  trace = NULL,
+  parent = NULL,
+  use_cli_format = NULL
+)
+
+warning_cnd(
+  class = NULL,
+  ...,
+  message = "",
+  call = NULL,
+  use_cli_format = NULL
+)
+
+message_cnd(
+  class = NULL,
+  ...,
+  message = "",
+  call = NULL,
+  use_cli_format = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>The condition subclass.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="dyn-dots.html">dynamic</a>&gt; Named data fields stored inside
+the condition object.</p>
+</td></tr>
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>A default message to inform the user about the
+condition when it is signalled.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>A function call to be included in the error message.
+If an execution environment of a running function, the
+corresponding function call is retrieved.</p>
+</td></tr>
+<tr valign="top"><td><code>use_cli_format</code></td>
+<td>
+<p>Whether to use the cli package to format
+<code>message</code>. See <code><a href="local_use_cli.html">local_use_cli()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>trace</code></td>
+<td>
+<p>A <code>trace</code> object created by <code><a href="trace_back.html">trace_back()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>parent</code></td>
+<td>
+<p>A parent condition object.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="cnd_signal.html">cnd_signal()</a></code>, <code><a href="try_fetch.html">try_fetch()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Create a condition inheriting only from the S3 class "foo":
+cnd &lt;- cnd("foo")
+
+# Signal the condition to potential handlers. Since this is a bare
+# condition the signal has no effect if no handlers are set up:
+cnd_signal(cnd)
+
+# When a relevant handler is set up, the signal transfers control
+# to the handler
+with_handlers(cnd_signal(cnd), foo = function(c) "caught!")
+tryCatch(cnd_signal(cnd), foo = function(c) "caught!")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

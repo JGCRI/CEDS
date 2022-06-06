@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code execute silently?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_silent {testthat}"><tr><td>expect_silent {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code execute silently?</h2>
+
+<h3>Description</h3>
+
+<p>Checks that the code produces no output, messages, or warnings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_silent(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The first argument, invisibly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+expect_silent("123")
+
+f &lt;- function() {
+  message("Hi!")
+  warning("Hey!!")
+  print("OY!!!")
+}
+## Not run: 
+expect_silent(f())
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

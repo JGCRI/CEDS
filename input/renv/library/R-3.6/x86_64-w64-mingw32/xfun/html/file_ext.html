@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Manipulate filename extensions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file_ext {xfun}"><tr><td>file_ext {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Manipulate filename extensions</h2>
+
+<h3>Description</h3>
+
+<p>Functions to obtain (<code>file_ext()</code>), remove (<code>sans_ext()</code>), and
+change (<code>with_ext()</code>) extensions in filenames.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_ext(x)
+
+sans_ext(x)
+
+with_ext(x, ext)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character of file paths.</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>A vector of new extensions. It must be either of length 1, or the
+same length as <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>file_ext()</code> is similar to <code>tools::<a href="file_ext.html">file_ext</a>()</code>, and
+<code>sans_ext()</code> is similar to <code>tools::<a href="../../tools/html/fileutils.html">file_path_sans_ext</a>()</code>.
+The main differences are that they treat <code>tar.(gz|bz2|xz)</code> and
+<code>nb.html</code> as extensions (but functions in the <span class="pkg">tools</span> package
+doesn't allow double extensions by default), and allow characters <code>~</code>
+and <code>#</code> to be present at the end of a filename.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector of the same length as <code>x</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+p = c("abc.doc", "def123.tex", "path/to/foo.Rmd", "backup.ppt~", "pkg.tar.xz")
+file_ext(p)
+sans_ext(p)
+with_ext(p, ".txt")
+with_ext(p, c(".ppt", ".sty", ".Rnw", "doc", "zip"))
+with_ext(p, "html")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

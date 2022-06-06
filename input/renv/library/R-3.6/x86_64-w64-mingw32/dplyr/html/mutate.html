@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create, modify, and delete columns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mutate {dplyr}"><tr><td>mutate {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create, modify, and delete columns</h2>
+
+<h3>Description</h3>
+
+<p><code>mutate()</code> adds new variables and preserves existing ones;
+<code>transmute()</code> adds new variables and drops existing ones.
+New variables overwrite existing variables of the same name.
+Variables can be removed by setting their value to <code>NULL</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+mutate(.data, ...)
+
+## S3 method for class 'data.frame'
+mutate(
+  .data,
+  ...,
+  .keep = c("all", "used", "unused", "none"),
+  .before = NULL,
+  .after = NULL
+)
+
+transmute(.data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Name-value pairs.
+The name gives the name of the column in the output.
+</p>
+<p>The value can be:
+</p>
+
+<ul>
+<li><p> A vector of length 1, which will be recycled to the correct length.
+</p>
+</li>
+<li><p> A vector the same length as the current group (or the whole data frame
+if ungrouped).
+</p>
+</li>
+<li> <p><code>NULL</code>, to remove the column.
+</p>
+</li>
+<li><p> A data frame or tibble, to create multiple columns in the output.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>.keep</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+This is an experimental argument that allows you to control which columns
+from <code>.data</code> are retained in the output:
+</p>
+
+<ul>
+<li> <p><code>"all"</code>, the default, retains all variables.
+</p>
+</li>
+<li> <p><code>"used"</code> keeps any variables used to make new variables; it's useful
+for checking your work as it displays inputs and outputs side-by-side.
+</p>
+</li>
+<li> <p><code>"unused"</code> keeps only existing variables <strong>not</strong> used to make new
+variables.
+</p>
+</li>
+<li> <p><code>"none"</code>, only keeps grouping keys (like <code><a href="mutate.html">transmute()</a></code>).
+</p>
+</li></ul>
+
+<p>Grouping variables are always kept, unconditional to <code>.keep</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.before, .after</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; Optionally, control where new columns
+should appear (the default is to add to the right hand side). See
+<code><a href="relocate.html">relocate()</a></code> for more details.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following
+properties:
+</p>
+
+<ul>
+<li><p> Rows are not affected.
+</p>
+</li>
+<li><p> Existing columns will be preserved according to the <code>.keep</code> argument.
+New columns will be placed according to the <code>.before</code> and <code>.after</code>
+arguments. If <code>.keep = "none"</code> (as in <code>transmute()</code>), the output order
+is determined only by <code>...</code>, not the order of existing columns.
+</p>
+</li>
+<li><p> Columns given value <code>NULL</code> will be removed
+</p>
+</li>
+<li><p> Groups will be recomputed if a grouping variable is mutated.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li></ul>
+
+
+
+<h3>Useful mutate functions</h3>
+
+
+<ul>
+<li> <p><code><a href="../../base/html/Arithmetic.html">+</a></code>, <code><a href="../../base/html/Arithmetic.html">-</a></code>, <code><a href="../../base/html/Log.html">log()</a></code>, etc., for their usual mathematical meanings
+</p>
+</li>
+<li> <p><code><a href="lead-lag.html">lead()</a></code>, <code><a href="lead-lag.html">lag()</a></code>
+</p>
+</li>
+<li> <p><code><a href="ranking.html">dense_rank()</a></code>, <code><a href="ranking.html">min_rank()</a></code>, <code><a href="ranking.html">percent_rank()</a></code>, <code><a href="ranking.html">row_number()</a></code>,
+<code><a href="ranking.html">cume_dist()</a></code>, <code><a href="ranking.html">ntile()</a></code>
+</p>
+</li>
+<li> <p><code><a href="../../base/html/cumsum.html">cumsum()</a></code>, <code><a href="cumall.html">cummean()</a></code>, <code><a href="../../base/html/cumsum.html">cummin()</a></code>, <code><a href="../../base/html/cumsum.html">cummax()</a></code>, <code><a href="cumall.html">cumany()</a></code>, <code><a href="cumall.html">cumall()</a></code>
+</p>
+</li>
+<li> <p><code><a href="na_if.html">na_if()</a></code>, <code><a href="coalesce.html">coalesce()</a></code>
+</p>
+</li>
+<li> <p><code><a href="if_else.html">if_else()</a></code>, <code><a href="recode.html">recode()</a></code>, <code><a href="case_when.html">case_when()</a></code>
+</p>
+</li></ul>
+
+
+
+<h3>Grouped tibbles</h3>
+
+<p>Because mutating expressions are computed within groups, they may
+yield different results on grouped tibbles. This will be the case
+as soon as an aggregating, lagging, or ranking function is
+involved. Compare this ungrouped mutate:</p>
+<pre>starwars %&gt;%
+  select(name, mass, species) %&gt;%
+  mutate(mass_norm = mass / mean(mass, na.rm = TRUE))
+</pre>
+<p>With the grouped equivalent:</p>
+<pre>starwars %&gt;%
+  select(name, mass, species) %&gt;%
+  group_by(species) %&gt;%
+  mutate(mass_norm = mass / mean(mass, na.rm = TRUE))
+</pre>
+<p>The former normalises <code>mass</code> by the global average whereas the
+latter normalises by the averages within species levels.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>These function are <strong>generic</strong>s, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>Methods available in currently loaded packages:
+</p>
+
+<ul>
+<li> <p><code>mutate()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>transmute()</code>: no methods found.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="arrange.html">arrange</a>()</code>,
+<code><a href="filter.html">filter</a>()</code>,
+<code><a href="rename.html">rename</a>()</code>,
+<code><a href="select.html">select</a>()</code>,
+<code><a href="slice.html">slice</a>()</code>,
+<code><a href="summarise.html">summarise</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Newly created variables are available immediately
+starwars %&gt;%
+ select(name, mass) %&gt;%
+ mutate(
+  mass2 = mass * 2,
+  mass2_squared = mass2 * mass2
+)
+
+# As well as adding new variables, you can use mutate() to
+# remove variables and modify existing variables.
+starwars %&gt;%
+ select(name, height, mass, homeworld) %&gt;%
+ mutate(
+  mass = NULL,
+  height = height * 0.0328084 # convert to feet
+)
+
+# Use across() with mutate() to apply a transformation
+# to multiple columns in a tibble.
+starwars %&gt;%
+ select(name, homeworld, species) %&gt;%
+ mutate(across(!name, as.factor))
+# see more in ?across
+
+# Window functions are useful for grouped mutates:
+starwars %&gt;%
+ select(name, mass, homeworld) %&gt;%
+ group_by(homeworld) %&gt;%
+ mutate(rank = min_rank(desc(mass)))
+# see `vignette("window-functions")` for more details
+
+# By default, new columns are placed on the far right.
+# Experimental: you can override with `.before` or `.after`
+df &lt;- tibble(x = 1, y = 2)
+df %&gt;% mutate(z = x + y)
+df %&gt;% mutate(z = x + y, .before = 1)
+df %&gt;% mutate(z = x + y, .after = x)
+
+# By default, mutate() keeps all columns from the input data.
+# Experimental: You can override with `.keep`
+df &lt;- tibble(x = 1, y = 2, a = "a", b = "b")
+df %&gt;% mutate(z = x + y, .keep = "all") # the default
+df %&gt;% mutate(z = x + y, .keep = "used")
+df %&gt;% mutate(z = x + y, .keep = "unused")
+df %&gt;% mutate(z = x + y, .keep = "none") # same as transmute()
+
+# Grouping ----------------------------------------
+# The mutate operation may yield different results on grouped
+# tibbles because the expressions are computed within groups.
+# The following normalises `mass` by the global average:
+starwars %&gt;%
+  select(name, mass, species) %&gt;%
+  mutate(mass_norm = mass / mean(mass, na.rm = TRUE))
+
+# Whereas this normalises `mass` by the averages within species
+# levels:
+starwars %&gt;%
+  select(name, mass, species) %&gt;%
+  group_by(species) %&gt;%
+  mutate(mass_norm = mass / mean(mass, na.rm = TRUE))
+
+# Indirection ----------------------------------------
+# Refer to column names stored as strings with the `.data` pronoun:
+vars &lt;- c("mass", "height")
+mutate(starwars, prod = .data[[vars[[1]]]] * .data[[vars[[2]]]])
+# Learn more in ?dplyr_data_masking
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

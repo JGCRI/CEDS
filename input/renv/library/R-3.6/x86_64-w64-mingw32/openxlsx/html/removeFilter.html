@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Remove a worksheet filter</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for removeFilter {openxlsx}"><tr><td>removeFilter {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Remove a worksheet filter</h2>
+
+<h3>Description</h3>
+
+<p>Removes filters from addFilter() and writeData()
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+removeFilter(wb, sheet)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A vector of names or indices of worksheets</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+addWorksheet(wb, "Sheet 2")
+addWorksheet(wb, "Sheet 3")
+
+writeData(wb, 1, iris)
+addFilter(wb, 1, row = 1, cols = 1:ncol(iris))
+
+## Equivalently
+writeData(wb, 2, x = iris, withFilter = TRUE)
+
+## Similarly
+writeDataTable(wb, 3, iris)
+
+## remove filters
+removeFilter(wb, 1:2) ## remove filters
+removeFilter(wb, 3) ## Does not affect tables!
+## Not run: 
+saveWorkbook(wb, file = "removeFilterExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

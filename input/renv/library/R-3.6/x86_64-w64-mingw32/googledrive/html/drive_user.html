@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get info on current user</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_user {googledrive}"><tr><td>drive_user {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get info on current user</h2>
+
+<h3>Description</h3>
+
+<p>Reveals information about the user associated with the current token. This is
+a thin wrapper around <code><a href="drive_about.html">drive_about()</a></code> that just extracts the most useful
+information (the information on current user) and prints it nicely.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_user(verbose = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of class <code>drive_user</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>about.get</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/about/get">https://developers.google.com/drive/api/v3/reference/about/get</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+drive_user()
+
+# more info is returned than is printed
+user &lt;- drive_user()
+str(user)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

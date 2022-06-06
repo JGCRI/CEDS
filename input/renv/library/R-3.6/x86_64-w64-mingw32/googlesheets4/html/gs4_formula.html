@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class for Google Sheets formulas</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gs4_formula {googlesheets4}"><tr><td>gs4_formula {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class for Google Sheets formulas</h2>
+
+<h3>Description</h3>
+
+<p>In order to write a formula into Google Sheets, you need to store it as an
+object of class <code>googlesheets4_formula</code>. This is how we distinguish a
+&quot;regular&quot; character string from a string that should be interpreted as a
+formula. <code>googlesheets4_formula</code> is an S3 class implemented using the <a href="https://vctrs.r-lib.org/articles/s3-vector.html">vctrs package</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gs4_formula(x = character())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An S3 vector of class <code>googlesheets4_formula</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other write functions: 
+<code><a href="gs4_create.html">gs4_create</a>()</code>,
+<code><a href="range_delete.html">range_delete</a>()</code>,
+<code><a href="range_flood.html">range_flood</a>()</code>,
+<code><a href="range_write.html">range_write</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  dat &lt;- data.frame(x = c(1, 5, 3, 2, 4, 6))
+
+  ss &lt;- gs4_create("gs4-formula-demo", sheets = dat)
+  ss
+
+  summaries &lt;- tibble::tribble(
+    ~desc, ~summaries,
+    "max", "=max(A:A)",
+    "sum", "=sum(A:A)",
+    "min", "=min(A:A)",
+    "sparkline", "=SPARKLINE(A:A, {\"color\", \"blue\"})"
+  )
+
+  # explicitly declare a column as `googlesheets4_formula`
+  summaries$summaries &lt;- gs4_formula(summaries$summaries)
+  summaries
+
+  range_write(ss, data = summaries, range = "C1", reformat = FALSE)
+
+  miscellany &lt;- tibble::tribble(
+    ~desc, ~example,
+    "hyperlink", "=HYPERLINK(\"http://www.google.com/\",\"Google\")",
+    "image", "=IMAGE(\"https://www.google.com/images/srpr/logo3w.png\")"
+  )
+  miscellany$example &lt;- gs4_formula(miscellany$example)
+  miscellany
+
+  sheet_write(miscellany, ss = ss)
+
+  # clean up
+  gs4_find("gs4-formula-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

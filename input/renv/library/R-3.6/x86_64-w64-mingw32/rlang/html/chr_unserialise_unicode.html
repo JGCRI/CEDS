@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Translate unicode points to UTF-8</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for chr_unserialise_unicode {rlang}"><tr><td>chr_unserialise_unicode {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Translate unicode points to UTF-8</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>For historical reasons, R translates strings to the native encoding
+when they are converted to symbols. This string-to-symbol
+conversion is not a rare occurrence and happens for instance to the
+names of a list of arguments converted to a call by <code>do.call()</code>.
+</p>
+<p>If the string contains unicode characters that cannot be
+represented in the native encoding, R serialises those as an ASCII
+sequence representing the unicode point. This is why Windows users
+with western locales often see strings looking like <code style="white-space: pre;">&lt;U+xxxx&gt;</code>. To
+alleviate some of the pain, rlang parses strings and looks for
+serialised unicode points to translate them back to the proper
+UTF-8 representation. This transformation occurs automatically in
+functions like <code><a href="env_names.html">env_names()</a></code> and can be manually triggered with
+<code>as_utf8_character()</code> and <code>chr_unserialise_unicode()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+chr_unserialise_unicode(chr)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>chr</code></td>
+<td>
+<p>A character vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Life cycle</h3>
+
+<p>This function is experimental.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ascii &lt;- "&lt;U+5E78&gt;"
+chr_unserialise_unicode(ascii)
+
+identical(chr_unserialise_unicode(ascii), "\u5e78")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

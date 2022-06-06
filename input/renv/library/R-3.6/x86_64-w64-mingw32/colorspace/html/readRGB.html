@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read RGB Color Descriptions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readRGB {colorspace}"><tr><td>readRGB {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read RGB Color Descriptions</h2>
+
+<h3>Description</h3>
+
+<p>This function reads a set of RGB color descriptions (of the form written by
+<code>gcolorsel</code>) from a file and creates a color object containing the
+corresponding colors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readRGB(file, class = "RGB")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>The file containing the color descriptions.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>The kind of color object to be returned.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The file is assumed to contain RGB color descriptions consisting of three
+integer values in the range from 0 to 255 followed by a color name.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An color object of the specified class containing the color
+descriptions.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="writehex.html">writehex</a></code>, <code><a href="readhex.html">readhex</a></code>,
+<code><a href="hex2RGB.html">hex2RGB</a></code>, <code><a href="RGB.html">RGB</a></code>, <code><a href="HSV.html">HSV</a></code>,
+<code><a href="XYZ.html">XYZ</a></code>, <code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>,
+<code><a href="LUV.html">LUV</a></code>, <code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+rgb &lt;- readRGB("pastel.rgb")
+hsv &lt;- readRGB("pastel.rgb", "HSV")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

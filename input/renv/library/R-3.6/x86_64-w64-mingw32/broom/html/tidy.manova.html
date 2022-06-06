@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy a(n) manova object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidy.manova {broom}"><tr><td>tidy.manova {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy a(n) manova object</h2>
+
+<h3>Description</h3>
+
+<p>Tidy summarizes information about the components of a model.
+A model component might be a single term in a regression, a single
+hypothesis, a cluster, or a class. Exactly what tidy considers to be a
+model component varies across models but is usually self-evident.
+If a model has several distinct types of components, you will need to
+specify which components to return.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'manova'
+tidy(x, test = "Pillai", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>manova</code> object return from <code><a href="../../stats/html/manova.html">stats::manova()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>test</code></td>
+<td>
+<p>One of &quot;Pillai&quot; (Pillai's trace), &quot;Wilks&quot; (Wilk's lambda),
+&quot;Hotelling-Lawley&quot; (Hotelling-Lawley trace) or &quot;Roy&quot; (Roy's greatest root)
+indicating which test statistic should be used. Defaults to &quot;Pillai&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Arguments passed on to <code><a href="../../stats/html/summary.manova.html">stats::summary.manova</a></code>
+</p>
+
+<dl>
+<dt><code>object</code></dt><dd><p>An object of class <code>"manova"</code> or an <code>aov</code>
+object with multiple responses.</p>
+</dd>
+<dt><code>intercept</code></dt><dd><p>logical.  If <code>TRUE</code>, the intercept term is
+included in the table.</p>
+</dd>
+<dt><code>tol</code></dt><dd><p>tolerance to be used in deciding if the residuals are
+rank-deficient: see <code><a href="../../Matrix/html/qr-methods.html">qr</a></code>.</p>
+</dd>
+</dl>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Depending on which test statistic is specified only one of <code>pillai</code>,
+<code>wilks</code>, <code>hl</code> or <code>roy</code> is included.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>den.df</code></td>
+<td>
+<p>Degrees of freedom of the denominator.</p>
+</td></tr>
+<tr valign="top"><td><code>num.df</code></td>
+<td>
+<p>Degrees of freedom.</p>
+</td></tr>
+<tr valign="top"><td><code>p.value</code></td>
+<td>
+<p>The two-sided p-value associated with the observed statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>statistic</code></td>
+<td>
+<p>The value of a T-statistic to use in a hypothesis that the regression term is non-zero.</p>
+</td></tr>
+<tr valign="top"><td><code>term</code></td>
+<td>
+<p>The name of the regression term.</p>
+</td></tr>
+<tr valign="top"><td><code>pillai</code></td>
+<td>
+<p>Pillai's trace.</p>
+</td></tr>
+<tr valign="top"><td><code>wilks</code></td>
+<td>
+<p>Wilk's lambda.</p>
+</td></tr>
+<tr valign="top"><td><code>hl</code></td>
+<td>
+<p>Hotelling-Lawley trace.</p>
+</td></tr>
+<tr valign="top"><td><code>roy</code></td>
+<td>
+<p>Roy's greatest root.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">tidy()</a></code>, <code><a href="../../stats/html/summary.manova.html">stats::summary.manova()</a></code>
+</p>
+<p>Other anova tidiers: 
+<code><a href="glance.aov.html">glance.aov</a>()</code>,
+<code><a href="tidy.TukeyHSD.html">tidy.TukeyHSD</a>()</code>,
+<code><a href="tidy.anova.html">tidy.anova</a>()</code>,
+<code><a href="tidy.aovlist.html">tidy.aovlist</a>()</code>,
+<code><a href="tidy.aov.html">tidy.aov</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+npk2 &lt;- within(npk, foo &lt;- rnorm(24))
+m &lt;- manova(cbind(yield, foo) ~ block + N * P * K, npk2)
+tidy(m)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

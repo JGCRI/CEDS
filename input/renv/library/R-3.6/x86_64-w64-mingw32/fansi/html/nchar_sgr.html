@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Control Sequence Aware Version of nchar</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nchar_sgr {fansi}"><tr><td>nchar_sgr {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Control Sequence Aware Version of nchar</h2>
+
+<h3>Description</h3>
+
+<p>These functions are deprecated in favor of the <code><a href="nchar_ctl.html">nchar_ctl</a></code> and
+<code><a href="nchar_ctl.html">nzchar_ctl</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nchar_sgr(
+  x,
+  type = "chars",
+  allowNA = FALSE,
+  keepNA = NA,
+  warn = getOption("fansi.warn", TRUE)
+)
+
+nzchar_sgr(x, keepNA = NA, warn = getOption("fansi.warn", TRUE))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character vector or object that can be coerced to such.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>character(1L) partial matching
+<code>c("chars", "width", "graphemes")</code>, although types other than &quot;chars&quot; only
+work correctly with R &gt;= 3.2.2.  See <code><a href="../../base/html/nchar.html">?nchar</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>allowNA</code></td>
+<td>
+<p>logical: should <code>NA</code> be returned for invalid
+multibyte strings or <code>"bytes"</code>-encoded strings (rather than
+throwing an error)?</p>
+</td></tr>
+<tr valign="top"><td><code>keepNA</code></td>
+<td>
+<p>logical: should <code>NA</code> be returned when
+<code>x</code> is <code><a href="../../base/html/NA.html">NA</a></code>?  If false, <code>nchar()</code> returns
+<code>2</code>, as that is the number of printing characters used when
+strings are written to output, and <code>nzchar()</code> is <code>TRUE</code>.  The
+default for <code>nchar()</code>, <code>NA</code>, means to use <code>keepNA = TRUE</code>
+unless <code>type</code> is <code>"width"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to warn when potentially
+problematic <em>Control Sequences</em> are encountered.  These could cause the
+assumptions <code>fansi</code> makes about how strings are rendered on your display
+to be incorrect, for example by moving the cursor (see <code><a href="fansi.html">?fansi</a></code>).
+At most one warning will be issued per element in each input vector.  Will
+also warn about some badly encoded UTF-8 strings, but a lack of UTF-8
+warnings is not a guarantee of correct encoding (use <code><a href="../../base/html/validUTF8.html">validUTF8</a></code> for
+that).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Like <code><a href="../../base/html/nchar.html">base::nchar</a></code>, with <em>Control Sequences</em> excluded.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

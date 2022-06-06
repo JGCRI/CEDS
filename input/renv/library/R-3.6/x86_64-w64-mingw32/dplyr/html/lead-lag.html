@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute lagged or leading values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for lead-lag {dplyr}"><tr><td>lead-lag {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute lagged or leading values</h2>
+
+<h3>Description</h3>
+
+<p>Find the &quot;previous&quot; (<code>lag()</code>) or &quot;next&quot; (<code>lead()</code>) values in a vector.
+Useful for comparing values behind of or ahead of the current values.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lag(x, n = 1L, default = NA, order_by = NULL, ...)
+
+lead(x, n = 1L, default = NA, order_by = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Vector of values</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Positive integer of length 1, giving the number of positions to
+lead or lag by</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>Value used for non-existent rows. Defaults to <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>order_by</code></td>
+<td>
+<p>Override the default ordering to use another vector or column</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Needed for compatibility with lag generic.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+lag(1:5)
+lead(1:5)
+
+x &lt;- 1:5
+tibble(behind = lag(x), x, ahead = lead(x))
+
+# If you want to look more rows behind or ahead, use `n`
+lag(1:5, n = 1)
+lag(1:5, n = 2)
+
+lead(1:5, n = 1)
+lead(1:5, n = 2)
+
+# If you want to define a value for non-existing rows, use `default`
+lag(1:5)
+lag(1:5, default = 0)
+
+lead(1:5)
+lead(1:5, default = 6)
+
+# If data are not already ordered, use `order_by`
+scrambled &lt;- slice_sample(tibble(year = 2000:2005, value = (0:5) ^ 2), prop = 1)
+
+wrong &lt;- mutate(scrambled, previous_year_value = lag(value))
+arrange(wrong, year)
+
+right &lt;- mutate(scrambled, previous_year_value = lag(value, order_by = year))
+arrange(right, year)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

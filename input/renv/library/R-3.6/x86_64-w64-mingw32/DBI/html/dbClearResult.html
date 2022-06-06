@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Clear a result set</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbClearResult {DBI}"><tr><td>dbClearResult {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Clear a result set</h2>
+
+<h3>Description</h3>
+
+<p>Frees all resources (local and remote) associated with a result set.  In some
+cases (e.g., very large result sets) this can be a critical step to avoid
+exhausting resources (memory, file descriptors, etc.)
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbClearResult(res, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>res</code></td>
+<td>
+<p>An object inheriting from <a href="DBIResult-class.html">DBIResult</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>dbClearResult()</code> returns <code>TRUE</code>, invisibly, for result sets obtained from
+both <code>dbSendQuery()</code>
+and <code>dbSendStatement()</code>.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>An attempt to close an already closed result set issues a warning
+in both cases.
+</p>
+
+
+<h3>Specification</h3>
+
+<p><code>dbClearResult()</code> frees all resources associated with retrieving
+the result of a query or update operation.
+The DBI backend can expect a call to <code>dbClearResult()</code> for each
+<code><a href="dbSendQuery.html">dbSendQuery()</a></code> or <code><a href="dbSendStatement.html">dbSendStatement()</a></code> call.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+rs &lt;- dbSendQuery(con, "SELECT 1")
+print(dbFetch(rs))
+
+dbClearResult(rs)
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

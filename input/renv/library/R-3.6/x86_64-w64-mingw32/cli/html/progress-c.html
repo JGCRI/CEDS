@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The cli progress C API</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for progress-c {cli}"><tr><td>progress-c {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The cli progress C API</h2>
+
+<h3>Description</h3>
+
+<p>The cli progress C API
+</p>
+
+
+<h3>The cli progress C API</h3>
+
+
+
+<h4><code>CLI_SHOULD_TICK</code></h4>
+
+<p>A macro that evaluates to (int) 1 if a cli progress bar update is due,
+and to (int) 0 otherwise. If the timer hasn't been initialized in this
+compilation unit yet, then it is always 0. To initialize the timer,
+call <code>cli_progress_init_timer()</code> or create a progress bar with
+<code>cli_progress_bar()</code>.
+</p>
+
+
+
+<h4><code>cli_progress_add()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_add(SEXP bar, double inc);
+</pre></div>
+<p>Add a number of progress units to the progress bar. It will also
+trigger an update if an update is due.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>inc</code>: progress increment.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_bar()</code></h4>
+
+<div class="sourceCode c"><pre>SEXP cli_progress_bar(double total, SEXP config);
+</pre></div>
+<p>Create a new progress bar object. The returned progress bar object
+must be <code>PROTECT()</code>-ed.
+</p>
+
+<ul>
+<li> <p><code>total</code>: Total number of progress units. Use <code>NA_REAL</code> if it is not
+known.
+</p>
+</li>
+<li> <p><code>config</code>: R named list object of additional parameters. May be <code>NULL</code>
+(the C <code style="white-space: pre;">NULL~) or </code>R_NilValue<code style="white-space: pre;">(the R</code>NULL') for the defaults.
+</p>
+</li></ul>
+
+<p><code>config</code> may contain the following entries:
+</p>
+
+<ul>
+<li> <p><code>name</code>: progress bar name.
+</p>
+</li>
+<li> <p><code>status</code>: (initial) progress bar status.
+</p>
+</li>
+<li> <p><code>type</code>: progress bar type.
+</p>
+</li>
+<li> <p><code>total</code>: total number of progress units.
+</p>
+</li>
+<li> <p><code>show_after</code>: show the progress bar after the specified number of
+seconds. This overrides the global <code>show_after</code> option.
+</p>
+</li>
+<li> <p><code>format</code>: format string, must be specified for custom progress bars.
+</p>
+</li>
+<li> <p><code>format_done</code>: format string for successful termination.
+</p>
+</li>
+<li> <p><code>format_failed</code>: format string for unsuccessful termination.
+</p>
+</li>
+<li> <p><code>clear</code>: whether to remove the progress bar from the screen after
+termination.
+</p>
+</li>
+<li> <p><code>auto_terminate</code>: whether to terminate the progress bar when the
+number of current units equals the number of total progress units.
+</p>
+</li></ul>
+
+
+
+<h5>Example</h5>
+
+<div class="sourceCode c"><pre>#include &lt;cli/progress.h&gt;
+SEXP progress_test1() {
+  int i;
+  SEXP bar = PROTECT(cli_progress_bar(1000, NULL));
+  for (i = 0; i &lt; 1000; i++) {
+    cli_progress_sleep(0, 4 * 1000 * 1000);
+    if (CLI_SHOULD_TICK) cli_progress_set(bar, i);
+  }
+  cli_progress_done(bar);
+  UNPROTECT(1);
+  return Rf_ScalarInteger(i);
+}
+</pre></div>
+
+
+
+
+<h4><code>cli_progress_done()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_done(SEXP bar);
+</pre></div>
+<p>Terminate the progress bar.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_init_timer()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_init_timer();
+</pre></div>
+<p>Initialize the cli timer without creating a progress bar.
+</p>
+
+
+
+<h4><code>cli_progress_num()</code></h4>
+
+<div class="sourceCode c"><pre>int cli_progress_num();
+</pre></div>
+<p>Returns the number of currently active progress bars.
+</p>
+
+
+
+<h4><code>cli_progress_set()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_set(SEXP bar, double set);
+</pre></div>
+<p>Set the progress bar to the specified number of progress units.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>set</code>: number of current progress progress units.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_set_clear()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_set_clear(SEXP bar, int clear);
+</pre></div>
+<p>Set whether to remove the progress bar from the screen. You can call
+this any time before <code>cli_progress_done()</code> is called.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>clear</code>: whether to remove the progress bar from the screen, zero or
+one.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_set_format()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_set_format(SEXP bar, const char *format, ...);
+</pre></div>
+<p>Set a custom format string for the progress bar. This call does not
+try to update the progress bar. If you want to request an update,
+call <code>cli_progress_add()</code>, <code>cli_progress_set()</code> or
+<code>cli_progress_update()</code>.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>format</code>: format string.
+</p>
+</li>
+<li> <p><code>...</code>: values to substitute into <code>format</code>.
+</p>
+</li></ul>
+
+<p><code>format</code> and <code>...</code> are passed to <code>vsnprintf()</code> to create a format
+string.
+</p>
+<p>Format strings may contain glue substitutions, referring to
+<a href="https://cli.r-lib.org/dev/reference/progress-variables.html">progress variables</a>, pluralization, and cli
+styling.
+</p>
+
+
+
+<h4><code>cli_progress_set_name()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_set_name(SEXP bar, const char *name);
+</pre></div>
+<p>Set the name of the progress bar.
+</p>
+
+<ul>
+<li> <p><code>bar</code>; progress bar object.
+</p>
+</li>
+<li> <p><code>name</code>: progress bar name.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_set_status()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_set_status(SEXP bar, const char *status);
+</pre></div>
+<p>Set the status of the progress bar.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>status </code>: progress bar status.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_set_type()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_set_type(SEXP bar, const char *type);
+</pre></div>
+<p>Set the progress bar type. Call this function right after creating
+the progress bar with <code>cli_progress_bar()</code>. Otherwise the behavior is
+undefined.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>type</code>: progress bar type. Possible progress bar types:
+<code>iterator</code>, <code>tasks</code>, <code>download</code> and <code>custom</code>.
+</p>
+</li></ul>
+
+
+
+
+<h4><code>cli_progress_update()</code></h4>
+
+<div class="sourceCode c"><pre>void cli_progress_update(SEXP bar, double set, double inc, int force);
+</pre></div>
+<p>Update the progress bar. Unlike the simpler <code>cli_progress_add()</code> and
+<code>cli_progress_set()</code> function, it can force an update if <code>force</code> is
+set to 1.
+</p>
+
+<ul>
+<li> <p><code>bar</code>: progress bar object.
+</p>
+</li>
+<li> <p><code>set</code>: the number of current progress units. It is ignored if
+negative.
+</p>
+</li>
+<li> <p><code>inc</code>: increment to add to the current number of progress units.
+It is ignored if <code>set</code> is not negative.
+</p>
+</li>
+<li> <p><code>force</code>: whether to force an update, even if no update is due.
+</p>
+</li></ul>
+
+<p>To force an update without changing the current number of progress units,
+supply <code>set = -1</code>, <code>inc = 0</code> and <code>force = 1</code>.
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

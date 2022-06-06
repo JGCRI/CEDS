@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Provide a format for ISO8601 dates and times with the...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for format_ISO8601_precision_check {lubridate}"><tr><td>format_ISO8601_precision_check {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Provide a format for ISO8601 dates and times with the requested precision.</h2>
+
+<h3>Description</h3>
+
+<p>Provide a format for ISO8601 dates and times with the requested precision.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+format_ISO8601_precision_check(precision, max_precision, usetz = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>precision</code></td>
+<td>
+<p>The amount of precision to represent with substrings of
+&quot;ymdhms&quot;, as &quot;y&quot;ear, &quot;m&quot;onth, &quot;d&quot;ay, &quot;h&quot;our, &quot;m&quot;inute, and
+&quot;s&quot;econd. (e.g. &quot;ymdhm&quot; would show precision through minutes. When NULL,
+<code>max_precision</code> is returned.  When <code>precision</code> is more precise than
+<code>max_precision</code>, a warning is given and <code>max_precision</code> is returned.</p>
+</td></tr>
+<tr valign="top"><td><code>max_precision</code></td>
+<td>
+<p>The maximum precision allowed to be output.</p>
+</td></tr>
+<tr valign="top"><td><code>usetz</code></td>
+<td>
+<p>Include the timezone in the output format</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

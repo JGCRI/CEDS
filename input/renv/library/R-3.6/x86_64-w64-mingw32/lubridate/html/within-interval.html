@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does a date (or interval) fall within an interval?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %within% {lubridate}"><tr><td>%within% {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does a date (or interval) fall within an interval?</h2>
+
+<h3>Description</h3>
+
+<p>Check whether <code>a</code> lies within the interval <code>b</code>, inclusive of the endpoints.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+a %within% b
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>a</code></td>
+<td>
+<p>An interval or date-time object.</p>
+</td></tr>
+<tr valign="top"><td><code>b</code></td>
+<td>
+<p>Either an interval vector, or a list of intervals.
+</p>
+<p>If <code>b</code> is an interval (or interval vector) it is recycled to the same length as <code>a</code>.
+If <code>b</code> is a list of intervals, <code>a</code> is checked if it falls within <em>any</em>
+of the intervals, i.e. <code>a %within% list(int1, int2)</code> is equivalent to
+<code>a %within% int1 | a %within% int2</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A logical vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+int &lt;- interval(ymd("2001-01-01"), ymd("2002-01-01"))
+int2 &lt;- interval(ymd("2001-06-01"), ymd("2002-01-01"))
+
+ymd("2001-05-03") %within% int # TRUE
+int2 %within% int # TRUE
+ymd("1999-01-01") %within% int # FALSE
+
+## recycling (carefully note the difference between using a vector of
+## intervals and list of intervals for the second argument)
+dates &lt;- ymd(c("2014-12-20", "2014-12-30", "2015-01-01", "2015-01-03"))
+blackout_vector &lt;- c(interval(ymd("2014-12-30"), ymd("2014-12-31")),
+              interval(ymd("2014-12-30"), ymd("2015-01-03")))
+dates %within% blackout_vector
+
+## within ANY of the intervals of a list
+dates &lt;- ymd(c("2014-12-20", "2014-12-30", "2015-01-01", "2015-01-03"))
+blackout_list&lt;- list(interval(ymd("2014-12-30"), ymd("2014-12-31")),
+                 interval(ymd("2014-12-30"), ymd("2015-01-03")))
+dates %within% blackout_list
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

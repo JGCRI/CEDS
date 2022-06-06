@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Freeze a worksheet pane</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for freezePane {openxlsx}"><tr><td>freezePane {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Freeze a worksheet pane</h2>
+
+<h3>Description</h3>
+
+<p>Freeze a worksheet pane
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+freezePane(
+  wb,
+  sheet,
+  firstActiveRow = NULL,
+  firstActiveCol = NULL,
+  firstRow = FALSE,
+  firstCol = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>firstActiveRow</code></td>
+<td>
+<p>Top row of active region</p>
+</td></tr>
+<tr valign="top"><td><code>firstActiveCol</code></td>
+<td>
+<p>Furthest left column of active region</p>
+</td></tr>
+<tr valign="top"><td><code>firstRow</code></td>
+<td>
+<p>If <code>TRUE</code>, freezes the first row (equivalent to firstActiveRow = 2)</p>
+</td></tr>
+<tr valign="top"><td><code>firstCol</code></td>
+<td>
+<p>If <code>TRUE</code>, freezes the first column (equivalent to firstActiveCol = 2)</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook("Kenshin")
+
+## Add some worksheets
+addWorksheet(wb, "Sheet 1")
+addWorksheet(wb, "Sheet 2")
+addWorksheet(wb, "Sheet 3")
+addWorksheet(wb, "Sheet 4")
+
+## Freeze Panes
+freezePane(wb, "Sheet 1", firstActiveRow = 5, firstActiveCol = 3)
+freezePane(wb, "Sheet 2", firstCol = TRUE) ## shortcut to firstActiveCol = 2
+freezePane(wb, 3, firstRow = TRUE) ## shortcut to firstActiveRow = 2
+freezePane(wb, 4, firstActiveRow = 1, firstActiveCol = "D")
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "freezePaneExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

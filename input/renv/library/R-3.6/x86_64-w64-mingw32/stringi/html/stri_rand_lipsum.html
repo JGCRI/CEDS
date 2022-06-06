@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A Lorem Ipsum Generator</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_rand_lipsum {stringi}"><tr><td>stri_rand_lipsum {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A Lorem Ipsum Generator</h2>
+
+<h3>Description</h3>
+
+<p>Generates (pseudo)random <em>lorem ipsum</em> text consisting
+of a given number of text paragraphs.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_rand_lipsum(n_paragraphs, start_lipsum = TRUE, nparagraphs = n_paragraphs)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n_paragraphs</code></td>
+<td>
+<p>single integer, number of paragraphs to generate</p>
+</td></tr>
+<tr valign="top"><td><code>start_lipsum</code></td>
+<td>
+<p>single logical value; should the resulting
+text start with <em>Lorem ipsum dolor sit amet</em>?</p>
+</td></tr>
+<tr valign="top"><td><code>nparagraphs</code></td>
+<td>
+<p>deprecated alias of <code>n_paragraphs</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><em>Lorem ipsum</em> is a dummy text often used as a source
+of data for string processing and displaying/lay-outing exercises.
+</p>
+<p>The current implementation is very simple:
+words are selected randomly from a Zipf distribution
+(based on a set of ca. 190 predefined Latin words).
+The number of words per sentence and sentences per paragraph
+follows a discretized, truncated normal distribution.
+No Markov chain modeling, just i.i.d. word selection.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector of length <code>n_paragraphs</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other random: 
+<code><a href="stri_rand_shuffle.html">stri_rand_shuffle</a>()</code>,
+<code><a href="stri_rand_strings.html">stri_rand_strings</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+cat(sapply(
+   stri_wrap(stri_rand_lipsum(10), 80, simplify=FALSE),
+   stri_flatten, collapse='\n'), sep='\n\n')
+cat(stri_rand_lipsum(10), sep='\n\n')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

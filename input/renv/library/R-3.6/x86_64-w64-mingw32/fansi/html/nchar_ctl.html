@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Control Sequence Aware Version of nchar</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nchar_ctl {fansi}"><tr><td>nchar_ctl {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Control Sequence Aware Version of nchar</h2>
+
+<h3>Description</h3>
+
+<p><code>nchar_ctl</code> counts all non <em>Control Sequence</em> characters.
+<code>nzchar_ctl</code> returns TRUE for each input vector element that has non <em>Control
+Sequence</em> sequence characters.  By default newlines and other C0 control
+characters are not counted.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nchar_ctl(
+  x,
+  type = "chars",
+  allowNA = FALSE,
+  keepNA = NA,
+  ctl = "all",
+  warn = getOption("fansi.warn", TRUE),
+  strip
+)
+
+nzchar_ctl(
+  x,
+  keepNA = FALSE,
+  ctl = "all",
+  warn = getOption("fansi.warn", TRUE)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character vector or object that can be coerced to such.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>character(1L) partial matching
+<code>c("chars", "width", "graphemes")</code>, although types other than &quot;chars&quot; only
+work correctly with R &gt;= 3.2.2.  See <code><a href="../../base/html/nchar.html">?nchar</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>allowNA</code></td>
+<td>
+<p>logical: should <code>NA</code> be returned for invalid
+multibyte strings or <code>"bytes"</code>-encoded strings (rather than
+throwing an error)?</p>
+</td></tr>
+<tr valign="top"><td><code>keepNA</code></td>
+<td>
+<p>logical: should <code>NA</code> be returned when
+<code>x</code> is <code><a href="../../base/html/NA.html">NA</a></code>?  If false, <code>nchar()</code> returns
+<code>2</code>, as that is the number of printing characters used when
+strings are written to output, and <code>nzchar()</code> is <code>TRUE</code>.  The
+default for <code>nchar()</code>, <code>NA</code>, means to use <code>keepNA = TRUE</code>
+unless <code>type</code> is <code>"width"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ctl</code></td>
+<td>
+<p>character, which <em>Control Sequences</em> should be treated
+specially.  Special treatment is context dependent, and may include
+detecting them and/or computing their display/character width as zero.  For
+the SGR subset of the ANSI CSI sequences, and OSC hyperlinks, <code>fansi</code>
+will also parse, interpret, and reapply the sequences as needed.  You can
+modify whether a <em>Control Sequence</em> is treated specially with the <code>ctl</code>
+parameter.
+</p>
+
+<ul>
+<li><p> &quot;nl&quot;: newlines.
+</p>
+</li>
+<li><p> &quot;c0&quot;: all other &quot;C0&quot; control characters (i.e. 0x01-0x1f, 0x7F), except
+for newlines and the actual ESC (0x1B) character.
+</p>
+</li>
+<li><p> &quot;sgr&quot;: ANSI CSI SGR sequences.
+</p>
+</li>
+<li><p> &quot;csi&quot;: all non-SGR ANSI CSI sequences.
+</p>
+</li>
+<li><p> &quot;url&quot;: OSC hyperlinks
+</p>
+</li>
+<li><p> &quot;osc&quot;: all non-OSC-hyperlink OSC sequences.
+</p>
+</li>
+<li><p> &quot;esc&quot;: all other escape sequences.
+</p>
+</li>
+<li><p> &quot;all&quot;: all of the above, except when used in combination with any of the
+above, in which case it means &quot;all but&quot;.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to warn when potentially
+problematic <em>Control Sequences</em> are encountered.  These could cause the
+assumptions <code>fansi</code> makes about how strings are rendered on your display
+to be incorrect, for example by moving the cursor (see <code><a href="fansi.html">?fansi</a></code>).
+At most one warning will be issued per element in each input vector.  Will
+also warn about some badly encoded UTF-8 strings, but a lack of UTF-8
+warnings is not a guarantee of correct encoding (use <code><a href="../../base/html/validUTF8.html">validUTF8</a></code> for
+that).</p>
+</td></tr>
+<tr valign="top"><td><code>strip</code></td>
+<td>
+<p>character, deprecated in favor of <code>ctl</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>nchar_ctl</code> and <code>nzchar_ctl</code> are implemented in statically compiled code, so
+in particular <code>nzchar_ctl</code> will be much faster than the otherwise equivalent
+<code>nzchar(strip_ctl(...))</code>.
+</p>
+<p>These functions will warn if either malformed or escape or UTF-8 sequences
+are encountered as they may be incorrectly interpreted.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Like <code><a href="../../base/html/nchar.html">base::nchar</a></code>, with <em>Control Sequences</em> excluded.
+</p>
+
+
+<h3>Control and Special Sequences</h3>
+
+<p><em>Control Sequences</em> are non-printing characters or sequences of characters.
+<em>Special Sequences</em> are a subset of the <em>Control Sequences</em>, and include CSI
+SGR sequences which can be used to change rendered appearance of text, and
+OSC hyperlinks.  See <code><a href="fansi.html">fansi</a></code> for details.
+</p>
+
+
+<h3>Output Stability</h3>
+
+<p>Several factors could affect the exact output produced by <code>fansi</code>
+functions across versions of <code>fansi</code>, <code>R</code>, and/or across systems.
+<strong>In general it is best not to rely on exact <code>fansi</code> output, e.g. by
+embedding it in tests</strong>.
+</p>
+<p>Width and grapheme calculations depend on locale, Unicode database
+version, and grapheme processing logic (which is still in development), among
+other things.  For the most part <code>fansi</code> (currently) uses the internals of
+<code>base::nchar(type='width')</code>, but there are exceptions and this may change in
+the future.
+</p>
+<p>How a particular display format is encoded in <em>Control Sequences</em> is
+not guaranteed to be stable across <code>fansi</code> versions.  Additionally, which
+<em>Special Sequences</em> are re-encoded vs transcribed untouched may change.
+In general we will strive to keep the rendered appearance stable.
+</p>
+<p>To maximize the odds of getting stable output set <code>normalize_state</code> to
+<code>TRUE</code> and <code>type</code> to <code>"chars"</code> in functions that allow it, and
+set <code>term.cap</code> to a specific set of capabilities.
+</p>
+
+
+<h3>Graphemes</h3>
+
+<p><code>fansi</code> approximates grapheme widths and counts by using heuristics for
+grapheme breaks that work for most common graphemes, including emoji
+combining sequences.  The heuristic is known to work incorrectly with
+invalid combining sequences, prepending marks, and sequence interruptors.
+<code>fansi</code> does not provide a full implementation of grapheme break detection to
+avoid carrying a copy of the Unicode grapheme breaks table, and also because
+the hope is that R will add the feature eventually itself.
+</p>
+<p>The <a href="https://cran.r-project.org/package=utf8"><code>utf8</code></a> package provides a
+conforming grapheme parsing implementation.
+</p>
+
+
+<h3>Note</h3>
+
+<p>The <code>keepNA</code> parameter is ignored for R &lt; 3.2.2.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="fansi.html">?fansi</a></code> for details on how <em>Control Sequences</em> are
+interpreted, particularly if you are getting unexpected results,
+<code><a href="unhandled_ctl.html">unhandled_ctl</a></code> for detecting bad control sequences.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+nchar_ctl("\033[31m123\a\r")
+## with some wide characters
+cn.string &lt;-  sprintf("\033[31m%s\a\r", "\u4E00\u4E01\u4E03")
+nchar_ctl(cn.string)
+nchar_ctl(cn.string, type='width')
+
+## Remember newlines are not counted by default
+nchar_ctl("\t\n\r")
+
+## The 'c0' value for the `ctl` argument does not include
+## newlines.
+nchar_ctl("\t\n\r", ctl="c0")
+nchar_ctl("\t\n\r", ctl=c("c0", "nl"))
+
+## The _sgr flavor only treats SGR sequences as zero width
+nchar_sgr("\033[31m123")
+nchar_sgr("\t\n\n123")
+
+## All of the following are Control Sequences or C0 controls
+nzchar_ctl("\n\033[42;31m\033[123P\a")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

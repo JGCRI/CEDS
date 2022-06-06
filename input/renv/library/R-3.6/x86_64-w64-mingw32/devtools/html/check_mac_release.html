@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check macOS package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_mac_release {devtools}"><tr><td>check_mac_release {devtools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check macOS package</h2>
+
+<h3>Description</h3>
+
+<p>This function works by bundling source package, and then uploading to
+<a href="https://mac.r-project.org/macbuilder/submit.html">https://mac.r-project.org/macbuilder/submit.html</a>.  This function returns a
+link to the page with the check results.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_mac_release(
+  pkg = ".",
+  dep_pkgs = ".",
+  args = NULL,
+  manual = TRUE,
+  quiet = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>The package to use, can be a file path to the package or a
+package object.  See <code><a href="as.package.html">as.package()</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>dep_pkgs</code></td>
+<td>
+<p>Additional custom dependencies to install prior to checking the package.</p>
+</td></tr>
+<tr valign="top"><td><code>args</code></td>
+<td>
+<p>An optional character vector of additional command
+line arguments to be passed to <code style="white-space: pre;">R CMD build</code> if <code>binary = FALSE</code>,
+or <code style="white-space: pre;">R CMD install</code> if <code>binary = TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>manual</code></td>
+<td>
+<p>For source packages: if <code>FALSE</code>, don't build PDF
+vignettes (<code>--no-build-vignettes</code>) or manual (<code>--no-manual</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If <code>TRUE</code>, suppresses output.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="../../pkgbuild/html/build.html">pkgbuild::build()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The url with the check results (invisibly)
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other build functions: 
+<code><a href="check_rhub.html">check_rhub</a>()</code>,
+<code><a href="check_win.html">check_win</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>devtools</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

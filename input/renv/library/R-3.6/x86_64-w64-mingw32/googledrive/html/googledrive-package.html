@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: googledrive: An Interface to Google Drive</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for googledrive-package {googledrive}"><tr><td>googledrive-package {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>googledrive: An Interface to Google Drive</h2>
+
+<h3>Description</h3>
+
+<p>googledrive allows you to interact with files on Google Drive
+from R.
+</p>
+<p><code>googledrive::drive_find(n_max = 50)</code> lists up to 50 of the files you see
+in <a href="https://drive.google.com">My Drive</a>. You can expect to be sent to your
+browser here, to authenticate yourself and authorize the googledrive
+package to deal on your behalf with Google Drive.
+</p>
+<p>Most functions begin with the prefix <code>drive_</code>.
+</p>
+<p>The goal is to allow Drive access that feels similar to Unix file system
+utilities, e.g., <code>find</code>, <code>ls</code>, <code>mv</code>, <code>cp</code>, <code>mkdir</code>, and <code>rm</code>.
+</p>
+<p>The metadata for one or more Drive files is held in a <code><a href="dribble.html">dribble</a></code>, a &quot;Drive
+tibble&quot;. This is a data frame with one row per file. A dribble is returned
+(and accepted) by almost every function in googledrive. It is designed to
+give people what they want (file name), track what the API wants (file id),
+and to hold the metadata needed for general file operations.
+</p>
+<p>googledrive is &quot;pipe-friendly&quot; and, in fact, re-exports <code style="white-space: pre;">%&gt;%</code>, but does not
+require its use.
+</p>
+<p>Please see the googledrive website for full documentation:
+</p>
+
+<ul>
+<li> <p><a href="https://googledrive.tidyverse.org/index.html">https://googledrive.tidyverse.org/index.html</a>
+</p>
+</li></ul>
+
+<p>In addition to function-specific help, there are several articles which are
+indexed here:
+</p>
+
+<ul>
+<li> <p><a href="https://googledrive.tidyverse.org/articles/index.html">Article index</a>
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p><strong>Maintainer</strong>: Jennifer Bryan <a href="mailto:jenny@rstudio.com">jenny@rstudio.com</a> (<a href="https://orcid.org/0000-0002-6983-2759">ORCID</a>)
+</p>
+<p>Authors:
+</p>
+
+<ul>
+<li><p> Lucy D'Agostino McGowan <a href="mailto:ld.mcgowan@vanderbilt.edu">ld.mcgowan@vanderbilt.edu</a>
+</p>
+</li></ul>
+
+<p>Other contributors:
+</p>
+
+<ul>
+<li><p> RStudio [copyright holder, funder]
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Useful links:
+</p>
+
+<ul>
+<li> <p><a href="https://googledrive.tidyverse.org">https://googledrive.tidyverse.org</a>
+</p>
+</li>
+<li> <p><a href="https://github.com/tidyverse/googledrive">https://github.com/tidyverse/googledrive</a>
+</p>
+</li>
+<li><p> Report bugs at <a href="https://github.com/tidyverse/googledrive/issues">https://github.com/tidyverse/googledrive/issues</a>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

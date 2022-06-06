@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Flatten a String</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_flatten {stringi}"><tr><td>stri_flatten {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Flatten a String</h2>
+
+<h3>Description</h3>
+
+<p>Joins the elements of a character vector into one string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_flatten(str, collapse = "", na_empty = FALSE, omit_empty = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>a vector of strings to be coerced to character</p>
+</td></tr>
+<tr valign="top"><td><code>collapse</code></td>
+<td>
+<p>a single string denoting the separator</p>
+</td></tr>
+<tr valign="top"><td><code>na_empty</code></td>
+<td>
+<p>single logical value; should missing values
+in <code>str</code> be treated as empty strings (<code>TRUE</code>)
+or be omitted whatsoever (<code>NA</code>)?</p>
+</td></tr>
+<tr valign="top"><td><code>omit_empty</code></td>
+<td>
+<p>single logical value; should empty strings
+in <code>str</code> be omitted?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>stri_flatten(str, collapse='XXX')</code> call
+is equivalent to <code><a href="../../base/html/paste.html">paste</a>(str, collapse='XXX', sep='')</code>.
+</p>
+<p>If you wish to use some more fancy (e.g., differing)
+separators between flattened strings,
+call <code><a href="stri_join.html">stri_join</a>(str, separators, collapse='')</code>.
+</p>
+<p>If <code>str</code> is not empty, then a single string is returned.
+If <code>collapse</code> has length &gt; 1, then only the first string
+will be used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a single string, i.e., a character
+vector of length 1.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other join: 
+<code><a href="operator_add.html">%s+%</a>()</code>,
+<code><a href="stri_dup.html">stri_dup</a>()</code>,
+<code><a href="stri_join_list.html">stri_join_list</a>()</code>,
+<code><a href="stri_join.html">stri_join</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_flatten(LETTERS)
+stri_flatten(LETTERS, collapse=',')
+stri_flatten(stri_dup(letters[1:6], 1:3))
+stri_flatten(c(NA, '', 'A', '', 'B', NA, 'C'), collapse=',', na_empty=TRUE, omit_empty=TRUE)
+stri_flatten(c(NA, '', 'A', '', 'B', NA, 'C'), collapse=',', na_empty=NA)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

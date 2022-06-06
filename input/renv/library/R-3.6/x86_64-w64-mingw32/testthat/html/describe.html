@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: describe: a BDD testing language</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for describe {testthat}"><tr><td>describe {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>describe: a BDD testing language</h2>
+
+<h3>Description</h3>
+
+<p>A simple BDD DSL for writing tests. The language is similiar to RSpec for
+Ruby or Mocha for JavaScript. BDD tests read like sentences and it should
+thus be easier to understand what the specification of a function/component
+is.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+describe(description, code)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>description</code></td>
+<td>
+<p>description of the feature</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>test code containing the specs</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Tests using the <code>describe</code> syntax not only verify the tested code, but
+also document its intended behaviour. Each <code>describe</code> block specifies a
+larger component or function and contains a set of specifications. A
+specification is defined by an <code>it</code> block. Each <code>it</code> block
+functions as a test and is evaluated in its own environment. You
+can also have nested <code>describe</code> blocks.
+</p>
+<p>This test syntax helps to test the intended behaviour of your code. For
+example: you want to write a new function for your package. Try to describe
+the specification first using <code>describe</code>, before your write any code.
+After that, you start to implement the tests for each specification (i.e.
+the <code>it</code> block).
+</p>
+<p>Use <code>describe</code> to verify that you implement the right things and use
+<code><a href="test_that.html">test_that()</a></code> to ensure you do the things right.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+describe("matrix()", {
+  it("can be multiplied by a scalar", {
+    m1 &lt;- matrix(1:4, 2, 2)
+    m2 &lt;- m1 * 2
+    expect_equal(matrix(1:4 * 2, 2, 2), m2)
+  })
+  it("can have not yet tested specs")
+})
+
+# Nested specs:
+## code
+addition &lt;- function(a, b) a + b
+division &lt;- function(a, b) a / b
+
+## specs
+describe("math library", {
+  describe("addition()", {
+    it("can add two numbers", {
+      expect_equal(1 + 1, addition(1, 1))
+    })
+  })
+  describe("division()", {
+    it("can divide two numbers", {
+      expect_equal(10 / 2, division(10, 2))
+    })
+    it("can handle division by 0") #not yet implemented
+  })
+})
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

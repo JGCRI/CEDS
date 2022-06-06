@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a skeleton for a new package depending on Rcpp</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Rcpp.package.skeleton {Rcpp}"><tr><td>Rcpp.package.skeleton {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Create a skeleton for a new package depending on Rcpp
+</h2>
+
+<h3>Description</h3>
+
+<p><code>Rcpp.package.skeleton</code> automates the creation of 
+a new source package that intends to use features of Rcpp. 
+</p>
+<p>It is based on the <a href="../../utils/html/package.skeleton.html">package.skeleton</a> function
+which it executes first.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Rcpp.package.skeleton(name = "anRpackage", list = character(), 
+	environment = .GlobalEnv, path = ".", force = FALSE, 
+	code_files = character(), cpp_files = character(),
+	example_code = TRUE, attributes = TRUE, module = FALSE, 
+	author = "Your Name", 
+	maintainer = if(missing( author)) "Your Name" else author, 
+	email = "your@email.com", 
+	license = "GPL (&gt;= 2)"
+	)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>See <a href="../../utils/html/package.skeleton.html">package.skeleton</a></p>
+</td></tr>
+<tr valign="top"><td><code>list</code></td>
+<td>
+<p>See <a href="../../utils/html/package.skeleton.html">package.skeleton</a></p>
+</td></tr>
+<tr valign="top"><td><code>environment</code></td>
+<td>
+<p>See <a href="../../utils/html/package.skeleton.html">package.skeleton</a></p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>See <a href="../../utils/html/package.skeleton.html">package.skeleton</a></p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>See <a href="../../utils/html/package.skeleton.html">package.skeleton</a></p>
+</td></tr>
+<tr valign="top"><td><code>code_files</code></td>
+<td>
+<p>See <a href="../../utils/html/package.skeleton.html">package.skeleton</a></p>
+</td></tr>
+<tr valign="top"><td><code>cpp_files</code></td>
+<td>
+<p>A character vector with the paths to C++ source files to add to the package. </p>
+</td></tr>
+<tr valign="top"><td><code>example_code</code></td>
+<td>
+<p>If TRUE, example c++ code using Rcpp is added to the package. </p>
+</td></tr>
+<tr valign="top"><td><code>attributes</code></td>
+<td>
+<p>If TRUE, example code makes use of Rcpp attributes.</p>
+</td></tr>
+<tr valign="top"><td><code>module</code></td>
+<td>
+<p>If TRUE, an example <code><a href="Module.html">Module</a></code> is added to the skeleton. </p>
+</td></tr>
+<tr valign="top"><td><code>author</code></td>
+<td>
+<p>Author of the package.</p>
+</td></tr>
+<tr valign="top"><td><code>maintainer</code></td>
+<td>
+<p>Maintainer of the package.</p>
+</td></tr>
+<tr valign="top"><td><code>email</code></td>
+<td>
+<p>Email of the package maintainer.</p>
+</td></tr>
+<tr valign="top"><td><code>license</code></td>
+<td>
+<p>License of the package.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In addition to <a href="../../utils/html/package.skeleton.html">package.skeleton</a> : 
+</p>
+<p>The <span class="samp">DESCRIPTION</span> file gains an Imports line requesting that 
+the package depends on Rcpp and a LinkingTo line so that the package
+finds Rcpp header files.
+</p>
+<p>The <span class="samp">NAMESPACE</span> gains a <code>useDynLib</code> directive as well
+as an <code>importFrom(Rcpp, evalCpp</code> to ensure instantiation of Rcpp.
+</p>
+<p>The <span class="samp">src</span> directory is created if it does not exists. 
+</p>
+<p>If <code>cpp_files</code> are provided then they will be copied to the <span class="samp">src</span>
+directory.
+</p>
+<p>If the <code>example_code</code> argument is set to <code>TRUE</code>, 
+example files <span class="samp">rcpp_hello_world.h</span> and <span class="samp">rcpp_hello_world.cpp</span>
+are also created in the <span class="samp">src</span>. An R file <span class="samp">rcpp_hello_world.R</span> is 
+expanded in the <span class="samp">R</span> directory, the <code>rcpp_hello_world</code> function
+defined in this files makes use of the C++ function <span class="samp">rcpp_hello_world</span>
+defined in the C++ file. These files are given as an example and should 
+eventually by removed from the generated package.
+</p>
+<p>If the <code>attributes</code> argument is <code>TRUE</code>, then rather than generate
+the example files as described above, a single <span class="samp">rcpp_hello_world.cpp</span>
+file is created in the <span class="samp">src</span> directory and it's attributes are 
+compiled using the <code><a href="compileAttributes.html">compileAttributes</a></code> function. This leads to 
+the files <span class="samp">RcppExports.R</span> and <span class="samp">RcppExports.cpp</span> being generated.
+They are automatically regenerated from <em>scratch</em> each time 
+<code><a href="compileAttributes.html">compileAttributes</a></code> is called. Therefore, one should 
+<strong>not</strong> modify by hand either of the <span class="samp">RcppExports</span> files.
+</p>
+<p>If the <code>module</code> argument is <code>TRUE</code>, a sample Rcpp module will 
+be generated as well. 
+</p>
+
+
+<h3>Value</h3>
+
+<p>Nothing, used for its side effects
+</p>
+
+
+<h3>References</h3>
+
+<p>Read the <em>Writing R Extensions</em> manual for more details.
+</p>
+<p>Once you have created a <em>source</em> package you need to install it:
+see the <em>R Installation and Administration</em> manual,
+<code><a href="../../utils/html/INSTALL.html">INSTALL</a></code> and <code><a href="../../utils/html/install.packages.html">install.packages</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../utils/html/package.skeleton.html">package.skeleton</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# simple package
+Rcpp.package.skeleton( "foobar" )
+
+# package using attributes
+Rcpp.package.skeleton( "foobar", attributes = TRUE )
+
+# package with a module
+Rcpp.package.skeleton( "testmod", module = TRUE )
+
+# the Rcpp-package vignette
+vignette( "Rcpp-package" )
+
+# the Rcpp-modules vignette for information about modules
+vignette( "Rcpp-modules" )
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

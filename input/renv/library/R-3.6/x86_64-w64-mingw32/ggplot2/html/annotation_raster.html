@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Annotation: high-performance rectangular tiling</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for annotation_raster {ggplot2}"><tr><td>annotation_raster {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Annotation: high-performance rectangular tiling</h2>
+
+<h3>Description</h3>
+
+<p>This is a special version of <code><a href="geom_tile.html">geom_raster()</a></code> optimised for static
+annotations that are the same in every panel. These annotations will not
+affect scales (i.e. the x and y axes will not grow to cover the range
+of the raster, and the raster must already have its own colours). This
+is useful for adding bitmap images.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+annotation_raster(raster, xmin, xmax, ymin, ymax, interpolate = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>raster</code></td>
+<td>
+<p>raster object to display, may be an <code>array</code> or a <code>nativeRaster</code></p>
+</td></tr>
+<tr valign="top"><td><code>xmin, xmax</code></td>
+<td>
+<p>x location (in data coordinates) giving horizontal
+location of raster</p>
+</td></tr>
+<tr valign="top"><td><code>ymin, ymax</code></td>
+<td>
+<p>y location (in data coordinates) giving vertical
+location of raster</p>
+</td></tr>
+<tr valign="top"><td><code>interpolate</code></td>
+<td>
+<p>If <code>TRUE</code> interpolate linearly, if <code>FALSE</code>
+(the default) don't interpolate.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate data
+rainbow &lt;- matrix(hcl(seq(0, 360, length.out = 50 * 50), 80, 70), nrow = 50)
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point() +
+  annotation_raster(rainbow, 15, 20, 3, 4)
+# To fill up whole plot
+ggplot(mtcars, aes(mpg, wt)) +
+  annotation_raster(rainbow, -Inf, Inf, -Inf, Inf) +
+  geom_point()
+
+rainbow2 &lt;- matrix(hcl(seq(0, 360, length.out = 10), 80, 70), nrow = 1)
+ggplot(mtcars, aes(mpg, wt)) +
+  annotation_raster(rainbow2, -Inf, Inf, -Inf, Inf) +
+  geom_point()
+rainbow2 &lt;- matrix(hcl(seq(0, 360, length.out = 10), 80, 70), nrow = 1)
+ggplot(mtcars, aes(mpg, wt)) +
+  annotation_raster(rainbow2, -Inf, Inf, -Inf, Inf, interpolate = TRUE) +
+  geom_point()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

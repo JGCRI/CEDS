@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Backport of dQuote and sQuote for R &lt; 3.6.0</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dQuote {backports}"><tr><td>dQuote {backports}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Backport of dQuote and sQuote for R &lt; 3.6.0</h2>
+
+<h3>Description</h3>
+
+<p>Argument <code>q</code> has been backported.
+See the original description in <code>base::dQuote()</code> and <code>base::sQuote()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dQuote(x, q = getOption("useFancyQuotes"))
+
+sQuote(x, q = getOption("useFancyQuotes"))
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get function from namespace instead of possibly getting
+# implementation shipped with recent R versions:
+bp_dQuote &lt;- getFromNamespace("dQuote", "backports")
+bp_dQuote("foo")
+bp_dQuote("foo", q = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>backports</em> version 1.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set environment variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for set_envvar {xfun}"><tr><td>set_envvar {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set environment variables</h2>
+
+<h3>Description</h3>
+
+<p>Set environment variables from a named character vector, and return the old
+values of the variables, so they could be restored later.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+set_envvar(vars)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>vars</code></td>
+<td>
+<p>A named character vector of the form <code>c(VARIABLE = VALUE)</code>.
+If any value is <code>NA</code>, this function will try to unset the variable.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The motivation of this function is that <code><a href="../../base/html/Sys.setenv.html">Sys.setenv</a>()</code> does not
+return the old values of the environment variables, so it is not
+straightforward to restore the variables later.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Old values of the variables (if not set, <code>NA</code>).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+vars = xfun::set_envvar(c(FOO = "1234"))
+Sys.getenv("FOO")
+xfun::set_envvar(vars)
+Sys.getenv("FOO")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

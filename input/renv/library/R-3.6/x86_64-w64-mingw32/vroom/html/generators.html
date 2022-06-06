@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate individual vectors of the types supported by vroom</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for generators {vroom}"><tr><td>generators {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate individual vectors of the types supported by vroom</h2>
+
+<h3>Description</h3>
+
+<p>Generate individual vectors of the types supported by vroom
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gen_character(n, min = 5, max = 25, values = c(letters, LETTERS, 0:9), ...)
+
+gen_double(n, f = stats::rnorm, ...)
+
+gen_number(n, f = stats::rnorm, ...)
+
+gen_integer(n, min = 1L, max = .Machine$integer.max, prob = NULL, ...)
+
+gen_factor(
+  n,
+  levels = NULL,
+  ordered = FALSE,
+  num_levels = gen_integer(1L, 1L, 25L),
+  ...
+)
+
+gen_time(n, min = 0, max = hms::hms(days = 1), fractional = FALSE, ...)
+
+gen_date(n, min = as.Date("2001-01-01"), max = as.Date("2021-01-01"), ...)
+
+gen_datetime(
+  n,
+  min = as.POSIXct("2001-01-01"),
+  max = as.POSIXct("2021-01-01"),
+  tz = "UTC",
+  ...
+)
+
+gen_logical(n, ...)
+
+gen_name(n)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>The size of the vector to generate</p>
+</td></tr>
+<tr valign="top"><td><code>min</code></td>
+<td>
+<p>The minimum range for the vector</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p>The maximum range for the vector</p>
+</td></tr>
+<tr valign="top"><td><code>values</code></td>
+<td>
+<p>The explicit values to use.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to internal generation functions</p>
+</td></tr>
+<tr valign="top"><td><code>f</code></td>
+<td>
+<p>The random function to use.</p>
+</td></tr>
+<tr valign="top"><td><code>prob</code></td>
+<td>
+<p>a vector of probability weights for obtaining the elements
+of the vector being sampled.</p>
+</td></tr>
+<tr valign="top"><td><code>levels</code></td>
+<td>
+<p>The explicit levels to use, if <code>NULL</code> random levels are generated using <code><a href="generators.html">gen_name()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ordered</code></td>
+<td>
+<p>Should the factors be ordered factors?</p>
+</td></tr>
+<tr valign="top"><td><code>num_levels</code></td>
+<td>
+<p>The number of factor levels to generate</p>
+</td></tr>
+<tr valign="top"><td><code>fractional</code></td>
+<td>
+<p>Whether to generate times with fractional seconds</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>The timezone to use for dates</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# characters
+gen_character(4)
+
+# factors
+gen_factor(4)
+
+# logical
+gen_logical(4)
+
+# numbers
+gen_double(4)
+gen_integer(4)
+
+# temporal data
+gen_time(4)
+gen_date(4)
+gen_datetime(4)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Transform spatial position data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sf_transform_xy {ggplot2}"><tr><td>sf_transform_xy {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Transform spatial position data</h2>
+
+<h3>Description</h3>
+
+<p>Helper function that can transform spatial position data (pairs of x, y
+values) among coordinate systems. This is implemented as a thin wrapper
+around <code><a href="../../sf/html/sf_project.html">sf::sf_project()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sf_transform_xy(data, target_crs, source_crs, authority_compliant = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>Data frame or list containing numerical columns <code>x</code> and <code>y</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>target_crs, source_crs</code></td>
+<td>
+<p>Target and source coordinate reference systems.
+If <code>NULL</code> or <code>NA</code>, the data is not transformed.</p>
+</td></tr>
+<tr valign="top"><td><code>authority_compliant</code></td>
+<td>
+<p>logical; <code>TRUE</code> means handle axis order authority
+compliant (e.g. EPSG:4326 implying <code>x = lat</code>, <code>y = lon</code>), <code>FALSE</code> means use
+visualisation order (i.e. always <code>x = lon</code>, <code>y = lat</code>). Default is <code>FALSE</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A copy of the input data with <code>x</code> and <code>y</code> replaced by transformed values.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (requireNamespace("sf", quietly = TRUE)) {
+# location of cities in NC by long (x) and lat (y)
+data &lt;- data.frame(
+  city = c("Charlotte", "Raleigh", "Greensboro"),
+  x =  c(-80.843, -78.639, -79.792),
+  y = c(35.227, 35.772, 36.073)
+)
+
+# transform to projected coordinates
+data_proj &lt;- sf_transform_xy(data, 3347, 4326)
+data_proj
+
+# transform back
+sf_transform_xy(data_proj, 4326, 3347)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

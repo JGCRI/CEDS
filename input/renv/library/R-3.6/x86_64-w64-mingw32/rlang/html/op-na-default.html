@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Replace missing values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for op-na-default {rlang}"><tr><td>op-na-default {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Replace missing values</h2>
+
+<h3>Description</h3>
+
+<p><strong>Note</strong>: This operator is now out of scope for rlang. It will be
+replaced by a vctrs-powered operator (probably in the <a href="https://github.com/tidyverse/funs">funs package</a>) at which point the
+rlang version of <code style="white-space: pre;">%|%</code> will be deprecated.
+</p>
+<p>This infix function is similar to <code>%||%</code> but is vectorised
+and provides a default value for missing elements. It is faster
+than using <code><a href="../../base/html/ifelse.html">base::ifelse()</a></code> and does not perform type conversions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+x %|% y
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The original values.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>The replacement values. Must be of length 1 or the same length as <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="op-null-default.html">op-null-default</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+c("a", "b", NA, "c") %|% "default"
+c(1L, NA, 3L, NA, NA) %|% (6L:10L)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

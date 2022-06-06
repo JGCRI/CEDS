@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine two or more ANSI styles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for combine_styles {crayon}"><tr><td>combine_styles {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine two or more ANSI styles</h2>
+
+<h3>Description</h3>
+
+<p>Combine two or more styles or style functions into a new style function
+that can be called on strings to style them.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+combine_styles(...)
+
+## S3 method for class 'crayon'
+crayon$style
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>The styles to combine. They will be applied from
+right to left.</p>
+</td></tr>
+<tr valign="top"><td><code>crayon</code></td>
+<td>
+<p>A style function.</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>A style name that is included in <code>names(styles())</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It does not usually make sense to combine two foreground
+colors (or two background colors), because only the first one
+applied will be used.
+</p>
+<p>It does make sense to combine different kind of styles,
+e.g. background color, foreground color, bold font.
+</p>
+<p>The <code>$</code> operator can also be used to combine styles.
+Note that the left hand side of <code>$</code> is a style function,
+and the right hand side is the name of a style in <code><a href="styles.html">styles()</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The combined style function.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Use style names
+alert &lt;- combine_styles("bold", "red4", "bgCyan")
+cat(alert("Warning!"), "\n")
+
+## Or style functions
+alert &lt;- combine_styles(bold, red, bgCyan)
+cat(alert("Warning!"), "\n")
+
+## Combine a composite style
+alert &lt;- combine_styles(bold, combine_styles(red, bgCyan))
+cat(alert("Warning!"), "\n")
+
+## Shorter notation
+alert &lt;- bold $ red $ bgCyan
+cat(alert("Warning!"), "\n")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

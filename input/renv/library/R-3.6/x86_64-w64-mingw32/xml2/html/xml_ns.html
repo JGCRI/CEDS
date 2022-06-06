@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: XML namespaces.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_ns {xml2}"><tr><td>xml_ns {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>XML namespaces.</h2>
+
+<h3>Description</h3>
+
+<p><code>xml_ns</code> extracts all namespaces from a document, matching each
+unique namespace url with the prefix it was first associated with. Default
+namespaces are named <code>d1</code>, <code>d2</code> etc. Use <code>xml_ns_rename</code>
+to change the prefixes. Once you have a namespace object, you can pass it to
+other functions to work with fully qualified names instead of local names.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_ns(x)
+
+xml_ns_rename(old, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>old, ...</code></td>
+<td>
+<p>An existing xml_namespace object followed by name-value
+(old prefix-new prefix) pairs to replace.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector with class <code>xml_namespace</code> so the
+default display is a little nicer.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- read_xml('
+ &lt;root&gt;
+   &lt;doc1 xmlns = "http://foo.com"&gt;&lt;baz /&gt;&lt;/doc1&gt;
+   &lt;doc2 xmlns = "http://bar.com"&gt;&lt;baz /&gt;&lt;/doc2&gt;
+ &lt;/root&gt;
+')
+xml_ns(x)
+
+# When there are default namespaces, it's a good idea to rename
+# them to give informative names:
+ns &lt;- xml_ns_rename(xml_ns(x), d1 = "foo", d2 = "bar")
+ns
+
+# Now we can pass ns to other xml function to use fully qualified names
+baz &lt;- xml_children(xml_children(x))
+xml_name(baz)
+xml_name(baz, ns)
+
+xml_find_all(x, "//baz")
+xml_find_all(x, "//foo:baz", ns)
+
+str(as_list(x))
+str(as_list(x, ns))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

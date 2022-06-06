@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render panel axes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for render_axes {ggplot2}"><tr><td>render_axes {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render panel axes</h2>
+
+<h3>Description</h3>
+
+<p>These helpers facilitates generating theme compliant axes when
+building up the plot.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+render_axes(x = NULL, y = NULL, coord, theme, transpose = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>A list of ranges as available to the draw_panel method in
+<code>Facet</code> subclasses.</p>
+</td></tr>
+<tr valign="top"><td><code>coord</code></td>
+<td>
+<p>A <code>Coord</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>theme</code></td>
+<td>
+<p>A <code>theme</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>transpose</code></td>
+<td>
+<p>Should the output be transposed?</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list with the element &quot;x&quot; and &quot;y&quot; each containing axis
+specifications for the ranges passed in. Each axis specification is a list
+with a &quot;top&quot; and &quot;bottom&quot; element for x-axes and &quot;left&quot; and &quot;right&quot; element
+for y-axis, holding the respective axis grobs. Depending on the content of x
+and y some of the grobs might be zeroGrobs. If <code>transpose=TRUE</code> the
+content of the x and y elements will be transposed so e.g. all left-axes are
+collected in a left element as a list of grobs.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

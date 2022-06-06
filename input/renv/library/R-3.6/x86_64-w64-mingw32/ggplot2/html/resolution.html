@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute the &quot;resolution&quot; of a numeric vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for resolution {ggplot2}"><tr><td>resolution {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute the &quot;resolution&quot; of a numeric vector</h2>
+
+<h3>Description</h3>
+
+<p>The resolution is the smallest non-zero distance between adjacent
+values.  If there is only one unique value, then the resolution is defined
+to be one. If x is an integer vector, then it is assumed to represent a
+discrete variable, and the resolution is 1.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+resolution(x, zero = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>numeric vector</p>
+</td></tr>
+<tr valign="top"><td><code>zero</code></td>
+<td>
+<p>should a zero value be automatically included in the
+computation of resolution</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+resolution(1:10)
+resolution((1:10) - 0.5)
+resolution((1:10) - 0.5, FALSE)
+
+# Note the difference between numeric and integer vectors
+resolution(c(2, 10, 20, 50))
+resolution(c(2L, 10L, 20L, 50L))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

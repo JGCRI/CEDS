@@ -1,0 +1,414 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert to an HTML document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_document {rmarkdown}"><tr><td>html_document {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert to an HTML document</h2>
+
+<h3>Description</h3>
+
+<p>Format for converting from R Markdown to an HTML document.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_document(
+  toc = FALSE,
+  toc_depth = 3,
+  toc_float = FALSE,
+  number_sections = FALSE,
+  anchor_sections = FALSE,
+  section_divs = TRUE,
+  fig_width = 7,
+  fig_height = 5,
+  fig_retina = 2,
+  fig_caption = TRUE,
+  dev = "png",
+  df_print = "default",
+  code_folding = c("none", "show", "hide"),
+  code_download = FALSE,
+  self_contained = TRUE,
+  theme = "default",
+  highlight = "default",
+  mathjax = "default",
+  template = "default",
+  extra_dependencies = NULL,
+  css = NULL,
+  includes = NULL,
+  keep_md = FALSE,
+  lib_dir = NULL,
+  md_extensions = NULL,
+  pandoc_args = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>toc</code></td>
+<td>
+<p><code>TRUE</code> to include a table of contents in the output</p>
+</td></tr>
+<tr valign="top"><td><code>toc_depth</code></td>
+<td>
+<p>Depth of headers to include in table of contents</p>
+</td></tr>
+<tr valign="top"><td><code>toc_float</code></td>
+<td>
+<p><code>TRUE</code> to float the table of contents to the left of the
+main document content. Rather than <code>TRUE</code> you may also pass a list of
+options that control the behavior of the floating table of contents. See the
+<em>Floating Table of Contents</em> section below for details.</p>
+</td></tr>
+<tr valign="top"><td><code>number_sections</code></td>
+<td>
+<p><code>TRUE</code> to number section headings</p>
+</td></tr>
+<tr valign="top"><td><code>anchor_sections</code></td>
+<td>
+<p><code>TRUE</code> to show section anchors when mouse hovers.
+See <a href="html_document.html">Anchor Sections Customization section</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>section_divs</code></td>
+<td>
+<p>Wrap sections in <code>&lt;div&gt;</code> tags, and attach identifiers to the
+enclosing <code>&lt;div&gt;</code> rather than the header itself.</p>
+</td></tr>
+<tr valign="top"><td><code>fig_width</code></td>
+<td>
+<p>Default width (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_height</code></td>
+<td>
+<p>Default height (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_retina</code></td>
+<td>
+<p>Scaling to perform for retina displays (defaults to 2, which
+currently works for all widely used retina displays). Set to <code>NULL</code> to
+prevent retina scaling. Note that this will always be <code>NULL</code> when
+<code>keep_md</code> is specified (this is because <code>fig_retina</code> relies on
+outputting HTML directly into the markdown document).</p>
+</td></tr>
+<tr valign="top"><td><code>fig_caption</code></td>
+<td>
+<p><code>TRUE</code> to render figures with captions</p>
+</td></tr>
+<tr valign="top"><td><code>dev</code></td>
+<td>
+<p>Graphics device to use for figure output (defaults to png)</p>
+</td></tr>
+<tr valign="top"><td><code>df_print</code></td>
+<td>
+<p>Method to be used for printing data frames. Valid values
+include &quot;default&quot;, &quot;kable&quot;, &quot;tibble&quot;, and &quot;paged&quot;. The &quot;default&quot; method
+uses a corresponding S3 method of <code>print</code>, typically
+<code>print.data.frame</code>. The &quot;kable&quot; method uses the
+<code><a href="../../knitr/html/kable.html">knitr::kable</a></code> function. The &quot;tibble&quot; method uses
+the <span class="pkg">tibble</span> package to print a summary of the data frame. The &quot;paged&quot;
+method creates a paginated HTML table (note that this method is only valid
+for formats that produce HTML). In addition to the named methods you can
+also pass an arbitrary function to be used for printing data frames. You
+can disable the <code>df_print</code> behavior entirely by setting the option
+<code>rmarkdown.df_print</code> to <code>FALSE</code>. See
+<a href="https://bookdown.org/yihui/rmarkdown/html-document.html#data-frame-printing">Data
+frame printing section</a> in bookdown book for examples.</p>
+</td></tr>
+<tr valign="top"><td><code>code_folding</code></td>
+<td>
+<p>Enable document readers to toggle the display of R code
+chunks. Specify <code>"none"</code> to display all code chunks (assuming
+they were knit with <code>echo = TRUE</code>). Specify <code>"hide"</code> to hide all R
+code chunks by default (users can show hidden code chunks either
+individually or document-wide). Specify <code>"show"</code> to show all R code
+chunks by default.</p>
+</td></tr>
+<tr valign="top"><td><code>code_download</code></td>
+<td>
+<p>Embed the Rmd source code within the document and provide
+a link that can be used by readers to download the code.</p>
+</td></tr>
+<tr valign="top"><td><code>self_contained</code></td>
+<td>
+<p>Produce a standalone HTML file with no external
+dependencies, using data: URIs to incorporate the contents of linked
+scripts, stylesheets, images, and videos. Note that even for self contained
+documents MathJax is still loaded externally (this is necessary because of
+its size).</p>
+</td></tr>
+<tr valign="top"><td><code>theme</code></td>
+<td>
+<p>One of the following:
+</p>
+
+<ul>
+<li><p> A <code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> object (or a list of <code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> argument values)
+</p>
+
+<ul>
+<li><p> Use this option for custom themes using Bootstrap 4 or 3.
+</p>
+</li>
+<li><p> In this case, any <code>.scss</code>/<code>.sass</code> files provided to the <code>css</code>
+parameter may utilize the <code>theme</code>'s underlying Sass utilities
+(e.g., variables, mixins, etc).
+</p>
+</li></ul>
+
+</li>
+<li> <p><code>NULL</code> for no theme (i.e., no <code><a href="html-dependencies.html">html_dependency_bootstrap()</a></code>).
+</p>
+</li>
+<li><p> A character string specifying a <a href="https://bootswatch.com/3/">Bootswatch 3</a>
+theme name (for backwards-compatibility).
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>highlight</code></td>
+<td>
+<p>Syntax highlighting style. Supported styles include
+&quot;default&quot;, &quot;tango&quot;, &quot;pygments&quot;, &quot;kate&quot;, &quot;monochrome&quot;, &quot;espresso&quot;, &quot;zenburn&quot;,
+&quot;haddock&quot;, and &quot;textmate&quot;. Pass <code>NULL</code> to prevent syntax highlighting.</p>
+</td></tr>
+<tr valign="top"><td><code>mathjax</code></td>
+<td>
+<p>Include mathjax. The &quot;default&quot; option uses an https URL from a
+MathJax CDN. The &quot;local&quot; option uses a local version of MathJax (which is
+copied into the output directory). You can pass an alternate URL or pass
+<code>NULL</code> to exclude MathJax entirely.</p>
+</td></tr>
+<tr valign="top"><td><code>template</code></td>
+<td>
+<p>Pandoc template to use for rendering. Pass &quot;default&quot; to use
+the rmarkdown package default template; pass <code>NULL</code> to use pandoc's
+built-in template; pass a path to use a custom template that you've created.
+Note that if you don't use the &quot;default&quot; template then some features of
+<code>html_document</code> won't be available (see the Templates section below for
+more details).</p>
+</td></tr>
+<tr valign="top"><td><code>extra_dependencies, ...</code></td>
+<td>
+<p>Additional function arguments to pass to the
+base R Markdown HTML output formatter <code><a href="html_document_base.html">html_document_base</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>css</code></td>
+<td>
+<p>CSS and/or Sass files to include. Files with an extension of .sass
+or .scss are compiled to CSS via <code>sass::sass()</code>. Also, if <code>theme</code> is a
+<code><a href="../../bslib/html/bs_theme.html">bslib::bs_theme()</a></code> object, Sass code may reference the relevant Bootstrap
+Sass variables, functions, mixins, etc.</p>
+</td></tr>
+<tr valign="top"><td><code>includes</code></td>
+<td>
+<p>Named list of additional content to include within the
+document (typically created using the <code><a href="includes.html">includes</a></code> function).</p>
+</td></tr>
+<tr valign="top"><td><code>keep_md</code></td>
+<td>
+<p>Keep the markdown file generated by knitting.</p>
+</td></tr>
+<tr valign="top"><td><code>lib_dir</code></td>
+<td>
+<p>Directory to copy dependent HTML libraries (e.g. jquery,
+bootstrap, etc.) into. By default this will be the name of the document with
+<code>_files</code> appended to it.</p>
+</td></tr>
+<tr valign="top"><td><code>md_extensions</code></td>
+<td>
+<p>Markdown extensions to be added or removed from the
+default definition or R Markdown. See the <code><a href="rmarkdown_format.html">rmarkdown_format</a></code> for
+additional details.</p>
+</td></tr>
+<tr valign="top"><td><code>pandoc_args</code></td>
+<td>
+<p>Additional command line options to pass to pandoc</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>See the <a href="https://bookdown.org/yihui/rmarkdown/html-document.html">online
+documentation</a> for additional details on using the <code>html_document</code>
+format.
+</p>
+<p>R Markdown documents can have optional metadata that is used to generate a
+document header that includes the title, author, and date. For more details
+see the documentation on R Markdown <a href="rmd_metadata.html">metadata</a>.
+</p>
+<p>R Markdown documents also support citations. You can find more information on
+the markdown syntax for citations in the
+<a href="https://pandoc.org/MANUAL.html#citations">Bibliographies
+and Citations</a> article in the online documentation.
+</p>
+
+
+<h3>Value</h3>
+
+<p>R Markdown output format to pass to <code><a href="render.html">render</a></code>
+</p>
+
+
+<h3>Anchor Sections Customization</h3>
+
+<p>By default, a <span class="samp">#</span> is used as a minimalist choice, referring to the id selector
+in HTML and CSS. You can easily change that using a css rule in your
+document. For example, to add a <a href="https://codepoints.net/U+1F517">link
+symbol</a> (&#x1F517;&#xFE0E;) instead:
+</p>
+<pre>
+ a.anchor-section::before {
+   content: '\01F517\00FE0E';
+ }</pre>
+<p>You can remove <span class="samp">\00FE0E</span> to get a more complex link pictogram
+(&#x1F517;).
+</p>
+<p>If you prefer an svg icon, you can also use one using for example a direct link or downloading it from
+<a href="https://fonts.google.com/icons">https://fonts.google.com/icons</a>.
+</p>
+<pre>
+ /* From https://fonts.google.com/icons
+    Licence: https://www.apache.org/licenses/LICENSE-2.0.html */
+ a.anchor-section::before {
+   content: url(https://fonts.gstatic.com/s/i/materialicons/link/v7/24px.svg);
+ }</pre>
+<p>About how to apply custom CSS, see
+<a href="https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html">https://bookdown.org/yihui/rmarkdown-cookbook/html-css.html</a>
+</p>
+
+
+<h3>Navigation Bars</h3>
+
+<p>If you have a set of html documents which you'd like to provide a common
+global navigation bar for, you can include a &quot;_navbar.yml&quot; or &quot;_navbar.html&quot;
+file within the same directory as your html document and it will automatically
+be included at the top of the document.
+</p>
+<p>The &quot;_navbar.yml&quot; file includes <code>title</code>, <code>type</code>, <code>left</code>, and
+<code>right</code> fields (to define menu items for the left and right of the navbar
+respectively). Menu items include <code>title</code> and <code>href</code> fields. For example:
+</p>
+<pre>title: "My Website"
+type: default
+left:
+  - text: "Home"
+    href: index.html
+  - text: "Other"
+    href: other.html
+right:
+  - text: GitHub
+    href: https://github.com</pre>
+<p>The <code>type</code> field is optional and can take the value &quot;default&quot; or &quot;inverse&quot; (which
+provides a different color scheme for the navigation bar).
+</p>
+<p>Alternatively, you can include a &quot;_navbar.html&quot; file which is a full HTML definition
+of a bootstrap navigation bar. For a simple example of including a navigation bar see
+<a href="https://github.com/rstudio/rmarkdown-website/blob/master/_navbar.html">https://github.com/rstudio/rmarkdown-website/blob/master/_navbar.html</a>.
+For additional documentation on creating Bootstrap navigation bars see
+<a href="https://getbootstrap.com/docs/4.5/components/navbar/">https://getbootstrap.com/docs/4.5/components/navbar/</a>.
+</p>
+
+
+<h3>Floating Table of Contents</h3>
+
+<p>You may specify a list of options for the <code>toc_float</code> parameter which
+control the behavior of the floating table of contents. Options include:
+</p>
+ <ul>
+<li><p><code>collapsed</code> (defaults to <code>TRUE</code>) controls whether
+the table of contents appears with only the top-level (H2) headers. When
+collapsed the table of contents is automatically expanded inline when
+necessary. </p>
+</li>
+<li><p><code>smooth_scroll</code> (defaults to <code>TRUE</code>) controls
+whether page scrolls are animated when table of contents items are navigated
+to via mouse clicks. </p>
+</li>
+<li><p><code>print</code> (defaults to <code>TRUE</code>) controls
+whether the table of contents appears when user prints out the HTML page.</p>
+</li></ul>
+
+
+
+<h3>Tabbed Sections</h3>
+
+<p>You can organize content using tabs by applying the <code>.tabset</code> class
+attribute to headers within a document. This will cause all sub-headers of
+the header with the <code>.tabset</code> attribute to appear within tabs rather
+than as standalone sections. For example:
+</p>
+<pre>## Quarterly Results {.tabset}
+
+### By Product
+
+### By Region </pre>
+<p>You can also specify two additional attributes to control the appearance and
+behavior of the tabs. The <code>.tabset-fade</code> attributes causes the tabs to
+fade in and out when switching. The <code>.tabset-pills</code> attribute causes
+the visual appearance of the tabs to be &quot;pill&quot; rather than traditional tabs.
+For example:
+</p>
+<pre>## Quarterly Results {.tabset .tabset-fade .tabset-pills}</pre>
+
+
+<h3>Templates</h3>
+
+<p>You can provide a custom HTML template to be used for rendering. The syntax
+for templates is described in the
+<a href="https://pandoc.org/MANUAL.html">pandoc documentation</a>. You can also use
+the basic pandoc template by passing <code>template = NULL</code>.
+</p>
+<p>Note however that if you choose not to use the &quot;default&quot; HTML template then
+several aspects of HTML document rendering will behave differently:
+</p>
+ <ul>
+<li><p>The <code>theme</code> parameter does not work (you can still
+provide styles using the <code>css</code> parameter).  </p>
+</li>
+<li><p>For the
+<code>highlight</code> parameter, the default highlighting style will resolve to
+&quot;pygments&quot; and the &quot;textmate&quot; highlighting style is not available 
+</p>
+</li>
+<li><p>The <code>toc_float</code> parameter will not work.  </p>
+</li>
+<li><p>The
+<code>code_folding</code> parameter will not work.  </p>
+</li>
+<li><p>Tabbed sections (as
+described above) will not work. </p>
+</li>
+<li><p>Navigation bars (as described above)
+will not work. </p>
+</li>
+<li><p>MathJax will not work if <code>self_contained</code> is
+<code>TRUE</code> (these two options can't be used together in normal pandoc
+templates).  </p>
+</li></ul>
+
+<p>Due to the above restrictions, you might consider using the <code>includes</code>
+parameter as an alternative to providing a fully custom template.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+
+render("input.Rmd", html_document())
+
+render("input.Rmd", html_document(toc = TRUE))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

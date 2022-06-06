@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Status</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for status {renv}"><tr><td>status {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Status</h2>
+
+<h3>Description</h3>
+
+<p>Report differences between the project's lockfile and the current state of
+the project's library (if any).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+status(project = NULL, ..., library = NULL, lockfile = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments; reserved for future expansion.</p>
+</td></tr>
+<tr valign="top"><td><code>library</code></td>
+<td>
+<p>The library paths. By default, the library paths associated
+with the requested project are used.</p>
+</td></tr>
+<tr valign="top"><td><code>lockfile</code></td>
+<td>
+<p>The path to a lockfile. By default, the project lockfile
+(called <code>renv.lock</code>) is used.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>This function is normally called for its side effects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+
+# disable automatic snapshots
+auto.snapshot &lt;- getOption("renv.config.auto.snapshot")
+options(renv.config.auto.snapshot = FALSE)
+
+# initialize a new project (with an empty R library)
+renv::init(bare = TRUE)
+
+# install digest 0.6.19
+renv::install("digest@0.6.19")
+
+# save library state to lockfile
+renv::snapshot()
+
+# remove digest from library
+renv::remove("digest")
+
+# check library status
+renv::status()
+
+# restore lockfile, thereby reinstalling digest 0.6.19
+renv::restore()
+
+# restore automatic snapshots
+options(renv.config.auto.snapshot = auto.snapshot)
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

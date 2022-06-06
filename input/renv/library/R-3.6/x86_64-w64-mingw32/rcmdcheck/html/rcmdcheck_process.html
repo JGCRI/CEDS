@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run an R CMD check process in the background</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rcmdcheck_process {rcmdcheck}"><tr><td>rcmdcheck_process {rcmdcheck}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run an <code style="white-space: pre;">R CMD check</code> process in the background</h2>
+
+<h3>Description</h3>
+
+<p>rcmdcheck_process is an R6 class, that extends the
+<a href="../../callr/html/rcmd_process.html">callr::rcmd_process</a> class (which in turn extends <a href="../../processx/html/process.html">processx::process</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>cp &lt;- rcmdcheck_process$new(path = ".", args = character(),
+         build_args = character(), check_dir = NULL,
+         libpath = .libPaths(), repos = getOption("repos"))
+
+cp$parse_results()
+</pre>
+<p>Other methods are inherited from <a href="../../callr/html/rcmd_process.html">callr::rcmd_process</a> and
+<a href="../../processx/html/process.html">processx::process</a>.
+</p>
+<p>Note that you calling the <code>get_output_connection</code> and
+<code>get_error_connection</code> method on this is not a good idea, because
+then the stdout and/or stderr of the process will not be collected
+for <code>parse_results()</code>.
+</p>
+<p>You can still use the <code>read_output_lines()</code> and <code>read_error_lines()</code>
+methods to read the standard output and error, <code>parse_results()</code> is
+not affected by that.
+</p>
+
+
+<h3>Arguments</h3>
+
+
+<ul>
+<li> <p><code>cp</code>: A new rcmdcheck_process object.
+</p>
+</li>
+<li> <p><code>path</code>: Path to a package tree or a package archive file. This is the
+package to check.
+</p>
+</li>
+<li> <p><code>args</code>: Command line arguments to <code style="white-space: pre;">R CMD check</code>.
+</p>
+</li>
+<li> <p><code>build_args</code>: Command line arguments to <code style="white-space: pre;">R CMD build</code>.
+</p>
+</li>
+<li> <p><code>check_dir</code>: Directory for the results.
+</p>
+</li>
+<li> <p><code>libpath</code>: The library path to set for the check.
+</p>
+</li>
+<li> <p><code>repos</code>: The <code>repos</code> option to set for the check.
+This is needed for cyclic dependency checks if you use the
+<code>--as-cran</code> argument. The default uses the current value.
+</p>
+</li>
+<li> <p><code>env</code>: A named character vector, extra environment variables to
+set in the check process.
+</p>
+</li></ul>
+
+
+
+<h3>Details</h3>
+
+<p>Most methods are inherited from <a href="../../callr/html/rcmd_process.html">callr::rcmd_process</a> and
+<a href="../../processx/html/process.html">processx::process</a>.
+</p>
+<p><code>cp$parse_results()</code> parses the results, and returns an S3 object with
+fields <code>errors</code>, <code>warnnigs</code> and <code>notes</code>, just like <code><a href="rcmdcheck.html">rcmdcheck()</a></code>. It
+is an error to call it before the process has finished. Use the
+<code>wait()</code> method to wait for the check to finish, or the <code>is_alive()</code>
+method to check if it is still running.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rcmdcheck</em> version 1.4.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

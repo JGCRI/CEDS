@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: compute a hash-based message authentication code</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hmac {digest}"><tr><td>hmac {digest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>compute a hash-based message authentication code</h2>
+
+<h3>Description</h3>
+
+<p>The <code>hmac</code> function calculates a message authentication code
+(MAC) involving the specified cryptographic hash function in
+combination with a given secret key.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hmac(key, object,
+     algo = c("md5", "sha1", "crc32", "sha256", "sha512"),
+     serialize = FALSE, raw = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>An arbitrary character or numeric vector, to use as
+pre-shared secret key.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An arbitrary R object which will then be passed to the
+<code><a href="../../base/html/serialize.html">serialize</a></code> function, unless the <code>serialize</code>
+argument is set to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>algo</code></td>
+<td>
+<p>The algorithms to be used; currently available choices are
+<code>md5</code>, which is also the default, <code>sha1</code>, <code>crc32</code> and
+<code>sha256</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>serialize</code></td>
+<td>
+<p>default value of <code>serialize</code> is here FALSE, not
+TRUE as it is in <code>digest</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>raw</code></td>
+<td>
+<p>This flag alters the type of the output.  Setting this to
+<code>TRUE</code> causes the function to return an object of type
+<code>"raw"</code> instead of <code>"character"</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>All remaining arguments are passed to <code>digest</code>.  </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The <code>hmac</code> function uses the <code>digest</code> to return a hash
+digest as specified in the RFC 2104.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Mario Frasca <a href="mailto:mfrasca@zonnet.nl">mfrasca@zonnet.nl</a>.</p>
+
+
+<h3>References</h3>
+
+<p>MD5: <a href="https://www.ietf.org/rfc/rfc1321.txt">https://www.ietf.org/rfc/rfc1321.txt</a>. 
+</p>
+<p>SHA-1: <a href="https://en.wikipedia.org/wiki/SHA-1">https://en.wikipedia.org/wiki/SHA-1</a>.
+SHA-256: <a href="https://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf">https://csrc.nist.gov/publications/fips/fips180-2/fips180-2withchangenotice.pdf</a>.
+CRC32:  The original reference webpage at <code>rocksoft.com</code> has
+vanished from the web; see
+<a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check">https://en.wikipedia.org/wiki/Cyclic_redundancy_check</a> for
+general information on CRC algorithms.
+</p>
+<p><a href="https://aarongifford.com/computers/sha.html">https://aarongifford.com/computers/sha.html</a> for the 
+integrated C implementation of sha-512.
+</p>
+<p>The page for the code underlying the C functions used here for sha-1
+and md5, and further references, is no longer accessible.  Please see
+<a href="https://en.wikipedia.org/wiki/SHA-1">https://en.wikipedia.org/wiki/SHA-1</a> and
+<a href="https://en.wikipedia.org/wiki/MD5">https://en.wikipedia.org/wiki/MD5</a>.  
+</p>
+<p><a href="https://zlib.net">https://zlib.net</a> for documentation on the zlib library which
+supplied the code for crc32.
+</p>
+<p><a href="https://en.wikipedia.org/wiki/SHA_hash_functions">https://en.wikipedia.org/wiki/SHA_hash_functions</a> for
+documentation on the sha functions.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="digest.html">digest</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+
+
+## Standard RFC 2104 test vectors
+current &lt;- hmac('Jefe', 'what do ya want for nothing?', "md5")
+target &lt;- '750c783e6ab0b503eaa86e310a5db738'
+stopifnot(identical(target, as.character(current)))
+
+current &lt;- hmac(rep(0x0b, 16), 'Hi There', "md5")
+target &lt;- '9294727a3638bb1c13f48ef8158bfc9d'
+stopifnot(identical(target, as.character(current)))
+
+current &lt;- hmac(rep(0xaa, 16), rep(0xdd, 50), "md5")
+target &lt;- '56be34521d144c88dbb8c733f0e8b3f6'
+stopifnot(identical(target, as.character(current)))
+
+## SHA1 tests inspired to the RFC 2104 and checked against the python
+## hmac implementation.
+current &lt;- hmac('Jefe', 'what do ya want for nothing?', "sha1")
+target &lt;- 'effcdf6ae5eb2fa2d27416d5f184df9c259a7c79'
+stopifnot(identical(target, as.character(current)))
+
+current &lt;- hmac(rep(0x0b, 16), 'Hi There', "sha1")
+target &lt;- '675b0b3a1b4ddf4e124872da6c2f632bfed957e9'
+stopifnot(identical(target, as.character(current)))
+
+current &lt;- hmac(rep(0xaa, 16), rep(0xdd, 50), "sha1")
+target &lt;- 'd730594d167e35d5956fd8003d0db3d3f46dc7bb'
+stopifnot(identical(target, as.character(current)))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>digest</em> version 0.6.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

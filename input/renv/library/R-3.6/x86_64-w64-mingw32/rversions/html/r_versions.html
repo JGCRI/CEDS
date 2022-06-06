@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query R's past and present versions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for r_versions {rversions}"><tr><td>r_versions {rversions}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query R's past and present versions</h2>
+
+<h3>Description</h3>
+
+<p>R version numbers consist of three numbers (since version 1.4.1):
+major, minor and patch.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+r_versions(dots = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dots</code></td>
+<td>
+<p>Whether to use dots instead of dashes in the version
+number.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>We extract the version numbers from the tags in the SVN repository.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A data frame with three columns: &lsquo;version&rsquo;,
+&lsquo;date&rsquo; and &lsquo;nickname&rsquo;.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+r_versions()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rversions</em> version 2.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

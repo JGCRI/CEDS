@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a project from a GitHub repo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for create_from_github {usethis}"><tr><td>create_from_github {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a project from a GitHub repo</h2>
+
+<h3>Description</h3>
+
+<p>Creates a new local project and Git repository from a repo on GitHub, by
+either cloning or
+<a href="https://docs.github.com/articles/fork-a-repo">fork-and-cloning</a>. In the
+fork-and-clone case, <code>create_from_github()</code> also does additional remote and
+branch setup, leaving you in the perfect position to make a pull request with
+<code><a href="pull-requests.html">pr_init()</a></code>, one of several <a href="pull-requests.html">functions that work pull requests</a>.
+</p>
+<p><code>create_from_github()</code> works best when your GitHub credentials are
+discoverable. See below for more about authentication.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+create_from_github(
+  repo_spec,
+  destdir = NULL,
+  fork = NA,
+  rstudio = NULL,
+  open = rlang::is_interactive(),
+  protocol = git_protocol(),
+  host = NULL,
+  auth_token = deprecated(),
+  credentials = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo_spec</code></td>
+<td>
+<p>A string identifying the GitHub repo in one of these forms:
+</p>
+
+<ul>
+<li><p> Plain <code>OWNER/REPO</code> spec
+</p>
+</li>
+<li><p> Browser URL, such as <code>"https://github.com/OWNER/REPO"</code>
+</p>
+</li>
+<li><p> HTTPS Git URL, such as <code>"https://github.com/OWNER/REPO.git"</code>
+</p>
+</li>
+<li><p> SSH Git URL, such as <code>"git@github.com:OWNER/REPO.git"</code>
+</p>
+</li></ul>
+
+<p>In the case of a browser, HTTPS, or SSH URL, the <code>host</code> is extracted from
+the URL. The <code>REPO</code> part will be the name of the new local folder, which is
+also a project and Git repo.</p>
+</td></tr>
+<tr valign="top"><td><code>destdir</code></td>
+<td>
+<p>The new folder is stored here. If <code>NULL</code>, defaults to user's
+Desktop or some other conspicuous place. You can also set a default
+location using the option <code>usethis.destdir</code>, e.g.
+<code>options(usethis.destdir = "a/good/dir")</code>, perhaps saved to your
+<code>.Rprofile</code> with <code><a href="edit.html">edit_r_profile()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>fork</code></td>
+<td>
+<p>If <code>FALSE</code>, we clone <code>repo_spec</code>. If <code>TRUE</code>, we fork
+<code>repo_spec</code>, clone that fork, and do additional set up favorable for
+future pull requests:
+</p>
+
+<ul>
+<li><p> The source repo, <code>repo_spec</code>, is configured as the <code>upstream</code> remote,
+using the indicated <code>protocol</code>.
+</p>
+</li>
+<li><p> The local <code>DEFAULT</code> branch is set to track <code>upstream/DEFAULT</code>, where
+<code>DEFAULT</code> is typically <code>main</code> or <code>master</code>. It is also immediately pulled,
+to cover the case of a pre-existing, out-of-date fork.
+</p>
+</li></ul>
+
+<p>If <code>fork = NA</code> (the default), we check your permissions on <code>repo_spec</code>. If
+you can push, we set <code>fork = FALSE</code>, If you cannot, we set <code>fork = TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>rstudio</code></td>
+<td>
+<p>Initiate an <a href="https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects">RStudio Project</a>?
+Defaults to <code>TRUE</code> if in an RStudio session and project has no
+pre-existing <code>.Rproj</code> file. Defaults to <code>FALSE</code> otherwise (but note that
+the cloned repo may already be an RStudio Project, i.e. may already have a
+<code>.Rproj</code> file).</p>
+</td></tr>
+<tr valign="top"><td><code>open</code></td>
+<td>
+<p>If <code>TRUE</code>, <a href="proj_activate.html">activates</a> the new project:
+</p>
+
+<ul>
+<li><p> If RStudio desktop, the package is opened in a new session.
+</p>
+</li>
+<li><p> If on RStudio server, the current RStudio project is activated.
+</p>
+</li>
+<li><p> Otherwise, the working directory and active project is changed.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>protocol</code></td>
+<td>
+<p>One of &quot;https&quot; or &quot;ssh&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>GitHub host to target, passed to the <code>.api_url</code> argument of
+<code><a href="../../gh/html/gh.html">gh::gh()</a></code>. If unspecified, gh defaults to &quot;https://api.github.com&quot;,
+although gh's default can be customised by setting the GITHUB_API_URL
+environment variable.
+</p>
+<p>For a hypothetical GitHub Enterprise instance, either
+&quot;https://github.acme.com/api/v3&quot; or &quot;https://github.acme.com&quot; is
+acceptable.</p>
+</td></tr>
+<tr valign="top"><td><code>auth_token</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>: No longer
+consulted now that usethis uses the gert package for Git operations,
+instead of git2r; gert relies on the credentials package for auth. The API
+requests are now authorized with the token associated with the <code>host</code>, as
+retrieved by <code><a href="../../gh/html/gh_token.html">gh::gh_token()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>credentials</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>: No longer
+consulted now that usethis uses the gert package for Git operations,
+instead of git2r; gert relies on the credentials package for auth. The API
+requests are now authorized with the token associated with the <code>host</code>, as
+retrieved by <code><a href="../../gh/html/gh_token.html">gh::gh_token()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Git/GitHub Authentication</h3>
+
+<p>Many usethis functions, including those documented here, potentially interact
+with GitHub in two different ways:
+</p>
+
+<ul>
+<li><p> Via the GitHub REST API. Examples: create a repo, a fork, or a pull
+request.
+</p>
+</li>
+<li><p> As a conventional Git remote. Examples: clone, fetch, or push.
+</p>
+</li></ul>
+
+<p>Therefore two types of auth can happen and your credentials must be
+discoverable. Which credentials do we mean?
+</p>
+
+<ul>
+<li><p> A GitHub personal access token (PAT) must be discoverable by the gh
+package, which is used for GitHub operations via the REST API. See
+<code><a href="github-token.html">gh_token_help()</a></code> for more about getting and configuring a PAT.
+</p>
+</li>
+<li><p> If you use the HTTPS protocol for Git remotes, your PAT is also used for
+Git operations, such as <code style="white-space: pre;">git push</code>. Usethis uses the gert package for this,
+so the PAT must be discoverable by gert. Generally gert and gh will
+discover and use the same PAT. This ability to &quot;kill two birds with one
+stone&quot; is why HTTPS + PAT is our recommended auth strategy for those new
+to Git and GitHub and PRs.
+</p>
+</li>
+<li><p> If you use SSH remotes, your SSH keys must also be discoverable, in
+addition to your PAT. The public key must be added to your GitHub account.
+</p>
+</li></ul>
+
+<p>Git/GitHub credential management is covered in a dedicated article:
+<a href="https://usethis.r-lib.org/articles/articles/git-credentials.html">Managing Git(Hub) Credentials</a>
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="use_github.html">use_github()</a></code> to go the opposite direction, i.e. create a GitHub repo
+from your local repo
+</p>
+</li>
+<li> <p><code><a href="git_protocol.html">git_protocol()</a></code> for background on <code>protocol</code> (HTTPS vs SSH)
+</p>
+</li>
+<li> <p><code><a href="zip-utils.html">use_course()</a></code> to download a snapshot of all files in a GitHub repo,
+without the need for any local or remote Git operations
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+create_from_github("r-lib/usethis")
+
+# repo_spec can be a URL
+create_from_github("https://github.com/r-lib/usethis")
+
+# a URL repo_spec also specifies the host (e.g. GitHub Enterprise instance)
+create_from_github("https://github.acme.com/OWNER/REPO")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

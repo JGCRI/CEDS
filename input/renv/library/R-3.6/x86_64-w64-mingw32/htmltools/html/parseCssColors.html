@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse CSS color strings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for parseCssColors {htmltools}"><tr><td>parseCssColors {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse CSS color strings</h2>
+
+<h3>Description</h3>
+
+<p>Parses/normalizes CSS color strings, and returns them as strings in
+<code>"#RRGGBB"</code> and/or <code>"#RRGGBBAA"</code> format. Understands hex colors in 3, 4, 6,
+and 8 digit forms, <code>rgb()</code>/<code>rgba()</code>, <code>hsl()</code>/<code>hsla()</code>, and color keywords.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+parseCssColors(str, mustWork = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>CSS color strings</p>
+</td></tr>
+<tr valign="top"><td><code>mustWork</code></td>
+<td>
+<p>If true, invalid color strings will cause an error; if false,
+then the result will contain <code>NA</code> for invalid colors.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that <code>parseCssColors</code> may return colors in <code style="white-space: pre;">#RRGGBBAA</code> format. Such
+values are not understood by Internet Explorer, and must be converted to
+<code>rgba(red, green, blue, alpha)</code> format to be safe for the web.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A vector of strings in <code style="white-space: pre;">#RRGGBB</code> or <code style="white-space: pre;">#RRGGBBAA</code> format (the latter is
+only used for colors whose alpha values are less than <code>FF</code>), or <code>NA</code> for
+invalid colors when <code>mustWork</code> is false. Such strings are suitable for
+use in plots, or parsing with <code><a href="../../grDevices/html/col2rgb.html">col2rgb()</a></code> (be sure to pass <code>alpha = TRUE</code>
+to prevent the alpha channel from being discarded).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+parseCssColors(c(
+  "#0d6efd",
+  "#DC35457F",
+  "rgb(32,201,151)",
+  "  rgba( 23 , 162 , 184 , 0.5 )  ",
+  "hsl(261, 51%, 51%)",
+  "cornflowerblue"
+))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Time difference coercion</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coercion-time-difference {generics}"><tr><td>coercion-time-difference {generics}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Time difference coercion</h2>
+
+<h3>Description</h3>
+
+<p>Coercion functions for creating <code>difftime</code> objects from other
+existing objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as.difftime(tim, ...)
+
+## Default S3 method:
+as.difftime(tim, format = "%X", units = "auto", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tim</code></td>
+<td>
+<p>A vector specifying a time interval.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>A single character specifying the format of <code>tim</code> when it is
+a character. The default is a locale-specific time format.</p>
+</td></tr>
+<tr valign="top"><td><code>units</code></td>
+<td>
+<p>A single character specifying units in which the results are
+desired. Required if <code>tim</code> is a numeric.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function overrides the non-generic <code>as.difftime()</code> function
+provided in base so that packages can provide methods for different data
+types. The default method call the base version.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>difftime</code> object with an attribute indicating the units.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>See the following help topics for more details about individual methods:
+</p>
+<p><code>generics</code></p>
+<ul>
+<li><p><code><a href="coercion-time-difference.html">coercion-time-difference</a></code>: <code>default</code></p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+as.difftime(1:5, units = "secs")
+
+as.difftime(c("01:55:22", "01:55:25"))
+
+as.difftime("01", format = "%H")
+as.difftime("01", format = "%H", units = "secs")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>generics</em> version 0.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Print the labels of a labelled vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for print_labels {haven}"><tr><td>print_labels {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Print the labels of a labelled vector</h2>
+
+<h3>Description</h3>
+
+<p>This is a convenience function, useful to explore the variables of
+a newly imported dataset.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+print_labels(x, name = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A labelled vector</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name of the vector (optional)</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+s1 &lt;- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
+s2 &lt;- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+labelled_df &lt;- tibble::tibble(s1, s2)
+
+for (var in names(labelled_df)) {
+  print_labels(labelled_df[[var]], var)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Inform about name repair</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for names_inform_repair {rlang}"><tr><td>names_inform_repair {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Inform about name repair</h2>
+
+<h3>Description</h3>
+
+<p>Inform about name repair
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+names_inform_repair(old, new)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>old</code></td>
+<td>
+<p>Original names vector.</p>
+</td></tr>
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p>Repaired names vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Muffling and silencing messages</h3>
+
+<p>Name repair messages are signaled with <code><a href="abort.html">inform()</a></code> and are given the class
+<code>"rlib_message_name_repair"</code>. These messages can be muffled with
+<code><a href="../../base/html/message.html">base::suppressMessages()</a></code>.
+</p>
+<p>Name repair messages can also be silenced with the global option
+<code>rlib_name_repair_verbosity</code>. This option takes the values:
+</p>
+
+<ul>
+<li> <p><code>"verbose"</code>: Always verbose.
+</p>
+</li>
+<li> <p><code>"quiet"</code>: Always quiet.
+</p>
+</li></ul>
+
+<p>When set to quiet, the message is not displayed and the condition is not
+signaled. This is particularly useful for silencing messages during testing
+when combined with <code><a href="local_options.html">local_options()</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

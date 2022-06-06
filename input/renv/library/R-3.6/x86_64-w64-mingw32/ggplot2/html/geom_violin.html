@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Violin plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for geom_violin {ggplot2}"><tr><td>geom_violin {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Violin plot</h2>
+
+<h3>Description</h3>
+
+<p>A violin plot is a compact display of a continuous distribution. It is a
+blend of <code><a href="geom_boxplot.html">geom_boxplot()</a></code> and <code><a href="geom_density.html">geom_density()</a></code>: a
+violin plot is a mirrored density plot displayed in the same way as a
+boxplot.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+geom_violin(
+  mapping = NULL,
+  data = NULL,
+  stat = "ydensity",
+  position = "dodge",
+  ...,
+  draw_quantiles = NULL,
+  trim = TRUE,
+  scale = "area",
+  na.rm = FALSE,
+  orientation = NA,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+
+stat_ydensity(
+  mapping = NULL,
+  data = NULL,
+  geom = "violin",
+  position = "dodge",
+  ...,
+  bw = "nrd0",
+  adjust = 1,
+  kernel = "gaussian",
+  trim = TRUE,
+  scale = "area",
+  na.rm = FALSE,
+  orientation = NA,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>draw_quantiles</code></td>
+<td>
+<p>If <code>not(NULL)</code> (default), draw horizontal lines
+at the given quantiles of the density estimate.</p>
+</td></tr>
+<tr valign="top"><td><code>trim</code></td>
+<td>
+<p>If <code>TRUE</code> (default), trim the tails of the violins
+to the range of the data. If <code>FALSE</code>, don't trim the tails.</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>if &quot;area&quot; (default), all violins have the same area (before trimming
+the tails). If &quot;count&quot;, areas are scaled proportionally to the number of
+observations. If &quot;width&quot;, all violins have the same maximum width.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>orientation</code></td>
+<td>
+<p>The orientation of the layer. The default (<code>NA</code>)
+automatically determines the orientation from the aesthetic mapping. In the
+rare event that this fails it can be given explicitly by setting <code>orientation</code>
+to either <code>"x"</code> or <code>"y"</code>. See the <em>Orientation</em> section for more detail.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>geom, stat</code></td>
+<td>
+<p>Use to override the default connection between
+<code>geom_violin()</code> and <code>stat_ydensity()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>bw</code></td>
+<td>
+<p>The smoothing bandwidth to be used.
+If numeric, the standard deviation of the smoothing kernel.
+If character, a rule to choose the bandwidth, as listed in
+<code><a href="../../stats/html/bandwidth.html">stats::bw.nrd()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>adjust</code></td>
+<td>
+<p>A multiplicate bandwidth adjustment. This makes it possible
+to adjust the bandwidth while still using the a bandwidth estimator.
+For example, <code>adjust = 1/2</code> means use half of the default bandwidth.</p>
+</td></tr>
+<tr valign="top"><td><code>kernel</code></td>
+<td>
+<p>Kernel. See list of available kernels in <code><a href="../../stats/html/density.html">density()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Orientation</h3>
+
+<p>This geom treats each axis differently and, thus, can thus have two orientations. Often the orientation is easy to deduce from a combination of the given mappings and the types of positional scales in use. Thus, ggplot2 will by default try to guess which orientation the layer should have. Under rare circumstances, the orientation is ambiguous and guessing may fail. In that case the orientation can be specified directly using the <code>orientation</code> parameter, which can be either <code>"x"</code> or <code>"y"</code>. The value gives the axis that the geom should run along, <code>"x"</code> being the default orientation you would expect for the geom.
+</p>
+
+
+<h3>Aesthetics</h3>
+
+<p><code>geom_violin()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code></strong>
+</p>
+</li>
+<li> <p><strong><code>y</code></strong>
+</p>
+</li>
+<li> <p><code>alpha</code>
+</p>
+</li>
+<li> <p><code>colour</code>
+</p>
+</li>
+<li> <p><code>fill</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>linetype</code>
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li>
+<li> <p><code>weight</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+
+
+<h3>Computed variables</h3>
+
+
+<dl>
+<dt>density</dt><dd><p>density estimate</p>
+</dd>
+<dt>scaled</dt><dd><p>density estimate, scaled to maximum of 1</p>
+</dd>
+<dt>count</dt><dd><p>density * number of points - probably useless for violin plots</p>
+</dd>
+<dt>violinwidth</dt><dd><p>density scaled for the violin plot, according to area, counts
+or to a constant maximum width</p>
+</dd>
+<dt>n</dt><dd><p>number of points</p>
+</dd>
+<dt>width</dt><dd><p>width of violin bounding box</p>
+</dd>
+</dl>
+
+
+
+<h3>References</h3>
+
+<p>Hintze, J. L., Nelson, R. D. (1998) Violin Plots: A Box
+Plot-Density Trace Synergism. The American Statistician 52, 181-184.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="geom_violin.html">geom_violin()</a></code> for examples, and <code><a href="geom_density.html">stat_density()</a></code>
+for examples with data along the x axis.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(factor(cyl), mpg))
+p + geom_violin()
+
+# Orientation follows the discrete axis
+ggplot(mtcars, aes(mpg, factor(cyl))) +
+  geom_violin()
+
+
+p + geom_violin() + geom_jitter(height = 0, width = 0.1)
+
+# Scale maximum width proportional to sample size:
+p + geom_violin(scale = "count")
+
+# Scale maximum width to 1 for all violins:
+p + geom_violin(scale = "width")
+
+# Default is to trim violins to the range of the data. To disable:
+p + geom_violin(trim = FALSE)
+
+# Use a smaller bandwidth for closer density fit (default is 1).
+p + geom_violin(adjust = .5)
+
+# Add aesthetic mappings
+# Note that violins are automatically dodged when any aesthetic is
+# a factor
+p + geom_violin(aes(fill = cyl))
+p + geom_violin(aes(fill = factor(cyl)))
+p + geom_violin(aes(fill = factor(vs)))
+p + geom_violin(aes(fill = factor(am)))
+
+# Set aesthetics to fixed value
+p + geom_violin(fill = "grey80", colour = "#3366FF")
+
+# Show quartiles
+p + geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))
+
+# Scales vs. coordinate transforms -------
+if (require("ggplot2movies")) {
+# Scale transformations occur before the density statistics are computed.
+# Coordinate transformations occur afterwards.  Observe the effect on the
+# number of outliers.
+m &lt;- ggplot(movies, aes(y = votes, x = rating, group = cut_width(rating, 0.5)))
+m + geom_violin()
+m +
+  geom_violin() +
+  scale_y_log10()
+m +
+  geom_violin() +
+  coord_trans(y = "log10")
+m +
+  geom_violin() +
+  scale_y_log10() + coord_trans(y = "log10")
+
+# Violin plots with continuous x:
+# Use the group aesthetic to group observations in violins
+ggplot(movies, aes(year, budget)) +
+  geom_violin()
+ggplot(movies, aes(year, budget)) +
+  geom_violin(aes(group = cut_width(year, 10)), scale = "width")
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

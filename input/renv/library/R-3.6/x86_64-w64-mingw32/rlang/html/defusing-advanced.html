@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Advanced defusal operators</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for defusing-advanced {rlang}"><tr><td>defusing-advanced {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Advanced defusal operators</h2>
+
+<h3>Description</h3>
+
+<p>These advanced operators <a href="topic-defuse.html">defuse</a> R expressions.
+<code><a href="expr.html">expr()</a></code>, <code><a href="enquo.html">enquo()</a></code>, and <code><a href="enquo.html">enquos()</a></code> are sufficient for most
+purposes but rlang provides these other operations, either for
+completeness or because they are useful to experts.
+</p>
+
+<ul>
+<li> <p><code>exprs()</code> is the plural variant of <code>expr()</code>. It returns a list of
+expressions. It is like <code><a href="../../base/html/list.html">base::alist()</a></code> but with
+<a href="topic-inject.html">injection</a> support.
+</p>
+</li>
+<li> <p><code>quo()</code> and <code>quos()</code> are like <code>expr()</code> and <code>exprs()</code> but return
+quosures instead of naked expressions. When you are defusing
+your own local expressions (by opposition to function arguments
+where non-local expressions are supplied by your users), there
+is generally no need to attach the current environment in a
+quosure. See <a href="topic-quosure.html">What are quosures and when are they needed?</a>.
+</p>
+</li>
+<li> <p><code>enexpr()</code> and <code>enexprs()</code> are like <code><a href="enquo.html">enquo()</a></code> and <code><a href="enquo.html">enquos()</a></code> but
+return naked expressions instead of quosures. These operators
+should very rarely be used because they lose track of the
+environment of defused arguments.
+</p>
+</li>
+<li> <p><code>ensym()</code> and <code>ensyms()</code> are like <code>enexpr()</code> and <code>enexprs()</code> but
+they throw an error when the defused expressions are not simple
+symbols. They also support strings which are interpreted as
+symbols. These functions are modelled on the behaviour of the
+left-hand side of <code>=</code> and <code style="white-space: pre;">&lt;-</code> where you can supply symbols and
+strings interchangeably.</p>
+<pre>"foo" &lt;- NULL
+list("foo" = NULL)
+</pre>
+</li>
+<li> <p><code>enquo0</code> and <code>enquos0()</code> are like <code>enquo()</code> and <code>enquos()</code> but
+without injection support. The injection operators <code style="white-space: pre;">!!</code>, <code style="white-space: pre;">!!!</code>,
+and <code style="white-space: pre;">{{</code> are not processed, instead they are preserved in the
+defused expression. This makes it possible to defuse
+expressions that potentially contain injection operators meant
+for later use. The trade off is that it makes it harder for
+users to inject expressions in your function. They have to
+enable injection explicitly with <code><a href="inject.html">inject()</a></code>.
+</p>
+<p>None of the features of <a href="dyn-dots.html">dynamic dots</a> are available
+when defusing with <code>enquos0()</code>. For instance, trailing empty
+arguments are not automatically trimmed.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+enexpr(arg)
+
+exprs(
+  ...,
+  .named = FALSE,
+  .ignore_empty = c("trailing", "none", "all"),
+  .unquote_names = TRUE
+)
+
+enexprs(
+  ...,
+  .named = FALSE,
+  .ignore_empty = c("trailing", "none", "all"),
+  .unquote_names = TRUE,
+  .homonyms = c("keep", "first", "last", "error"),
+  .check_assign = FALSE
+)
+
+ensym(arg)
+
+ensyms(
+  ...,
+  .named = FALSE,
+  .ignore_empty = c("trailing", "none", "all"),
+  .unquote_names = TRUE,
+  .homonyms = c("keep", "first", "last", "error"),
+  .check_assign = FALSE
+)
+
+quo(expr)
+
+quos(
+  ...,
+  .named = FALSE,
+  .ignore_empty = c("trailing", "none", "all"),
+  .unquote_names = TRUE
+)
+
+enquo0(arg)
+
+enquos0(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>arg</code></td>
+<td>
+<p>An unquoted argument name. The expression
+supplied to that argument is defused and returned.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>enexprs()</code>, <code>ensyms()</code> and <code>enquos()</code>, names of
+arguments to defuse. For <code>exprs()</code> and <code>quos()</code>, expressions
+to defuse.</p>
+</td></tr>
+<tr valign="top"><td><code>.named</code></td>
+<td>
+<p>If <code>TRUE</code>, unnamed inputs are automatically named
+with <code><a href="as_label.html">as_label()</a></code>. This is equivalent to applying
+<code><a href="exprs_auto_name.html">exprs_auto_name()</a></code> on the result. If <code>FALSE</code>, unnamed elements
+are left as is and, if fully unnamed, the list is given minimal
+names (a vector of <code>""</code>). If <code>NULL</code>, fully unnamed results are
+left with <code>NULL</code> names.</p>
+</td></tr>
+<tr valign="top"><td><code>.ignore_empty</code></td>
+<td>
+<p>Whether to ignore empty arguments. Can be one
+of <code>"trailing"</code>, <code>"none"</code>, <code>"all"</code>. If <code>"trailing"</code>, only the
+last argument is ignored if it is empty. Named arguments are not
+considered empty.</p>
+</td></tr>
+<tr valign="top"><td><code>.unquote_names</code></td>
+<td>
+<p>Whether to treat <code style="white-space: pre;">:=</code> as <code>=</code>. Unlike <code>=</code>, the
+<code style="white-space: pre;">:=</code> syntax supports <a href="glue-operators.html">names injection</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.homonyms</code></td>
+<td>
+<p>How to treat arguments with the same name. The
+default, <code>"keep"</code>, preserves these arguments. Set <code>.homonyms</code> to
+<code>"first"</code> to only keep the first occurrences, to <code>"last"</code> to keep
+the last occurrences, and to <code>"error"</code> to raise an informative
+error and indicate what arguments have duplicated names.</p>
+</td></tr>
+<tr valign="top"><td><code>.check_assign</code></td>
+<td>
+<p>Whether to check for <code style="white-space: pre;">&lt;-</code> calls. When <code>TRUE</code> a
+warning recommends users to use <code>=</code> if they meant to match a
+function parameter or wrap the <code style="white-space: pre;">&lt;-</code> call in curly braces otherwise.
+This ensures assignments are explicit.</p>
+</td></tr>
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An expression to defuse.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# `exprs()` is the plural variant of `expr()`
+exprs(foo, bar, bar)
+
+# `quo()` and `quos()` are the quosure variants of `expr()` and `exprs()`
+quo(foo)
+quos(foo, bar)
+
+# `enexpr()` and `enexprs()` are the naked variants of `enquo()` and `enquos()`
+my_function1 &lt;- function(arg) enexpr(arg)
+my_function2 &lt;- function(arg, ...) enexprs(arg, ...)
+my_function1(1 + 1)
+my_function2(1 + 1, 10 * 2)
+
+
+# `ensym()` and `ensyms()` are symbol variants of `enexpr()` and `enexprs()`
+my_function3 &lt;- function(arg) ensym(arg)
+my_function4 &lt;- function(arg, ...) ensyms(arg, ...)
+
+# The user must supply symbols
+my_function3(foo)
+my_function4(foo, bar)
+
+# Complex expressions are an error
+try(my_function3(1 + 1))
+try(my_function4(1 + 1, 10 * 2))
+
+
+# `enquo0()` and `enquos0()` disable injection operators
+automatic_injection &lt;- function(x) enquo(x)
+no_injection &lt;- function(x) enquo0(x)
+
+automatic_injection(foo(!!!1:3))
+no_injection(foo(!!!1:3))
+
+# Injection can still be done explicitly
+inject(no_injection(foo(!!!1:3)))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

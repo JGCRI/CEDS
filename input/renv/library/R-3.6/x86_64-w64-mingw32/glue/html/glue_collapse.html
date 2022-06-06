@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Collapse a character vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glue_collapse {glue}"><tr><td>glue_collapse {glue}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Collapse a character vector</h2>
+
+<h3>Description</h3>
+
+<p><code>glue_collapse()</code> collapses a character vector of any length into a length 1 vector.
+<code>glue_sql_collapse()</code> does the same but returns a <code style="white-space: pre;">[DBI::SQL()]</code>
+object rather than a glue object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+glue_collapse(x, sep = "", width = Inf, last = "")
+
+glue_sql_collapse(x, sep = "", width = Inf, last = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The character vector to collapse.</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>a character string to separate the terms.  Not
+<code><a href="../../base/html/NA_character_.html">NA_character_</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>The maximum string width before truncating with <code>...</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>last</code></td>
+<td>
+<p>String used to separate the last two items if <code>x</code> has at least
+2 items.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+glue_collapse(glue("{1:10}"))
+
+# Wide values can be truncated
+glue_collapse(glue("{1:10}"), width = 5)
+
+glue_collapse(1:4, ", ", last = " and ")
+#&gt; 1, 2, 3 and 4
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>glue</em> version 1.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

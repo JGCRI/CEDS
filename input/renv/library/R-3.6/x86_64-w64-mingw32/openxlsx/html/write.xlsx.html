@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: write data to an xlsx file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write.xlsx {openxlsx}"><tr><td>write.xlsx {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>write data to an xlsx file</h2>
+
+<h3>Description</h3>
+
+<p>write a data.frame or list of data.frames to an xlsx file
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+write.xlsx(x, file, asTable = FALSE, overwrite = TRUE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data.frame or a (named) list of objects that can be handled by
+<code><a href="writeData.html">writeData()</a></code> or <code><a href="writeDataTable.html">writeDataTable()</a></code> to write to file</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A file path to save the xlsx file</p>
+</td></tr>
+<tr valign="top"><td><code>asTable</code></td>
+<td>
+<p>If <code>TRUE</code> will use <code><a href="writeDataTable.html">writeDataTable()</a></code> rather
+than <code><a href="writeData.html">writeData()</a></code> to write <code>x</code> to the file (default:
+<code>FALSE</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Overwrite existing file (Defaults to <code>TRUE</code> as with <code>write.table</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="buildWorkbook.html">buildWorkbook()</a></code>; see details</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A workbook object
+</p>
+
+
+<h3>Optional Parameters</h3>
+
+<p><strong>createWorkbook Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>creator</strong> A string specifying the workbook author
+</p>
+</li></ul>
+
+<p><strong>addWorksheet Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>sheetName</strong> Name of the worksheet
+</p>
+</li>
+<li><p><strong>gridLines</strong> A logical. If <code>FALSE</code>, the worksheet grid lines will be hidden.
+</p>
+</li>
+<li><p><strong>tabColour</strong> Colour of the worksheet tab. A valid colour (belonging to colours())
+or a valid hex colour beginning with &quot;#&quot;.
+</p>
+</li>
+<li><p><strong>zoom</strong> A numeric between 10 and 400. Worksheet zoom level as a percentage.
+</p>
+</li></ul>
+
+<p><strong>writeData/writeDataTable Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>startCol</strong> A vector specifying the starting column(s) to write df
+</p>
+</li>
+<li><p><strong>startRow</strong> A vector specifying the starting row(s) to write df
+</p>
+</li>
+<li><p><strong>xy</strong> An alternative to specifying startCol and startRow individually.
+A vector of the form c(startCol, startRow)
+</p>
+</li>
+<li><p><strong>colNames or col.names</strong> If <code>TRUE</code>, column names of x are written.
+</p>
+</li>
+<li><p><strong>rowNames or row.names</strong> If <code>TRUE</code>, row names of x are written.
+</p>
+</li>
+<li><p><strong>headerStyle</strong> Custom style to apply to column names.
+</p>
+</li>
+<li><p><strong>borders</strong> Either &quot;surrounding&quot;, &quot;columns&quot; or &quot;rows&quot; or NULL.  If &quot;surrounding&quot;, a border is drawn around the
+data.  If &quot;rows&quot;, a surrounding border is drawn a border around each row. If &quot;columns&quot;, a surrounding border is drawn with a border
+between each column.  If &quot;<code>all</code>&quot; all cell borders are drawn.
+</p>
+</li>
+<li><p><strong>borderColour</strong> Colour of cell border
+</p>
+</li>
+<li><p><strong>borderStyle</strong> Border line style.
+</p>
+</li>
+<li><p><strong>keepNA</strong> If <code>TRUE</code>, NA values are converted to #N/A (or <code>na.string</code>, if not NULL) in Excel, else NA cells will be empty. Defaults to FALSE.
+</p>
+</li>
+<li><p><strong>na.string</strong> If not NULL, and if <code>keepNA</code> is <code>TRUE</code>, NA values are converted to this string in Excel. Defaults to NULL.
+</p>
+</li></ul>
+
+<p><strong>freezePane Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>firstActiveRow</strong> Top row of active region to freeze pane.
+</p>
+</li>
+<li><p><strong>firstActiveCol</strong> Furthest left column of active region to freeze pane.
+</p>
+</li>
+<li><p><strong>firstRow</strong> If <code>TRUE</code>, freezes the first row (equivalent to firstActiveRow = 2)
+</p>
+</li>
+<li><p><strong>firstCol</strong> If <code>TRUE</code>, freezes the first column (equivalent to firstActiveCol = 2)
+</p>
+</li></ul>
+
+<p><strong>colWidths Parameters</strong>
+</p>
+
+<ul>
+<li><p><strong>colWidths</strong> May be a single value for all columns (or &quot;auto&quot;), or a list of vectors that will be recycled for each sheet (see examples)
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker, Jordan Mark Barbone
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="addWorksheet.html">addWorksheet()</a></code>
+</p>
+<p><code><a href="writeData.html">writeData()</a></code>
+</p>
+<p><code><a href="createStyle.html">createStyle()</a></code> for style parameters
+</p>
+<p><code><a href="buildWorkbook.html">buildWorkbook()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## write to working directory
+options("openxlsx.borderColour" = "#4F80BD") ## set default border colour
+## Not run: 
+write.xlsx(iris, file = "writeXLSX1.xlsx", colNames = TRUE, borders = "columns")
+write.xlsx(iris, file = "writeXLSX2.xlsx", colNames = TRUE, borders = "surrounding")
+
+## End(Not run)
+
+
+hs &lt;- createStyle(
+  textDecoration = "BOLD", fontColour = "#FFFFFF", fontSize = 12,
+  fontName = "Arial Narrow", fgFill = "#4F80BD"
+)
+## Not run: 
+write.xlsx(iris,
+  file = "writeXLSX3.xlsx",
+  colNames = TRUE, borders = "rows", headerStyle = hs
+)
+
+## End(Not run)
+
+## Lists elements are written to individual worksheets, using list names as sheet names if available
+l &lt;- list("IRIS" = iris, "MTCATS" = mtcars, matrix(runif(1000), ncol = 5))
+## Not run: 
+write.xlsx(l, "writeList1.xlsx", colWidths = c(NA, "auto", "auto"))
+
+## End(Not run)
+
+## different sheets can be given different parameters
+## Not run: 
+write.xlsx(l, "writeList2.xlsx",
+  startCol = c(1, 2, 3), startRow = 2,
+  asTable = c(TRUE, TRUE, FALSE), withFilter = c(TRUE, FALSE, FALSE)
+)
+
+## End(Not run)
+
+# specify column widths for multiple sheets
+## Not run: 
+write.xlsx(l, "writeList2.xlsx", colWidths = 20)
+write.xlsx(l, "writeList2.xlsx", colWidths = list(100, 200, 300))
+write.xlsx(l, "writeList2.xlsx", colWidths = list(rep(10, 5), rep(8, 11), rep(5, 5)))
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

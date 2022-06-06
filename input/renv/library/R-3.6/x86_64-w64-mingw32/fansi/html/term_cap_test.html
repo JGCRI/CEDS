@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Test Terminal Capabilities</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for term_cap_test {fansi}"><tr><td>term_cap_test {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Test Terminal Capabilities</h2>
+
+<h3>Description</h3>
+
+<p>Outputs ANSI CSI SGR formatted text to screen so that you may visually
+inspect what color capabilities your terminal supports.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+term_cap_test()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>The three tested terminal capabilities are:
+</p>
+
+<ul>
+<li><p> &quot;bright&quot; for bright colors with SGR codes in 90-97 and 100-107
+</p>
+</li>
+<li><p> &quot;256&quot; for colors defined by &quot;38;5;x&quot; and &quot;48;5;x&quot; where x is in 0-255
+</p>
+</li>
+<li><p> &quot;truecolor&quot; for colors defined by &quot;38;2;x;y;z&quot; and &quot;48;x;y;x&quot; where x, y,
+and z are in 0-255
+</p>
+</li></ul>
+
+<p>Each of the color capabilities your terminal supports should be displayed
+with a blue background and a red foreground.  For reference the corresponding
+CSI SGR sequences are displayed as well.
+</p>
+<p>You should compare the screen output from this function to
+<code>getOption('fansi.term.cap', dflt_term_cap)</code> to ensure that they are self
+consistent.
+</p>
+<p>By default <code>fansi</code> assumes terminals support bright and 256 color
+modes, and also tests for truecolor support via the $COLORTERM system
+variable.
+</p>
+<p>Functions with the <code>term.cap</code> parameter like <code>substr_ctl</code> will warn if they
+encounter 256 or true color SGR sequences and <code>term.cap</code> indicates they are
+unsupported as such a terminal may misinterpret those sequences.  Bright
+codes and OSC hyperlinks in terminals that do not support them will likely be
+silently ignored, so <code>fansi</code> functions do not warn about those.
+</p>
+
+
+<h3>Value</h3>
+
+<p>character the test vector, invisibly
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="dflt_term_cap.html">dflt_term_cap</a></code>, <code><a href="has_ctl.html">has_ctl</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+term_cap_test()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

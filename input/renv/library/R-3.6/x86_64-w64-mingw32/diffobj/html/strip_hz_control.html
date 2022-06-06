@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Replace Horizontal Spacing Control Characters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for strip_hz_control {diffobj}"><tr><td>strip_hz_control {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Replace Horizontal Spacing Control Characters</h2>
+
+<h3>Description</h3>
+
+<p>Removes tabs, newlines, and manipulates the text so that
+it looks the same as it did with those horizontal control
+characters embedded.  Currently carriage returns are also processed, but
+in the future they no longer will be.  This function is used when the
+<code>convert.hz.white.space</code> parameter to the
+<code><a href="diffPrint.html">diff*</a></code> methods is active.  The term &ldquo;strip&rdquo;
+is a misnomer that remains for legacy reasons and lazyness.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+strip_hz_control(txt, stops = 8L, sgr.supported)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>txt</code></td>
+<td>
+<p>character to covert</p>
+</td></tr>
+<tr valign="top"><td><code>stops</code></td>
+<td>
+<p>integer, what tab stops to use</p>
+</td></tr>
+<tr valign="top"><td><code>sgr.supported</code></td>
+<td>
+<p>logical whether the current display device supports
+ANSI CSI SGR.  See <code><a href="diffPrint.html">diff*</a></code>'s <code>sgr.supported</code>
+parameter.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This is an internal function with exposed documentation because it is
+referenced in an external function's documentation.
+</p>
+
+
+<h3>Value</h3>
+
+<p>character, 'txt' with horizontal control sequences
+replaced.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

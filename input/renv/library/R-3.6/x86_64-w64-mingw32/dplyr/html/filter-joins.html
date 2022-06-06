@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Filtering joins</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for filter-joins {dplyr}"><tr><td>filter-joins {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Filtering joins</h2>
+
+<h3>Description</h3>
+
+<p>Filtering joins filter rows from <code>x</code> based on the presence or absence
+of matches in <code>y</code>:
+</p>
+
+<ul>
+<li> <p><code>semi_join()</code> return all rows from <code>x</code> with a match in <code>y</code>.
+</p>
+</li>
+<li> <p><code>anti_join()</code> return all rows from <code>x</code> with<strong>out</strong> a match in <code>y</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+semi_join(x, y, by = NULL, copy = FALSE, ...)
+
+## S3 method for class 'data.frame'
+semi_join(x, y, by = NULL, copy = FALSE, ..., na_matches = c("na", "never"))
+
+anti_join(x, y, by = NULL, copy = FALSE, ...)
+
+## S3 method for class 'data.frame'
+anti_join(x, y, by = NULL, copy = FALSE, ..., na_matches = c("na", "never"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>A pair of data frames, data frame extensions (e.g. a tibble), or
+lazy data frames (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>by</code></td>
+<td>
+<p>A character vector of variables to join by.
+</p>
+<p>If <code>NULL</code>, the default, <code style="white-space: pre;">*_join()</code> will perform a natural join, using all
+variables in common across <code>x</code> and <code>y</code>. A message lists the variables so that you
+can check they're correct; suppress the message by supplying <code>by</code> explicitly.
+</p>
+<p>To join by different variables on <code>x</code> and <code>y</code>, use a named vector.
+For example, <code>by = c("a" = "b")</code> will match <code>x$a</code> to <code>y$b</code>.
+</p>
+<p>To join by multiple variables, use a vector with length &gt; 1.
+For example, <code>by = c("a", "b")</code> will match <code>x$a</code> to <code>y$a</code> and <code>x$b</code> to
+<code>y$b</code>. Use a named vector to match different variables in <code>x</code> and <code>y</code>.
+For example, <code>by = c("a" = "b", "c" = "d")</code> will match <code>x$a</code> to <code>y$b</code> and
+<code>x$c</code> to <code>y$d</code>.
+</p>
+<p>To perform a cross-join, generating all combinations of <code>x</code> and <code>y</code>,
+use <code>by = character()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>copy</code></td>
+<td>
+<p>If <code>x</code> and <code>y</code> are not from the same data source,
+and <code>copy</code> is <code>TRUE</code>, then <code>y</code> will be copied into the
+same src as <code>x</code>.  This allows you to join tables across srcs, but
+it is a potentially expensive operation so you must opt into it.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed onto methods.</p>
+</td></tr>
+<tr valign="top"><td><code>na_matches</code></td>
+<td>
+<p>Should <code>NA</code> and <code>NaN</code> values match one another?
+</p>
+<p>The default, <code>"na"</code>, treats two <code>NA</code> or <code>NaN</code> values as equal, like
+<code>%in%</code>, <code><a href="../../base/html/match.html">match()</a></code>, <code><a href="../../base/html/merge.html">merge()</a></code>.
+</p>
+<p>Use <code>"never"</code> to always treat two <code>NA</code> or <code>NaN</code> values as different, like
+joins for database sources, similarly to <code>merge(incomparables = FALSE)</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>x</code>. The output has the following properties:
+</p>
+
+<ul>
+<li><p> Rows are a subset of the input, but appear in the same order.
+</p>
+</li>
+<li><p> Columns are not modified.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li>
+<li><p> Groups are taken from <code>x</code>. The number of groups may be reduced.
+</p>
+</li></ul>
+
+
+
+<h3>Methods</h3>
+
+<p>These function are <strong>generic</strong>s, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>Methods available in currently loaded packages:
+</p>
+
+<ul>
+<li> <p><code>semi_join()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>anti_join()</code>: no methods found.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other joins: 
+<code><a href="mutate-joins.html">mutate-joins</a></code>,
+<code><a href="nest_join.html">nest_join</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# "Filtering" joins keep cases from the LHS
+band_members %&gt;% semi_join(band_instruments)
+band_members %&gt;% anti_join(band_instruments)
+
+# To suppress the message about joining variables, supply `by`
+band_members %&gt;% semi_join(band_instruments, by = "name")
+# This is good practice in production code
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

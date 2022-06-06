@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Show Method for Style Objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for show,Style-method {diffobj}"><tr><td>show,Style-method {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Show Method for Style Objects</h2>
+
+<h3>Description</h3>
+
+<p>Display a small sample diff with the Style object styles applied.  For
+ANSI light and dark styles, will also temporarily set the background and
+foreground colors to ensure they are compatible with the style, even though
+this is not done in normal output (i.e. if you intend on using a
+&ldquo;light&rdquo; style, you should set your terminal background color to be
+light or expect sub-optimal rendering).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'Style'
+show(object)
+
+## S4 method for signature 'StyleHtml'
+show(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a <code>Style</code> S4 object</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>NULL, invisibly
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+show(StyleAnsi256LightYb())  # assumes ANSI colors supported
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset distinct/unique rows</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for distinct {dplyr}"><tr><td>distinct {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset distinct/unique rows</h2>
+
+<h3>Description</h3>
+
+<p>Select only unique/distinct rows from a data frame. This is similar
+to <code><a href="../../base/html/unique.html">unique.data.frame()</a></code> but considerably faster.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+distinct(.data, ..., .keep_all = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Optional variables to use
+when determining uniqueness. If there are multiple rows for a given
+combination of inputs, only the first row will be preserved. If omitted,
+will use all variables.</p>
+</td></tr>
+<tr valign="top"><td><code>.keep_all</code></td>
+<td>
+<p>If <code>TRUE</code>, keep all variables in <code>.data</code>.
+If a combination of <code>...</code> is not distinct, this keeps the
+first row of values.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following
+properties:
+</p>
+
+<ul>
+<li><p> Rows are a subset of the input but appear in the same order.
+</p>
+</li>
+<li><p> Columns are not modified if <code>...</code> is empty or <code>.keep_all</code> is <code>TRUE</code>.
+Otherwise, <code>distinct()</code> first calls <code>mutate()</code> to create new columns.
+</p>
+</li>
+<li><p> Groups are not modified.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li></ul>
+
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- tibble(
+  x = sample(10, 100, rep = TRUE),
+  y = sample(10, 100, rep = TRUE)
+)
+nrow(df)
+nrow(distinct(df))
+nrow(distinct(df, x, y))
+
+distinct(df, x)
+distinct(df, y)
+
+# You can choose to keep all other variables as well
+distinct(df, x, .keep_all = TRUE)
+distinct(df, y, .keep_all = TRUE)
+
+# You can also use distinct on computed variables
+distinct(df, diff = abs(x - y))
+
+# use across() to access select()-style semantics
+distinct(starwars, across(contains("color")))
+
+# Grouping -------------------------------------------------
+# The same behaviour applies for grouped data frames,
+# except that the grouping variables are always included
+df &lt;- tibble(
+  g = c(1, 1, 2, 2),
+  x = c(1, 1, 2, 1)
+) %&gt;% group_by(g)
+df %&gt;% distinct(x)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

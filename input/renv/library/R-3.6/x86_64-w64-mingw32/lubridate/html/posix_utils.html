@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Various POSIX utilities</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is.POSIXt {lubridate}"><tr><td>is.POSIXt {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Various POSIX utilities</h2>
+
+<h3>Description</h3>
+
+<p><code><a href="posix_utils.html">POSIXct()</a></code> mirrors primitive contructors in base R (<code><a href="../../base/html/double.html">double()</a></code>,
+<code><a href="../../base/html/character.html">character()</a></code> etc.)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is.POSIXt(x)
+
+is.POSIXlt(x)
+
+is.POSIXct(x)
+
+POSIXct(length = 0L, tz = "UTC")
+
+NA_POSIXct_
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an R object</p>
+</td></tr>
+<tr valign="top"><td><code>length</code></td>
+<td>
+<p>A non-negative number specifying the desired length. Supplying
+an argument of length other than one is an error.</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>a timezone (defaults to &quot;utc&quot;)</p>
+</td></tr>
+</table>
+
+
+<h3>Format</h3>
+
+<p>An object of class <code>POSIXct</code> (inherits from <code>POSIXt</code>) of length 1.
+</p>
+
+
+<h3>Value</h3>
+
+<p>TRUE if x is a POSIXct or POSIXlt object, FALSE otherwise.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="is.instant.html">is.instant()</a></code>, <code><a href="is.timespan.html">is.timespan()</a></code>, <code><a href="date_utils.html">is.Date()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+is.POSIXt(as.Date("2009-08-03"))
+is.POSIXt(as.POSIXct("2009-08-03"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

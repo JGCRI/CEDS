@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Validate proper CSS formatting of a unit</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for validateCssUnit {htmltools}"><tr><td>validateCssUnit {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Validate proper CSS formatting of a unit</h2>
+
+<h3>Description</h3>
+
+<p>Checks that the argument is valid for use as a CSS unit of length.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+validateCssUnit(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The unit to validate. Will be treated as a number of pixels if a
+unit is not specified.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>NULL</code> and <code>NA</code> are returned unchanged.
+</p>
+<p>Single element numeric vectors are returned as a character vector with the
+number plus a suffix of <code>"px"</code>.
+</p>
+<p>Single element character vectors must be <code>"auto"</code>, <code>"fit-content"</code>
+or <code>"inherit"</code>, a number, or a length calculated by the <code>"calc"</code>
+CSS function. If the number has a suffix, it must be valid: <code>px</code>,
+<code style="white-space: pre;">\%</code>, <code>ch</code>, <code>em</code>, <code>rem</code>, <code>pt</code>, <code style="white-space: pre;">in</code>, <code>cm</code>,
+<code>mm</code>, <code>ex</code>, <code>pc</code>, <code>vh</code>, <code>vw</code>, <code>vmin</code>, or
+<code>vmax</code>.
+If the number has no suffix, the suffix <code>"px"</code> is appended.
+</p>
+<p>Any other value will cause an error to be thrown.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A properly formatted CSS unit of length, if possible. Otherwise, will
+throw an error.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+validateCssUnit("10%")
+validateCssUnit(400)  #treated as '400px'
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Curve25519</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curve25519 {openssl}"><tr><td>curve25519 {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Curve25519</h2>
+
+<h3>Description</h3>
+
+<p>Curve25519 is a recently added low-level algorithm that can be used both for
+diffie-hellman (called X25519) and for signatures (called ED25519). Note that
+these functions are only available when building against version 1.1.1 or
+newer of the openssl library. The same functions are also available in the
+sodium R package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_ed25519_key(x)
+
+read_ed25519_pubkey(x)
+
+read_x25519_key(x)
+
+read_x25519_pubkey(x)
+
+ed25519_sign(data, key)
+
+ed25519_verify(data, sig, pubkey)
+
+x25519_diffie_hellman(key, pubkey)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a 32 byte raw vector with (pub)key data</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>raw vector with data to sign or verify</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>private key as returned by <code>read_ed25519_key</code> or <code>ed25519_keygen</code></p>
+</td></tr>
+<tr valign="top"><td><code>sig</code></td>
+<td>
+<p>raw vector of length 64 with signature as returned by <code>ed25519_sign</code></p>
+</td></tr>
+<tr valign="top"><td><code>pubkey</code></td>
+<td>
+<p>public key as returned by <code>read_ed25519_pubkey</code> or <code>key$pubkey</code></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate a keypair
+if(openssl_config()$x25519){
+key &lt;- ed25519_keygen()
+pubkey &lt;- as.list(key)$pubkey
+
+# Sign message
+msg &lt;- serialize(iris, NULL)
+sig &lt;- ed25519_sign(msg, key)
+
+# Verify the signature
+ed25519_verify(msg, sig, pubkey)
+
+# Diffie Hellman example:
+key1 &lt;- x25519_keygen()
+key2 &lt;- x25519_keygen()
+
+# Both parties can derive the same secret
+x25519_diffie_hellman(key1, key2$pubkey)
+x25519_diffie_hellman(key2, key1$pubkey)
+
+# Import/export sodium keys
+rawkey &lt;- sodium::sig_keygen()
+rawpubkey &lt;- sodium::sig_pubkey(rawkey)
+key &lt;- read_ed25519_key(rawkey)
+pubkey &lt;- read_ed25519_pubkey(rawpubkey)
+
+# To get the raw key data back for use in sodium
+as.list(key)$data
+as.list(pubkey)$data
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Describe the context of a set of tests.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for context {testthat}"><tr><td>context {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Describe the context of a set of tests.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p>Use of <code>context()</code> is no longer recommended. Instead omit it, and messages
+will use the name of the file instead. This ensures that the context and
+test file name are always in sync.
+</p>
+<p>A context defines a set of tests that test related functionality.  Usually
+you will have one context per file, but you may have multiple contexts
+in a single file if you so choose.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+context(desc)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>desc</code></td>
+<td>
+<p>description of context.  Should start with a capital letter.</p>
+</td></tr>
+</table>
+
+
+<h3>3rd edition</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>context()</code> is deprecated in the third edition, and the equivalent
+information is instead recorded by the test file name.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+context("String processing")
+context("Remote procedure calls")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

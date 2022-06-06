@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse forms and set values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_form {rvest}"><tr><td>html_form {rvest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse forms and set values</h2>
+
+<h3>Description</h3>
+
+<p>Use <code>html_form()</code> to extract a form, set values with <code>html_form_set()</code>,
+and submit it with <code>html_form_submit()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_form(x, base_url = NULL)
+
+html_form_set(form, ...)
+
+html_form_submit(form, submit = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document (from <code><a href="reexports.html">read_html()</a></code>), node set (from <code><a href="html_element.html">html_elements()</a></code>),
+node (from <code><a href="html_element.html">html_element()</a></code>), or session (from <code><a href="session.html">session()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>base_url</code></td>
+<td>
+<p>Base url of underlying HTML document. The default, <code>NULL</code>,
+uses the url of the HTML document underlying <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>form</code></td>
+<td>
+<p>A form</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../rlang/html/dyn-dots.html">dynamic-dots</a></code>&gt; Name-value pairs giving
+fields to modify.
+</p>
+<p>Provide a character vector to set multiple checkboxes in a set or
+select multiple values from a multi-select.</p>
+</td></tr>
+<tr valign="top"><td><code>submit</code></td>
+<td>
+<p>Which button should be used to submit the form?
+</p>
+
+<ul>
+<li> <p><code>NULL</code>, the default, uses the first button.
+</p>
+</li>
+<li><p> A string selects a button by its name.
+</p>
+</li>
+<li><p> A number selects a button using its relative position.
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code>html_form()</code> returns as S3 object with class <code>rvest_form</code> when applied
+to a single element. It returns a list of <code>rvest_form</code> objects when
+applied to multiple elements or a document.
+</p>
+</li>
+<li> <p><code>html_form_set()</code> returns an <code>rvest_form</code> object.
+</p>
+</li>
+<li> <p><code>html_form_submit()</code> submits the form, returning an httr response which
+can be parsed with <code><a href="reexports.html">read_html()</a></code>.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>HTML 4.01 form specification:
+<a href="http://www.w3.org/TR/html401/interact/forms.html">http://www.w3.org/TR/html401/interact/forms.html</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+html &lt;- read_html("http://www.google.com")
+search &lt;- html_form(html)[[1]]
+
+search &lt;- search %&gt;% html_form_set(q = "My little pony", hl = "fr")
+
+# Or if you have a list of values, use !!!
+vals &lt;- list(q = "web scraping", hl = "en")
+search &lt;- search %&gt;% html_form_set(!!!vals)
+
+# To submit and get result:
+## Not run: 
+resp &lt;- html_form_submit(search)
+read_html(resp)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rvest</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

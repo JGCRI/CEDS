@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Visit Drive file in browser</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_browse {googledrive}"><tr><td>drive_browse {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Visit Drive file in browser</h2>
+
+<h3>Description</h3>
+
+<p>Visits a file on Google Drive in your default browser.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_browse(file = .Last.value)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file of interest on your Google
+Drive. Can be a name or path, a file id or URL marked with <code><a href="as_id.html">as_id()</a></code>, or a
+<code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of file hyperlinks, from <code><a href="drive_link.html">drive_link()</a></code>, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+drive_find(n_max = 1) %&gt;% drive_browse()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

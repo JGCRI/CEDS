@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Key glyphs for legends</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for draw_key {ggplot2}"><tr><td>draw_key {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Key glyphs for legends</h2>
+
+<h3>Description</h3>
+
+<p>Each geom has an associated function that draws the key when the geom needs
+to be displayed in a legend. These functions are called <code style="white-space: pre;">draw_key_*()</code>, where
+<code>*</code> stands for the name of the respective key glyph. The key glyphs can be
+customized for individual geoms by providing a geom with the <code>key_glyph</code>
+argument (see <code><a href="layer.html">layer()</a></code> or examples below.)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+draw_key_point(data, params, size)
+
+draw_key_abline(data, params, size)
+
+draw_key_rect(data, params, size)
+
+draw_key_polygon(data, params, size)
+
+draw_key_blank(data, params, size)
+
+draw_key_boxplot(data, params, size)
+
+draw_key_crossbar(data, params, size)
+
+draw_key_path(data, params, size)
+
+draw_key_vpath(data, params, size)
+
+draw_key_dotplot(data, params, size)
+
+draw_key_pointrange(data, params, size)
+
+draw_key_smooth(data, params, size)
+
+draw_key_text(data, params, size)
+
+draw_key_label(data, params, size)
+
+draw_key_vline(data, params, size)
+
+draw_key_timeseries(data, params, size)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A single row data frame containing the scaled aesthetics to
+display in this key</p>
+</td></tr>
+<tr valign="top"><td><code>params</code></td>
+<td>
+<p>A list of additional parameters supplied to the geom.</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>Width and height of key in mm.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A grid grob.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(economics, aes(date, psavert, color = "savings rate"))
+# key glyphs can be specified by their name
+p + geom_line(key_glyph = "timeseries")
+
+# key glyphs can be specified via their drawing function
+p + geom_line(key_glyph = draw_key_rect)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

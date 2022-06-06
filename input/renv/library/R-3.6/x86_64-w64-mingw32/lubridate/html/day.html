@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get/set days component of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for day {lubridate}"><tr><td>day {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get/set days component of a date-time</h2>
+
+<h3>Description</h3>
+
+<p>Get/set days component of a date-time
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+day(x)
+
+mday(x)
+
+wday(
+  x,
+  label = FALSE,
+  abbr = TRUE,
+  week_start = getOption("lubridate.week.start", 7),
+  locale = Sys.getlocale("LC_TIME")
+)
+
+qday(x)
+
+yday(x)
+
+day(x) &lt;- value
+
+mday(x) &lt;- value
+
+qday(x) &lt;- value
+
+wday(x, week_start = getOption("lubridate.week.start", 7)) &lt;- value
+
+yday(x) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a POSIXct, POSIXlt, Date, chron, yearmon, yearqtr, zoo, zooreg,
+timeDate, xts, its, ti, jul, timeSeries, or fts object.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>logical. Only available for wday. TRUE will display the day of
+the week as an ordered factor of character strings, such as &quot;Sunday.&quot; FALSE
+will display the day of the week as a number.</p>
+</td></tr>
+<tr valign="top"><td><code>abbr</code></td>
+<td>
+<p>logical. Only available for wday. FALSE will display the day of
+the week as an ordered factor of character strings, such as &quot;Sunday.&quot; TRUE
+will display an abbreviated version of the label, such as &quot;Sun&quot;. abbr is
+disregarded if label = FALSE.</p>
+</td></tr>
+<tr valign="top"><td><code>week_start</code></td>
+<td>
+<p>day on which week starts following ISO conventions - 1
+means Monday, 7 means Sunday (default). When <code>label = TRUE</code>, this will be
+the first level of the returned factor. You can set <code>lubridate.week.start</code>
+option to control this parameter globally.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>locale to use for day names. Default to current locale.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a numeric object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>mday()</code> and <code>yday()</code> return the day of the month and day of the
+year respectively. <code>day()</code> and <code style="white-space: pre;">day&lt;-()</code> are aliases for <code>mday()</code> and
+<code style="white-space: pre;">mday&lt;-()</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>wday()</code> returns the day of the week as a decimal number or an
+ordered factor if label is <code>TRUE</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- as.Date("2009-09-02")
+wday(x) #4
+
+wday(ymd(080101))
+wday(ymd(080101), label = TRUE, abbr = FALSE)
+wday(ymd(080101), label = TRUE, abbr = TRUE)
+wday(ymd(080101) + days(-2:4), label = TRUE, abbr = TRUE)
+
+x &lt;- as.Date("2009-09-02")
+yday(x) #245
+mday(x) #2
+yday(x) &lt;- 1  #"2009-01-01"
+yday(x) &lt;- 366 #"2010-01-01"
+mday(x) &gt; 3
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Download and parse R CMD check results from CRAN</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cran_check_results {rcmdcheck}"><tr><td>cran_check_results {rcmdcheck}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Download and parse R CMD check results from CRAN</h2>
+
+<h3>Description</h3>
+
+<p>Download and parse R CMD check results from CRAN
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cran_check_results(
+  package,
+  flavours = cran_check_flavours(package),
+  quiet = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>Name of a single package to download the checks for.</p>
+</td></tr>
+<tr valign="top"><td><code>flavours</code></td>
+<td>
+<p>CRAN check flavours to use. Defaults to all
+flavours that were used to check the package.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>Whether to omit the download progress bars.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of <code>rcmdcheck</code> objects.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rcmdcheck</em> version 1.4.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

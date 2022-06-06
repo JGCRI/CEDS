@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Configure Automatic Context Calculation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for auto_context {diffobj}"><tr><td>auto_context {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Configure Automatic Context Calculation</h2>
+
+<h3>Description</h3>
+
+<p>Helper functions to help define parameters for selecting an appropriate
+<code>context</code> value.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+auto_context(
+  min = getOption("diffobj.context.auto.min"),
+  max = getOption("diffobj.context.auto.max")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>min</code></td>
+<td>
+<p>integer(1L), positive, set to zero to allow any context</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p>integer(1L), set to negative to allow any context</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>S4 object containing configuration parameters, for use as the
+<code>context</code> or parameter value in <code><a href="diffPrint.html">diff*</a></code>
+methods
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## `pager="off"` for CRAN compliance; you may omit in normal use
+diffChr(letters, letters[-13], context=auto_context(0, 3), pager="off")
+diffChr(letters, letters[-13], context=auto_context(0, 10), pager="off")
+diffChr(
+  letters, letters[-13], context=auto_context(0, 10), line.limit=3L,
+  pager="off"
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

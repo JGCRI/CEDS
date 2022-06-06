@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the fiscal quarter and semester of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for quarter {lubridate}"><tr><td>quarter {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the fiscal quarter and semester of a date-time</h2>
+
+<h3>Description</h3>
+
+<p>Quarters divide the year into fourths. Semesters divide the year into halfs.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+quarter(
+  x,
+  type = "quarter",
+  fiscal_start = 1,
+  with_year = identical(type, "year.quarter")
+)
+
+semester(x, with_year = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a date-time object of class POSIXct, POSIXlt, Date, chron, yearmon,
+yearqtr, zoo, zooreg, timeDate, xts, its, ti, jul, timeSeries, fts or
+anything else that can be converted with as.POSIXlt</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>the format to be returned for the quarter. Can be one one of
+&quot;quarter&quot; - return numeric quarter (default), &quot;year.quarter&quot; return
+fractional numeric year.quarter, &quot;date_first&quot; or &quot;date_last&quot; which return
+the date at the quarter's start end end.</p>
+</td></tr>
+<tr valign="top"><td><code>fiscal_start</code></td>
+<td>
+<p>numeric indicating the starting month of a fiscal year.</p>
+</td></tr>
+<tr valign="top"><td><code>with_year</code></td>
+<td>
+<p>logical indicating whether or not to include the quarter or
+semester's year (deprecated; use the <code>type</code> parameter instead).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>numeric or a vector of class POSIXct if <code>type</code> argument is
+<code>date_first</code> or <code>date_last</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd(c("2012-03-26", "2012-05-04", "2012-09-23", "2012-12-31"))
+quarter(x)
+quarter(x, type = "year.quarter")
+quarter(x, type = "year.quarter", fiscal_start = 11)
+quarter(x, type = "date_first", fiscal_start = 11)
+quarter(x, type = "date_last", fiscal_start = 11)
+semester(x)
+semester(x, with_year = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

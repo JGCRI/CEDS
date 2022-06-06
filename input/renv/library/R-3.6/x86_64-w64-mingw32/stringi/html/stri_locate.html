@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Locate Pattern Occurrences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_locate_all {stringi}"><tr><td>stri_locate_all {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Locate Pattern Occurrences</h2>
+
+<h3>Description</h3>
+
+<p>These functions find the indexes (positions) where
+there is a match to some pattern.
+The functions <code>stri_locate_all_*</code> locate all the matches.
+<code>stri_locate_first_*</code> and <code>stri_locate_last_*</code>
+give the first and the last matches, respectively.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_locate_all(str, ..., regex, fixed, coll, charclass)
+
+stri_locate_first(str, ..., regex, fixed, coll, charclass)
+
+stri_locate_last(str, ..., regex, fixed, coll, charclass)
+
+stri_locate(
+  str,
+  ...,
+  regex,
+  fixed,
+  coll,
+  charclass,
+  mode = c("first", "all", "last")
+)
+
+stri_locate_all_charclass(
+  str,
+  pattern,
+  merge = TRUE,
+  omit_no_match = FALSE,
+  get_length = FALSE
+)
+
+stri_locate_first_charclass(str, pattern, get_length = FALSE)
+
+stri_locate_last_charclass(str, pattern, get_length = FALSE)
+
+stri_locate_all_coll(
+  str,
+  pattern,
+  omit_no_match = FALSE,
+  get_length = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_locate_first_coll(
+  str,
+  pattern,
+  get_length = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_locate_last_coll(
+  str,
+  pattern,
+  get_length = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_locate_all_regex(
+  str,
+  pattern,
+  omit_no_match = FALSE,
+  capture_groups = FALSE,
+  get_length = FALSE,
+  ...,
+  opts_regex = NULL
+)
+
+stri_locate_first_regex(
+  str,
+  pattern,
+  capture_groups = FALSE,
+  get_length = FALSE,
+  ...,
+  opts_regex = NULL
+)
+
+stri_locate_last_regex(
+  str,
+  pattern,
+  capture_groups = FALSE,
+  get_length = FALSE,
+  ...,
+  opts_regex = NULL
+)
+
+stri_locate_all_fixed(
+  str,
+  pattern,
+  omit_no_match = FALSE,
+  get_length = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_locate_first_fixed(
+  str,
+  pattern,
+  get_length = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_locate_last_fixed(
+  str,
+  pattern,
+  get_length = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>,
+<code>opts_regex</code>, <code>opts_fixed</code>, and so on</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>single string;
+one of: <code>'first'</code> (the default), <code>'all'</code>, <code>'last'</code></p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex, fixed, coll, charclass</code></td>
+<td>
+<p>character vector;
+search patterns; for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>merge</code></td>
+<td>
+<p>single logical value;
+indicates whether consecutive sequences of indexes in the resulting
+matrix should be merged; <code>stri_locate_all_charclass</code> only</p>
+</td></tr>
+<tr valign="top"><td><code>omit_no_match</code></td>
+<td>
+<p>single logical value; if <code>TRUE</code>,
+a no-match will be indicated by a matrix with 0 rows
+<code>stri_locate_all_*</code> only</p>
+</td></tr>
+<tr valign="top"><td><code>get_length</code></td>
+<td>
+<p>single logical value; if <code>FALSE</code> (default),
+generate <em>from-to</em> matrices; otherwise, output
+<em>from-length</em> ones</p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed, opts_regex</code></td>
+<td>
+<p>named list used to tune up
+the selected search engine's settings; see
+<code><a href="stri_opts_collator.html">stri_opts_collator</a></code>, <code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>,
+and <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>, respectively; <code>NULL</code>
+for the defaults</p>
+</td></tr>
+<tr valign="top"><td><code>capture_groups</code></td>
+<td>
+<p>single logical value;
+whether positions of matches to parenthesized subexpressions
+should be returned too (as <code>capture_groups</code> attribute);
+<code>stri_locate_*_regex</code> only</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and <code>pattern</code> (with recycling
+of the elements in the shorter vector if necessary). This allows to,
+for instance, search for one pattern in each string,
+search for each pattern in one string,
+and search for the i-th pattern within the i-th string.
+</p>
+<p>The matches may be extracted by calling
+<code><a href="stri_sub.html">stri_sub</a></code> or <code><a href="stri_sub_all.html">stri_sub_all</a></code>.
+Alternatively, you may call <code><a href="stri_extract.html">stri_extract</a></code> directly.
+</p>
+<p><code>stri_locate</code>, <code>stri_locate_all</code>, <code>stri_locate_first</code>,
+and <code>stri_locate_last</code> are convenience functions.
+They just call <code>stri_locate_*_*</code>, depending on the arguments used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>stri_locate_all_*</code>,
+a list of integer matrices is returned. Each list element
+represents the results of a separate search scenario.
+The first column gives the start positions
+of the matches, and the second column gives the end positions.
+Moreover, two <code>NA</code>s in a row denote <code>NA</code> arguments
+or a no-match (the latter only if <code>omit_no_match</code> is <code>FALSE</code>).
+</p>
+<p><code>stri_locate_first_*</code> and <code>stri_locate_last_*</code>
+return an integer matrix with
+two columns, giving the start and end positions of the first
+or the last matches, respectively, and two <code>NA</code>s if and
+only if they are not found.
+</p>
+<p>For <code>stri_locate_*_regex</code>, if the match is of zero length,
+<code>end</code> will be one character less than <code>start</code>.
+Note that <code>stri_locate_last_regex</code> searches from start to end,
+but skips overlapping matches, see the example below.
+</p>
+<p>Setting <code>get_length=TRUE</code> results in the 2nd column representing
+the length of the match instead of the end position. In this case,
+negative length denotes a no-match.
+</p>
+<p>If <code>capture_groups=TRUE</code>, then the outputs are equipped with the
+<code>capture_groups</code> attribute, which is a list of matrices
+giving the start-end positions of matches to parenthesized subexpressions.
+Similarly to <code>stri_match_regex</code>, capture group names are extracted
+unless looking for first/last occurrences of many different patterns.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_locate: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>
+</p>
+<p>Other indexing: 
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_sub_all.html">stri_sub_all</a>()</code>,
+<code><a href="stri_sub.html">stri_sub</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_locate_all('stringi', fixed='i')
+
+stri_locate_first_coll('hladn\u00FD', 'HLADNY', strength=1, locale='sk_SK')
+
+stri_locate_all_regex(
+    c('breakfast=eggs;lunch=pizza', 'breakfast=spam', 'no food here'),
+   '(?&lt;when&gt;\\w+)=(?&lt;what&gt;\\w+)',
+   capture_groups=TRUE
+)  # named capture groups
+
+stri_locate_all_fixed("abababa", "ABA", case_insensitive=TRUE, overlap=TRUE)
+stri_locate_first_fixed("ababa", "aba")
+stri_locate_last_fixed("ababa", "aba")  # starts from end
+stri_locate_last_regex("ababa", "aba")  # no overlaps, from left to right
+
+x &lt;- c("yes yes", "no", NA)
+stri_locate_all_fixed(x, "yes")
+stri_locate_all_fixed(x, "yes", omit_no_match=TRUE)
+stri_locate_all_fixed(x, "yes", get_length=TRUE)
+stri_locate_all_fixed(x, "yes", get_length=TRUE, omit_no_match=TRUE)
+stri_locate_first_fixed(x, "yes")
+stri_locate_first_fixed(x, "yes", get_length=TRUE)
+
+# Use regex positive-lookahead to locate overlapping pattern matches:
+stri_locate_all_regex('ACAGAGACTTTAGATAGAGAAGA', '(?=AGA)')
+# note that start &gt; end here (match of length zero)
+
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

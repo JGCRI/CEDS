@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Replacement version of system.file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for system.file {pkgload}"><tr><td>system.file {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Replacement version of system.file</h2>
+
+<h3>Description</h3>
+
+<p>This function is meant to intercept calls to <code><a href="../../base/html/system.file.html">base::system.file()</a></code>,
+so that it behaves well with packages loaded by devtools. It is made
+available when a package is loaded with <code><a href="load_all.html">load_all()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+shim_system.file(..., package = "base", lib.loc = NULL, mustWork = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>character vectors, specifying subdirectory and file(s)
+within some package.  The default, none, returns the
+root of the package.  Wildcards are not supported.</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>a character string with the name of a single package.
+An error occurs if more than one package name is given.</p>
+</td></tr>
+<tr valign="top"><td><code>lib.loc</code></td>
+<td>
+<p>a character vector with path names of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> libraries.
+See &lsquo;Details&rsquo; for the meaning of the default value of <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mustWork</code></td>
+<td>
+<p>logical.  If <code>TRUE</code>, an error is given if there
+are no matching files.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>When <code>system.file</code> is called from the R console (the global
+environment), this function detects if the target package was loaded with
+<code><a href="load_all.html">load_all()</a></code>, and if so, it uses a customized method of searching
+for the file. This is necessary because the directory structure of a source
+package is different from the directory structure of an installed package.
+</p>
+<p>When a package is loaded with <code>load_all</code>, this function is also inserted
+into the package's imports environment, so that calls to <code>system.file</code>
+from within the package namespace will use this modified version. If this
+function were not inserted into the imports environment, then the package
+would end up calling <code>base::system.file</code> instead.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

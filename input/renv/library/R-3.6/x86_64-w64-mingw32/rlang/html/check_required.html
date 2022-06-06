@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check that argument is supplied</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_required {rlang}"><tr><td>check_required {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check that argument is supplied</h2>
+
+<h3>Description</h3>
+
+<p>Throws an error if <code>x</code> is missing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_required(x, arg = caller_arg(x), call = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A function argument. Must be a symbol.</p>
+</td></tr>
+<tr valign="top"><td><code>arg</code></td>
+<td>
+<p>An argument name as a string. This argument
+will be mentioned in error messages as the input that is at the
+origin of a problem.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="arg_match.html">arg_match()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(x)  {
+  check_required(x)
+}
+
+# Fails because `x` is not supplied
+try(f())
+
+# Succeeds
+f(NULL)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

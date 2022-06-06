@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make an absolute dependency relative</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for makeDependencyRelative {htmltools}"><tr><td>makeDependencyRelative {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make an absolute dependency relative</h2>
+
+<h3>Description</h3>
+
+<p>Change a dependency's absolute path to be relative to one of its parent
+directories.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+makeDependencyRelative(dependency, basepath, mustWork = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dependency</code></td>
+<td>
+<p>A single HTML dependency with an absolute path.</p>
+</td></tr>
+<tr valign="top"><td><code>basepath</code></td>
+<td>
+<p>The path to the directory that <code>dependency</code> should be
+made relative to.</p>
+</td></tr>
+<tr valign="top"><td><code>mustWork</code></td>
+<td>
+<p>If <code>TRUE</code> and <code>dependency</code> does not point to a
+directory on disk (but rather a URL location), an error is raised. If
+<code>FALSE</code> then non-disk dependencies are returned without modification.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The dependency with its <code>src</code> value updated to the new
+location's relative path.
+</p>
+<p>If <code>baspath</code> did not appear to be a parent directory of the dependency's
+directory, an error is raised (regardless of the value of <code>mustWork</code>).
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="copyDependencyToDir.html">copyDependencyToDir()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Replace Missing Values in a Character Vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_replace_na {stringi}"><tr><td>stri_replace_na {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Replace Missing Values in a Character Vector</h2>
+
+<h3>Description</h3>
+
+<p>This function gives a convenient way to replace each missing (<code>NA</code>)
+value with a given string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_replace_na(str, replacement = "NA")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector or an object coercible to</p>
+</td></tr>
+<tr valign="top"><td><code>replacement</code></td>
+<td>
+<p>single string</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function is roughly equivalent to
+<code>str2 &lt;- stri_enc_toutf8(str);
+str2[is.na(str2)] &lt;- stri_enc_toutf8(replacement);
+str2</code>.
+It may be used, e.g., wherever the 'plain R' <code>NA</code> handling is
+desired, see Examples.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other utils: 
+<code><a href="stri_list2matrix.html">stri_list2matrix</a>()</code>,
+<code><a href="stri_na2empty.html">stri_na2empty</a>()</code>,
+<code><a href="stri_remove_empty.html">stri_remove_empty</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- c('test', NA)
+stri_paste(x, 1:2)                           # 'test1' NA
+paste(x, 1:2)                                # 'test 1' 'NA 2'
+stri_paste(stri_replace_na(x), 1:2, sep=' ') # 'test 1' 'NA 2'
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert an object to a date or date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_date {lubridate}"><tr><td>as_date {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert an object to a date or date-time</h2>
+
+<h3>Description</h3>
+
+<p>Convert an object to a date or date-time
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_date(x, ...)
+
+## S4 method for signature 'ANY'
+as_date(x, ...)
+
+## S4 method for signature 'POSIXt'
+as_date(x, tz = NULL)
+
+## S4 method for signature 'numeric'
+as_date(x, origin = lubridate::origin)
+
+## S4 method for signature 'character'
+as_date(x, tz = NULL, format = NULL)
+
+as_datetime(x, ...)
+
+## S4 method for signature 'POSIXt'
+as_datetime(x, tz = "UTC")
+
+## S4 method for signature 'numeric'
+as_datetime(x, origin = lubridate::origin, tz = "UTC")
+
+## S4 method for signature 'character'
+as_datetime(x, tz = "UTC", format = NULL)
+
+## S4 method for signature 'Date'
+as_datetime(x, tz = "UTC")
+
+## S4 method for signature 'ANY'
+as_datetime(x, tz = "UTC")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a vector of <a href="../../base/html/DateTimeClasses.html">POSIXt</a>, numeric or character objects</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments to be passed to specific methods (see above).</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>a time zone name (default: time zone of the POSIXt object <code>x</code>). See
+<code><a href="../../base/html/timezones.html">OlsonNames()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>origin</code></td>
+<td>
+<p>a Date object, or something which can be coerced by
+<code>as.Date(origin, ...)</code> to such an object (default: the Unix epoch of
+&quot;1970-01-01&quot;). Note that in this instance, <code>x</code> is assumed to reflect the
+number of days since <code>origin</code> at <code>"UTC"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>format argument for character methods. When supplied parsing is
+performed by <code><a href="../../base/html/strptime.html">strptime()</a></code>. For this reason consider using specialized
+parsing functions in lubridate.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a vector of <a href="date_utils.html">Date</a> objects corresponding to <code>x</code>.
+</p>
+
+
+<h3>Compare to base R</h3>
+
+<p>These are drop in replacements for <code><a href="../../base/html/as.Date.html">as.Date()</a></code> and <code><a href="../../base/html/as.POSIXlt.html">as.POSIXct()</a></code>, with a few
+tweaks to make them work more intuitively.
+</p>
+
+<ul>
+<li><p> Called on a <code>POSIXct</code> object, <code>as_date()</code> uses the tzone attribute of
+the object to return the same date as indicated by the printed representation
+of the object. This differs from as.Date, which ignores the attribute and
+uses only the tz argument to <code>as.Date()</code> (&quot;UTC&quot; by default).
+</p>
+</li>
+<li><p> Both functions provide a default origin argument for numeric vectors.
+</p>
+</li>
+<li><p> Both functions will generate NAs for
+invalid date format. A warning message will provide a count of the elements
+that were not converted
+</p>
+</li>
+<li> <p><code>as_datetime()</code> defaults to using UTC.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+dt_utc &lt;- ymd_hms("2010-08-03 00:50:50")
+dt_europe &lt;- ymd_hms("2010-08-03 00:50:50", tz="Europe/London")
+c(as_date(dt_utc), as.Date(dt_utc))
+c(as_date(dt_europe), as.Date(dt_europe))
+## need not supply origin
+as_date(10)
+## Will replace invalid date format with NA
+dt_wrong &lt;- c("2009-09-29", "2012-11-29", "2015-29-12")
+as_date(dt_wrong)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

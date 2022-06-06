@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Protect math expressions in pairs of backticks in Markdown</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for protect_math {xfun}"><tr><td>protect_math {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Protect math expressions in pairs of backticks in Markdown</h2>
+
+<h3>Description</h3>
+
+<p>For Markdown renderers that do not support LaTeX math, we need to protect
+math expressions as verbatim code (in a pair of backticks), because some
+characters in the math expressions may be interpreted as Markdown syntax
+(e.g., a pair of underscores may make text italic). This function detects
+math expressions in Markdown (by heuristics), and wrap them in backticks.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+protect_math(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector of text in Markdown.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Expressions in pairs of dollar signs or double dollar signs are treated as
+math, if there are no spaces after the starting dollar sign, or before the
+ending dollar sign. There should be spaces before the starting dollar sign,
+unless the math expression starts from the very beginning of a line. For a
+pair of single dollar signs, the ending dollar sign should not be followed by
+a number. With these assumptions, there should not be too many false
+positives when detecing math expressions.
+</p>
+<p>Besides, LaTeX environments (<code style="white-space: pre;">\begin{*}</code> and <code style="white-space: pre;">\end{*}</code>) are also
+protected in backticks.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector with math expressions in backticks.
+</p>
+
+
+<h3>Note</h3>
+
+<p>If you are using Pandoc or the <span class="pkg">rmarkdown</span> package, there is no
+need to use this function, because Pandoc's Markdown can recognize math
+expressions.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+protect_math(c("hi $a+b$", "hello $$\\alpha$$", "no math here: $x is $10 dollars"))
+protect_math(c("hi $$", "\\begin{equation}", "x + y = z", "\\end{equation}"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

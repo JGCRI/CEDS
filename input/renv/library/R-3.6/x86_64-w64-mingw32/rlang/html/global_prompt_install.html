@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Prompt user to install missing packages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for global_prompt_install {rlang}"><tr><td>global_prompt_install {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Prompt user to install missing packages</h2>
+
+<h3>Description</h3>
+
+<p>When enabled, <code>packageNotFoundError</code> thrown by <code><a href="../../base/html/ns-load.html">loadNamespace()</a></code>
+cause a user prompt to install the missing package and continue
+without interrupting the current program.
+</p>
+<p>This is similar to how <code><a href="is_installed.html">check_installed()</a></code> prompts users to install
+required packages. It uses the same install strategy, using pak if
+available and <code><a href="../../utils/html/install.packages.html">install.packages()</a></code> otherwise.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+global_prompt_install(enable = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>enable</code></td>
+<td>
+<p>Whether to enable or disable global handling.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

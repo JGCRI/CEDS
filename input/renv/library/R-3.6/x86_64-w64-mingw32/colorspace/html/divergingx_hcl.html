@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: (More) Flexible Diverging HCL Palettes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for divergingx_hcl {colorspace}"><tr><td>divergingx_hcl {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>(More) Flexible Diverging HCL Palettes</h2>
+
+<h3>Description</h3>
+
+<p>Diverging HCL color palettes generated through combination of two fully
+flexible (and possibly unbalanced) multi-hue sequential palettes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+divergingx_hcl(
+  n,
+  palette = "Geyser",
+  ...,
+  fixup = TRUE,
+  alpha = 1,
+  rev = FALSE,
+  h1,
+  h2,
+  h3,
+  c1,
+  c2,
+  c3,
+  l1,
+  l2,
+  l3,
+  p1,
+  p2,
+  p3,
+  p4,
+  cmax1,
+  cmax2
+)
+
+divergingx_palettes(palette = NULL, plot = FALSE, n = 7L, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>the number of colors (<i>&gt;= 1</i>) to be in the palette.</p>
+</td></tr>
+<tr valign="top"><td><code>palette</code></td>
+<td>
+<p>character with the name (see details).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments passed to <code><a href="hex.html">hex</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fixup</code></td>
+<td>
+<p>logical. Should the color be corrected to a valid RGB value?</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>numeric vector of values in the range <code>[0, 1]</code> for alpha
+transparency channel (0 means transparent and 1 means opaque).</p>
+</td></tr>
+<tr valign="top"><td><code>rev</code></td>
+<td>
+<p>logical. Should the palette be reversed?</p>
+</td></tr>
+<tr valign="top"><td><code>h1</code></td>
+<td>
+<p>numeric. Starting hue coordinate.</p>
+</td></tr>
+<tr valign="top"><td><code>h2</code></td>
+<td>
+<p>numeric. Center hue coordinate.</p>
+</td></tr>
+<tr valign="top"><td><code>h3</code></td>
+<td>
+<p>numeric. Ending hue coordinate.</p>
+</td></tr>
+<tr valign="top"><td><code>c1</code></td>
+<td>
+<p>numeric. Chroma coordinate corresponding to <code>h1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>c2</code></td>
+<td>
+<p>numeric. Chroma coordinate corresponding to <code>h2</code> (if <code>NA</code>, set to 0).</p>
+</td></tr>
+<tr valign="top"><td><code>c3</code></td>
+<td>
+<p>numeric. Chroma coordinate corresponding to <code>h3</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>l1</code></td>
+<td>
+<p>numeric. Luminance coordinate corresponding to <code>h1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>l2</code></td>
+<td>
+<p>numeric. Luminance coordinate corresponding to <code>h2</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>l3</code></td>
+<td>
+<p>numeric. Luminance coordinate corresponding to <code>h3</code> (if <code>NA</code>, <code>l1</code> is used).</p>
+</td></tr>
+<tr valign="top"><td><code>p1</code></td>
+<td>
+<p>numeric. Power parameter for chroma coordinates in first sequential palette.</p>
+</td></tr>
+<tr valign="top"><td><code>p2</code></td>
+<td>
+<p>numeric. Power parameter for luminance coordinates in first sequential palette (if <code>NA</code>, <code>p1</code> is used).</p>
+</td></tr>
+<tr valign="top"><td><code>p3</code></td>
+<td>
+<p>numeric. Power parameter for chroma coordinates in second sequential palette (if <code>NA</code>, <code>p1</code> is used).</p>
+</td></tr>
+<tr valign="top"><td><code>p4</code></td>
+<td>
+<p>numeric. Power parameter for luminance coordinates in second sequential palette (if <code>NA</code>, <code>p3</code> is used).</p>
+</td></tr>
+<tr valign="top"><td><code>cmax1</code></td>
+<td>
+<p>numeric. Maximum chroma coordinate in first sequential palette (not used if <code>NA</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>cmax2</code></td>
+<td>
+<p>numeric. Maximum chroma coordinate in second sequential palette (if <code>NA</code>, <code>cmax1</code> is used).</p>
+</td></tr>
+<tr valign="top"><td><code>plot</code></td>
+<td>
+<p>logical. Should the selected HCL color palettes be visualized?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>divergingx_hcl</code> function simply calls <code><a href="hcl_palettes.html">sequential_hcl</a></code>
+twice with a prespecified set of hue, chroma, and luminance parameters. This is
+similar to <code><a href="hcl_palettes.html">diverging_hcl</a></code> but allows for more flexibility:
+<code>diverging_hcl</code> employs two <em>single-hue</em> sequential palettes,
+always uses zero chroma for the neutral/central color, and restricts the
+chroma/luminance path to be the same in both &ldquo;arms&rdquo; of the palette.
+In contrast, <code>divergingx_hcl</code> relaxes this to two full <em>multi-hue</em>
+palettes that can thus go through a non-gray neutral color (typically light
+yellow). Consequently, the chroma/luminance paths can be rather unbalanced
+between the two arms.
+</p>
+<p>With this additional flexibility various diverging palettes suggested by
+<a href="https://ColorBrewer2.org/">https://ColorBrewer2.org/</a> and CARTO (<a href="https://carto.com/carto-colors/">https://carto.com/carto-colors/</a>),
+can be emulated along with the Zissou 1 palette from <span class="pkg">wesanderson</span>,
+Cividis from <span class="pkg">viridis</span>, and Roma from <span class="pkg">scico</span>.
+</p>
+<p>Available CARTO palettes: ArmyRose, Earth, Fall, Geyser, TealRose, Temps, and
+Tropic (with Tropic also available in <code>diverging_hcl</code>).
+</p>
+<p>Available ColorBrewer.org palettes: PuOr, RdBu, RdGy, PiYG, PRGn, BrBG, RdYlBu,
+RdYlGn, Spectral.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector with (s)RGB codings of the colors in the palette.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="sequential_hcl.html">sequential_hcl</a></code>, <code><a href="diverging_hcl.html">diverging_hcl</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## show emulated CARTO/ColorBrewer.org palettes
+divergingx_palettes(plot = TRUE)
+
+## compared to diverging_hcl() the diverging CARTO palettes are typically warmer
+## but also less balanced with respect to chroma/luminance, see e.g.,
+specplot(divergingx_hcl(7, "ArmyRose"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

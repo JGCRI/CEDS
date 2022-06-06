@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get/set date component of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for date {lubridate}"><tr><td>date {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get/set date component of a date-time</h2>
+
+<h3>Description</h3>
+
+<p>Date-time must be a POSIXct, POSIXlt, Date, chron, yearmon, yearqtr, zoo,
+zooreg, timeDate, xts, its, ti, jul, timeSeries, and fts objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+date(x)
+
+date(x) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a date-time object</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>an object for which the <code>date()</code> function is defined</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>date()</code> does not yet support years before 0 C.E.
+Also <code>date()</code> is not defined for Period objects.
+</p>
+
+
+<h3>Value</h3>
+
+<p>the date of x as a Date
+</p>
+
+
+<h3>Base compatibility</h3>
+
+<p><code>date()</code> can be called without any arguments to return a string representing
+the current date-time. This provides compatiblity with <code>base:date()</code> which
+it overrides.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd_hms("2012-03-26 23:12:13", tz = "America/New_York")
+date(x)
+as.Date(x) # by default as.Date assumes you want to know the date in UTC
+as.Date(x, tz = "America/New_York")
+date(x) &lt;- as.Date("2000-01-02")
+x
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

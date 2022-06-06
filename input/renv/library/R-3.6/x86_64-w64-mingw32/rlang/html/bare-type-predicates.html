@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bare type predicates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bare-type-predicates {rlang}"><tr><td>bare-type-predicates {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bare type predicates</h2>
+
+<h3>Description</h3>
+
+<p>These predicates check for a given type but only return <code>TRUE</code> for
+bare R objects. Bare objects have no class attributes. For example,
+a data frame is a list, but not a bare list.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_bare_list(x, n = NULL)
+
+is_bare_atomic(x, n = NULL)
+
+is_bare_vector(x, n = NULL)
+
+is_bare_double(x, n = NULL)
+
+is_bare_complex(x, n = NULL)
+
+is_bare_integer(x, n = NULL)
+
+is_bare_numeric(x, n = NULL)
+
+is_bare_character(x, n = NULL)
+
+is_bare_logical(x, n = NULL)
+
+is_bare_raw(x, n = NULL)
+
+is_bare_string(x, n = NULL)
+
+is_bare_bytes(x, n = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to be tested.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Expected length of a vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+<ul>
+<li><p> The predicates for vectors include the <code>n</code> argument for
+pattern-matching on the vector length.
+</p>
+</li>
+<li><p> Like <code><a href="type-predicates.html">is_atomic()</a></code> and unlike base R <code>is.atomic()</code>,
+<code>is_bare_atomic()</code> does not return <code>TRUE</code> for <code>NULL</code>.
+</p>
+</li>
+<li><p> Unlike base R <code>is.numeric()</code>, <code>is_bare_double()</code> only returns
+<code>TRUE</code> for floating point numbers.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><a href="type-predicates.html">type-predicates</a>, <a href="scalar-type-predicates.html">scalar-type-predicates</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

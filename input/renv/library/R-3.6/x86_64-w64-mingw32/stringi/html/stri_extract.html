@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract Pattern Occurrences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_extract_all {stringi}"><tr><td>stri_extract_all {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract Pattern Occurrences</h2>
+
+<h3>Description</h3>
+
+<p>These functions extract all substrings matching a given pattern.
+</p>
+<p><code>stri_extract_all_*</code> extracts all the matches.
+<code>stri_extract_first_*</code> and <code>stri_extract_last_*</code>
+yield the first or the last matches, respectively.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_extract_all(str, ..., regex, fixed, coll, charclass)
+
+stri_extract_first(str, ..., regex, fixed, coll, charclass)
+
+stri_extract_last(str, ..., regex, fixed, coll, charclass)
+
+stri_extract(
+  str,
+  ...,
+  regex,
+  fixed,
+  coll,
+  charclass,
+  mode = c("first", "all", "last")
+)
+
+stri_extract_all_charclass(
+  str,
+  pattern,
+  merge = TRUE,
+  simplify = FALSE,
+  omit_no_match = FALSE
+)
+
+stri_extract_first_charclass(str, pattern)
+
+stri_extract_last_charclass(str, pattern)
+
+stri_extract_all_coll(
+  str,
+  pattern,
+  simplify = FALSE,
+  omit_no_match = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_extract_first_coll(str, pattern, ..., opts_collator = NULL)
+
+stri_extract_last_coll(str, pattern, ..., opts_collator = NULL)
+
+stri_extract_all_regex(
+  str,
+  pattern,
+  simplify = FALSE,
+  omit_no_match = FALSE,
+  ...,
+  opts_regex = NULL
+)
+
+stri_extract_first_regex(str, pattern, ..., opts_regex = NULL)
+
+stri_extract_last_regex(str, pattern, ..., opts_regex = NULL)
+
+stri_extract_all_fixed(
+  str,
+  pattern,
+  simplify = FALSE,
+  omit_no_match = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_extract_first_fixed(str, pattern, ..., opts_fixed = NULL)
+
+stri_extract_last_fixed(str, pattern, ..., opts_fixed = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>, <code>opts_regex</code>,
+and so on</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>single string;
+one of: <code>'first'</code> (the default), <code>'all'</code>, <code>'last'</code></p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex, fixed, coll, charclass</code></td>
+<td>
+<p>character vector;
+search patterns; for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>merge</code></td>
+<td>
+<p>single logical value; indicates whether consecutive pattern
+matches will be merged into one string;
+<code>stri_extract_all_charclass</code> only</p>
+</td></tr>
+<tr valign="top"><td><code>simplify</code></td>
+<td>
+<p>single logical value;
+if <code>TRUE</code> or <code>NA</code>, then a character matrix is returned;
+otherwise (the default), a list of character vectors is given, see Value;
+<code>stri_extract_all_*</code> only</p>
+</td></tr>
+<tr valign="top"><td><code>omit_no_match</code></td>
+<td>
+<p>single logical value; if <code>FALSE</code>,
+then a missing value will indicate that there was no match;
+<code>stri_extract_all_*</code> only</p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed, opts_regex</code></td>
+<td>
+<p>a named list to tune up
+the search engine's settings; see <code><a href="stri_opts_collator.html">stri_opts_collator</a></code>,
+<code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>, and <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>,
+respectively; <code>NULL</code> for the defaults</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and <code>pattern</code> (with recycling
+of the elements in the shorter vector if necessary). This allows to,
+for instance, search for one pattern in each given string,
+search for each pattern in one given string,
+and search for the i-th pattern within the i-th string.
+</p>
+<p>Check out <code><a href="stri_match.html">stri_match</a></code> for the extraction of matches
+to individual regex capture groups.
+</p>
+<p><code>stri_extract</code>, <code>stri_extract_all</code>, <code>stri_extract_first</code>,
+and <code>stri_extract_last</code> are convenience functions.
+They merely call <code>stri_extract_*_*</code>, depending on the arguments used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>stri_extract_all*</code>, if <code>simplify=FALSE</code> (the default), then
+a list of character vectors is returned. Each list element
+represents the results of a different search scenario.
+If a pattern is not found and <code>omit_no_match=FALSE</code>,
+then a character vector of length 1
+with single <code>NA</code> value will be generated.
+</p>
+<p>Otherwise, i.e., if <code>simplify</code> is not <code>FALSE</code>,
+then <code><a href="stri_list2matrix.html">stri_list2matrix</a></code> with <code>byrow=TRUE</code> argument
+is called on the resulting object.
+In such a case, the function yields a character matrix with an appropriate
+number of rows (according to the length of <code>str</code>, <code>pattern</code>, etc.).
+Note that <code><a href="stri_list2matrix.html">stri_list2matrix</a></code>'s <code>fill</code> argument is set
+either to an empty string or <code>NA</code>, depending on
+whether <code>simplify</code> is <code>TRUE</code> or <code>NA</code>, respectively.
+</p>
+<p><code>stri_extract_first*</code> and <code>stri_extract_last*</code>
+return a character vector. A <code>NA</code> element indicates a no-match.
+</p>
+<p>Note that <code>stri_extract_last_regex</code> searches from start to end,
+but skips overlapping matches, see the example below.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_extract: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_match.html">stri_match_all</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_extract_all('XaaaaX', regex=c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+stri_extract_all('Bartolini', coll='i')
+stri_extract_all('stringi is so good!', charclass='\\p{Zs}') # all white-spaces
+
+stri_extract_all_charclass(c('AbcdeFgHijK', 'abc', 'ABC'), '\\p{Ll}')
+stri_extract_all_charclass(c('AbcdeFgHijK', 'abc', 'ABC'), '\\p{Ll}', merge=FALSE)
+stri_extract_first_charclass('AaBbCc', '\\p{Ll}')
+stri_extract_last_charclass('AaBbCc', '\\p{Ll}')
+
+## Not run: 
+# emoji support available since ICU 57
+stri_extract_all_charclass(stri_enc_fromutf32(32:55200), '\\p{EMOJI}')
+
+## End(Not run)
+
+stri_extract_all_coll(c('AaaaaaaA', 'AAAA'), 'a')
+stri_extract_first_coll(c('Yy\u00FD', 'AAA'), 'y', strength=2, locale='sk_SK')
+stri_extract_last_coll(c('Yy\u00FD', 'AAA'), 'y',  strength=1, locale='sk_SK')
+
+stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+stri_extract_first_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+stri_extract_last_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+', '\\p{Ll}{2,3}', '\\p{Ll}{2,3}?'))
+
+stri_list2matrix(stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+')))
+stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+'), simplify=TRUE)
+stri_extract_all_regex('XaaaaX', c('\\p{Ll}', '\\p{Ll}+'), simplify=NA)
+
+stri_extract_all_fixed('abaBAba', 'Aba', case_insensitive=TRUE)
+stri_extract_all_fixed('abaBAba', 'Aba', case_insensitive=TRUE, overlap=TRUE)
+
+# Searching for the last occurrence:
+# Note the difference - regex searches left to right, with no overlaps.
+stri_extract_last_fixed("agAGA", "aga", case_insensitive=TRUE)
+stri_extract_last_regex("agAGA", "aga", case_insensitive=TRUE)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

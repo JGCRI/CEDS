@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Big number arithmetic</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bignum {openssl}"><tr><td>bignum {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Big number arithmetic</h2>
+
+<h3>Description</h3>
+
+<p>Basic operations for working with large integers. The <code>bignum</code>
+function converts a positive integer, string or raw vector into a bignum type.
+All basic <a href="../../base/html/Arithmetic.html">Arithmetic</a> and <a href="../../base/html/Comparison.html">Comparison</a> operators such as
+<code>+</code>, <code>-</code>, <code>*</code>, <code>^</code>, <code>%%</code>, <code>%/%</code>, <code>==</code>,
+<code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code> and <code>&gt;=</code> are implemented for
+bignum objects. The
+<a href="https://en.wikipedia.org/wiki/Modular_exponentiation">Modular exponent</a>
+(<code>a^b %% m</code>) can be calculated using <code><a href="bignum.html">bignum_mod_exp</a></code>
+when <code>b</code> is too large for calculating <code>a^b</code> directly.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bignum(x, hex = FALSE)
+
+bignum_mod_exp(a, b, m)
+
+bignum_mod_inv(a, m)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an integer, string (hex or dec) or raw vector</p>
+</td></tr>
+<tr valign="top"><td><code>hex</code></td>
+<td>
+<p>set to TRUE to parse strings as hex rather than decimal notation</p>
+</td></tr>
+<tr valign="top"><td><code>a</code></td>
+<td>
+<p>bignum value for <code>(a^b %% m)</code></p>
+</td></tr>
+<tr valign="top"><td><code>b</code></td>
+<td>
+<p>bignum value for <code>(a^b %% m)</code></p>
+</td></tr>
+<tr valign="top"><td><code>m</code></td>
+<td>
+<p>bignum value for <code>(a^b %% m)</code></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# create a bignum
+x &lt;- bignum(123L)
+y &lt;- bignum("123456789123456789")
+z &lt;- bignum("D41D8CD98F00B204E9800998ECF8427E", hex = TRUE)
+
+# Basic arithmetic
+div &lt;- z %/% y
+mod &lt;- z %% y
+z2 &lt;- div * y + mod
+stopifnot(z2 == z)
+stopifnot(div &lt; z)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

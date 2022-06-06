@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get path to vroom examples</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vroom_example {vroom}"><tr><td>vroom_example {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get path to vroom examples</h2>
+
+<h3>Description</h3>
+
+<p>vroom comes bundled with a number of sample files in
+its 'inst/extdata' directory. Use <code>vroom_examples()</code> to list all the
+available examples and <code>vroom_example()</code> to retrieve the path to one
+example.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vroom_example(path)
+
+vroom_examples(pattern = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Name of file.</p>
+</td></tr>
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>A regular expression of filenames to match. If <code>NULL</code> all
+available files are returned.
+listed.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# List all available examples
+vroom_examples()
+
+# Get path to one example
+vroom_example("mtcars.csv")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

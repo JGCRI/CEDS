@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract or modify the text</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_text {xml2}"><tr><td>xml_text {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract or modify the text</h2>
+
+<h3>Description</h3>
+
+<p><code>xml_text</code> returns a character vector, <code>xml_double</code> returns a
+numeric vector, <code>xml_integer</code> returns an integer vector.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_text(x, trim = FALSE)
+
+xml_text(x) &lt;- value
+
+xml_set_text(x, value)
+
+xml_double(x)
+
+xml_integer(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>trim</code></td>
+<td>
+<p>If <code>TRUE</code> will trim leading and trailing spaces.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>character vector with replacement text.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector, the same length as x.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- read_xml("&lt;p&gt;This is some text. This is &lt;b&gt;bold!&lt;/b&gt;&lt;/p&gt;")
+xml_text(x)
+xml_text(xml_children(x))
+
+x &lt;- read_xml("&lt;x&gt;This is some text. &lt;x&gt;This is some nested text.&lt;/x&gt;&lt;/x&gt;")
+xml_text(x)
+xml_text(xml_find_all(x, "//x"))
+
+x &lt;- read_xml("&lt;p&gt;   Some text    &lt;/p&gt;")
+xml_text(x, trim = TRUE)
+
+# xml_double() and xml_integer() are useful for extracting numeric
+attributes
+x &lt;- read_xml("&lt;plot&gt;&lt;point x='1' y='2' /&gt;&lt;point x='2' y='1' /&gt;&lt;/plot&gt;")
+xml_integer(xml_find_all(x, "//@x"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Flag a character vector as SQL identifiers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ident {dplyr}"><tr><td>ident {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Flag a character vector as SQL identifiers</h2>
+
+<h3>Description</h3>
+
+<p><code>ident()</code> takes unquoted strings and flags them as identifiers.
+<code>ident_q()</code> assumes its input has already been quoted, and ensures
+it does not get quoted again. This is currently used only for
+for <code>schema.table</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ident(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>A character vector, or name-value pairs</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Identifiers are escaped with "
+if (requireNamespace("dbplyr", quietly = TRUE)) {
+  ident("x")
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

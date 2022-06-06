@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count observations by group</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for count {dplyr}"><tr><td>count {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count observations by group</h2>
+
+<h3>Description</h3>
+
+<p><code>count()</code> lets you quickly count the unique values of one or more variables:
+<code>df %&gt;% count(a, b)</code> is roughly equivalent to
+<code>df %&gt;% group_by(a, b) %&gt;% summarise(n = n())</code>.
+<code>count()</code> is paired with <code>tally()</code>, a lower-level helper that is equivalent
+to <code>df %&gt;% summarise(n = n())</code>. Supply <code>wt</code> to perform weighted counts,
+switching the summary from <code>n = n()</code> to <code>n = sum(wt)</code>.
+</p>
+<p><code>add_count()</code> and <code>add_tally()</code> are equivalents to <code>count()</code> and <code>tally()</code>
+but use <code>mutate()</code> instead of <code>summarise()</code> so that they add a new column
+with group-wise counts.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+count(x, ..., wt = NULL, sort = FALSE, name = NULL)
+
+tally(x, wt = NULL, sort = FALSE, name = NULL)
+
+add_count(x, ..., wt = NULL, sort = FALSE, name = NULL, .drop = deprecated())
+
+add_tally(x, wt = NULL, sort = FALSE, name = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Variables to group by.</p>
+</td></tr>
+<tr valign="top"><td><code>wt</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Frequency weights.
+Can be <code>NULL</code> or a variable:
+</p>
+
+<ul>
+<li><p> If <code>NULL</code> (the default), counts the number of rows in each group.
+</p>
+</li>
+<li><p> If a variable, computes <code>sum(wt)</code> for each group.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>sort</code></td>
+<td>
+<p>If <code>TRUE</code>, will show the largest groups at the top.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name of the new column in the output.
+</p>
+<p>If omitted, it will default to <code>n</code>. If there's already a column called <code>n</code>,
+it will error, and require you to specify the name.</p>
+</td></tr>
+<tr valign="top"><td><code>.drop</code></td>
+<td>
+<p>For <code>count()</code>: if <code>FALSE</code> will include counts for empty groups
+(i.e. for levels of factors that don't exist in the data). Deprecated in
+<code>add_count()</code> since it didn't actually affect the output.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. <code>count()</code> and <code>add_count()</code>
+group transiently, so the output has the same groups as the input.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# count() is a convenient way to get a sense of the distribution of
+# values in a dataset
+starwars %&gt;% count(species)
+starwars %&gt;% count(species, sort = TRUE)
+starwars %&gt;% count(sex, gender, sort = TRUE)
+starwars %&gt;% count(birth_decade = round(birth_year, -1))
+
+# use the `wt` argument to perform a weighted count. This is useful
+# when the data has already been aggregated once
+df &lt;- tribble(
+  ~name,    ~gender,   ~runs,
+  "Max",    "male",       10,
+  "Sandra", "female",      1,
+  "Susan",  "female",      4
+)
+# counts rows:
+df %&gt;% count(gender)
+# counts runs:
+df %&gt;% count(gender, wt = runs)
+
+# tally() is a lower-level function that assumes you've done the grouping
+starwars %&gt;% tally()
+starwars %&gt;% group_by(species) %&gt;% tally()
+
+# both count() and tally() have add_ variants that work like
+# mutate() instead of summarise
+df %&gt;% add_count(gender, wt = runs)
+df %&gt;% add_tally(wt = runs)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

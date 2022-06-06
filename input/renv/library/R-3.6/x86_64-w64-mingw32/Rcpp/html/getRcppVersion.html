@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Export the Rcpp (API) Package Version</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getRcppVersion {Rcpp}"><tr><td>getRcppVersion {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Export the Rcpp (API) Package Version</h2>
+
+<h3>Description</h3>
+
+<p>Helper function to report the package version of the R installation.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getRcppVersion(devel = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>devel</code></td>
+<td>
+<p>An logical value indicating if the development or
+release version number should be returned, default is release.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>While <code>packageVersion(Rcpp)</code> exports the version registers in
+DESCRIPTION, this version does get incremented more easily
+during development and can therefore be higher than the released
+version.  The actual <code>#define</code> long used at the C++ level
+corresponds more to an &lsquo;API Version&rsquo; which is now provided
+by this function, and use for example in the package skeleton
+generator.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>package_version</code> object with either the release
+or development version.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Dirk Eddelbuettel
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../utils/html/packageDescription.html">packageVersion</a></code>,
+<code><a href="Rcpp.package.skeleton.html">Rcpp.package.skeleton</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+getRcppVersion()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Why are strings and other constants enquosed in the empty...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-embrace-constants {rlang}"><tr><td>topic-embrace-constants {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Why are strings and other constants enquosed in the empty environment?</h2>
+
+<h3>Description</h3>
+
+<p>Function arguments are <a href="topic-defuse.html">defused</a> into <a href="topic-quosure.html">quosures</a> that keep track of the environment of the defused expression.<div class="sourceCode r"></p>
+<pre>quo(1 + 1)
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^1 + 1
+#&gt; env:  global
+</pre></div>
+<p>You might have noticed that when constants are supplied, the quosure tracks the empty environment instead of the current environmnent.<div class="sourceCode r"></p>
+<pre>quos("foo", 1, NULL)
+#&gt; &lt;list_of&lt;quosure&gt;&gt;
+#&gt;
+#&gt; [[1]]
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^"foo"
+#&gt; env:  empty
+#&gt;
+#&gt; [[2]]
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^1
+#&gt; env:  empty
+#&gt;
+#&gt; [[3]]
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^NULL
+#&gt; env:  empty
+</pre></div>
+<p>The reason for this has to do with compilation of R code which makes it impossible to consistently capture environments of constants from function arguments. Argument defusing relies on the <em>promise</em> mechanism of R for lazy evaluation of arguments. When functions are compiled and R notices that an argument is constant, it avoids creating a promise since they slow down function evaluation. Instead, the function is directly supplied a naked constant instead of constant wrapped in a promise.
+</p>
+
+
+<h3>Concrete case of promise unwrapping by compilation</h3>
+
+<p>We can observe this optimisation by calling into the C-level <code>findVar()</code> function to capture promises.<div class="sourceCode r"></p>
+<pre># Return the object bound to `arg` without triggering evaluation of
+# promises
+f &lt;- function(arg) {
+  rlang:::find_var(current_env(), sym("arg"))
+}
+
+# Call `f()` with a symbol or with a constant
+g &lt;- function(symbolic) {
+  if (symbolic) {
+    f(letters)
+  } else {
+    f("foo")
+  }
+}
+
+# Make sure these small functions are compiled
+f &lt;- compiler::cmpfun(f)
+g &lt;- compiler::cmpfun(g)
+</pre></div>
+<p>When <code>f()</code> is called with a symbolic argument, we get the promise object created by R.<div class="sourceCode r"></p>
+<pre>g(symbolic = TRUE)
+#&gt; &lt;promise: 0x7ffd79bac130&gt;
+</pre></div>
+<p>However, supplying a constant to <code>"f"</code> returns the constant directly.<div class="sourceCode r"></p>
+<pre>g(symbolic = FALSE)
+#&gt; [1] "foo"
+</pre></div>
+<p>Without a promise, there is no way to figure out the original environment of an argument.
+</p>
+
+
+<h3>Do we need environments for constants?</h3>
+
+<p>Data-masking APIs in the tidyverse are intentionally designed so that they don't need an environment for constants.
+</p>
+
+<ul>
+<li><p> Data-masking APIs should be able to interpret constants. These can arise from normal argument passing as we have seen, or by <a href="topic-inject.html">injection</a> with <code style="white-space: pre;">!!</code>. There should be no difference between <code>dplyr::mutate(mtcars, var = cyl)</code> and <code>dplyr::mutate(mtcars, var = !!mtcars$cyl)</code>.
+</p>
+</li>
+<li><p> Data-masking is an <em>evaluation</em> idiom, not an <em>introspective</em> one. The behaviour of data-masking function should not depend on the calling environment when a constant (or a symbol evaluating to a given value) is supplied.
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

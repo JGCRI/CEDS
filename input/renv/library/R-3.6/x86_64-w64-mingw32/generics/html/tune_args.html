@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine arguments tagged for tuning</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tune_args {generics}"><tr><td>tune_args {generics}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine arguments tagged for tuning</h2>
+
+<h3>Description</h3>
+
+<p><code>tune_args()</code> takes an object such as a model specification or a recipe and
+returns a tibble of information on all possible tunable arguments and
+whether or not they are actually tunable.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tune_args(object, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <code>model_spec</code>, <code>recipe</code>, <code>workflow</code>, or other object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>source</code> column is determined differently for a
+<code>model_spec</code> or a <code>recipe</code> (with additional detail on the type).
+</p>
+<p>The <code>id</code> field has any identifier that was passed from <code><a href="../../tune/html/tune.html">tune::tune()</a></code> (e.g.
+<code>tune("some note")</code>). If no additional detail was used in that function,
+the <code>id</code> field reverts to the name of the parameters.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A tibble with columns for the parameter name (<code>name</code>), whether it
+contains <em>any</em> tunable value (<code>tune</code>), the <code>id</code> for the parameter (<code>id</code>),
+and the information on where the parameter was located (<code>source</code>).
+</p>
+
+
+<h3>Methods</h3>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>generics</em> version 0.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

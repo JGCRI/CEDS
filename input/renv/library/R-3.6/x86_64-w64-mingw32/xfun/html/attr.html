@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Obtain an attribute of an object without partial matching</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for attr {xfun}"><tr><td>attr {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Obtain an attribute of an object without partial matching</h2>
+
+<h3>Description</h3>
+
+<p>An abbreviation of <code>base::<a href="../../base/html/attr.html">attr</a>(exact = TRUE)</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+attr(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed to <code>base::<a href="../../base/html/attr.html">attr</a>()</code> (without the
+<code>exact</code> argument).</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+z = structure(list(a = 1), foo = 2)
+base::attr(z, "f")  # 2
+xfun::attr(z, "f")  # NULL
+xfun::attr(z, "foo")  # 2
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

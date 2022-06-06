@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find External Resource References</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for find_external_resources {rmarkdown}"><tr><td>find_external_resources {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find External Resource References</h2>
+
+<h3>Description</h3>
+
+<p>Given an R Markdown document or HTML file, attempt to determine the set of
+additional files needed in order to render and display the document.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+find_external_resources(input_file, encoding = "UTF-8")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input_file</code></td>
+<td>
+<p>path to the R Markdown document or HTML file to process</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>Ignored. The encoding is always assumed to be UTF-8.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This routine applies heuristics in order to scan a document for
+possible resource references.
+</p>
+<p>In R Markdown documents, it looks for references to files implicitly
+referenced in Markdown (e.g. <code>![alt](img.png)</code>), in the document's
+YAML header, in raw HTML chunks, and as quoted strings in R code chunks
+(e.g. <code>read.csv("data.csv")</code>).
+</p>
+<p>Resources specified explicitly in the YAML header for R Markdown
+documents are also returned. To specify resources in YAML, use the
+<code>resource_files</code> key:
+</p>
+<pre>---
+title: My Document
+author: My Name
+resource_files:
+  - data/mydata.csv
+  - images/figure.png
+---</pre>
+<p>Each item in the <code>resource_files</code> list can refer to:
+</p>
+
+<ol>
+<li><p> A single file, such as <code>images/figure.png</code>, or
+</p>
+</li>
+<li><p> A directory, such as <code>resources/data</code>, in which case all of the
+directory's content will be recursively included, or
+</p>
+</li>
+<li><p> A wildcard pattern, such as <code>data/*.csv</code>, in which case all of
+the files matching the pattern will be included. No recursion is done in
+this case.
+</p>
+</li></ol>
+
+<p>In HTML files (and raw HTML chunks in R Markdown documents), this routine
+searches for resources specified in common tag attributes, such as
+<code>&lt;img src="..."&gt;</code>, <code>&lt;link href="..."&gt;</code>, etc.
+</p>
+<p>In all cases, only resources that exist on disk and are contained in the
+document's directory (or a child thereof) are returned.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A data frame with the following columns:
+</p>
+
+<dl>
+<dt>path</dt><dd><p>The relative path from the document to the resource</p>
+</dd>
+<dt>explicit</dt><dd><p>Whether the resource was specified explicitly
+(<code>TRUE</code>) or discovered implicitly (<code>FALSE</code>)</p>
+</dd>
+<dt>web</dt><dd><p>Whether the resource is needed to display a Web page rendered
+from the document</p>
+</dd>
+</dl>
+
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Signal an error, warning, or message</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for abort {rlang}"><tr><td>abort {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Signal an error, warning, or message</h2>
+
+<h3>Description</h3>
+
+<p>These functions are equivalent to base functions <code><a href="../../base/html/stop.html">base::stop()</a></code>,
+<code><a href="../../base/html/warning.html">base::warning()</a></code>, and <code><a href="../../base/html/message.html">base::message()</a></code>. They signal a condition
+(an error, warning, or message respectively) and make it easy to
+supply condition metadata:
+</p>
+
+<ul>
+<li><p> Supply <code>class</code> to create a classed condition that can be caught
+or handled selectively, allowing for finer-grained error
+handling.
+</p>
+</li>
+<li><p> Supply metadata with named <code>...</code> arguments. This data is stored
+in the condition object and can be examined by handlers.
+</p>
+</li>
+<li><p> Supply <code>call</code> to inform users about which function the error
+occurred in.
+</p>
+</li>
+<li><p> Supply another condition as <code>parent</code> to create a chained
+condition.
+</p>
+</li></ul>
+
+<p>Certain components of condition messages are formatted with unicode
+symbols and terminal colours by default. These aspects can be
+customised, see <a href="topic-condition-customisation.html">Customising condition messages</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+abort(
+  message = NULL,
+  class = NULL,
+  ...,
+  call,
+  body = NULL,
+  footer = NULL,
+  trace = NULL,
+  parent = NULL,
+  use_cli_format = NULL,
+  .internal = FALSE,
+  .file = NULL,
+  .frame = NULL,
+  .subclass = deprecated()
+)
+
+warn(
+  message = NULL,
+  class = NULL,
+  ...,
+  body = NULL,
+  footer = NULL,
+  use_cli_format = NULL,
+  .frequency = c("always", "regularly", "once"),
+  .frequency_id = NULL,
+  .subclass = deprecated()
+)
+
+inform(
+  message = NULL,
+  class = NULL,
+  ...,
+  body = NULL,
+  footer = NULL,
+  use_cli_format = NULL,
+  .file = NULL,
+  .frequency = c("always", "regularly", "once"),
+  .frequency_id = NULL,
+  .subclass = deprecated()
+)
+
+signal(message, class, ..., .subclass = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>The message to display, formatted as a <strong>bulleted
+list</strong>. The first element is displayed as an <em>alert</em> bullet
+prefixed with <code>!</code> by default. Elements named <code>"*"</code>, <code>"i"</code>, and
+<code>"x"</code> are formatted as regular, info, and cross bullets
+respectively. Se<a href="topic-condition-formatting.html">Formatting condition messages</a>)' for more
+about bulleted messaging.
+</p>
+<p>If a message is not supplied, it is expected that the message is
+generated <strong>lazily</strong> through <code><a href="cnd_message.html">cnd_header()</a></code> and <code><a href="cnd_message.html">cnd_body()</a></code>
+methods. In that case, <code>class</code> must be supplied. Only <code>inform()</code>
+allows empty messages as it is occasionally useful to build user
+output incrementally.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>Subclass of the condition.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional data to be stored in the condition object.
+If you supply condition fields, you should usually provide a
+<code>class</code> argument. You may consider prefixing condition fields
+with the name of your package or organisation to prevent name
+collisions.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently running
+function, e.g. <code>call = caller_env()</code>. The corresponding function
+call is retrieved and mentioned in error messages as the source
+of the error.
+</p>
+<p>You only need to supply <code>call</code> when throwing a condition from a
+helper function which wouldn't be relevant to mention in the
+message.
+</p>
+<p>Can also be <code>NULL</code> or a <a href="topic-defuse.html">defused function call</a> to
+respectively not display any call or hard-code a code to display.</p>
+</td></tr>
+<tr valign="top"><td><code>body, footer</code></td>
+<td>
+<p>Additional bullets.</p>
+</td></tr>
+<tr valign="top"><td><code>trace</code></td>
+<td>
+<p>A <code>trace</code> object created by <code><a href="trace_back.html">trace_back()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>parent</code></td>
+<td>
+<p>Supply <code>parent</code> when you rethrow an error from a
+condition handler (e.g. with <code><a href="try_fetch.html">try_fetch()</a></code>).
+</p>
+
+<ul>
+<li><p> If <code>parent</code> is a condition object, a <em>chained error</em> is
+created, which is useful when you want to enhance an error with
+more details, while still retaining the original information.
+</p>
+</li>
+<li><p> If <code>parent</code> is <code>NA</code>, it indicates an unchained rethrow, which
+is useful when you want to take ownership over an error and
+rethrow it with a custom message that better fits the
+surrounding context.
+</p>
+<p>Technically, supplying <code>NA</code> lets <code>abort()</code> know it is called
+from a condition handler. This helps it create simpler
+backtraces where the condition handling context is hidden by
+default.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>use_cli_format</code></td>
+<td>
+<p>Whether to format <code>message</code> lazily using
+<a href="https://cli.r-lib.org/">cli</a> if available. This results in
+prettier and more accurate formatting of messages. See
+<code><a href="local_use_cli.html">local_use_cli()</a></code> to set this condition field by default in your
+package namespace.
+</p>
+<p>If set to <code>TRUE</code>, <code>message</code> should be a character vector of
+individual and unformatted lines. Any newline character <code>"\\n"</code>
+already present in <code>message</code> is reformatted by cli's paragraph
+formatter. See <a href="topic-condition-formatting.html">Formatting condition messages</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.internal</code></td>
+<td>
+<p>If <code>TRUE</code>, a footer bullet is added to <code>message</code>
+to let the user know that the error is internal and that they
+should report it to the package authors. This argument is
+incompatible with <code>footer</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.file</code></td>
+<td>
+<p>A connection or a string specifying where to print the
+message. The default depends on the context, see the <code>stdout</code> vs
+<code>stderr</code> section.</p>
+</td></tr>
+<tr valign="top"><td><code>.frame</code></td>
+<td>
+<p>The throwing context. Defaults to <code>call</code> if it is an
+environment, <code><a href="stack.html">caller_env()</a></code> otherwise. This is used in the
+display of simplified backtraces as the last relevant call frame
+to show. This way, the irrelevant parts of backtraces
+corresponding to condition handling (<code><a href="../../base/html/conditions.html">tryCatch()</a></code>, <code><a href="try_fetch.html">try_fetch()</a></code>,
+<code>abort()</code>, etc.) are hidden by default.</p>
+</td></tr>
+<tr valign="top"><td><code>.subclass</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This argument
+was renamed to <code>class</code> in rlang 0.4.2 for consistency with our
+conventions for class constructors documented in
+<a href="https://adv-r.hadley.nz/s3.html#s3-subclassing">https://adv-r.hadley.nz/s3.html#s3-subclassing</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.frequency</code></td>
+<td>
+<p>How frequently should the warning or message be
+displayed? By default (<code>"always"</code>) it is displayed at each
+time. If <code>"regularly"</code>, it is displayed once every 8 hours. If
+<code>"once"</code>, it is displayed once per session.</p>
+</td></tr>
+<tr valign="top"><td><code>.frequency_id</code></td>
+<td>
+<p>A unique identifier for the warning or
+message. This is used when <code>.frequency</code> is supplied to recognise
+recurring conditions. This argument must be supplied if
+<code>.frequency</code> is not set to <code>"always"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+<ul>
+<li> <p><code>abort()</code> throws subclassed errors, see
+<code><a href="rlang_error.html">&quot;rlang_error&quot;</a></code>.
+</p>
+</li>
+<li> <p><code>warn()</code> temporarily set the <code>warning.length</code> global option to
+the maximum value (8170), unless that option has been changed
+from the default value. The default limit (1000 characters) is
+especially easy to hit when the message contains a lot of ANSI
+escapes, as created by the crayon or cli packages
+</p>
+</li></ul>
+
+
+
+<h3>Error prefix</h3>
+
+<p>As with <code><a href="../../base/html/stop.html">base::stop()</a></code>, errors thrown with <code>abort()</code> are prefixed
+with <code>"Error: "</code>. Calls and source references are included in the
+prefix, e.g. <code style="white-space: pre;">"Error in </code>my_function()<code style="white-space: pre;"> at myfile.R:1:2:"</code>. There
+are a few cosmetic differences:
+</p>
+
+<ul>
+<li><p> The call is stripped from its arguments to keep it simple. It is
+then formatted using the <a href="https://cli.r-lib.org/">cli package</a> if
+available.
+</p>
+</li>
+<li><p> A line break between the prefix and the message when the former
+is too long. When a source location is included, a line break is
+always inserted.
+</p>
+</li></ul>
+
+<p>If your throwing code is highly structured, you may have to
+explicitly inform <code>abort()</code> about the relevant user-facing call to
+include in the prefix. Internal helpers are rarely relevant to end
+users. See the <code>call</code> argument of <code>abort()</code>.
+</p>
+
+
+<h3>Backtrace</h3>
+
+<p><code>abort()</code> saves a backtrace in the <code>trace</code> component of the error
+condition. You can print a simplified backtrace of the last error
+by calling <code><a href="last_error.html">last_error()</a></code> and a full backtrace with
+<code>summary(last_error())</code>. Learn how to control what is displayed
+when an error is thrown with <code><a href="rlang_backtrace_on_error.html">rlang_backtrace_on_error</a></code>.
+</p>
+
+
+<h3>Muffling and silencing conditions</h3>
+
+<p>Signalling a condition with <code>inform()</code> or <code>warn()</code> displays a
+message in the console. These messages can be muffled as usual with
+<code><a href="../../base/html/message.html">base::suppressMessages()</a></code> or <code><a href="../../base/html/warning.html">base::suppressWarnings()</a></code>.
+</p>
+<p><code>inform()</code> and <code>warn()</code> messages can also be silenced with the
+global options <code>rlib_message_verbosity</code> and
+<code>rlib_warning_verbosity</code>. These options take the values:
+</p>
+
+<ul>
+<li> <p><code>"default"</code>: Verbose unless the <code>.frequency</code> argument is supplied.
+</p>
+</li>
+<li> <p><code>"verbose"</code>: Always verbose.
+</p>
+</li>
+<li> <p><code>"quiet"</code>: Always quiet.
+</p>
+</li></ul>
+
+<p>When set to quiet, the message is not displayed and the condition
+is not signalled.
+</p>
+
+
+<h3><code>stdout</code> and <code>stderr</code></h3>
+
+<p>By default, <code>abort()</code> and <code>inform()</code> print to standard output in
+interactive sessions. This allows rlang to be in control of the
+appearance of messages in IDEs like RStudio.
+</p>
+<p>There are two situations where messages are streamed to <code>stderr</code>:
+</p>
+
+<ul>
+<li><p> In non-interactive sessions, messages are streamed to standard
+error so that R scripts can easily filter them out from normal
+output by redirecting <code>stderr</code>.
+</p>
+</li>
+<li><p> If a sink is active (either on output or on messages) messages
+are always streamd to <code>stderr</code>.
+</p>
+</li></ul>
+
+<p>These exceptions ensure consistency of behaviour in interactive and
+non-interactive sessions, and when sinks are active.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# These examples are guarded to avoid throwing errors
+if (FALSE) {
+
+# Signal an error with a message just like stop():
+abort("The error message.")
+
+
+# Unhandled errors are saved automatically by `abort()` and can be
+# retrieved with `last_error()`. The error prints with a simplified
+# backtrace:
+f &lt;- function() try(g())
+g &lt;- function() evalq(h())
+h &lt;- function() abort("Tilt.")
+last_error()
+
+# Use `summary()` to print the full backtrace and the condition fields:
+summary(last_error())
+
+
+# Give a class to the error:
+abort("The error message", "mypkg_bad_error")
+
+# This allows callers to handle the error selectively
+tryCatch(
+  mypkg_function(),
+  mypkg_bad_error = function(err) {
+    warn(conditionMessage(err)) # Demote the error to a warning
+    NA                          # Return an alternative value
+  }
+)
+
+# You can also specify metadata that will be stored in the condition:
+abort("The error message.", "mypkg_bad_error", data = 1:10)
+
+# This data can then be consulted by user handlers:
+tryCatch(
+  mypkg_function(),
+  mypkg_bad_error = function(err) {
+    # Compute an alternative return value with the data:
+    recover_error(err$data)
+  }
+)
+
+
+# If you call low-level APIs it may be a good idea to create a
+# chained error with the low-level error wrapped in a more
+# user-friendly error. Use `try_fetch()` to fetch errors of a given
+# class and rethrow them with the `parent` argument of `abort()`:
+file &lt;- "http://foo.bar/baz"
+try(
+  try_fetch(
+    download(file),
+    error = function(err) {
+      msg &lt;- sprintf("Can't download `%s`", file)
+      abort(msg, parent = err)
+  })
+)
+
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

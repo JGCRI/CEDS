@@ -1,0 +1,40 @@
+Package: fs
+Title: Cross-Platform File System Operations Based on 'libuv'
+Version: 1.5.2
+Authors@R: c(
+    person("Jim", "Hester", role = "aut"),
+    person("Hadley", "Wickham", , "hadley@rstudio.com", "aut"),
+    person("Gábor", "Csárdi", , "csardi.gabor@gmail.com", role = c("aut", "cre")),
+    person("libuv project contributors", role = "cph", comment = "libuv library"),
+    person("Joyent, Inc. and other Node contributors", role = "cph", comment = "libuv library"),
+    person("RStudio", role = c("cph", "fnd"))
+    )
+Description: A cross-platform interface to file system operations, built on
+  top of the 'libuv' C library.
+Depends: R (>= 3.1)
+License: MIT + file LICENSE
+Encoding: UTF-8
+ByteCompile: true
+Imports: methods
+SystemRequirements: GNU make
+RoxygenNote: 7.1.2
+URL: https://fs.r-lib.org, https://github.com/r-lib/fs
+BugReports: https://github.com/r-lib/fs/issues
+Copyright: file COPYRIGHTS
+Suggests: testthat, covr, pillar (>= 1.0.0), tibble (>= 1.1.0), crayon,
+        rmarkdown, knitr, withr, spelling, vctrs (>= 0.3.0)
+VignetteBuilder: knitr
+Language: en-US
+NeedsCompilation: yes
+Packaged: 2021-12-08 16:14:56 UTC; gaborcsardi
+Author: Jim Hester [aut],
+  Hadley Wickham [aut],
+  Gábor Csárdi [aut, cre],
+  libuv project contributors [cph] (libuv library),
+  Joyent, Inc. and other Node contributors [cph] (libuv library),
+  RStudio [cph, fnd]
+Maintainer: Gábor Csárdi <csardi.gabor@gmail.com>
+Repository: CRAN
+Date/Publication: 2021-12-08 23:00:08 UTC
+Built: R 3.6.3; x86_64-w64-mingw32; 2022-01-20 14:08:59 UTC; windows
+Archs: x64

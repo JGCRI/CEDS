@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get connection arguments</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbGetConnectArgs {DBI}"><tr><td>dbGetConnectArgs {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get connection arguments</h2>
+
+<h3>Description</h3>
+
+<p>Returns the arguments stored in a <a href="DBIConnector-class.html">DBIConnector</a> object for inspection,
+optionally evaluating them.
+This function is called by <code><a href="dbConnect.html">dbConnect()</a></code>
+and usually does not need to be called directly.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbGetConnectArgs(drv, eval = TRUE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>drv</code></td>
+<td>
+<p>A object inheriting from <a href="DBIConnector-class.html">DBIConnector</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>eval</code></td>
+<td>
+<p>Set to <code>FALSE</code> to return the functions that generate the argument
+instead of evaluating them.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods. Not otherwise used.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIConnector generics: 
+<code><a href="DBIConnector-class.html">DBIConnector-class</a></code>,
+<code><a href="dbConnect.html">dbConnect</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+cnr &lt;- new("DBIConnector",
+  .drv = RSQLite::SQLite(),
+  .conn_args = list(dbname = ":memory:", password = function() "supersecret")
+)
+dbGetConnectArgs(cnr)
+dbGetConnectArgs(cnr, eval = FALSE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Names and numbers of symbols bound in an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_names {rlang}"><tr><td>env_names {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Names and numbers of symbols bound in an environment</h2>
+
+<h3>Description</h3>
+
+<p><code>env_names()</code> returns object names from an enviroment <code>env</code> as a
+character vector. All names are returned, even those starting with
+a dot. <code>env_length()</code> returns the number of bindings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_names(env)
+
+env_length(env)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of object names.
+</p>
+
+
+<h3>Names of symbols and objects</h3>
+
+<p>Technically, objects are bound to symbols rather than strings,
+since the R interpreter evaluates symbols (see <code><a href="is_expression.html">is_expression()</a></code> for a
+discussion of symbolic objects versus literal objects). However it
+is often more convenient to work with strings. In rlang
+terminology, the string corresponding to a symbol is called the
+<em>name</em> of the symbol (or by extension the name of an object bound
+to a symbol).
+</p>
+
+
+<h3>Encoding</h3>
+
+<p>There are deep encoding issues when you convert a string to symbol
+and vice versa. Symbols are <em>always</em> in the native encoding. If
+that encoding (let's say latin1) cannot support some characters,
+these characters are serialised to ASCII. That's why you sometimes
+see strings looking like <code style="white-space: pre;">&lt;U+1234&gt;</code>, especially if you're running
+Windows (as R doesn't support UTF-8 as native encoding on that
+platform).
+</p>
+<p>To alleviate some of the encoding pain, <code>env_names()</code> always
+returns a UTF-8 character vector (which is fine even on Windows)
+with ASCII unicode points translated back to UTF-8.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+env &lt;- env(a = 1, b = 2)
+env_names(env)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

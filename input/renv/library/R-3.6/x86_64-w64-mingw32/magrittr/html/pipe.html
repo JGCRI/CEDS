@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Pipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %&amp;gt;% {magrittr}"><tr><td>%&gt;% {magrittr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Pipe</h2>
+
+<h3>Description</h3>
+
+<p>Pipe an object forward into a function or call expression.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lhs %&gt;% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>A value or the magrittr placeholder.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>A function call using the magrittr semantics.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Using <code style="white-space: pre;">%&gt;%</code> with unary function calls</h4>
+
+<p>When functions require only one argument, <code>x %&gt;% f</code> is equivalent
+to <code>f(x)</code> (not exactly equivalent; see technical note below.)
+</p>
+
+
+
+<h4>Placing <code>lhs</code> as the first argument in <code>rhs</code> call</h4>
+
+<p>The default behavior of <code style="white-space: pre;">%&gt;%</code> when multiple arguments are required
+in the <code>rhs</code> call, is to place <code>lhs</code> as the first argument, i.e.
+<code>x %&gt;% f(y)</code> is equivalent to <code>f(x, y)</code>.
+</p>
+
+
+
+<h4>Placing <code>lhs</code> elsewhere in <code>rhs</code> call</h4>
+
+<p>Often you will want <code>lhs</code> to the <code>rhs</code> call at another position than the first.
+For this purpose you can use the dot (<code>.</code>) as placeholder. For example,
+<code>y %&gt;% f(x, .)</code> is equivalent to <code>f(x, y)</code> and
+<code>z %&gt;% f(x, y, arg = .)</code> is equivalent to <code>f(x, y, arg = z)</code>.
+</p>
+
+
+
+<h4>Using the dot for secondary purposes</h4>
+
+<p>Often, some attribute or property of <code>lhs</code> is desired in the <code>rhs</code> call in
+addition to the value of <code>lhs</code> itself, e.g. the number of rows or columns.
+It is perfectly valid to use the dot placeholder several times in the <code>rhs</code>
+call, but by design the behavior is slightly different when using it inside
+nested function calls. In particular, if the placeholder is only used
+in a nested function call, <code>lhs</code> will also be placed as the first argument!
+The reason for this is that in most use-cases this produces the most readable
+code. For example, <code>iris %&gt;% subset(1:nrow(.) %% 2 == 0)</code> is
+equivalent to <code>iris %&gt;% subset(., 1:nrow(.) %% 2 == 0)</code> but
+slightly more compact. It is possible to overrule this behavior by enclosing
+the <code>rhs</code> in braces. For example, <code>1:10 %&gt;% {c(min(.), max(.))}</code> is
+equivalent to <code>c(min(1:10), max(1:10))</code>.
+</p>
+
+
+
+<h4>Using <code style="white-space: pre;">%&gt;%</code> with call- or function-producing <code>rhs</code></h4>
+
+<p>It is possible to force evaluation of <code>rhs</code> before the piping of <code>lhs</code> takes
+place. This is useful when <code>rhs</code> produces the relevant call or function.
+To evaluate <code>rhs</code> first, enclose it in parentheses, i.e.
+<code>a %&gt;% (function(x) x^2)</code>, and <code>1:10 %&gt;% (call("sum"))</code>.
+Another example where this is relevant is for reference class methods
+which are accessed using the <code>$</code> operator, where one would do
+<code>x %&gt;% (rc$f)</code>, and not <code>x %&gt;% rc$f</code>.
+</p>
+
+
+
+<h4>Using lambda expressions with <code style="white-space: pre;">%&gt;%</code></h4>
+
+<p>Each <code>rhs</code> is essentially a one-expression body of a unary function.
+Therefore defining lambdas in magrittr is very natural, and as
+the definitions of regular functions: if more than a single expression
+is needed one encloses the body in a pair of braces, <code>{ rhs }</code>.
+However, note that within braces there are no &quot;first-argument rule&quot;:
+it will be exactly like writing a unary function where the argument name is
+&quot;<code>.</code>&quot; (the dot).
+</p>
+
+
+
+<h4>Using the dot-place holder as <code>lhs</code></h4>
+
+<p>When the dot is used as <code>lhs</code>, the result will be a functional sequence,
+i.e. a function which applies the entire chain of right-hand sides in turn
+to its input. See the examples.
+</p>
+
+
+
+<h3>Technical notes</h3>
+
+<p>The magrittr pipe operators use non-standard evaluation. They capture
+their inputs and examines them to figure out how to proceed. First a function
+is produced from all of the individual right-hand side expressions, and
+then the result is obtained by applying this function to the left-hand side.
+For most purposes, one can disregard the subtle aspects of magrittr's
+evaluation, but some functions may capture their calling environment,
+and thus using the operators will not be exactly equivalent to the
+&quot;standard call&quot; without pipe-operators.
+</p>
+<p>Another note is that special attention is advised when using non-magrittr
+operators in a pipe-chain (<code style="white-space: pre;">+, -, $,</code> etc.), as operator precedence will impact how the
+chain is evaluated. In general it is advised to use the aliases provided
+by magrittr.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="compound.html">%&lt;&gt;%</a></code>, <code><a href="tee.html">%T&gt;%</a></code>, <code><a href="exposition.html">%$%</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Basic use:
+iris %&gt;% head
+
+# Use with lhs as first argument
+iris %&gt;% head(10)
+
+# Using the dot place-holder
+"Ceci n'est pas une pipe" %&gt;% gsub("une", "un", .)
+  
+# When dot is nested, lhs is still placed first:
+sample(1:10) %&gt;% paste0(LETTERS[.])
+
+# This can be avoided:
+rnorm(100) %&gt;% {c(min(.), mean(.), max(.))} %&gt;% floor
+
+# Lambda expressions: 
+iris %&gt;%
+{
+  size &lt;- sample(1:10, size = 1)
+  rbind(head(., size), tail(., size))
+}
+
+# renaming in lambdas:
+iris %&gt;%
+{
+  my_data &lt;- .
+  size &lt;- sample(1:10, size = 1)
+  rbind(head(my_data, size), tail(my_data, size))
+}
+
+# Building unary functions with %&gt;%
+trig_fest &lt;- . %&gt;% tan %&gt;% cos %&gt;% sin
+
+1:10 %&gt;% trig_fest
+trig_fest(1:10)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>magrittr</em> version 2.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

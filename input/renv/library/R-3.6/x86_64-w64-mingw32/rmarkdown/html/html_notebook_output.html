@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate R Notebook Output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_notebook_output {rmarkdown}"><tr><td>html_notebook_output {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate R Notebook Output</h2>
+
+<h3>Description</h3>
+
+<p>Utilities for generating output for the <code>html_notebook</code> format,
+through the <code>output_source</code> function attached to a
+<code><a href="output_format.html">output_format</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_notebook_output_html(html, meta = NULL)
+
+html_notebook_output_img(
+  path = NULL,
+  bytes = NULL,
+  attributes = NULL,
+  meta = NULL,
+  format = c("png", "jpeg")
+)
+
+html_notebook_output_png(
+  path = NULL,
+  bytes = NULL,
+  attributes = NULL,
+  meta = NULL,
+  format = c("png", "jpeg")
+)
+
+html_notebook_output_code(code, attributes = list(class = "r"), meta = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>html</code></td>
+<td>
+<p>Arbitrary HTML content to insert.</p>
+</td></tr>
+<tr valign="top"><td><code>meta</code></td>
+<td>
+<p>An <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> list of arbitrary meta-data. The data will
+be converted to JSON, base64-encoded, and injected into the header comment.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A path to a file. For functions accepting both <code>path</code>
+and <code>bytes</code>, if <code>bytes</code> is <code>NULL</code>, the bytewise contents
+will be obtained by reading the file.</p>
+</td></tr>
+<tr valign="top"><td><code>bytes</code></td>
+<td>
+<p>The bytewise representation of content.</p>
+</td></tr>
+<tr valign="top"><td><code>attributes</code></td>
+<td>
+<p>A named <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> list of HTML attributes. These will be
+escaped and inserted into the generated HTML as appropriate.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>The image format; one of <code>"png"</code> or <code>"jpeg"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Source code.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>See the <a href="https://rmarkdown.rstudio.com/r_notebook_format.html">online
+documentation</a> for additional details on using the <code>html_notebook</code>
+format.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

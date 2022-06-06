@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Dodge overlapping objects side-to-side</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for position_dodge {ggplot2}"><tr><td>position_dodge {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Dodge overlapping objects side-to-side</h2>
+
+<h3>Description</h3>
+
+<p>Dodging preserves the vertical position of an geom while adjusting the
+horizontal position. <code>position_dodge()</code> requires the grouping variable to be
+be specified in the global or <code style="white-space: pre;">geom_*</code> layer. Unlike <code>position_dodge()</code>,
+<code>position_dodge2()</code> works without a grouping variable in a layer.
+<code>position_dodge2()</code> works with bars and rectangles, but is
+particulary useful for arranging box plots, which
+can have variable widths.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+position_dodge(width = NULL, preserve = c("total", "single"))
+
+position_dodge2(
+  width = NULL,
+  preserve = c("total", "single"),
+  padding = 0.1,
+  reverse = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Dodging width, when different to the width of the individual
+elements. This is useful when you want to align narrow geoms with wider
+geoms. See the examples.</p>
+</td></tr>
+<tr valign="top"><td><code>preserve</code></td>
+<td>
+<p>Should dodging preserve the total width of all elements
+at a position, or the width of a single element?</p>
+</td></tr>
+<tr valign="top"><td><code>padding</code></td>
+<td>
+<p>Padding between elements at the same position. Elements are
+shrunk by this proportion to allow space between them. Defaults to 0.1.</p>
+</td></tr>
+<tr valign="top"><td><code>reverse</code></td>
+<td>
+<p>If <code>TRUE</code>, will reverse the default stacking order.
+This is useful if you're rotating both the plot and legend.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other position adjustments: 
+<code><a href="position_identity.html">position_identity</a>()</code>,
+<code><a href="position_jitterdodge.html">position_jitterdodge</a>()</code>,
+<code><a href="position_jitter.html">position_jitter</a>()</code>,
+<code><a href="position_nudge.html">position_nudge</a>()</code>,
+<code><a href="position_stack.html">position_stack</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
+  geom_bar(position = "dodge2")
+
+# By default, dodging with `position_dodge2()` preserves the total width of
+# the elements. You can choose to preserve the width of each element with:
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
+  geom_bar(position = position_dodge2(preserve = "single"))
+
+
+ggplot(diamonds, aes(price, fill = cut)) +
+  geom_histogram(position="dodge2")
+# see ?geom_bar for more examples
+
+# In this case a frequency polygon is probably a better choice
+ggplot(diamonds, aes(price, colour = cut)) +
+  geom_freqpoly()
+
+
+# Dodging with various widths -------------------------------------
+# To dodge items with different widths, you need to be explicit
+df &lt;- data.frame(
+  x = c("a","a","b","b"),
+  y = 2:5,
+  g = rep(1:2, 2)
+)
+p &lt;- ggplot(df, aes(x, y, group = g)) +
+  geom_col(position = "dodge", fill = "grey50", colour = "black")
+p
+
+# A line range has no width:
+p + geom_linerange(aes(ymin = y - 1, ymax = y + 1), position = "dodge")
+
+# So you must explicitly specify the width
+p + geom_linerange(
+  aes(ymin = y - 1, ymax = y + 1),
+  position = position_dodge(width = 0.9)
+)
+
+# The same principle applies to error bars, which are usually
+# narrower than the bars
+p + geom_errorbar(
+  aes(ymin = y - 1, ymax = y + 1),
+  width = 0.2,
+  position = "dodge"
+)
+p + geom_errorbar(
+  aes(ymin = y - 1, ymax = y + 1),
+  width = 0.2,
+  position = position_dodge(width = 0.9)
+)
+
+# Box plots use position_dodge2 by default, and bars can use it too
+ggplot(mpg, aes(factor(year), displ)) +
+  geom_boxplot(aes(colour = hwy &lt; 30))
+
+ggplot(mpg, aes(factor(year), displ)) +
+  geom_boxplot(aes(colour = hwy &lt; 30), varwidth = TRUE)
+
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
+  geom_bar(position = position_dodge2(preserve = "single"))
+
+ggplot(mtcars, aes(factor(cyl), fill = factor(vs))) +
+  geom_bar(position = position_dodge2(preserve = "total"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

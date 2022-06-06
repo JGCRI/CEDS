@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Modify a tree by inserting, replacing or removing nodes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_replace {xml2}"><tr><td>xml_replace {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Modify a tree by inserting, replacing or removing nodes</h2>
+
+<h3>Description</h3>
+
+<p><code>xml_add_sibling()</code> and <code>xml_add_child()</code> are used to insert a node
+as a sibling or a child. <code>xml_add_parent()</code> adds a new parent in
+between the input node and the current parent. <code>xml_replace()</code>
+replaces an existing node with a new node. <code>xml_remove()</code> removes a
+node from the tree.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_replace(.x, .value, ..., .copy = TRUE)
+
+xml_add_sibling(.x, .value, ..., .where = c("after", "before"), .copy = TRUE)
+
+xml_add_child(.x, .value, ..., .where = length(xml_children(.x)), .copy = TRUE)
+
+xml_add_parent(.x, .value, ...)
+
+xml_remove(.x, free = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.x</code></td>
+<td>
+<p>a document, node or nodeset.</p>
+</td></tr>
+<tr valign="top"><td><code>.value</code></td>
+<td>
+<p>node to insert.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>If named attributes or namespaces to set on the node, if unnamed
+text to assign to the node.</p>
+</td></tr>
+<tr valign="top"><td><code>.copy</code></td>
+<td>
+<p>whether to copy the <code>.value</code> before replacing. If this is <code>FALSE</code>
+then the node will be moved from it's current location.</p>
+</td></tr>
+<tr valign="top"><td><code>.where</code></td>
+<td>
+<p>to add the new node, for <code>xml_add_child</code> the position
+after which to add, use <code>0</code> for the first child. For
+<code>xml_add_sibling</code> either &lsquo;&quot;before&quot;&rsquo; or &lsquo;&quot;after&quot;&rsquo;
+indicating if the new node should be before or after <code>.x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>free</code></td>
+<td>
+<p>When removing the node also free the memory used for that node.
+Note if you use this option you cannot use any existing objects pointing to
+the node or its children, it is likely to crash R or return garbage.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Care needs to be taken when using <code>xml_remove()</code>,
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

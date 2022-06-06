@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Upload to an FTP server via 'curl'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for upload_ftp {xfun}"><tr><td>upload_ftp {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Upload to an FTP server via <code>curl</code></h2>
+
+<h3>Description</h3>
+
+<p>The function <code>upload_ftp()</code> runs the command <code>curl -T file
+server</code> to upload a file to an FTP server if the system command
+<code>curl</code> is available, otherwise it uses the R package <span class="pkg">curl</span>. The
+function <code>upload_win_builder()</code> uses <code>upload_ftp()</code> to upload
+packages to the win-builder server.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+upload_ftp(file, server, dir = "")
+
+upload_win_builder(
+  file = pkg_build(),
+  version = c("R-devel", "R-release", "R-oldrelease"),
+  server = c("ftp", "https"),
+  solaris = pkg_available("rhub")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Path to a local file.</p>
+</td></tr>
+<tr valign="top"><td><code>server</code></td>
+<td>
+<p>The address of the FTP server. For <code>upload_win_builder()</code>,
+<code>server = 'https'</code> means uploading to
+<code>'https://win-builder.r-project.org/upload.aspx'</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>The remote directory to which the file should be uploaded.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>The R version(s) on win-builder.</p>
+</td></tr>
+<tr valign="top"><td><code>solaris</code></td>
+<td>
+<p>Whether to also upload the package to the Rhub server to check
+it on Solaris.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions were written mainly to save package developers the trouble of
+going to the win-builder web page and uploading packages there manually.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Status code returned from <code><a href="../../base/html/system2.html">system2</a>()</code> or
+<code>curl::curl_fetch_memory()</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

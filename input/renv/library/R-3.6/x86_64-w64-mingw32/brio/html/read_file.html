@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read an entire file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read_file {brio}"><tr><td>read_file {brio}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read an entire file</h2>
+
+<h3>Description</h3>
+
+<p><code>read_file()</code> reads an entire file into a single character vector.
+<code>read_file_raw()</code> reads an entire file into a raw vector.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_file(path)
+
+read_file_raw(path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character string of the path to the file to read.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>read_file()</code> assumes the file has a UTF-8 encoding.
+</p>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code><a href="read_file.html">read_file()</a></code>: A length 1 character vector.
+</p>
+</li>
+<li> <p><code><a href="read_file.html">read_file_raw()</a></code>: A raw vector.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+authors_file &lt;- file.path(R.home("doc"), "AUTHORS")
+data &lt;- read_file(authors_file)
+data_raw &lt;- read_file_raw(authors_file)
+identical(data, rawToChar(data_raw))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>brio</em> version 1.1.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Download and show all CRAN check flavour platforms</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cran_check_flavours {rcmdcheck}"><tr><td>cran_check_flavours {rcmdcheck}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Download and show all CRAN check flavour platforms</h2>
+
+<h3>Description</h3>
+
+<p>If the <code>package</code> argument is <code>NULL</code>, then all current
+platforms are downloaded. If the <code>package</code> argument is specified,
+then all flavours used for the latest package checks for that
+package, are downloaded and returned.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cran_check_flavours(package = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>CRAN package name or <code>NULL</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of platform ids.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+cran_check_flavours()
+cran_check_flavours("simplegraph")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rcmdcheck</em> version 1.4.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Search path environments</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for search_envs {rlang}"><tr><td>search_envs {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Search path environments</h2>
+
+<h3>Description</h3>
+
+<p>The search path is a chain of environments containing exported
+functions of attached packages.
+</p>
+<p>The API includes:
+</p>
+
+<ul>
+<li> <p><code><a href="../../base/html/search.html">base::search()</a></code> to get the names of environments attached to the
+search path.
+</p>
+</li>
+<li> <p><code>search_envs()</code> returns the environments on the search path as a
+list.
+</p>
+</li>
+<li> <p><code>pkg_env_name()</code> takes a bare package name and prefixes it with
+<code>"package:"</code>. Attached package environments have search names of
+the form <code>package:name</code>.
+</p>
+</li>
+<li> <p><code>pkg_env()</code> takes a bare package name and returns the scoped
+environment of packages if they are attached to the search path,
+and throws an error otherwise. It is a shortcut for
+<code>search_env(pkg_env_name("pkgname"))</code>.
+</p>
+</li>
+<li> <p><code>global_env()</code> and <code>base_env()</code> (simple aliases for <code><a href="../../base/html/environment.html">globalenv()</a></code>
+and <code><a href="../../base/html/environment.html">baseenv()</a></code>). These are respectively the first and last
+environments of the search path.
+</p>
+</li>
+<li> <p><code>is_attached()</code> returns <code>TRUE</code> when its argument (a search name
+or a package environment) is attached to the search path.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+search_envs()
+
+search_env(name)
+
+pkg_env(pkg)
+
+pkg_env_name(pkg)
+
+is_attached(x)
+
+base_env()
+
+global_env()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name of an environment attached to the search
+path. Call <code><a href="../../base/html/search.html">base::search()</a></code> to get the names of environments
+currently attached to the search path. Note that the search name
+of a package environment is prefixed with <code>"package:"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>The name of a package.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An environment or a search name.</p>
+</td></tr>
+</table>
+
+
+<h3>The search path</h3>
+
+<p>This chain of environments determines what objects are visible from
+the global workspace. It contains the following elements:
+</p>
+
+<ul>
+<li><p> The chain always starts with <code>global_env()</code> and finishes with
+<code>base_env()</code> which inherits from the terminal environment
+<code>empty_env()</code>.
+</p>
+</li>
+<li><p> Each <code><a href="../../base/html/library.html">base::library()</a></code> call attaches a new package environment to
+the search path. Attached packages are associated with a <a href="env_name.html">search name</a>.
+</p>
+</li>
+<li><p> In addition, any list, data frame, or environment can be attached
+to the search path with <code><a href="../../base/html/attach.html">base::attach()</a></code>.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# List the search names of environments attached to the search path:
+search()
+
+# Get the corresponding environments:
+search_envs()
+
+# The global environment and the base package are always first and
+# last in the chain, respectively:
+envs &lt;- search_envs()
+envs[[1]]
+envs[[length(envs)]]
+
+# These two environments have their own shortcuts:
+global_env()
+base_env()
+
+# Packages appear in the search path with a special name. Use
+# pkg_env_name() to create that name:
+pkg_env_name("rlang")
+search_env(pkg_env_name("rlang"))
+
+# Alternatively, get the scoped environment of a package with
+# pkg_env():
+pkg_env("utils")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

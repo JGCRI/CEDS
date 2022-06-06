@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Ensure that all elements of a list of expressions are named</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for exprs_auto_name {rlang}"><tr><td>exprs_auto_name {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Ensure that all elements of a list of expressions are named</h2>
+
+<h3>Description</h3>
+
+<p>This gives default names to unnamed elements of a list of
+expressions (or expression wrappers such as formulas or
+quosures). <code>exprs_auto_name()</code> deparses the expressions with
+<code><a href="expr_label.html">expr_name()</a></code> by default. <code>quos_auto_name()</code> deparses with
+<code><a href="quo_label.html">quo_name()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+exprs_auto_name(
+  exprs,
+  ...,
+  repair_auto = c("minimal", "unique"),
+  repair_quiet = FALSE
+)
+
+quos_auto_name(quos)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>exprs</code></td>
+<td>
+<p>A list of expressions.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots are for future extensions and must be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>repair_auto</code></td>
+<td>
+<p>Whether to repair the automatic names. By
+default, minimal names are returned. See <code>?vctrs::vec_as_names</code>
+for information about name repairing.</p>
+</td></tr>
+<tr valign="top"><td><code>repair_quiet</code></td>
+<td>
+<p>Whether to inform user about repaired names.</p>
+</td></tr>
+<tr valign="top"><td><code>quos</code></td>
+<td>
+<p>A list of quosures.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

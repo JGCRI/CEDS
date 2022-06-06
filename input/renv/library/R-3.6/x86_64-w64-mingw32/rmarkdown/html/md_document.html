@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert to a markdown document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for md_document {rmarkdown}"><tr><td>md_document {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert to a markdown document</h2>
+
+<h3>Description</h3>
+
+<p>Format for converting from R Markdown to another variant of markdown (e.g.
+strict markdown or github flavored markdown)
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+md_document(
+  variant = "markdown_strict",
+  preserve_yaml = FALSE,
+  toc = FALSE,
+  toc_depth = 3,
+  number_sections = FALSE,
+  fig_width = 7,
+  fig_height = 5,
+  fig_retina = NULL,
+  dev = "png",
+  df_print = "default",
+  includes = NULL,
+  md_extensions = NULL,
+  pandoc_args = NULL,
+  ext = ".md"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>variant</code></td>
+<td>
+<p>Markdown variant to produce (defaults to &quot;markdown_strict&quot;).
+Other valid values are &quot;commonmark&quot;, &quot;gfm&quot;, &quot;commonmark_x&quot;, &quot;markdown_mmd&quot;,
+markdown_phpextra&quot;, &quot;markdown_github&quot;, or even &quot;markdown&quot; (which produces
+pandoc markdown). You can also compose custom markdown variants, see the
+<a href="https://pandoc.org/MANUAL.html">pandoc online documentation</a> for
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>preserve_yaml</code></td>
+<td>
+<p>Preserve YAML front matter in final document.</p>
+</td></tr>
+<tr valign="top"><td><code>toc</code></td>
+<td>
+<p><code>TRUE</code> to include a table of contents in the output</p>
+</td></tr>
+<tr valign="top"><td><code>toc_depth</code></td>
+<td>
+<p>Depth of headers to include in table of contents</p>
+</td></tr>
+<tr valign="top"><td><code>number_sections</code></td>
+<td>
+<p><code>TRUE</code> to number section headings</p>
+</td></tr>
+<tr valign="top"><td><code>fig_width</code></td>
+<td>
+<p>Default width (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_height</code></td>
+<td>
+<p>Default height (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_retina</code></td>
+<td>
+<p>Scaling to perform for retina displays. Defaults to
+<code>NULL</code> which performs no scaling. A setting of 2 will work for all
+widely used retina displays, but will also result in the output of
+<code>&lt;img&gt;</code> tags rather than markdown images due to the need to set the
+width of the image explicitly.</p>
+</td></tr>
+<tr valign="top"><td><code>dev</code></td>
+<td>
+<p>Graphics device to use for figure output (defaults to png)</p>
+</td></tr>
+<tr valign="top"><td><code>df_print</code></td>
+<td>
+<p>Method to be used for printing data frames. Valid values
+include &quot;default&quot;, &quot;kable&quot;, &quot;tibble&quot;, and &quot;paged&quot;. The &quot;default&quot; method
+uses a corresponding S3 method of <code>print</code>, typically
+<code>print.data.frame</code>. The &quot;kable&quot; method uses the
+<code><a href="../../knitr/html/kable.html">knitr::kable</a></code> function. The &quot;tibble&quot; method uses
+the <span class="pkg">tibble</span> package to print a summary of the data frame. The &quot;paged&quot;
+method creates a paginated HTML table (note that this method is only valid
+for formats that produce HTML). In addition to the named methods you can
+also pass an arbitrary function to be used for printing data frames. You
+can disable the <code>df_print</code> behavior entirely by setting the option
+<code>rmarkdown.df_print</code> to <code>FALSE</code>. See
+<a href="https://bookdown.org/yihui/rmarkdown/html-document.html#data-frame-printing">Data
+frame printing section</a> in bookdown book for examples.</p>
+</td></tr>
+<tr valign="top"><td><code>includes</code></td>
+<td>
+<p>Named list of additional content to include within the
+document (typically created using the <code><a href="includes.html">includes</a></code> function).</p>
+</td></tr>
+<tr valign="top"><td><code>md_extensions</code></td>
+<td>
+<p>Markdown extensions to be added or removed from the
+default definition or R Markdown. See the <code><a href="rmarkdown_format.html">rmarkdown_format</a></code> for
+additional details.</p>
+</td></tr>
+<tr valign="top"><td><code>pandoc_args</code></td>
+<td>
+<p>Additional command line options to pass to pandoc</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>Extention of the output document (defaults to &quot;.md&quot;).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>See the <a href="https://bookdown.org/yihui/rmarkdown/markdown-document.html">online
+documentation</a> for additional details on using the <code>md_document</code> format.
+</p>
+<p>R Markdown documents can have optional metadata that is used to generate a
+document header that includes the title, author, and date. For more details
+see the documentation on R Markdown <a href="rmd_metadata.html">metadata</a>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>R Markdown output format to pass to <code><a href="render.html">render</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+
+render("input.Rmd", md_document())
+
+render("input.Rmd", md_document(variant = "markdown_github"))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

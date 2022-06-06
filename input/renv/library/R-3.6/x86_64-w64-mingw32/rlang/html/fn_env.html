@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return the closure environment of a function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fn_env {rlang}"><tr><td>fn_env {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return the closure environment of a function</h2>
+
+<h3>Description</h3>
+
+<p>Closure environments define the scope of functions (see <code><a href="env.html">env()</a></code>).
+When a function call is evaluated, R creates an evaluation frame
+that inherits from the closure environment. This makes all objects
+defined in the closure environment and all its parents available to
+code executed within the function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fn_env(fn)
+
+fn_env(x) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fn, x</code></td>
+<td>
+<p>A function.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>A new closure environment for the function.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>fn_env()</code> returns the closure environment of <code>fn</code>. There is also
+an assignment method to set a new closure environment.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+env &lt;- child_env("base")
+fn &lt;- with_env(env, function() NULL)
+identical(fn_env(fn), env)
+
+other_env &lt;- child_env("base")
+fn_env(fn) &lt;- other_env
+identical(fn_env(fn), other_env)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

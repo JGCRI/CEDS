@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Context dependent expressions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for context {dplyr}"><tr><td>context {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Context dependent expressions</h2>
+
+<h3>Description</h3>
+
+<p>These functions return information about the &quot;current&quot; group or &quot;current&quot;
+variable, so only work inside specific contexts like <code>summarise()</code> and
+<code>mutate()</code>
+</p>
+
+<ul>
+<li> <p><code>n()</code> gives the current group size.
+</p>
+</li>
+<li> <p><code>cur_data()</code> gives the current data for the current group (excluding
+grouping variables).
+</p>
+</li>
+<li> <p><code>cur_data_all()</code> gives the current data for the current group (including
+grouping variables)
+</p>
+</li>
+<li> <p><code>cur_group()</code> gives the group keys, a tibble with one row and one column
+for each grouping variable.
+</p>
+</li>
+<li> <p><code>cur_group_id()</code> gives a unique numeric identifier for the current group.
+</p>
+</li>
+<li> <p><code>cur_group_rows()</code> gives the row indices for the current group.
+</p>
+</li>
+<li> <p><code>cur_column()</code> gives the name of the current column (in <code><a href="across.html">across()</a></code> only).
+</p>
+</li></ul>
+
+<p>See <code><a href="group_data.html">group_data()</a></code> for equivalent functions that return values for all
+groups.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+n()
+
+cur_data()
+
+cur_data_all()
+
+cur_group()
+
+cur_group_id()
+
+cur_group_rows()
+
+cur_column()
+</pre>
+
+
+<h3>data.table</h3>
+
+<p>If you're familiar with data.table:
+</p>
+
+<ul>
+<li> <p><code>cur_data()</code> &lt;-&gt; <code>.SD</code>
+</p>
+</li>
+<li> <p><code>cur_group_id()</code> &lt;-&gt; <code>.GRP</code>
+</p>
+</li>
+<li> <p><code>cur_group()</code> &lt;-&gt; <code>.BY</code>
+</p>
+</li>
+<li> <p><code>cur_group_rows()</code> &lt;-&gt; <code>.I</code>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- tibble(
+  g = sample(rep(letters[1:3], 1:3)),
+  x = runif(6),
+  y = runif(6)
+)
+gf &lt;- df %&gt;% group_by(g)
+
+gf %&gt;% summarise(n = n())
+
+gf %&gt;% mutate(id = cur_group_id())
+gf %&gt;% summarise(row = cur_group_rows())
+gf %&gt;% summarise(data = list(cur_group()))
+gf %&gt;% summarise(data = list(cur_data()))
+gf %&gt;% summarise(data = list(cur_data_all()))
+
+gf %&gt;% mutate(across(everything(), ~ paste(cur_column(), round(.x, 2))))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

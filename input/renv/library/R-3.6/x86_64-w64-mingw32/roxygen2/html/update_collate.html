@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Update Collate field in DESCRIPTION</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for update_collate {roxygen2}"><tr><td>update_collate {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Update Collate field in DESCRIPTION</h2>
+
+<h3>Description</h3>
+
+<p>By default, R loads files in alphabetical order. Unfortunately not every
+alphabet puts letters in the same order, so you can't rely on alphabetic
+ordering if you need one file loaded before another. (This usually doesn't
+matter but is important for S4, where you need to make sure that classes are
+loaded before subclasses and generics are defined before methods.).
+You can override the default alphabetical ordering with <code style="white-space: pre;">@include before.R</code>,
+which specify that <code>before.R</code> must be loaded before the current file.
+</p>
+<p>Generally, you will not need to run this function yourself; it should be
+run automatically by any package that needs to load your R files in
+collation order.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+update_collate(base_path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>base_path</code></td>
+<td>
+<p>Path to package directory.</p>
+</td></tr>
+</table>
+
+
+<h3>Collate</h3>
+
+<p>This is not a roclet because roclets need the values of objects in a package,
+and those values can not be generated unless you've sourced the files,
+and you can't source the files unless you know the correct order.
+</p>
+<p>If there are no <code style="white-space: pre;">@include</code> tags, roxygen2 will leave collate as is.
+This makes it easier to use roxygen2 with an existing collate directive,
+but if you remove all your <code style="white-space: pre;">@include</code> tags, you'll need to also
+manually delete the collate field.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+#' If `example-a.R', `example-b.R' and `example-c.R' live in R/
+#' and we're in `example-a.R`, then the following @include statement
+#' ensures that example-b and example-c are sourced before example-a.
+#' @include example-b.R example-c.R
+NULL
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

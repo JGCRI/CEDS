@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compare a set of check results to another check result</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for compare_checks {rcmdcheck}"><tr><td>compare_checks {rcmdcheck}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compare a set of check results to another check result</h2>
+
+<h3>Description</h3>
+
+<p>Compare a set of check results to another check result
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+compare_checks(old, new)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>old</code></td>
+<td>
+<p>A check result, or a list of check results.</p>
+</td></tr>
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p>A check result.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code>rcmdcheck_comparison</code> object with fields:
+</p>
+
+<ul>
+<li> <p><code>package</code>: the name of the package, string,
+</p>
+</li>
+<li> <p><code>versions</code>: package versions, length two character,
+</p>
+</li>
+<li> <p><code>status</code>: comparison status, see below,
+</p>
+</li>
+<li> <p><code>old</code>: list of <code>rcmdcheck</code> objects the old check(s),
+</p>
+</li>
+<li> <p><code>new</code>: <code>rcmdcheck</code> object, the new check,
+</p>
+</li>
+<li> <p><code>cmp</code>:
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other check comparisons: 
+<code><a href="compare_to_cran.html">compare_to_cran</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rcmdcheck</em> version 1.4.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

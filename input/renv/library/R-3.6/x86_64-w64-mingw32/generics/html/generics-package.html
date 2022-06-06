@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: generics: common S3 generics</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for generics-package {generics}"><tr><td>generics-package {generics}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>generics: common S3 generics</h2>
+
+<h3>Description</h3>
+
+<p>These are generic functions that can be used to minimize
+package dependencies when multiple packages have the same
+method.
+</p>
+
+
+<h3>Details</h3>
+
+<p>An attempt was made to use generic class signatures that were
+consistent with existing code. For example, <span class="pkg">dplyr</span> and
+<span class="pkg">lime</span> both have <code>explain()</code> methods that do very different
+things but both take <code>x</code> as their main object. Even though <code>x</code>
+would be different in those cases, this package provides access
+to the S3 generic so that other packages that may want to create
+<code>explain()</code> methods for their objects can do so without loading
+either of the other packages.
+</p>
+<p>For example, if a new <code>tidy()</code> method is being developed for a
+package, this lightweight package can be the required dependency
+to have access to the generic method (instead of depending on
+<span class="pkg">broom</span> and installing its dependencies).
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><strong>Maintainer</strong>: Hadley Wickham <a href="mailto:hadley@rstudio.com">hadley@rstudio.com</a>
+</p>
+<p>Authors:
+</p>
+
+<ul>
+<li><p> Max Kuhn <a href="mailto:max@rstudio.com">max@rstudio.com</a>
+</p>
+</li>
+<li><p> Davis Vaughan <a href="mailto:davis@rstudio.com">davis@rstudio.com</a>
+</p>
+</li></ul>
+
+<p>Other contributors:
+</p>
+
+<ul>
+<li><p> RStudio [copyright holder]
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Useful links:
+</p>
+
+<ul>
+<li> <p><a href="https://generics.r-lib.org">https://generics.r-lib.org</a>
+</p>
+</li>
+<li> <p><a href="https://github.com/r-lib/generics">https://github.com/r-lib/generics</a>
+</p>
+</li>
+<li><p> Report bugs at <a href="https://github.com/r-lib/generics/issues">https://github.com/r-lib/generics/issues</a>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>generics</em> version 0.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

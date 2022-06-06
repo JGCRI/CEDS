@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Dynamic dots features</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dyn-dots {rlang}"><tr><td>dyn-dots {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Dynamic dots features</h2>
+
+<h3>Description</h3>
+
+<p>The base <code>...</code> syntax supports:
+</p>
+
+<ul>
+<li> <p><strong>Forwarding</strong> arguments from function to function, matching them
+along the way to arguments.
+</p>
+</li>
+<li> <p><strong>Collecting</strong> arguments inside data structures, e.g. with <code><a href="../../base/html/c.html">c()</a></code> or
+<code><a href="../../base/html/list.html">list()</a></code>.
+</p>
+</li></ul>
+
+<p>Dynamic dots offer a few additional features,
+<a href="topic-inject.html">injection</a> in particular:
+</p>
+
+<ol>
+<li><p> You can <strong>splice</strong> arguments saved in a list with the splice
+operator <code><a href="splice-operator.html">!!!</a></code>.
+</p>
+</li>
+<li><p> You can <strong>inject</strong> names with <a href="glue-operators.html">glue syntax</a> on
+the left-hand side of <code style="white-space: pre;">:=</code>.
+</p>
+</li>
+<li><p> Trailing commas are ignored, making it easier to copy and paste
+lines of arguments.
+</p>
+</li></ol>
+
+
+
+<h3>Add dynamic dots support in your functions</h3>
+
+<p>If your function takes dots, adding support for dynamic features is
+as easy as collecting the dots with <code><a href="list2.html">list2()</a></code> instead of <code><a href="../../base/html/list.html">list()</a></code>.
+See also <code><a href="list2.html">dots_list()</a></code>, which offers more control over the collection.
+</p>
+<p>In general, passing <code>...</code> to a function that supports dynamic dots
+causes your function to inherit the dynamic behaviour.
+</p>
+<p>In packages, document dynamic dots with this standard tag:</p>
+<pre> @param ... &lt;[`dynamic-dots`][rlang::dyn-dots]&gt; What these dots do.
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(...) {
+  out &lt;- list2(...)
+  rev(out)
+}
+
+# Trailing commas are ignored
+f(this = "that", )
+
+# Splice lists of arguments with `!!!`
+x &lt;- list(alpha = "first", omega = "last")
+f(!!!x)
+
+# Inject a name using glue syntax
+if (is_installed("glue")) {
+  nm &lt;- "key"
+  f("{nm}" := "value")
+  f("prefix_{nm}" := "value")
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

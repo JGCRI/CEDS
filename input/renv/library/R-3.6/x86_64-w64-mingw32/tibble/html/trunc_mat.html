@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Legacy printing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for trunc_mat {tibble}"><tr><td>trunc_mat {tibble}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Legacy printing</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+As of tibble 3.1.0, printing is handled entirely by the <span class="pkg">pillar</span> package.
+Do not use this function.
+If you implement a package that extend tibble,
+the printed output can be customized in various ways.
+See <code>vignette("extending", package = "pillar")</code> for details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+trunc_mat(x, n = NULL, width = NULL, n_extra = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to format or print.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Number of rows to show. If <code>NULL</code>, the default, will print all rows
+if less than option <code>tibble.print_max</code>. Otherwise, will print
+<code>tibble.print_min</code> rows.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of text output to generate. This defaults to <code>NULL</code>, which
+means use <code>getOption("tibble.width")</code> or (if also <code>NULL</code>)
+<code>getOption("width")</code>; the latter displays only the columns that fit on one
+screen. You can also set <code>options(tibble.width = Inf)</code> to override this
+default and always print all columns, this may be slow for very wide tibbles.</p>
+</td></tr>
+<tr valign="top"><td><code>n_extra</code></td>
+<td>
+<p>Number of extra columns to print abbreviated information for,
+if the width is too small for the entire tibble. If <code>NULL</code>, the default,
+will print information about at most <code>tibble.max_extra_cols</code> extra columns.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>tibble</em> version 3.1.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

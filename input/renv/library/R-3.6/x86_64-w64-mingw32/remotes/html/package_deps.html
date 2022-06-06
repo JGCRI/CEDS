@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find all dependencies of a CRAN or dev package.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for package_deps {remotes}"><tr><td>package_deps {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find all dependencies of a CRAN or dev package.</h2>
+
+<h3>Description</h3>
+
+<p>Find all the dependencies of a package and determine whether they are ahead
+or behind CRAN. A <code>print()</code> method identifies mismatches (if any)
+between local and CRAN versions of each dependent package; an
+<code>update()</code> method installs outdated or missing packages from CRAN.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+package_deps(
+  packages,
+  dependencies = NA,
+  repos = getOption("repos"),
+  type = getOption("pkgType")
+)
+
+local_package_deps(pkgdir = ".", dependencies = NA)
+
+dev_package_deps(
+  pkgdir = ".",
+  dependencies = NA,
+  repos = getOption("repos"),
+  type = getOption("pkgType")
+)
+
+## S3 method for class 'package_deps'
+update(
+  object,
+  dependencies = NA,
+  upgrade = c("default", "ask", "always", "never"),
+  force = FALSE,
+  quiet = FALSE,
+  build = TRUE,
+  build_opts = c("--no-resave-data", "--no-manual", "--no-build-vignettes"),
+  build_manual = FALSE,
+  build_vignettes = FALSE,
+  repos = getOption("repos"),
+  type = getOption("pkgType"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>packages</code></td>
+<td>
+<p>A character vector of package names.</p>
+</td></tr>
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>Which dependencies do you want to check?
+Can be a character vector (selecting from &quot;Depends&quot;, &quot;Imports&quot;,
+&quot;LinkingTo&quot;, &quot;Suggests&quot;, or &quot;Enhances&quot;), or a logical vector.
+</p>
+<p><code>TRUE</code> is shorthand for &quot;Depends&quot;, &quot;Imports&quot;, &quot;LinkingTo&quot; and
+&quot;Suggests&quot;. <code>NA</code> is shorthand for &quot;Depends&quot;, &quot;Imports&quot; and &quot;LinkingTo&quot;
+and is the default. <code>FALSE</code> is shorthand for no dependencies (i.e.
+just check this package, not its dependencies).
+</p>
+<p>The value &quot;soft&quot; means the same as <code>TRUE</code>, &quot;hard&quot; means the same as <code>NA</code>.
+</p>
+<p>You can also specify dependencies from one or more additional fields,
+common ones include:
+</p>
+
+<ul>
+<li><p> Config/Needs/website - for dependencies used in building the pkgdown site.
+</p>
+</li>
+<li><p> Config/Needs/coverage for dependencies used in calculating test coverage.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>repos</code></td>
+<td>
+<p>A character vector giving repositories to use.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Type of package to <code>update</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>pkgdir</code></td>
+<td>
+<p>Path to a package directory, or to a package tarball.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <code>package_deps</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>upgrade</code></td>
+<td>
+<p>Should package dependencies be upgraded? One of &quot;default&quot;, &quot;ask&quot;, &quot;always&quot;, or &quot;never&quot;. &quot;default&quot;
+respects the value of the <code>R_REMOTES_UPGRADE</code> environment variable if set,
+and falls back to &quot;ask&quot; if unset. &quot;ask&quot; prompts the user for which out of
+date packages to upgrade. For non-interactive sessions &quot;ask&quot; is equivalent
+to &quot;always&quot;. <code>TRUE</code> and <code>FALSE</code> are also accepted and correspond to
+&quot;always&quot; and &quot;never&quot; respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>Force installation, even if the remote state has not changed
+since the previous install.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If <code>TRUE</code>, suppress output.</p>
+</td></tr>
+<tr valign="top"><td><code>build</code></td>
+<td>
+<p>If <code>TRUE</code> build the package before installing.</p>
+</td></tr>
+<tr valign="top"><td><code>build_opts</code></td>
+<td>
+<p>Options to pass to <code style="white-space: pre;">R CMD build</code>, only used when <code>build</code> is <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>build_manual</code></td>
+<td>
+<p>If <code>FALSE</code>, don't build PDF manual ('&ndash;no-manual').</p>
+</td></tr>
+<tr valign="top"><td><code>build_vignettes</code></td>
+<td>
+<p>If <code>FALSE</code>, don't build package vignettes ('&ndash;no-build-vignettes').</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code>install_packages</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>data.frame</code> with columns:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<code>package</code> </td><td style="text-align: left;"> The dependent package's name,</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>installed</code> </td><td style="text-align: left;"> The currently installed version,</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>available</code> </td><td style="text-align: left;"> The version available on CRAN,</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>diff</code> </td><td style="text-align: left;"> An integer denoting whether the locally installed version
+of the package is newer (1), the same (0) or older (-1) than the version
+currently available on CRAN.</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+package_deps("devtools")
+# Use update to update any out-of-date dependencies
+update(package_deps("devtools"))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

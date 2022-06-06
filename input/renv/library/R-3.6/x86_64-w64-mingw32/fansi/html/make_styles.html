@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate CSS Mapping Classes to Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for make_styles {fansi}"><tr><td>make_styles {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate CSS Mapping Classes to Colors</h2>
+
+<h3>Description</h3>
+
+<p>Given a set of class names, produce the CSS that maps them to the default
+8-bit colors.  This is a helper function to generate style sheets for use
+in examples with either default or remixed <code>fansi</code> colors.  In practice users
+will create their own style sheets mapping their classes to their preferred
+styles.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+make_styles(classes, rgb.mix = diag(3))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>classes</code></td>
+<td>
+<p>a character vector of either 16, 32, or 512 class names.  The
+character vectors are described in <code><a href="to_html.html">to_html</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>rgb.mix</code></td>
+<td>
+<p>3 x 3 numeric matrix to remix color channels.  Given a N x 3
+matrix of numeric RGB colors <code>rgb</code>, the colors used in the style sheet will
+be <code>rgb %*% rgb.mix</code>.  Out of range values are clipped to the nearest bound
+of the range.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector that can be used as the contents of a style sheet.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other HTML functions: 
+<code><a href="html_esc.html">html_esc</a>()</code>,
+<code><a href="in_html.html">in_html</a>()</code>,
+<code><a href="to_html.html">to_html</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Generate some class strings; order matters
+classes &lt;- do.call(paste, c(expand.grid(c("fg", "bg"), 0:7), sep="-"))
+writeLines(classes[1:4])
+
+## Some Default CSS
+css0 &lt;- "span {font-size: 60pt; padding: 10px; display: inline-block}"
+
+## Associated class strings to styles
+css1 &lt;- make_styles(classes)
+writeLines(css1[1:4])
+
+## Generate SGR-derived HTML, mapping to classes
+string &lt;- "\033[43mYellow\033[m\n\033[45mMagenta\033[m\n\033[46mCyan\033[m"
+html &lt;- to_html(string, classes=classes)
+writeLines(html)
+
+## Combine in a page with styles and display in browser
+## Not run: 
+in_html(html, css=c(css0, css1))
+
+## End(Not run)
+
+## Change CSS by remixing colors, and apply to exact same HTML
+mix &lt;- matrix(
+  c(
+    0, 1, 0,  # red output is green input
+    0, 0, 1,  # green output is blue input
+    1, 0, 0   # blue output is red input
+  ),
+  nrow=3, byrow=TRUE
+)
+css2 &lt;- make_styles(classes, rgb.mix=mix)
+## Display in browser: same HTML but colors changed by CSS
+## Not run: 
+in_html(html, css=c(css0, css2))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

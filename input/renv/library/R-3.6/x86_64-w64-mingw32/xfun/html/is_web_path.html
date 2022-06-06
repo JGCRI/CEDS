@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Test if a path is a web path</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_web_path {xfun}"><tr><td>is_web_path {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Test if a path is a web path</h2>
+
+<h3>Description</h3>
+
+<p>Check if a path starts with &lsquo;<span class="file">http://</span>&rsquo; or &lsquo;<span class="file">https://</span>&rsquo; or
+&lsquo;<span class="file">ftp://</span>&rsquo; or &lsquo;<span class="file">ftps://</span>&rsquo;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_web_path(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector of paths.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A logical vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::is_web_path("https://www.r-project.org")  # TRUE
+xfun::is_web_path("www.r-project.org")  # FALSE
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

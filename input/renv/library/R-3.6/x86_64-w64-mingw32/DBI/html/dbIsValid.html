@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is this DBMS object still valid?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbIsValid {DBI}"><tr><td>dbIsValid {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is this DBMS object still valid?</h2>
+
+<h3>Description</h3>
+
+<p>This generic tests whether a database object is still valid (i.e. it hasn't
+been disconnected or cleared).
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbIsValid(dbObj, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dbObj</code></td>
+<td>
+<p>An object inheriting from <a href="DBIObject-class.html">DBIObject</a>,
+i.e. <a href="DBIDriver-class.html">DBIDriver</a>, <a href="DBIConnection-class.html">DBIConnection</a>,
+or a <a href="DBIResult-class.html">DBIResult</a></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>dbIsValid()</code> returns a logical scalar,
+<code>TRUE</code> if the object specified by <code>dbObj</code> is valid,
+<code>FALSE</code> otherwise.
+A <a href="DBIConnection-class.html">DBIConnection</a> object is initially valid,
+and becomes invalid after disconnecting with <code><a href="dbDisconnect.html">dbDisconnect()</a></code>.
+For an invalid connection object (e.g., for some drivers if the object
+is saved to a file and then restored), the method also returns <code>FALSE</code>.
+A <a href="DBIResult-class.html">DBIResult</a> object is valid after a call to <code><a href="dbSendQuery.html">dbSendQuery()</a></code>,
+and stays valid even after all rows have been fetched;
+only clearing it with <code><a href="dbClearResult.html">dbClearResult()</a></code> invalidates it.
+A <a href="DBIResult-class.html">DBIResult</a> object is also valid after a call to <code><a href="dbSendStatement.html">dbSendStatement()</a></code>,
+and stays valid after querying the number of rows affected;
+only clearing it with <code><a href="dbClearResult.html">dbClearResult()</a></code> invalidates it.
+If the connection to the database system is dropped (e.g., due to
+connectivity problems, server failure, etc.), <code>dbIsValid()</code> should return
+<code>FALSE</code>. This is not tested automatically.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIDriver generics: 
+<code><a href="DBIDriver-class.html">DBIDriver-class</a></code>,
+<code><a href="dbCanConnect.html">dbCanConnect</a>()</code>,
+<code><a href="dbConnect.html">dbConnect</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDriver.html">dbDriver</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbListConnections.html">dbListConnections</a>()</code>
+</p>
+<p>Other DBIConnection generics: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbCreateTable.html">dbCreateTable</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetException.html">dbGetException</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetQuery.html">dbGetQuery</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbListTables.html">dbListTables</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbBind.html">dbBind</a>()</code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+dbIsValid(RSQLite::SQLite())
+
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+dbIsValid(con)
+
+rs &lt;- dbSendQuery(con, "SELECT 1")
+dbIsValid(rs)
+
+dbClearResult(rs)
+dbIsValid(rs)
+
+dbDisconnect(con)
+dbIsValid(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

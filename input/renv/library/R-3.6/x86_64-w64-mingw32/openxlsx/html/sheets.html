@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Returns names of worksheets.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheets {openxlsx}"><tr><td>sheets {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Returns names of worksheets.</h2>
+
+<h3>Description</h3>
+
+<p>DEPRECATED. Use names().
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheets(wb)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>DEPRECATED. Use <code><a href="names.html">names()</a></code>
+</p>
+
+
+<h3>Value</h3>
+
+<p>Name of worksheet(s) for a given index
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="names.html">names()</a></code> to rename a worksheet in a Workbook
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Create a new workbook
+wb &lt;- createWorkbook()
+
+## Add some worksheets
+addWorksheet(wb, "Worksheet Name")
+addWorksheet(wb, "This is worksheet 2")
+addWorksheet(wb, "The third worksheet")
+
+## Return names of sheets, can not be used for assignment.
+names(wb)
+# openXL(wb)
+
+names(wb) &lt;- c("A", "B", "C")
+names(wb)
+# openXL(wb)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

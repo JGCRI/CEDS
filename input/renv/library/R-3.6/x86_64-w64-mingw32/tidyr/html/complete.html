@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Complete a data frame with missing combinations of data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for complete {tidyr}"><tr><td>complete {tidyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Complete a data frame with missing combinations of data</h2>
+
+<h3>Description</h3>
+
+<p>Turns implicit missing values into explicit missing values. This is a wrapper
+around <code><a href="expand.html">expand()</a></code>, <code><a href="../../dplyr/html/mutate-joins.html">dplyr::full_join()</a></code> and <code><a href="replace_na.html">replace_na()</a></code> that's useful for
+completing missing combinations of data.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+complete(data, ..., fill = list(), explicit = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Specification of columns to expand. Columns can be atomic vectors
+or lists.
+</p>
+
+<ul>
+<li><p> To find all unique combinations of <code>x</code>, <code>y</code> and <code>z</code>, including those not
+present in the data, supply each variable as a separate argument:
+<code>expand(df, x, y, z)</code>.
+</p>
+</li>
+<li><p> To find only the combinations that occur in the
+data, use <code>nesting</code>: <code>expand(df, nesting(x, y, z))</code>.
+</p>
+</li>
+<li><p> You can combine the two forms. For example,
+<code>expand(df, nesting(school_id, student_id), date)</code> would produce
+a row for each present school-student combination for all possible
+dates.
+</p>
+</li></ul>
+
+<p>When used with factors, <code>expand()</code> uses the full set of levels, not just
+those that appear in the data. If you want to use only the values seen in
+the data, use <code>forcats::fct_drop()</code>.
+</p>
+<p>When used with continuous variables, you may need to fill in values
+that do not appear in the data: to do so use expressions like
+<code>year = 2010:2020</code> or <code>year = full_seq(year,1)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fill</code></td>
+<td>
+<p>A named list that for each variable supplies a single value to
+use instead of <code>NA</code> for missing combinations.</p>
+</td></tr>
+<tr valign="top"><td><code>explicit</code></td>
+<td>
+<p>Should both implicit (newly created) and explicit
+(pre-existing) missing values be filled by <code>fill</code>? By default, this is
+<code>TRUE</code>, but if set to <code>FALSE</code> this will limit the fill to only implicit
+missing values.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>With grouped data frames, <code>complete()</code> operates <em>within</em> each group. Because
+of this, you cannot complete a grouping column.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+df &lt;- tibble(
+  group = c(1:2, 1, 2),
+  item_id = c(1:2, 2, 3),
+  item_name = c("a", "a", "b", "b"),
+  value1 = c(1, NA, 3, 4),
+  value2 = 4:7
+)
+df
+
+# Generate all possible combinations of `group`, `item_id`, and `item_name`
+# (whether or not they appear in the data)
+complete(df, group, item_id, item_name)
+
+# Cross all possible `group` values with the unique pairs of
+# `(item_id, item_name)` that already exist in the data
+complete(df, group, nesting(item_id, item_name))
+
+# Within each `group`, generate all possible combinations of
+# `item_id` and `item_name` that occur in that group
+df %&gt;%
+  group_by(group) %&gt;%
+  complete(item_id, item_name)
+
+# You can also choose to fill in missing values. By default, both implicit
+# (new) and explicit (pre-existing) missing values are filled.
+complete(
+  df,
+  group,
+  nesting(item_id, item_name),
+  fill = list(value1 = 0, value2 = 99)
+)
+
+# You can limit the fill to only implicit missing values by setting
+# `explicit` to `FALSE`
+complete(
+  df,
+  group,
+  nesting(item_id, item_name),
+  fill = list(value1 = 0, value2 = 99),
+  explicit = FALSE
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tidyr</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

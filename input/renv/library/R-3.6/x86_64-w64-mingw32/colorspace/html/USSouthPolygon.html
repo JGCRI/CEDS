@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Polygon for County Map of US South States: Alabama, Georgia,...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for USSouthPolygon {colorspace}"><tr><td>USSouthPolygon {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Polygon for County Map of US South States: Alabama, Georgia, and South
+Carolina</h2>
+
+<h3>Description</h3>
+
+<p>County polygons for Alabama, Georgia, and South Carolina plus an artifical
+variable used for coloring.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+data("USSouthPolygon")
+</pre>
+
+
+<h3>Format</h3>
+
+<p>A data frame with coordinates of the vertices of the county polygons
+(<code>x</code>, <code>y</code>) and an artificial variable <code>z</code> constructed for
+illustrating colored maps.
+</p>
+
+
+<h3>Source</h3>
+
+<p>Polygon data taken from <span class="pkg">maps</span> package of Becker, Wilks,
+Brownrigg, and Minka (2012). Version 2.2-6.
+<a href="https://CRAN.R-project.org/package=maps">https://CRAN.R-project.org/package=maps</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## generate color palette
+pal &lt;- diverging_hcl(9)
+n &lt;- length(pal)
+
+## draw shaded polygons
+plot(0, 0, type = "n", xlab = "", ylab = "", xaxt = "n", yaxt = "n", bty = "n",
+  xlim = c(-88.5, -78.6), ylim = c(30.2, 35.2), asp = 1)
+polygon(USSouthPolygon, col = pal[cut(na.omit(USSouthPolygon$z), breaks = 0:n/n)])
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

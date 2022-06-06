@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Backport of stopifnot for R versions &lt; 4.0.0.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stopifnot {backports}"><tr><td>stopifnot {backports}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Backport of stopifnot for R versions &lt; 4.0.0.</h2>
+
+<h3>Description</h3>
+
+<p>See the original description in <code>base::stopifnot</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stopifnot(..., exprs, exprObject, local = TRUE)
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get function from namespace instead of possibly getting
+# implementation shipped with recent R versions:
+bp_stopifnot = getFromNamespace("stopifnot", "backports")
+
+m &lt;- matrix(c(1, 3, 12, 1), 2, 2)
+## Not run: bp_stopifnot("m must be symmetric" = m == t(m))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>backports</em> version 1.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compress Files into 'zip' Archives</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for zip {zip}"><tr><td>zip {zip}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compress Files into 'zip' Archives</h2>
+
+<h3>Description</h3>
+
+<p><code>zip()</code> creates a new zip archive file.
+</p>
+<link rel="stylesheet" type="text/css" href="../doc/assets/extra.css">
+<script src="../doc/assets/rd.js"></script>
+
+
+<h3>Usage</h3>
+
+<pre>
+zip(
+  zipfile,
+  files,
+  recurse = TRUE,
+  compression_level = 9,
+  include_directories = TRUE,
+  root = ".",
+  mode = c("mirror", "cherry-pick")
+)
+
+zipr(
+  zipfile,
+  files,
+  recurse = TRUE,
+  compression_level = 9,
+  include_directories = TRUE,
+  root = ".",
+  mode = c("cherry-pick", "mirror")
+)
+
+zip_append(
+  zipfile,
+  files,
+  recurse = TRUE,
+  compression_level = 9,
+  include_directories = TRUE,
+  root = ".",
+  mode = c("mirror", "cherry-pick")
+)
+
+zipr_append(
+  zipfile,
+  files,
+  recurse = TRUE,
+  compression_level = 9,
+  include_directories = TRUE,
+  root = ".",
+  mode = c("cherry-pick", "mirror")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>zipfile</code></td>
+<td>
+<p>The zip file to create. If the file exists, <code>zip</code>
+overwrites it, but <code>zip_append</code> appends to it.</p>
+</td></tr>
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>List of file to add to the archive. See details below
+about absolute and relative path names.</p>
+</td></tr>
+<tr valign="top"><td><code>recurse</code></td>
+<td>
+<p>Whether to add the contents of directories recursively.</p>
+</td></tr>
+<tr valign="top"><td><code>compression_level</code></td>
+<td>
+<p>A number between 1 and 9. 9 compresses best,
+but it also takes the longest.</p>
+</td></tr>
+<tr valign="top"><td><code>include_directories</code></td>
+<td>
+<p>Whether to explicitly include directories
+in the archive. Including directories might confuse MS Office when
+reading docx files, so set this to <code>FALSE</code> for creating them.</p>
+</td></tr>
+<tr valign="top"><td><code>root</code></td>
+<td>
+<p>Change to this working directory before creating the
+archive.</p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>Selects how files and directories are stored in
+the archice. It can be <code>"mirror"</code> or <code>"cherry-pick"</code>.
+See &quot;Relative Paths&quot; below for details.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>zip_append()</code> appends compressed files to an existing 'zip' file.
+</p>
+
+
+<h4>Relative paths</h4>
+
+<p><code>zip()</code> and <code>zip_append()</code> can run in two different modes: mirror
+mode and cherry picking mode. They handle the specified <code>files</code>
+differently.
+</p>
+
+
+<h5>Mirror mode</h5>
+
+<p>Mirror mode is for creating the zip archive of a directory structure,
+exactly as it is on the disk. The current working directory will
+be the root of the archive, and the paths will be fully kept.
+zip changes the current directory to <code>root</code> before creating the
+archive.
+</p>
+<p>(Absolute paths are also kept. Note that this might result
+non-portable archives: some zip tools do not handle zip archives that
+contain absolute file names, or file names that start with <code style="white-space: pre;">../</code> or
+<code style="white-space: pre;">./</code>. zip warns you if this should happen.)
+</p>
+<p>E.g. consider the following directory structure:</p>
+<pre>.
+|-- foo
+|   |-- bar
+|   |   |-- file1
+|   |   `-- file2
+|   `-- bar2
+`-- foo2
+    `-- file3
+</pre>
+<p>Assuming the current working directory is <code>foo</code>, the following zip
+entries are created by <code>zip</code>:<div class="r"></p>
+<pre>setwd("foo")
+zip::zip("../test.zip", c("bar/file1", "bar2", "../foo2"))
+</pre></div><pre>## Warning in warn_for_dotdot(data$key): Some paths reference parent directory,
+## creating non-portable zip file
+</pre><div class="r"><pre>zip_list("../test.zip")[, "filename", drop = FALSE]
+</pre></div><pre>##        filename
+## 1     bar/file1
+## 2         bar2/
+## 3      ../foo2/
+## 4 ../foo2/file3
+</pre>
+
+
+
+<h5>Cherry picking mode</h5>
+
+<p>In cherry picking mode, the selected files and directories
+will be at the root of the archive. This mode is handy if you
+want to select a subset of files and directories, possibly from
+different paths and put all of the in the archive, at the top
+level.
+</p>
+<p>Here is an example with the same directory structure as above:<div class="r"></p>
+<pre>zip::zip(
+  "../test2.zip",
+  c("bar/file1", "bar2", "../foo2"),
+  mode = "cherry-pick"
+)
+zip_list("../test2.zip")[, "filename", drop = FALSE]
+</pre></div><pre>##     filename
+## 1      file1
+## 2      bar2/
+## 3      foo2/
+## 4 foo2/file3
+</pre>
+
+
+
+
+<h4>Permissions:</h4>
+
+<p><code>zip()</code> (and <code>zip_append()</code>, etc.) add the permissions of
+the archived files and directories to the ZIP archive, on Unix systems.
+Most zip and unzip implementations support these, so they will be
+recovered after extracting the archive.
+</p>
+<p>Note, however that the owner and group (uid and gid) are currently
+omitted, even on Unix.
+</p>
+
+
+
+<h4><code>zipr()</code> and <code>zipr_append()</code></h4>
+
+<p>These function exist for historical reasons. They are identical
+to <code>zip()</code> and <code>zipr_append()</code> with a different default for the
+<code>mode</code> argument.
+</p>
+
+
+
+<h3>Value</h3>
+
+<p>The name of the created zip file, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Some files to zip up. We will run all this in the R sesion's
+## temporary directory, to avoid messing up the user's workspace.
+dir.create(tmp &lt;- tempfile())
+dir.create(file.path(tmp, "mydir"))
+cat("first file", file = file.path(tmp, "mydir", "file1"))
+cat("second file", file = file.path(tmp, "mydir", "file2"))
+
+zipfile &lt;- tempfile(fileext = ".zip")
+zip::zip(zipfile, "mydir", root = tmp)
+
+## List contents
+zip_list(zipfile)
+
+## Add another file
+cat("third file", file = file.path(tmp, "mydir", "file3"))
+zip_append(zipfile, file.path("mydir", "file3"), root = tmp)
+zip_list(zipfile)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>zip</em> version 2.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

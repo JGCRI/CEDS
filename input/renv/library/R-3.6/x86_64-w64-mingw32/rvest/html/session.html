@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Simulate a session in web browser</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for session {rvest}"><tr><td>session {rvest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Simulate a session in web browser</h2>
+
+<h3>Description</h3>
+
+<p>This set of functions allows you to simulate a user interacting with a
+website, using forms and navigating from page to page.
+</p>
+
+<ul>
+<li><p> Create a session with <code>session(url)</code>
+</p>
+</li>
+<li><p> Navigate to a specified url with <code>session_jump_to()</code>, or follow a link on the
+page with <code>session_follow_link()</code>.
+</p>
+</li>
+<li><p> Submit an <a href="html_form.html">html_form</a> with <code>session_submit()</code>.
+</p>
+</li>
+<li><p> View the history with <code>session_history()</code> and navigate back and forward
+with <code>session_back()</code> and <code>session_forward()</code>.
+</p>
+</li>
+<li><p> Extract page contents with <code><a href="html_element.html">html_element()</a></code> and <code><a href="html_element.html">html_elements()</a></code>, or get the
+complete HTML document with <code><a href="reexports.html">read_html()</a></code>.
+</p>
+</li>
+<li><p> Inspect the HTTP response with <code><a href="../../httr/html/cookies.html">httr::cookies()</a></code>, <code><a href="../../httr/html/headers.html">httr::headers()</a></code>,
+and <code><a href="../../httr/html/status_code.html">httr::status_code()</a></code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+session(url, ...)
+
+is.session(x)
+
+session_jump_to(x, url, ...)
+
+session_follow_link(x, i, css, xpath, ...)
+
+session_back(x)
+
+session_forward(x)
+
+session_history(x)
+
+session_submit(x, form, submit = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>A URL, either relative or absolute, to navigate to.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Any additional httr config to use throughout the session.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A session.</p>
+</td></tr>
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>A integer to select the ith link or a string to match the
+first link containing that text (case sensitive).</p>
+</td></tr>
+<tr valign="top"><td><code>css</code></td>
+<td>
+<p>Elements to select. Supply one of <code>css</code> or <code>xpath</code>
+depending on whether you want to use a CSS selector or XPath 1.0
+expression.</p>
+</td></tr>
+<tr valign="top"><td><code>xpath</code></td>
+<td>
+<p>Elements to select. Supply one of <code>css</code> or <code>xpath</code>
+depending on whether you want to use a CSS selector or XPath 1.0
+expression.</p>
+</td></tr>
+<tr valign="top"><td><code>form</code></td>
+<td>
+<p>An <a href="html_form.html">html_form</a> to submit</p>
+</td></tr>
+<tr valign="top"><td><code>submit</code></td>
+<td>
+<p>Which button should be used to submit the form?
+</p>
+
+<ul>
+<li> <p><code>NULL</code>, the default, uses the first button.
+</p>
+</li>
+<li><p> A string selects a button by its name.
+</p>
+</li>
+<li><p> A number selects a button using its relative position.
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+s &lt;- session("http://hadley.nz")
+s %&gt;%
+  session_jump_to("hadley-wickham.jpg") %&gt;%
+  session_jump_to("/") %&gt;%
+  session_history()
+
+s %&gt;%
+  session_jump_to("hadley-wickham.jpg") %&gt;%
+  session_back() %&gt;%
+  session_history()
+
+
+s %&gt;%
+  session_follow_link(css = "p a") %&gt;%
+  html_elements("p")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rvest</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

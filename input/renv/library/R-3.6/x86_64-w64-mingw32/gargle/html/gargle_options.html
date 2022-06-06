@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Options consulted by gargle</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gargle_options {gargle}"><tr><td>gargle_options {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Options consulted by gargle</h2>
+
+<h3>Description</h3>
+
+<p>Wrapper functions around options consulted by gargle, which provide:
+</p>
+
+<ul>
+<li><p> A place to hang documentation.
+</p>
+</li>
+<li><p> The mechanism for setting a default.
+</p>
+</li></ul>
+
+<p>If the built-in defaults don't suit you, set one or more of these options.
+Typically, this is done in the <code>.Rprofile</code> startup file, with code along
+these lines:</p>
+<pre>options(
+  gargle_oauth_email = "jane@example.com",
+  gargle_oauth_cache = "/path/to/folder/that/does/not/sync/to/cloud"
+)
+</pre>
+
+
+<h3>Usage</h3>
+
+<pre>
+gargle_oauth_email()
+
+gargle_oob_default()
+
+gargle_oauth_cache()
+
+gargle_verbosity()
+
+local_gargle_verbosity(level, env = parent.frame())
+
+with_gargle_verbosity(level, code)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>level</code></td>
+<td>
+<p>Verbosity level: &quot;debug&quot; &gt; &quot;info&quot; &gt; &quot;silent&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The environment to use for scoping</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to execute with specified verbosity level</p>
+</td></tr>
+</table>
+
+
+<h3><code>gargle_oauth_email</code></h3>
+
+<p><code>gargle_oauth_email()</code> returns the option named &quot;gargle_oauth_email&quot;, which
+is undefined by default. If set, this option should be one of:
+</p>
+
+<ul>
+<li><p> An actual email address corresponding to your preferred Google identity.
+Example:<code>janedoe@gmail.com</code>.
+</p>
+</li>
+<li><p> A glob pattern that indicates your preferred Google domain.
+Example:<code style="white-space: pre;">*@example.com</code>.
+</p>
+</li>
+<li> <p><code>TRUE</code> to allow email and OAuth token auto-discovery, if exactly one
+suitable token is found in the cache.
+</p>
+</li>
+<li> <p><code>FALSE</code> or <code>NA</code> to force the OAuth dance in the browser.
+</p>
+</li></ul>
+
+
+
+<h3><code>gargle_oob_default</code></h3>
+
+<p><code>gargle_oob_default()</code> returns the option named &quot;gargle_oob_default&quot;, falls
+back to the option named &quot;httr_oob_default&quot;, and eventually defaults to
+<code>FALSE</code>. This controls whether to prefer &quot;out of band&quot; authentication. We
+also return <code>FALSE</code> unconditionally on RStudio Server or Cloud. This value is
+ultimately passed to <code><a href="../../httr/html/init_oauth2.0.html">httr::init_oauth2.0()</a></code> as <code>use_oob</code>. If <code>FALSE</code> (and
+httpuv is installed), a local webserver is used for the OAuth dance.
+Otherwise, user gets a URL and prompt for a validation code.
+</p>
+<p>Read more about &quot;out of band&quot; authentication in the vignette <a href="https://gargle.r-lib.org/articles/auth-from-web.html">Auth when using R in the browser</a>.
+</p>
+
+
+<h3><code>gargle_oauth_cache</code></h3>
+
+<p><code>gargle_oauth_cache()</code> returns the option named &quot;gargle_oauth_cache&quot;,
+defaulting to <code>NA</code>. If defined, the option must be set to a logical value or
+a string. <code>TRUE</code> means to cache using the default user-level cache file,
+<code style="white-space: pre;">~/.R/gargle/gargle-oauth</code>, <code>FALSE</code> means don't cache, and <code>NA</code> means to
+guess using some sensible heuristics.
+</p>
+
+
+<h3><code>gargle_verbosity</code></h3>
+
+<p><code>gargle_verbosity()</code> returns the option named &quot;gargle_verbosity&quot;, which
+determines gargle's verbosity. There are three possible values, inspired by
+the logging levels of log4j:
+</p>
+
+<ul>
+<li><p> &quot;debug&quot;: Fine-grained information helpful when debugging, e.g. figuring out
+how <code>token_fetch()</code> is working through the registry of credential
+functions. Previously, this was activated by setting an option named
+&quot;gargle_quiet&quot; to <code>FALSE</code>.
+</p>
+</li>
+<li><p> &quot;info&quot; (default): High-level information that a typical user needs to see.
+Since typical gargle usage is always indirect, i.e. gargle is called by
+another package, gargle itself is very quiet. There are very few messages
+emitted when <code>gargle_verbosity = "info"</code>.
+</p>
+</li>
+<li><p> &quot;silent&quot;: No messages at all. However, warnings or errors are still thrown
+normally.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+gargle_oauth_email()
+gargle_oob_default()
+gargle_oauth_cache()
+gargle_verbosity()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

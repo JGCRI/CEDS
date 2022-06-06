@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build a data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tibble {tibble}"><tr><td>tibble {tibble}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build a data frame</h2>
+
+<h3>Description</h3>
+
+<p><code>tibble()</code> constructs a data frame. It is used like <code><a href="../../base/html/data.frame.html">base::data.frame()</a></code>, but
+with a couple notable differences:
+</p>
+
+<ul>
+<li><p> The returned data frame has the class <code><a href="tbl_df-class.html">tbl_df</a></code>, in
+addition to <code>data.frame</code>. This allows so-called &quot;tibbles&quot; to exhibit some
+special behaviour, such as <a href="formatting.html">enhanced printing</a>. Tibbles are
+fully described in <code><a href="tbl_df-class.html">tbl_df</a></code>.
+</p>
+</li>
+<li> <p><code>tibble()</code> is much lazier than <code><a href="../../base/html/data.frame.html">base::data.frame()</a></code> in terms of
+transforming the user's input.
+</p>
+
+<ul>
+<li><p> Character vectors are not coerced to factor.
+</p>
+</li>
+<li><p> List-columns are expressly anticipated and do not require special tricks.
+</p>
+</li>
+<li><p> Column names are not modified.
+</p>
+</li>
+<li><p> Inner names in columns are left unchanged.
+</p>
+</li></ul>
+
+</li>
+<li> <p><code>tibble()</code> builds columns sequentially. When defining a column, you can
+refer to columns created earlier in the call. Only columns of length one
+are recycled.
+</p>
+</li>
+<li><p> If a column evaluates to a data frame or tibble, it is nested or spliced.
+See examples.
+</p>
+</li></ul>
+
+<p><code>tibble_row()</code> constructs a data frame that is guaranteed to occupy one row.
+Vector columns are required to have size one, non-vector columns are wrapped
+in a list.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tibble(
+  ...,
+  .rows = NULL,
+  .name_repair = c("check_unique", "unique", "universal", "minimal")
+)
+
+tibble_row(
+  ...,
+  .name_repair = c("check_unique", "unique", "universal", "minimal")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../rlang/html/dyn-dots.html">dynamic-dots</a></code>&gt;
+A set of name-value pairs. These arguments are
+processed with <code><a href="../../rlang/html/nse-defuse.html">rlang::quos()</a></code> and support unquote via <code><a href="../../rlang/html/nse-force.html">!!</a></code> and
+unquote-splice via <code><a href="../../rlang/html/nse-force.html">!!!</a></code>. Use <code style="white-space: pre;">:=</code> to create columns that start with a dot.
+</p>
+<p>Arguments are evaluated sequentially.
+You can refer to previously created elements directly or using the <a href="../../rlang/html/tidyeval-data.html">.data</a>
+pronoun.
+To refer explicitly to objects in the calling environment, use <code><a href="../../rlang/html/nse-force.html">!!</a></code> or
+<a href="../../rlang/html/tidyeval-data.html">.env</a>, e.g. <code>!!.data</code> or <code>.env$.data</code> for the special case of an object
+named <code>.data</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.rows</code></td>
+<td>
+<p>The number of rows, useful to create a 0-column tibble or
+just as an additional check.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Treatment of problematic column names:
+</p>
+
+<ul>
+<li> <p><code>"minimal"</code>: No name repair or checks, beyond basic existence,
+</p>
+</li>
+<li> <p><code>"unique"</code>: Make sure names are unique and not empty,
+</p>
+</li>
+<li> <p><code>"check_unique"</code>: (default value), no name repair, but check they are
+<code>unique</code>,
+</p>
+</li>
+<li> <p><code>"universal"</code>: Make the names <code>unique</code> and syntactic
+</p>
+</li>
+<li><p> a function: apply custom name repair (e.g., <code>.name_repair = make.names</code>
+for names in the style of base R).
+</p>
+</li>
+<li><p> A purrr-style anonymous function, see <code><a href="../../rlang/html/as_function.html">rlang::as_function()</a></code>
+</p>
+</li></ul>
+
+<p>This argument is passed on as <code>repair</code> to <code><a href="../../vctrs/html/vec_as_names.html">vctrs::vec_as_names()</a></code>.
+See there for more details on these terms and the strategies used
+to enforce them.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tibble, which is a colloquial term for an object of class
+<code><a href="tbl_df-class.html">tbl_df</a></code>. A <code><a href="tbl_df-class.html">tbl_df</a></code> object is also a data
+frame, i.e. it has class <code>data.frame</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Use <code><a href="as_tibble.html">as_tibble()</a></code> to turn an existing object into a tibble. Use
+<code>enframe()</code> to convert a named vector into a tibble. Name repair is
+detailed in <code><a href="../../vctrs/html/vec_as_names.html">vctrs::vec_as_names()</a></code>.
+See <a href="../../rlang/html/nse-force.html">quasiquotation</a> for more details on tidy dots semantics,
+i.e. exactly how  the <code>...</code> argument is processed.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Unnamed arguments are named with their expression:
+a &lt;- 1:5
+tibble(a, a * 2)
+
+# Scalars (vectors of length one) are recycled:
+tibble(a, b = a * 2, c = 1)
+
+# Columns are available in subsequent expressions:
+tibble(x = runif(10), y = x * 2)
+
+# tibble() never coerces its inputs,
+str(tibble(letters))
+str(tibble(x = list(diag(1), diag(2))))
+
+# or munges column names (unless requested),
+tibble(`a + b` = 1:5)
+
+# but it forces you to take charge of names, if they need repair:
+try(tibble(x = 1, x = 2))
+tibble(x = 1, x = 2, .name_repair = "unique")
+tibble(x = 1, x = 2, .name_repair = "minimal")
+
+## By default, non-syntactic names are allowed,
+df &lt;- tibble(`a 1` = 1, `a 2` = 2)
+## because you can still index by name:
+df[["a 1"]]
+df$`a 1`
+with(df, `a 1`)
+
+## Syntactic names are easier to work with, though, and you can request them:
+df &lt;- tibble(`a 1` = 1, `a 2` = 2, .name_repair = "universal")
+df$a.1
+
+## You can specify your own name repair function:
+tibble(x = 1, x = 2, .name_repair = make.unique)
+
+fix_names &lt;- function(x) gsub("\\s+", "_", x)
+tibble(`year 1` = 1, `year 2` = 2, .name_repair = fix_names)
+
+## purrr-style anonymous functions and constants
+## are also supported
+tibble(x = 1, x = 2, .name_repair = ~ make.names(., unique = TRUE))
+
+tibble(x = 1, x = 2, .name_repair = ~ c("a", "b"))
+
+# Tibbles can contain columns that are tibbles or matrices
+# if the number of rows is compatible. Unnamed tibbled are
+# spliced, i.e. the inner columns are inserted into the
+# tibble under construction.
+tibble(
+  a = 1:3,
+  tibble(
+    b = 4:6,
+    c = 7:9
+  ),
+  d = tibble(
+    e = tibble(
+      f = b
+    )
+  )
+)
+tibble(
+  a = 1:3,
+  b = diag(3),
+  c = cor(trees)
+)
+
+# data can not contain POSIXlt columns, or tibbles or matrices
+# with incompatible number of rows:
+try(tibble(y = strptime("2000/01/01", "%x")))
+try(tibble(a = 1:3, b = tibble(c = 4:7)))
+
+# Use := to create columns with names that start with a dot:
+tibble(.dotted = 3)
+tibble(.dotted := 3)
+
+# You can unquote an expression:
+x &lt;- 3
+tibble(x = 1, y = x)
+tibble(x = 1, y = !!x)
+
+# You can splice-unquote a list of quosures and expressions:
+tibble(!!! list(x = rlang::quo(1:10), y = quote(x * 2)))
+
+# Use .data, .env and !! to refer explicitly to columns or outside objects
+a &lt;- 1
+tibble(a = 2, b = a)
+tibble(a = 2, b = .data$a)
+tibble(a = 2, b = .env$a)
+tibble(a = 2, b = !!a)
+try(tibble(a = 2, b = .env$bogus))
+try(tibble(a = 2, b = !!bogus))
+
+# Use tibble_row() to construct a one-row tibble:
+tibble_row(a = 1, lm = lm(Height ~ Girth + Volume, data = trees))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tibble</em> version 3.1.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

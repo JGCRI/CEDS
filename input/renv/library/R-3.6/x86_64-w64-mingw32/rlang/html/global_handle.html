@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Register default global handlers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for global_handle {rlang}"><tr><td>global_handle {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Register default global handlers</h2>
+
+<h3>Description</h3>
+
+<p><code>global_handle()</code> sets up a default configuration for error,
+warning, and message handling. It calls:
+</p>
+
+<ul>
+<li> <p><code><a href="global_entrace.html">global_entrace()</a></code> to enable rlang errors and warnings globally.
+</p>
+</li>
+<li> <p><code><a href="global_prompt_install.html">global_prompt_install()</a></code> to recover from <code>packageNotFoundError</code>s
+with a user prompt to install the missing package. Note that at
+the time of writing (R 4.1), there are only very limited
+situations where this handler works.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+global_handle(entrace = TRUE, prompt_install = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>entrace</code></td>
+<td>
+<p>Passed as <code>enable</code> argument to <code><a href="global_entrace.html">global_entrace()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>prompt_install</code></td>
+<td>
+<p>Passed as <code>enable</code> argument to
+<code><a href="global_prompt_install.html">global_prompt_install()</a></code>.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

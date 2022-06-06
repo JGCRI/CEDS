@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read the content of a Drive file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_read_string {googledrive}"><tr><td>drive_read_string {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read the content of a Drive file</h2>
+
+<h3>Description</h3>
+
+<p>These functions return the content of a Drive file as either a
+string or raw bytes. You will likely need to do additional work to parse
+the content into a useful R object.
+</p>
+<p><code><a href="drive_download.html">drive_download()</a></code> is the more generally useful function, but for certain
+file types, such as comma-separated values (MIME type <code>text/csv</code>), it can
+be handy to read data directly from Google Drive and avoid writing to disk.
+</p>
+<p>Just as for <code><a href="drive_download.html">drive_download()</a></code>, native Google file types, such as Google
+Sheets or Docs, must be exported as a conventional MIME type. See the help
+for <code><a href="drive_download.html">drive_download()</a></code> for more.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_read_string(file, type = NULL, encoding = NULL)
+
+drive_read_raw(file, type = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file of interest on your Google
+Drive. Can be a name or path, a file id or URL marked with <code><a href="as_id.html">as_id()</a></code>, or a
+<code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. Only consulted if <code>file</code> is a native Google file.
+Specifies the desired type of the exported file. Will be processed via
+<code><a href="drive_mime_type.html">drive_mime_type()</a></code>, so either a file extension like <code>"pdf"</code> or a full MIME
+type like <code>"application/pdf"</code> is acceptable.</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>Passed along to <code><a href="../../httr/html/content.html">httr::content()</a></code>. Describes the encoding of
+the <em>input</em> <code>file</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code>read_drive_string()</code>: a UTF-8 encoded string
+</p>
+</li>
+<li> <p><code>read_drive_raw()</code>: a <code><a href="../../base/html/raw.html">raw()</a></code> vector
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# comma-separated values --&gt; data.frame or tibble
+(chicken_csv &lt;- drive_example_remote("chicken.csv"))
+chicken_csv %&gt;%
+  drive_read_string() %&gt;%
+  read.csv(text = .)
+
+# Google Doc --&gt; character vector
+(chicken_doc &lt;- drive_example_remote("chicken_doc"))
+chicken_doc %&gt;%
+  # NOTE: we must specify an export MIME type
+  drive_read_string(type = "text/plain") %&gt;%
+  strsplit(split = "(\r\n|\r|\n)") %&gt;%
+  .[[1]]
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

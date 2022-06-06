@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a Date-Time Object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_datetime_create {stringi}"><tr><td>stri_datetime_create {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a Date-Time Object</h2>
+
+<h3>Description</h3>
+
+<p>Constructs date-time objects from numeric representations.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_datetime_create(
+  year,
+  month,
+  day,
+  hour = 12L,
+  minute = 0L,
+  second = 0,
+  lenient = FALSE,
+  tz = NULL,
+  locale = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>year</code></td>
+<td>
+<p>integer vector; 0 is 1BC, -1 is 2BC, etc.</p>
+</td></tr>
+<tr valign="top"><td><code>month</code></td>
+<td>
+<p>integer vector; months are 1-based</p>
+</td></tr>
+<tr valign="top"><td><code>day</code></td>
+<td>
+<p>integer vector</p>
+</td></tr>
+<tr valign="top"><td><code>hour</code></td>
+<td>
+<p>integer vector</p>
+</td></tr>
+<tr valign="top"><td><code>minute</code></td>
+<td>
+<p>integer vector</p>
+</td></tr>
+<tr valign="top"><td><code>second</code></td>
+<td>
+<p>numeric vector; fractional seconds are allowed</p>
+</td></tr>
+<tr valign="top"><td><code>lenient</code></td>
+<td>
+<p>single logical value; should the operation be lenient?</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for the default time zone or
+a single string with time zone identifier, see <code><a href="stri_timezone_list.html">stri_timezone_list</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for default locale,
+or a single string with locale identifier; a non-Gregorian calendar
+may be specified by setting <code>@calendar=name</code> keyword</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>,
+<code>hour</code>, <code>minute</code>, and <code>second</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns an object of class <code><a href="../../base/html/DateTimeClasses.html">POSIXct</a></code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_fstr.html">stri_datetime_fstr</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_datetime_create(2015, 12, 31, 23, 59, 59.999)
+stri_datetime_create(5775, 8, 1, locale='@calendar=hebrew') # 1 Nisan 5775 -&gt; 2015-03-21
+stri_datetime_create(2015, 02, 29)
+stri_datetime_create(2015, 02, 29, lenient=TRUE)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

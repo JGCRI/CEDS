@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Show the structure of an html/xml document.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_structure {xml2}"><tr><td>xml_structure {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Show the structure of an html/xml document.</h2>
+
+<h3>Description</h3>
+
+<p>Show the structure of an html/xml document without displaying any of
+the values. This is useful if you want to get a high level view of the
+way a document is organised. Compared to <code>xml_structure</code>,
+<code>html_structure</code> prints the id and class attributes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_structure(x, indent = 2, file = "")
+
+html_structure(x, indent = 2, file = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>HTML/XML document (or part there of)</p>
+</td></tr>
+<tr valign="top"><td><code>indent</code></td>
+<td>
+<p>Number of spaces to ident</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A <a href="../../base/html/connection.html">connection</a>, or a character string naming the file
+to print to.  If <code>""</code> (the default), <code>cat</code> prints to the
+standard output connection, the console unless redirected by
+<code><a href="../../base/html/sink.html">sink</a></code>.
+If it is <code>"|cmd"</code>, the output is piped to the command given
+by &lsquo;<span class="file">cmd</span>&rsquo;, by opening a pipe connection.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+xml_structure(read_xml("&lt;a&gt;&lt;b&gt;&lt;c/&gt;&lt;c/&gt;&lt;/b&gt;&lt;d/&gt;&lt;/a&gt;"))
+
+rproj &lt;- read_html(system.file("extdata","r-project.html", package = "xml2"))
+xml_structure(rproj)
+xml_structure(xml_find_all(rproj, ".//p"))
+
+h &lt;- read_html("&lt;body&gt;&lt;p id = 'a'&gt;&lt;/p&gt;&lt;p class = 'c d'&gt;&lt;/p&gt;&lt;/body&gt;")
+html_structure(h)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

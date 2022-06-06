@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Locale-Insensitive Fixed Pattern Matching in 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for about_search_fixed {stringi}"><tr><td>about_search_fixed {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Locale-Insensitive Fixed Pattern Matching in <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p>String searching facilities described here
+provide a way to locate a specific sequence of bytes in a string.
+The search engine's settings may be tuned up (for example
+to perform case-insensitive search) via a call to the
+<code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code> function.
+</p>
+
+
+<h3>Byte Compare</h3>
+
+<p>The fast Knuth-Morris-Pratt search algorithm, with worst time complexity of
+O(n+p) (<code>n == length(str)</code>, <code>p == length(pattern)</code>)
+is implemented (with some tweaks for very short search patterns).
+</p>
+<p>Be aware that, for natural language processing,
+fixed pattern searching might not be what
+you actually require. It is because a bitwise match will
+not give correct results in cases of:
+</p>
+
+<ol>
+<li><p> accented letters;
+</p>
+</li>
+<li><p> conjoined letters;
+</p>
+</li>
+<li><p> ignorable punctuation;
+</p>
+</li>
+<li><p> ignorable case,
+</p>
+</li></ol>
+
+<p>see also <a href="about_search_coll.html">about_search_coll</a>.
+</p>
+<p>Note that the conversion of input data
+to Unicode is done as usual.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_fixed: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_opts_fixed.html">stri_opts_fixed</a>()</code>
+</p>
+<p>Other stringi_general_topics: 
+<code><a href="about_arguments.html">about_arguments</a></code>,
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_charclass.html">about_search_charclass</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="about_search_regex.html">about_search_regex</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="about_stringi.html">about_stringi</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

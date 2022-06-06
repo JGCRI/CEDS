@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use Catch for C++ Unit Testing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_catch {testthat}"><tr><td>use_catch {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use Catch for C++ Unit Testing</h2>
+
+<h3>Description</h3>
+
+<p>Add the necessary infrastructure to enable C++ unit testing
+in <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages with <a href="https://github.com/catchorg/Catch2">Catch</a> and
+<code>testthat</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_catch(dir = getwd())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>The directory containing an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Calling <code>use_catch()</code> will:
+</p>
+
+<ol>
+<li><p> Create a file <code>src/test-runner.cpp</code>, which ensures that the
+<code>testthat</code> package will understand how to run your package's
+unit tests,
+</p>
+</li>
+<li><p> Create an example test file <code>src/test-example.cpp</code>, which
+showcases how you might use Catch to write a unit test,
+</p>
+</li>
+<li><p> Add a test file <code>tests/testthat/test-cpp.R</code>, which ensures that
+<code>testthat</code> will run your compiled tests during invocations of
+<code>devtools::test()</code> or <code style="white-space: pre;">R CMD check</code>, and
+</p>
+</li>
+<li><p> Create a file <code>R/catch-routine-registration.R</code>, which ensures that
+<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> will automatically register this routine when
+<code>tools::package_native_routine_registration_skeleton()</code> is invoked.
+</p>
+</li></ol>
+
+<p>You will also need to:
+</p>
+
+<ul>
+<li><p> Add xml2 to Suggests, with e.g. <code>usethis::use_package("xml2", "Suggests")</code>
+</p>
+</li>
+<li><p> Add testthat to LinkingTo, with e.g.
+<code>usethis::use_package("testthat", "LinkingTo")</code>
+</p>
+</li></ul>
+
+<p>C++ unit tests can be added to C++ source files within the
+<code>src</code> directory of your package, with a format similar
+to <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> code tested with <code>testthat</code>. Here's a simple example
+of a unit test written with <code>testthat</code> + Catch:
+</p>
+<pre>
+context("C++ Unit Test") {
+  test_that("two plus two is four") {
+    int result = 2 + 2;
+    expect_true(result == 4);
+  }
+}
+</pre>
+<p>When your package is compiled, unit tests alongside a harness
+for running these tests will be compiled into your <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package,
+with the C entry point <code>run_testthat_tests()</code>. <code>testthat</code>
+will use that entry point to run your unit tests when detected.
+</p>
+
+
+<h3>Functions</h3>
+
+<p>All of the functions provided by Catch are
+available with the <code>CATCH_</code> prefix &ndash; see
+<a href="https://github.com/catchorg/Catch2/blob/master/docs/assertions.md">here</a>
+for a full list. <code>testthat</code> provides the
+following wrappers, to conform with <code>testthat</code>'s
+<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> interface:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<strong>Function</strong> </td><td style="text-align: left;"> <strong>Catch</strong> </td><td style="text-align: left;"> <strong>Description</strong> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>context</code> </td><td style="text-align: left;"> <code>CATCH_TEST_CASE</code> </td><td style="text-align: left;"> The context of a set of tests. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>test_that</code> </td><td style="text-align: left;"> <code>CATCH_SECTION</code> </td><td style="text-align: left;"> A test section. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>expect_true</code> </td><td style="text-align: left;"> <code>CATCH_CHECK</code> </td><td style="text-align: left;"> Test that an expression evaluates to <code>true</code>. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>expect_false</code> </td><td style="text-align: left;"> <code>CATCH_CHECK_FALSE</code> </td><td style="text-align: left;"> Test that an expression evalutes to <code>false</code>. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>expect_error</code> </td><td style="text-align: left;"> <code>CATCH_CHECK_THROWS</code> </td><td style="text-align: left;"> Test that evaluation of an expression throws an exception. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>expect_error_as</code> </td><td style="text-align: left;"> <code>CATCH_CHECK_THROWS_AS</code> </td><td style="text-align: left;"> Test that evaluation of an expression throws an exception of a specific class. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+<p>In general, you should prefer using the <code>testthat</code>
+wrappers, as <code>testthat</code> also does some work to
+ensure that any unit tests within will not be compiled or
+run when using the Solaris Studio compilers (as these are
+currently unsupported by Catch). This should make it
+easier to submit packages to CRAN that use Catch.
+</p>
+
+
+<h3>Symbol Registration</h3>
+
+<p>If you've opted to disable dynamic symbol lookup in your
+package, then you'll need to explicitly export a symbol
+in your package that <code>testthat</code> can use to run your unit
+tests. <code>testthat</code> will look for a routine with one of the names:
+</p>
+<pre>
+    C_run_testthat_tests
+    c_run_testthat_tests
+    run_testthat_tests
+</pre>
+<p>See <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Controlling-visibility">Controlling Visibility</a>
+and <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Registering-symbols">Registering Symbols</a>
+in the <strong>Writing R Extensions</strong> manual for more information.
+</p>
+
+
+<h3>Advanced Usage</h3>
+
+<p>If you'd like to write your own Catch test runner, you can
+instead use the <code>testthat::catchSession()</code> object in a file
+with the form:
+</p>
+<pre>
+#define TESTTHAT_TEST_RUNNER
+#include &lt;testthat.h&gt;
+
+void run()
+{
+    Catch::Session&amp; session = testthat::catchSession();
+    // interact with the session object as desired
+}
+</pre>
+<p>This can be useful if you'd like to run your unit tests
+with custom arguments passed to the Catch session.
+</p>
+
+
+<h3>Standalone Usage</h3>
+
+<p>If you'd like to use the C++ unit testing facilities provided
+by Catch, but would prefer not to use the regular <code>testthat</code>
+<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> testing infrastructure, you can manually run the unit tests
+by inserting a call to:
+</p>
+<pre>
+.Call("run_testthat_tests", PACKAGE = &lt;pkgName&gt;)
+</pre>
+<p>as necessary within your unit test suite.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://github.com/catchorg/Catch2/blob/master/docs/assertions.md">Catch</a>,
+the library used to enable C++ unit testing.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

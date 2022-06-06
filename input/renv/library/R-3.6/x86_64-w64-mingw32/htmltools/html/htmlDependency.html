@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Define an HTML dependency</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for htmlDependency {htmltools}"><tr><td>htmlDependency {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Define an HTML dependency</h2>
+
+<h3>Description</h3>
+
+<p>Define an HTML dependency (i.e. CSS and/or JavaScript bundled in a
+directory). HTML dependencies make it possible to use libraries like jQuery,
+Bootstrap, and d3 in a more composable and portable way than simply using
+script, link, and style tags.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+htmlDependency(
+  name,
+  version,
+  src,
+  meta = NULL,
+  script = NULL,
+  stylesheet = NULL,
+  head = NULL,
+  attachment = NULL,
+  package = NULL,
+  all_files = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Library name</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>Library version</p>
+</td></tr>
+<tr valign="top"><td><code>src</code></td>
+<td>
+<p>Unnamed single-element character vector indicating the full path
+of the library directory. Alternatively, a named character string with one
+or more elements, indicating different places to find the library; see
+Details.</p>
+</td></tr>
+<tr valign="top"><td><code>meta</code></td>
+<td>
+<p>Named list of meta tags to insert into document head</p>
+</td></tr>
+<tr valign="top"><td><code>script</code></td>
+<td>
+<p>Script(s) to include within the document head (should be
+specified relative to the <code>src</code> parameter).</p>
+</td></tr>
+<tr valign="top"><td><code>stylesheet</code></td>
+<td>
+<p>Stylesheet(s) to include within the document (should be
+specified relative to the <code>src</code> parameter).</p>
+</td></tr>
+<tr valign="top"><td><code>head</code></td>
+<td>
+<p>Arbitrary lines of HTML to insert into the document head</p>
+</td></tr>
+<tr valign="top"><td><code>attachment</code></td>
+<td>
+<p>Attachment(s) to include within the document head. See
+Details.</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>An R package name to indicate where to find the <code>src</code>
+directory when <code>src</code> is a relative path (see
+<code><a href="resolveDependencies.html">resolveDependencies()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>all_files</code></td>
+<td>
+<p>Whether all files under the <code>src</code> directory are
+dependency files. If <code>FALSE</code>, only the files specified in
+<code>script</code>, <code>stylesheet</code>, and <code>attachment</code> are treated as
+dependency files.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Each dependency can be located on the filesystem, at a relative or
+absolute URL, or both. The location types are indicated using the names of
+the <code>src</code> character vector: <code>file</code> for filesystem directory,
+<code>href</code> for URL. For example, a dependency that was both on disk and at
+a URL might use <code>src = c(file=filepath, href=url)</code>.
+</p>
+<p><code>script</code> can be given as one of the following:
+</p>
+
+<ul>
+<li><p> a character vector specifying various scripts to include relative to the
+value of <code>src</code>.
+Each is expanded into its own <code style="white-space: pre;">&lt;script&gt;</code> tag
+</p>
+</li>
+<li><p> A named list with any of the following fields:
+</p>
+
+<ul>
+<li> <p><code>src</code>,
+</p>
+</li>
+<li> <p><code>integrity</code>, &amp;
+</p>
+</li>
+<li> <p><code>crossorigin</code>,
+</p>
+</li>
+<li><p> any other valid <code style="white-space: pre;">&lt;script&gt;</code> attributes.
+</p>
+</li></ul>
+
+<p>allowing the use of SRI to ensure the integrity of packages downloaded from
+remote servers.
+Eg: <code>script = list(src = "min.js", integrity = "hash")</code>
+</p>
+</li>
+<li><p> An unamed list, containing a combination of named list with the fields
+mentioned previously, and strings.
+Eg:
+</p>
+
+<ul>
+<li> <p><code>script = list(list(src = "min.js"), "util.js", list(src = "log.js"))</code>
+</p>
+</li>
+<li> <p><code>script = "pkg.js"</code> is equivalent to
+</p>
+</li>
+<li> <p><code>script = list(src = "pkg.js")</code>.
+</p>
+</li></ul>
+
+</li></ul>
+
+<p><code>attachment</code> can be used to make the indicated files available to the
+JavaScript on the page via URL. For each element of <code>attachment</code>, an
+element <code style="white-space: pre;">&lt;link id="DEPNAME-ATTACHINDEX-attachment" rel="attachment" href="..."&gt;</code> is inserted, where <code>DEPNAME</code> is <code>name</code>. The value of
+<code>ATTACHINDEX</code> depends on whether <code>attachment</code> is named or not; if
+so, then it's the name of the element, and if not, it's the 1-based index
+of the element. JavaScript can retrieve the URL using something like
+<code style="white-space: pre;">document.getElementById(depname + "-" + index + "-attachment").href</code>.
+Note that depending on the rendering context, the runtime value of the href
+may be an absolute, relative, or data URI.
+</p>
+<p><code>htmlDependency</code> should not be called from the top-level of a package
+namespace with absolute paths (or with paths generated by
+<code>system.file()</code>) and have the result stored in a variable. This is
+because, when a binary package is built, R will run <code>htmlDependency</code>
+and store the path from the building machine's in the package. This path is
+likely to differ from the correct path on a machine that downloads and
+installs the binary package. If there are any absolute paths, instead of
+calling <code>htmlDependency</code> at build-time, it should be called at
+run-time. This can be done by wrapping the <code>htmlDependency</code> call in a
+function.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object that can be included in a list of dependencies passed to
+<code><a href="htmlDependencies.html">attachDependencies()</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Use <code><a href="htmlDependencies.html">attachDependencies()</a></code> to associate a list of
+dependencies with the HTML it belongs with.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

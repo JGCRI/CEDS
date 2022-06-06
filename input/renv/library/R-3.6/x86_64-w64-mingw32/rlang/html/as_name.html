@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract names from symbols</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_name {rlang}"><tr><td>as_name {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract names from symbols</h2>
+
+<h3>Description</h3>
+
+<p><code>as_name()</code> converts <a href="sym.html">symbols</a> to character strings. The
+conversion is deterministic. That is, the roundtrip <code>symbol -&gt; name -&gt; symbol</code> always gives the same result.
+</p>
+
+<ul>
+<li><p> Use <code>as_name()</code> when you need to transform a symbol to a string
+to <em>refer</em> to an object by its name.
+</p>
+</li>
+<li><p> Use <code><a href="as_label.html">as_label()</a></code> when you need to transform any kind of object to
+a string to <em>represent</em> that object with a short description.
+</p>
+</li></ul>
+
+<p>Expect <code>as_name()</code> to gain
+<a href="https://principles.tidyverse.org/names-attribute.html#minimal-unique-universal">name-repairing</a>
+features in the future.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_name(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A string or symbol, possibly wrapped in a <a href="quosure-tools.html">quosure</a>.
+If a string, the attributes are removed, if any.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>rlang::as_name()</code> is the <em>opposite</em> of <code><a href="../../base/html/name.html">base::as.name()</a></code>. If
+you're writing base R code, we recommend using <code><a href="../../base/html/name.html">base::as.symbol()</a></code>
+which is an alias of <code>as.name()</code> that follows a more modern
+terminology (R types instead of S modes).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector of length 1.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="as_label.html">as_label()</a></code> for converting any object to a single string
+suitable as a label. <code><a href="as_string.html">as_string()</a></code> for a lower-level version that
+doesn't unwrap quosures.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Let's create some symbols:
+foo &lt;- quote(foo)
+bar &lt;- sym("bar")
+
+# as_name() converts symbols to strings:
+foo
+as_name(foo)
+
+typeof(bar)
+typeof(as_name(bar))
+
+# as_name() unwraps quosured symbols automatically:
+as_name(quo(foo))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

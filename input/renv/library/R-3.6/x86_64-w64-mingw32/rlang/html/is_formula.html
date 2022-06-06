@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is object a formula?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_formula {rlang}"><tr><td>is_formula {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is object a formula?</h2>
+
+<h3>Description</h3>
+
+<p><code>is_formula()</code> tests whether <code>x</code> is a call to <code>~</code>. <code>is_bare_formula()</code>
+tests in addition that <code>x</code> does not inherit from anything else than
+<code>"formula"</code>.
+</p>
+<p><strong>Note</strong>: When we first implemented <code>is_formula()</code>, we thought it
+best to treat unevaluated formulas as formulas by default (see
+section below). Now we think this default introduces too many edge
+cases in normal code. We recommend always supplying <code>scoped = TRUE</code>. Unevaluated formulas can be handled via a <code>is_call(x, "~")</code>
+branch.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_formula(x, scoped = NULL, lhs = NULL)
+
+is_bare_formula(x, scoped = TRUE, lhs = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test.</p>
+</td></tr>
+<tr valign="top"><td><code>scoped</code></td>
+<td>
+<p>A boolean indicating whether the quosure is scoped,
+that is, has a valid environment attribute and inherits from
+<code>"formula"</code>. If <code>NULL</code>, the scope is not inspected.</p>
+</td></tr>
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>A boolean indicating whether the formula has a left-hand
+side. If <code>NULL</code>, the LHS is not inspected and <code>is_formula()</code>
+returns <code>TRUE</code> for both one- and two-sided formulas.</p>
+</td></tr>
+</table>
+
+
+<h3>Dealing with unevaluated formulas</h3>
+
+<p>At parse time, a formula is a simple call to <code>~</code> and it does not
+have a class or an environment. Once evaluated, the <code>~</code> call
+becomes a properly structured formula. Unevaluated formulas arise
+by quotation, e.g. <code>~~foo</code>, <code>quote(~foo)</code>, or <code>substitute(arg)</code>
+with <code>arg</code> being supplied a formula. Use the <code>scoped</code> argument to
+check whether the formula carries an environment.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+is_formula(~10)
+is_formula(10)
+
+# If you don't supply `lhs`, both one-sided and two-sided formulas
+# will return `TRUE`
+is_formula(disp ~ am)
+is_formula(~am)
+
+# You can also specify whether you expect a LHS:
+is_formula(disp ~ am, lhs = TRUE)
+is_formula(disp ~ am, lhs = FALSE)
+is_formula(~am, lhs = TRUE)
+is_formula(~am, lhs = FALSE)
+
+# Handling of unevaluated formulas is a bit tricky. These formulas
+# are special because they don't inherit from `"formula"` and they
+# don't carry an environment (they are not scoped):
+f &lt;- quote(~foo)
+f_env(f)
+
+# By default unevaluated formulas are treated as formulas
+is_formula(f)
+
+# Supply `scoped = TRUE` to ensure you have an evaluated formula
+is_formula(f, scoped = TRUE)
+
+# By default unevaluated formulas not treated as bare formulas
+is_bare_formula(f)
+
+# If you supply `scoped = TRUE`, they will be considered bare
+# formulas even though they don't inherit from `"formula"`
+is_bare_formula(f, scoped = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

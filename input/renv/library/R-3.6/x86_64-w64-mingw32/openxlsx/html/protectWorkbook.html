@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Protect a workbook from modifications</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for protectWorkbook {openxlsx}"><tr><td>protectWorkbook {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Protect a workbook from modifications</h2>
+
+<h3>Description</h3>
+
+<p>Protect or unprotect a workbook from modifications by the user in the graphical user interface. Replaces an existing protection.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+protectWorkbook(
+  wb,
+  protect = TRUE,
+  password = NULL,
+  lockStructure = FALSE,
+  lockWindows = FALSE,
+  type = 1L
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>protect</code></td>
+<td>
+<p>Whether to protect or unprotect the sheet (default=TRUE)</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>(optional) password required to unprotect the workbook</p>
+</td></tr>
+<tr valign="top"><td><code>lockStructure</code></td>
+<td>
+<p>Whether the workbook structure should be locked</p>
+</td></tr>
+<tr valign="top"><td><code>lockWindows</code></td>
+<td>
+<p>Whether the window position of the spreadsheet should be locked</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Lock type, default 1. From the xml documentation: 1 - Document is password protected. 2 - Document is recommended to be opened as read-only. 4 - Document is enforced to be opened as read-only. 8 - Document is locked for annotation.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Reinhold Kainhofer
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+addWorksheet(wb, "S1")
+protectWorkbook(wb, protect = TRUE, password = "Password", lockStructure = TRUE)
+## Not run: 
+saveWorkbook(wb, "WorkBook_Protection.xlsx", overwrite = TRUE)
+
+## End(Not run)
+# Remove the protection
+protectWorkbook(wb, protect = FALSE)
+## Not run: 
+saveWorkbook(wb, "WorkBook_Protection_unprotected.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

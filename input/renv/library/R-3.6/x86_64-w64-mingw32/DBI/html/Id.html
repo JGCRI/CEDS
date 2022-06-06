@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Refer to a table nested in a hierarchy (e.g. within a schema)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Id-class {DBI}"><tr><td>Id-class {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Refer to a table nested in a hierarchy (e.g. within a schema)</h2>
+
+<h3>Description</h3>
+
+<p>Objects of class <code>Id</code> have a single slot <code>name</code>, which is a named
+character vector.
+The <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code> method converts <code>Id</code> objects to strings.
+Support for <code>Id</code> objects depends on the database backend.
+They can be used in the following methods as <code>name</code> or <code>table</code> argument:
+</p>
+
+<ul>
+<li> <p><code><a href="dbCreateTable.html">dbCreateTable()</a></code>
+</p>
+</li>
+<li> <p><code><a href="dbAppendTable.html">dbAppendTable()</a></code>
+</p>
+</li>
+<li> <p><code><a href="dbReadTable.html">dbReadTable()</a></code>
+</p>
+</li>
+<li> <p><code><a href="dbWriteTable.html">dbWriteTable()</a></code>
+</p>
+</li>
+<li> <p><code><a href="dbExistsTable.html">dbExistsTable()</a></code>
+</p>
+</li>
+<li> <p><code><a href="dbRemoveTable.html">dbRemoveTable()</a></code>
+</p>
+</li></ul>
+
+<p>Objects of this class are also returned from <code><a href="dbListObjects.html">dbListObjects()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Id(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Components of the hierarchy, e.g. <code>schema</code>, <code>table</code>,
+or <code>cluster</code>, <code>catalog</code>, <code>schema</code>, <code>table</code>,
+depending on the database backend.
+For more on these concepts, see
+<a href="https://stackoverflow.com/questions/7022755/">https://stackoverflow.com/questions/7022755/</a></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Identifies a table in a specific schema:
+Id(schema = "dbo", table = "Customer")
+
+# Identifies a table in a specific cluster, catalog, and schema:
+Id(cluster = "mycluster", catalog = "mycatalog", schema = "myschema", table = "mytable")
+
+# Create a SQL expression for an identifier:
+dbQuoteIdentifier(ANSI(), Id(schema = "nycflights13", table = "flights"))
+
+# Write a table in a specific schema:
+## Not run: 
+dbWriteTable(con, Id(schema = "myschema", table = "mytable"), data.frame(a = 1))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

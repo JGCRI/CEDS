@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code return an object inheriting from the expected base...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for inheritance-expectations {testthat}"><tr><td>inheritance-expectations {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code return an object inheriting from the expected base type, S3 class,
+or S4 class?</h2>
+
+<h3>Description</h3>
+
+<p>See <a href="https://adv-r.hadley.nz/oo.html">https://adv-r.hadley.nz/oo.html</a> for an overview of R's OO systems, and
+the vocabulary used here.
+</p>
+
+<ul>
+<li> <p><code>expect_type(x, type)</code> checks that <code>typeof(x)</code> is <code>type</code>.
+</p>
+</li>
+<li> <p><code>expect_s3_class(x, class)</code> checks that <code>x</code> is an S3 object that
+<code><a href="../../base/html/class.html">inherits()</a></code> from <code>class</code>
+</p>
+</li>
+<li> <p><code>expect_s3_class(x, NA)</code> checks that <code>x</code> isn't an S3 object.
+</p>
+</li>
+<li> <p><code>expect_s4_class(x, class)</code> checks that <code>x</code> is an S4 object that
+<code><a href="../../methods/html/is.html">is()</a></code> <code>class</code>.
+</p>
+</li>
+<li> <p><code>expect_s4_class(x, NA)</code> checks that <code>x</code> isn't an S4 object.
+</p>
+</li></ul>
+
+<p>See <code><a href="expect_vector.html">expect_vector()</a></code> for testing properties of objects created by vctrs.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_type(object, type)
+
+expect_s3_class(object, class, exact = FALSE)
+
+expect_s4_class(object, class)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>String giving base type (as returned by <code><a href="../../base/html/typeof.html">typeof()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>Either a character vector of class names, or
+for <code>expect_s3_class()</code> and <code>expect_s4_class()</code>, an <code>NA</code> to assert
+that <code>object</code> isn't an S3 or S4 object.</p>
+</td></tr>
+<tr valign="top"><td><code>exact</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, checks that <code>object</code> inherits
+from <code>class</code>. If <code>TRUE</code>, checks that object has a class that's identical
+to <code>class</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- data.frame(x = 1:10, y = "x", stringsAsFactors = TRUE)
+# A data frame is an S3 object with class data.frame
+expect_s3_class(x, "data.frame")
+show_failure(expect_s4_class(x, "data.frame"))
+# A data frame is built from a list:
+expect_type(x, "list")
+
+# An integer vector is an atomic vector of type "integer"
+expect_type(x$x, "integer")
+# It is not an S3 object
+show_failure(expect_s3_class(x$x, "integer"))
+
+# Above, we requested data.frame() converts strings to factors:
+show_failure(expect_type(x$y, "character"))
+expect_s3_class(x$y, "factor")
+expect_type(x$y, "integer")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

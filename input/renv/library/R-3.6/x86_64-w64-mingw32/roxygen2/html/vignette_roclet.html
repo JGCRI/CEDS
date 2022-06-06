@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Re-build outdated vignettes.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vignette_roclet {roxygen2}"><tr><td>vignette_roclet {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Re-build outdated vignettes.</h2>
+
+<h3>Description</h3>
+
+<p>This rebuilds outdated vignettes with <a href="../../tools/html/buildVignette.html">tools::buildVignette</a>.
+By default, it will rebuild all vignettes if the source file is newer than
+the output pdf or html. (This means it will automatically re-build the
+vignette if you change the vignette source, but <em>not</em> when you
+change the R code). If you want finer control, add a Makefile to
+<code style="white-space: pre;">vignettes/</code> and roxygen2 will use that instead.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vignette_roclet()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>To prevent RStudio from re-building the vignettes again when checking
+your package, add <code>--no-build-vignettes</code> to the &quot;Build Source Package&quot;
+field in your project options.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other roclets: 
+<code><a href="namespace_roclet.html">namespace_roclet</a>()</code>,
+<code><a href="rd_roclet.html">rd_roclet</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

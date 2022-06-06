@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: SGR Control Sequence Aware Version of substr</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for substr_sgr {fansi}"><tr><td>substr_sgr {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>SGR Control Sequence Aware Version of substr</h2>
+
+<h3>Description</h3>
+
+<p>These functions are deprecated in favor of the <code><a href="substr_ctl.html">substr_ctl</a></code> flavors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+substr_sgr(
+  x,
+  start,
+  stop,
+  warn = getOption("fansi.warn", TRUE),
+  term.cap = getOption("fansi.term.cap", dflt_term_cap()),
+  normalize = getOption("fansi.normalize", FALSE),
+  carry = getOption("fansi.carry", FALSE),
+  terminate = getOption("fansi.terminate", TRUE)
+)
+
+substr2_sgr(
+  x,
+  start,
+  stop,
+  type = "chars",
+  round = "start",
+  tabs.as.spaces = getOption("fansi.tabs.as.spaces", FALSE),
+  tab.stops = getOption("fansi.tab.stops", 8L),
+  warn = getOption("fansi.warn", TRUE),
+  term.cap = getOption("fansi.term.cap", dflt_term_cap()),
+  normalize = getOption("fansi.normalize", FALSE),
+  carry = getOption("fansi.carry", FALSE),
+  terminate = getOption("fansi.terminate", TRUE)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character vector or object that can be coerced to such.</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>integer.  The first element to be extracted or replaced.</p>
+</td></tr>
+<tr valign="top"><td><code>stop</code></td>
+<td>
+<p>integer.  The last element to be extracted or replaced.</p>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to warn when potentially
+problematic <em>Control Sequences</em> are encountered.  These could cause the
+assumptions <code>fansi</code> makes about how strings are rendered on your display
+to be incorrect, for example by moving the cursor (see <code><a href="fansi.html">?fansi</a></code>).
+At most one warning will be issued per element in each input vector.  Will
+also warn about some badly encoded UTF-8 strings, but a lack of UTF-8
+warnings is not a guarantee of correct encoding (use <code><a href="../../base/html/validUTF8.html">validUTF8</a></code> for
+that).</p>
+</td></tr>
+<tr valign="top"><td><code>term.cap</code></td>
+<td>
+<p>character a vector of the capabilities of the terminal, can
+be any combination of &quot;bright&quot; (SGR codes 90-97, 100-107), &quot;256&quot; (SGR codes
+starting with &quot;38;5&quot; or &quot;48;5&quot;), &quot;truecolor&quot; (SGR codes starting with
+&quot;38;2&quot; or &quot;48;2&quot;), and &quot;all&quot;. &quot;all&quot; behaves as it does for the <code>ctl</code>
+parameter: &quot;all&quot; combined with any other value means all terminal
+capabilities except that one.  <code>fansi</code> will warn if it encounters SGR codes
+that exceed the terminal capabilities specified (see <code><a href="term_cap_test.html">term_cap_test</a></code>
+for details).  In versions prior to 1.0, <code>fansi</code> would also skip exceeding
+SGRs entirely instead of interpreting them.  You may add the string &quot;old&quot;
+to any otherwise valid <code>term.cap</code> spec to restore the pre 1.0 behavior.
+&quot;old&quot; will not interact with &quot;all&quot; the way other valid values for this
+parameter do.</p>
+</td></tr>
+<tr valign="top"><td><code>normalize</code></td>
+<td>
+<p>TRUE or FALSE (default) whether SGR sequence should be
+normalized out such that there is one distinct sequence for each SGR code.
+normalized strings will occupy more space (e.g. &quot;\033[31;42m&quot; becomes
+&quot;\033[31m\033[42m&quot;), but will work better with code that assumes each SGR
+code will be in its own escape as <code>crayon</code> does.</p>
+</td></tr>
+<tr valign="top"><td><code>carry</code></td>
+<td>
+<p>TRUE, FALSE (default), or a scalar string, controls whether to
+interpret the character vector as a &quot;single document&quot; (TRUE or string) or
+as independent elements (FALSE).  In &quot;single document&quot; mode, active state
+at the end of an input element is considered active at the beginning of the
+next vector element, simulating what happens with a document with active
+state at the end of a line.  If FALSE each vector element is interpreted as
+if there were no active state when it begins.  If character, then the
+active state at the end of the <code>carry</code> string is carried into the first
+element of <code>x</code> (see &quot;Replacement Functions&quot; for differences there).  The
+carried state is injected in the interstice between an imaginary zeroeth
+character and the first character of a vector element.  See the &quot;Position
+Semantics&quot; section of <code><a href="substr_ctl.html">substr_ctl</a></code> and the &quot;State Interactions&quot; section
+of <code><a href="fansi.html">?fansi</a></code> for details.  Except for <code><a href="strwrap_ctl.html">strwrap_ctl</a></code> where <code>NA</code> is
+treated as the string <code>"NA"</code>, <code>carry</code> will cause <code>NA</code>s in inputs to
+propagate through the remaining vector elements.</p>
+</td></tr>
+<tr valign="top"><td><code>terminate</code></td>
+<td>
+<p>TRUE (default) or FALSE whether substrings should have
+active state closed to avoid it bleeding into other strings they may be
+prepended onto.  This does not stop state from carrying if <code>carry = TRUE</code>.
+See the &quot;State Interactions&quot; section of <code><a href="fansi.html">?fansi</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>character(1L) partial matching
+<code>c("chars", "width", "graphemes")</code>, although types other than &quot;chars&quot; only
+work correctly with R &gt;= 3.2.2.  See <code><a href="../../base/html/nchar.html">?nchar</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>round</code></td>
+<td>
+<p>character(1L) partial matching
+<code>c("start", "stop", "both", "neither")</code>, controls how to resolve
+ambiguities when a <code>start</code> or <code>stop</code> value in &quot;width&quot; <code>type</code> mode falls
+within a wide display character.  See details.</p>
+</td></tr>
+<tr valign="top"><td><code>tabs.as.spaces</code></td>
+<td>
+<p>FALSE (default) or TRUE, whether to convert tabs to
+spaces (and supress tab related warnings).  This can only be set to TRUE if
+<code>strip.spaces</code> is FALSE.</p>
+</td></tr>
+<tr valign="top"><td><code>tab.stops</code></td>
+<td>
+<p>integer(1:n) indicating position of tab stops to use
+when converting tabs to spaces.  If there are more tabs in a line than
+defined tab stops the last tab stop is re-used.  For the purposes of
+applying tab stops, each input line is considered a line and the character
+count begins from the beginning of the input line.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of the same length and with the same attributes as
+x (after possible coercion and re-encoding to UTF-8).
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

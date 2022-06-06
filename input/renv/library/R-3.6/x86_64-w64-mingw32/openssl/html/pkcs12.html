@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: PKCS7 / PKCS12 bundles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write_p12 {openssl}"><tr><td>write_p12 {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>PKCS7 / PKCS12 bundles</h2>
+
+<h3>Description</h3>
+
+<p>PKCS7 and PKCS12 are container formats for storing multiple certificates and/or keys.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+write_p12(
+  key = NULL,
+  cert = NULL,
+  ca = NULL,
+  name = NULL,
+  password = NULL,
+  path = NULL
+)
+
+write_p7b(ca, path = NULL)
+
+read_p12(file, password = askpass)
+
+read_p7b(file, der = is.raw(file))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>a private key</p>
+</td></tr>
+<tr valign="top"><td><code>cert</code></td>
+<td>
+<p>certificate that matches 'key'</p>
+</td></tr>
+<tr valign="top"><td><code>ca</code></td>
+<td>
+<p>a list of certificates (the CA chain)</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>a friendly title for the bundle</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>string or function to set/get the password.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>a file where to write the output to. If 'NULL' the output is returned
+as a raw vector.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>path or raw vector with binary PKCS12 data to parse</p>
+</td></tr>
+<tr valign="top"><td><code>der</code></td>
+<td>
+<p>set to TRUE for binary files and FALSE for PEM files</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The PKCS#7 or P7B format is a container for one or more certificates. It can either
+be stored in binary form or in a PEM file. P7B files are typically used to import
+and export public certificates.
+</p>
+<p>The PKCS#12 or PFX format is a binary-only format for storing the server certificate,
+any intermediate certificates, and the private key into a single encryptable file.
+PFX files are usually found with the extensions .pfx and .p12. PFX files are typically
+used to import and export certificates with their private keys.
+</p>
+<p>The PKCS formats also allow for including signatures and CRLs but this is quite rare
+and these are currently ignored.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

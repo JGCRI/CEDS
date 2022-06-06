@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create vectors matching a given length</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new-vector {rlang}"><tr><td>new-vector {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create vectors matching a given length</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p>These functions construct vectors of a given length, with attributes
+specified via dots. Except for <code>new_list()</code> and <code>new_raw()</code>, the
+empty vectors are filled with typed <a href="missing.html">missing</a> values. This is in
+contrast to the base function <code><a href="../../base/html/vector.html">base::vector()</a></code> which creates
+zero-filled vectors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_logical(n, names = NULL)
+
+new_integer(n, names = NULL)
+
+new_double(n, names = NULL)
+
+new_character(n, names = NULL)
+
+new_complex(n, names = NULL)
+
+new_raw(n, names = NULL)
+
+new_list(n, names = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>The vector length.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>Names for the new vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Lifecycle</h3>
+
+<p>These functions are likely to be replaced by a vctrs equivalent in
+the future. They are in the questioning lifecycle stage.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>rep_along
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+new_list(10)
+new_logical(10)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Update Package Records in a Lockfile</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for record {renv}"><tr><td>record {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Update Package Records in a Lockfile</h2>
+
+<h3>Description</h3>
+
+<p>Use <code>record()</code> to record a new entry within an existing <code>renv</code> lockfile.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+record(records, lockfile = file.path(project, "renv.lock"), project = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>records</code></td>
+<td>
+<p>A list of named records, mapping package names to a definition
+of their source. See <strong>Records</strong> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>lockfile</code></td>
+<td>
+<p>The path to a lockfile. By default, the project lockfile
+is used.</p>
+</td></tr>
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function can be useful when you need to change one or more of the
+package records within an <code>renv</code> lockfile &ndash; for example, because a recorded
+package cannot be restored in a particular environment, and you know of a
+suitable alternative.
+</p>
+
+
+<h3>Records</h3>
+
+<p>Records can be provided either using the <strong>remotes</strong> short-hand syntax,
+or by using an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> list of entries to record within the lockfile. See
+<code>?lockfiles</code> for more information on the structure of a package record.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+
+# use digest 0.6.22 from package repositories -- different ways
+# of specifying the remote. use whichever is most natural
+renv::record("digest@0.6.22")
+renv::record(list(digest = "0.6.22"))
+renv::record(list(digest = "digest@0.6.22"))
+
+# alternatively, provide a full record as a list
+digest_record &lt;- list(
+  Package = "digest",
+  Version = "0.6.22",
+  Source  = "Repository",
+  Repository = "CRAN"
+)
+
+renv::record(list(digest = digest_record))
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract function name or namespace of a call</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for call_name {rlang}"><tr><td>call_name {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract function name or namespace of a call</h2>
+
+<h3>Description</h3>
+
+<p><code>call_name()</code> and <code>call_ns()</code> extract the function name or
+namespace of <em>simple</em> calls as a string. They return <code>NULL</code> for
+complex calls.
+</p>
+
+<ul>
+<li><p> Simple calls: <code>foo()</code>, <code>bar::foo()</code>.
+</p>
+</li>
+<li><p> Complex calls: <code>foo()()</code>, <code>bar::foo</code>, <code>foo$bar()</code>, <code>(function() NULL)()</code>.
+</p>
+</li></ul>
+
+<p>The <code>is_call_simple()</code> predicate helps you determine whether a call
+is simple. There are two invariants you can count on:
+</p>
+
+<ol>
+<li><p> If <code>is_call_simple(x)</code> returns <code>TRUE</code>, <code>call_name(x)</code> returns a
+string. Otherwise it returns <code>NULL</code>.
+</p>
+</li>
+<li><p> If <code>is_call_simple(x, ns = TRUE)</code> returns <code>TRUE</code>, <code>call_ns()</code>
+returns a string. Otherwise it returns <code>NULL</code>.
+</p>
+</li></ol>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+call_name(call)
+
+call_ns(call)
+
+is_call_simple(x, ns = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>A defused call.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>Whether call is namespaced. If <code>NULL</code>, <code>is_call_simple()</code>
+is insensitive to namespaces. If <code>TRUE</code>, <code>is_call_simple()</code>
+detects namespaced calls. If <code>FALSE</code>, it detects unnamespaced
+calls.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The function name or namespace as a string, or <code>NULL</code> if
+the call is not named or namespaced.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Is the function named?
+is_call_simple(quote(foo()))
+is_call_simple(quote(foo[[1]]()))
+
+# Is the function namespaced?
+is_call_simple(quote(list()), ns = TRUE)
+is_call_simple(quote(base::list()), ns = TRUE)
+
+# Extract the function name from quoted calls:
+call_name(quote(foo(bar)))
+call_name(quo(foo(bar)))
+
+# Namespaced calls are correctly handled:
+call_name(quote(base::matrix(baz)))
+
+# Anonymous and subsetted functions return NULL:
+call_name(quote(foo$bar()))
+call_name(quote(foo[[bar]]()))
+call_name(quote(foo()()))
+
+# Extract namespace of a call with call_ns():
+call_ns(quote(base::bar()))
+
+# If not namespaced, call_ns() returns NULL:
+call_ns(quote(bar()))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

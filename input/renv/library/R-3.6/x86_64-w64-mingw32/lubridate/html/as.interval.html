@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Change an object to an 'interval'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as.interval {lubridate}"><tr><td>as.interval {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Change an object to an <code>interval</code></h2>
+
+<h3>Description</h3>
+
+<p>as.interval changes difftime, Duration, Period and numeric class objects to
+intervals that begin at the specified date-time. Numeric objects are first
+coerced to timespans equal to the numeric value in seconds.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as.interval(x, start, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a duration, difftime, period, or numeric object that describes the length of the interval</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>a POSIXt or Date object that describes when the interval begins</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments to pass to as.interval</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>as.interval can be used to create accurate transformations between Period
+objects, which measure time spans in variable length units, and Duration objects,
+which measure timespans as an exact number of seconds. A start date-
+time must be supplied to make the conversion. Lubridate uses
+this start date to look up how many seconds each variable
+length unit (e.g. month, year) lasted for during the time span
+described. See
+<code><a href="as.duration.html">as.duration()</a></code>, <code><a href="as.period.html">as.period()</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>an interval object
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="interval.html">interval()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+diff &lt;- make_difftime(days = 31) #difftime
+as.interval(diff, ymd("2009-01-01"))
+as.interval(diff, ymd("2009-02-01"))
+
+dur &lt;- duration(days = 31) #duration
+as.interval(dur, ymd("2009-01-01"))
+as.interval(dur, ymd("2009-02-01"))
+
+per &lt;- period(months = 1) #period
+as.interval(per, ymd("2009-01-01"))
+as.interval(per, ymd("2009-02-01"))
+
+as.interval(3600, ymd("2009-01-01")) #numeric
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

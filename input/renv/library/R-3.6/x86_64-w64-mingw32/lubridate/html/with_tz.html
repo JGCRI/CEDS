@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get date-time in a different time zone</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_tz {lubridate}"><tr><td>with_tz {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get date-time in a different time zone</h2>
+
+<h3>Description</h3>
+
+<p>with_tz returns a date-time as it would appear in a different time zone.
+The actual moment of time measured does not change, just the time zone it is
+measured in. with_tz defaults to the Universal Coordinated time zone (UTC)
+when an unrecognized time zone is inputted. See <code><a href="../../base/html/timezones.html">Sys.timezone()</a></code>
+for more information on how R recognizes time zones.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_tz(time, tzone = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>time</code></td>
+<td>
+<p>a POSIXct, POSIXlt, Date, chron date-time object or a data.frame
+object. When a data.frame all POSIXt elements of a data.frame are processed
+with <code>with_tz()</code> and new data.frame is returned.</p>
+</td></tr>
+<tr valign="top"><td><code>tzone</code></td>
+<td>
+<p>a character string containing the time zone to convert to. R
+must recognize the name contained in the string as a time zone on your
+system.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a POSIXct object in the updated time zone
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="force_tz.html">force_tz()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- ymd_hms("2009-08-07 00:00:01", tz = "America/New_York")
+with_tz(x, "GMT")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

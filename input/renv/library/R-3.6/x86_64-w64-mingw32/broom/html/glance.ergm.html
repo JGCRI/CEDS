@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Glance at a(n) ergm object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glance.ergm {broom}"><tr><td>glance.ergm {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Glance at a(n) ergm object</h2>
+
+<h3>Description</h3>
+
+<p>Glance accepts a model object and returns a <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code>
+with exactly one row of model summaries. The summaries are typically
+goodness of fit measures, p-values for hypothesis tests on residuals,
+or model convergence information.
+</p>
+<p>Glance never returns information from the original call to the modeling
+function. This includes the name of the modeling function or any
+arguments passed to the modeling function.
+</p>
+<p>Glance does not calculate summary measures. Rather, it farms out these
+computations to appropriate methods and gathers the results together.
+Sometimes a goodness of fit measure will be undefined. In these cases
+the measure will be reported as <code>NA</code>.
+</p>
+<p>Glance returns the same number of columns regardless of whether the
+model matrix is rank-deficient or not. If so, entries in columns
+that no longer have a well-defined value are filled in with an <code>NA</code>
+of the appropriate type.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'ergm'
+glance(x, deviance = FALSE, mcmc = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An <code>ergm</code> object returned from a call to <code><a href="../../ergm/html/ergm.html">ergm::ergm()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>deviance</code></td>
+<td>
+<p>Logical indicating whether or not to report null and
+residual deviance for the model, as well as degrees of freedom. Defaults
+to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mcmc</code></td>
+<td>
+<p>Logical indicating whether or not to report MCMC interval,
+burn-in and sample size used to estimate the model. Defaults to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments to pass to <code><a href="../../ergm/html/summary.formula.html">ergm::summary()</a></code>.
+<strong>Cautionary note</strong>: Misspecified arguments may be silently ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>glance.ergm</code> returns a one-row tibble with the columns
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>independence</code></td>
+<td>
+<p>Whether the model assumed dyadic independence</p>
+</td></tr>
+<tr valign="top"><td><code>iterations</code></td>
+<td>
+<p>The number of MCMLE iterations performed before convergence</p>
+</td></tr>
+<tr valign="top"><td><code>logLik</code></td>
+<td>
+<p>If applicable, the log-likelihood associated with the model</p>
+</td></tr>
+<tr valign="top"><td><code>AIC</code></td>
+<td>
+<p>The Akaike Information Criterion</p>
+</td></tr>
+<tr valign="top"><td><code>BIC</code></td>
+<td>
+<p>The Bayesian Information Criterion</p>
+</td></tr>
+</table>
+<p>If <code>deviance = TRUE</code>, and if the model supports it, the
+tibble will also contain the columns
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>null.deviance</code></td>
+<td>
+<p>The null deviance of the model</p>
+</td></tr>
+<tr valign="top"><td><code>df.null</code></td>
+<td>
+<p>The degrees of freedom of the null deviance</p>
+</td></tr>
+<tr valign="top"><td><code>residual.deviance</code></td>
+<td>
+<p>The residual deviance of the model</p>
+</td></tr>
+<tr valign="top"><td><code>df.residual</code></td>
+<td>
+<p>The degrees of freedom of the residual deviance</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">glance()</a></code>, <code><a href="../../ergm/html/ergm.html">ergm::ergm()</a></code>, <code><a href="../../ergm/html/summary.ergm.html">ergm::summary.ergm()</a></code>
+</p>
+<p>Other ergm tidiers: 
+<code><a href="tidy.ergm.html">tidy.ergm</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

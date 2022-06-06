@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert object to a box</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_box {rlang}"><tr><td>as_box {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert object to a box</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>as_box()</code> boxes its input only if it is not already a box. The
+class is also checked if supplied.
+</p>
+</li>
+<li> <p><code>as_box_if()</code> boxes its input only if it not already a box, or if
+the predicate <code>.p</code> returns <code>TRUE</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+as_box(x, class = NULL)
+
+as_box_if(.x, .p, .class = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An R object.</p>
+</td></tr>
+<tr valign="top"><td><code>class, .class</code></td>
+<td>
+<p>A box class. If the input is already a box of
+that class, it is returned as is. If the input needs to be boxed,
+<code>class</code> is passed to <code><a href="box.html">new_box()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.x</code></td>
+<td>
+<p>An R object.</p>
+</td></tr>
+<tr valign="top"><td><code>.p</code></td>
+<td>
+<p>A predicate function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments passed to <code>.p</code>.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

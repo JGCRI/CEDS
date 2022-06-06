@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Scalar type predicates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for scalar-type-predicates {rlang}"><tr><td>scalar-type-predicates {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Scalar type predicates</h2>
+
+<h3>Description</h3>
+
+<p>These predicates check for a given type and whether the vector is
+&quot;scalar&quot;, that is, of length 1.
+</p>
+<p>In addition to the length check, <code>is_string()</code> and <code>is_bool()</code>
+return <code>FALSE</code> if their input is missing. This is useful for
+type-checking arguments, when your function expects a single string
+or a single <code>TRUE</code> or <code>FALSE</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_scalar_list(x)
+
+is_scalar_atomic(x)
+
+is_scalar_vector(x)
+
+is_scalar_integer(x)
+
+is_scalar_double(x)
+
+is_scalar_complex(x)
+
+is_scalar_character(x)
+
+is_scalar_logical(x)
+
+is_scalar_raw(x)
+
+is_string(x, string = NULL)
+
+is_scalar_bytes(x)
+
+is_bool(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>object to be tested.</p>
+</td></tr>
+<tr valign="top"><td><code>string</code></td>
+<td>
+<p>A string to compare to <code>x</code>. If a character vector,
+returns <code>TRUE</code> if at least one element is equal to <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="type-predicates.html">type-predicates</a>, <a href="bare-type-predicates.html">bare-type-predicates</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

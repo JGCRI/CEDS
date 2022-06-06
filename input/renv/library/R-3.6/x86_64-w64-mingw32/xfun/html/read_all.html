@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read all text files and concatenate their content</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read_all {xfun}"><tr><td>read_all {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read all text files and concatenate their content</h2>
+
+<h3>Description</h3>
+
+<p>Read files one by one, and optionally add text before/after the content. Then
+combine all content into one character vector.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_all(files, before = function(f) NULL, after = function(f) NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>A vector of file paths.</p>
+</td></tr>
+<tr valign="top"><td><code>before, after</code></td>
+<td>
+<p>A function that takes one file path as the input and
+returns values to be added before or after the content of the file.
+Alternatively, they can be constant values to be added.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# two files in this package
+fs = system.file("scripts", c("call-fun.R", "child-pids.sh"), package = "xfun")
+xfun::read_all(fs)
+
+# add file paths before file content and an empty line after content
+xfun::read_all(fs, before = function(f) paste("#-----", f, "-----"), after = "")
+
+# add constants
+xfun::read_all(fs, before = "/*", after = c("*/", ""))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

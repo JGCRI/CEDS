@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Helpers for pairlist and language nodes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_node {rlang}"><tr><td>new_node {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Helpers for pairlist and language nodes</h2>
+
+<h3>Description</h3>
+
+<p><strong>Important</strong>: These functions are for expert R programmers only.
+You should only use them if you feel comfortable manipulating low
+level R data structures at the C level. We export them at the R level
+in order to make it easy to prototype C code. They don't perform
+any type checking and can crash R very easily (try to take the CAR
+of an integer vector &mdash; save any important objects beforehand!).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_node(car, cdr = NULL)
+
+node_car(x)
+
+node_cdr(x)
+
+node_caar(x)
+
+node_cadr(x)
+
+node_cdar(x)
+
+node_cddr(x)
+
+node_poke_car(x, newcar)
+
+node_poke_cdr(x, newcdr)
+
+node_poke_caar(x, newcar)
+
+node_poke_cadr(x, newcar)
+
+node_poke_cdar(x, newcdr)
+
+node_poke_cddr(x, newcdr)
+
+node_tag(x)
+
+node_poke_tag(x, newtag)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>car, newcar, cdr, newcdr</code></td>
+<td>
+<p>The new CAR or CDR for the node. These
+can be any R objects.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A language or pairlist node. Note that these functions are
+barebones and do not perform any type checking.</p>
+</td></tr>
+<tr valign="top"><td><code>newtag</code></td>
+<td>
+<p>The new tag for the node. This should be a symbol.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Setters like <code>node_poke_car()</code> invisibly return <code>x</code> modified
+in place. Getters return the requested node component.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="duplicate.html">duplicate()</a></code> for creating copy-safe objects and
+<code><a href="../../base/html/list.html">base::pairlist()</a></code> for an easier way of creating a linked list of
+nodes.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

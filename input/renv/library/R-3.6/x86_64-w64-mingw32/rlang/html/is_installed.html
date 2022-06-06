@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Are packages installed in any of the libraries?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_installed {rlang}"><tr><td>is_installed {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Are packages installed in any of the libraries?</h2>
+
+<h3>Description</h3>
+
+<p>These functions check that packages are installed with minimal side
+effects. If installed, the packages will be loaded but not
+attached.
+</p>
+
+<ul>
+<li> <p><code>is_installed()</code> doesn't interact with the user. It simply
+returns <code>TRUE</code> or <code>FALSE</code> depending on whether the packages are
+installed.
+</p>
+</li>
+<li><p> In interactive sessions, <code>check_installed()</code> asks the user
+whether to install missing packages. If the user accepts, the
+packages are installed with <code>pak::pkg_install()</code> if available, or
+<code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code> otherwise. If the session is non
+interactive or if the user chooses not to install the packages,
+the current evaluation is aborted.
+</p>
+</li></ul>
+
+<p>You can disable the prompt by setting the
+<code>rlib_restart_package_not_found</code> global option to <code>FALSE</code>. In that
+case, missing packages always cause an error.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_installed(pkg, ..., version = NULL, compare = NULL)
+
+check_installed(
+  pkg,
+  reason = NULL,
+  ...,
+  version = NULL,
+  compare = NULL,
+  action = NULL,
+  call = caller_env()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>The package names. Can include version requirements,
+e.g. <code>"pkg (&gt;= 1.0.0)"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots must be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>Minimum versions for <code>pkg</code>. If supplied, must be the
+same length as <code>pkg</code>. <code>NA</code> elements stand for any versions.</p>
+</td></tr>
+<tr valign="top"><td><code>compare</code></td>
+<td>
+<p>A character vector of comparison operators to use
+for <code>version</code>. If supplied, must be the same length as
+<code>version</code>. If <code>NULL</code>, <code>&gt;=</code> is used as default for all
+elements. <code>NA</code> elements in <code>compare</code> are also set to <code>&gt;=</code> by
+default.</p>
+</td></tr>
+<tr valign="top"><td><code>reason</code></td>
+<td>
+<p>Optional string indicating why is <code>pkg</code> needed.
+Appears in error messages (if non-interactive) and user prompts
+(if interactive).</p>
+</td></tr>
+<tr valign="top"><td><code>action</code></td>
+<td>
+<p>An optional function taking <code>pkg</code> and <code>...</code>
+arguments. It is called by <code>check_installed()</code> when the user
+chooses to update outdated packages. The function is passed the
+missing and outdated packages as a character vector of names.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>is_installed()</code> returns <code>TRUE</code> if <em>all</em> package names
+provided in <code>pkg</code> are installed, <code>FALSE</code>
+otherwise. <code>check_installed()</code> either doesn't return or returns
+<code>NULL</code>.
+</p>
+
+
+<h3>Handling package not found errors</h3>
+
+<p><code>check_installed()</code> signals error conditions of class
+<code>rlib_error_package_not_found</code>. The error includes <code>pkg</code> and
+<code>version</code> fields. They are vectorised and may include several
+packages.
+</p>
+<p>The error is signalled with a <code>rlib_restart_package_not_found</code>
+restart on the stack to allow handlers to install the required
+packages. To do so, add a <a href="../../base/html/conditions.html">calling handler</a>
+for <code>rlib_error_package_not_found</code>, install the required packages,
+and invoke the restart without arguments. This restarts the check
+from scratch.
+</p>
+<p>The condition is not signalled in non-interactive sessions, in the
+restarting case, or if the <code>rlib_restart_package_not_found</code> user
+option is set to <code>FALSE</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+is_installed("utils")
+is_installed(c("base", "ggplot5"))
+is_installed(c("base", "ggplot5"), version = c(NA, "5.1.0"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

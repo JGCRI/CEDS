@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine testing status</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_testing {testthat}"><tr><td>is_testing {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine testing status</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>is_testing()</code> determine if code is being run as part of a test
+</p>
+</li>
+<li> <p><code>is_parallel()</code> if the test is being run in parallel.
+</p>
+</li>
+<li> <p><code>testing_package()</code> gives name of the package being tested.
+</p>
+</li></ul>
+
+<p>These are thin wrappers that retrieve the values of environment variables.
+To avoid creating a run-time dependency on testthat, you can inline the
+source of these functions directly into your package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_testing()
+
+is_parallel()
+
+testing_package()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

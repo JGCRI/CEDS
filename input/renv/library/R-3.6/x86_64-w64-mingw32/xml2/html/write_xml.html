@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write XML or HTML to disk.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write_xml {xml2}"><tr><td>write_xml {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write XML or HTML to disk.</h2>
+
+<h3>Description</h3>
+
+<p>This writes out both XML and normalised HTML. The default behavior will
+output the same format which was read. If you want to force output pass
+<code>option = "as_xml"</code> or <code>option = "as_html"</code> respectively.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+write_xml(x, file, ...)
+
+## S3 method for class 'xml_document'
+write_xml(x, file, ..., options = "format", encoding = "UTF-8")
+
+write_html(x, file, ...)
+
+## S3 method for class 'xml_document'
+write_html(x, file, ..., options = "format", encoding = "UTF-8")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document or node to write to disk. It's not possible to
+save nodesets containing more than one node.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Path to file or connection to write to.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments passed to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>options</code></td>
+<td>
+<p>default: &lsquo;format&rsquo;. Zero or more of
+</p>
+<dl>
+<dt>format</dt><dd><p>Format output</p>
+</dd><dt>no_declaration</dt><dd><p>Drop the XML declaration</p>
+</dd><dt>no_empty_tags</dt><dd><p>Remove empty tags</p>
+</dd><dt>no_xhtml</dt><dd><p>Disable XHTML1 rules</p>
+</dd><dt>require_xhtml</dt><dd><p>Force XHTML rules</p>
+</dd><dt>as_xml</dt><dd><p>Force XML output</p>
+</dd><dt>as_html</dt><dd><p>Force HTML output</p>
+</dd><dt>format_whitespace</dt><dd><p>Format with non-significant whitespace</p>
+</dd></dl>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>The character encoding to use in the document. The default
+encoding is &lsquo;UTF-8&rsquo;. Available encodings are specified at
+<a href="http://xmlsoft.org/html/libxml-encoding.html#xmlCharEncoding">http://xmlsoft.org/html/libxml-encoding.html#xmlCharEncoding</a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+h &lt;- read_html("&lt;p&gt;Hi!&lt;/p&gt;")
+
+tmp &lt;- tempfile(fileext = ".xml")
+write_xml(h, tmp, options = "format")
+readLines(tmp)
+
+# write formatted HTML output
+write_html(h, tmp, options = "format")
+readLines(tmp)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

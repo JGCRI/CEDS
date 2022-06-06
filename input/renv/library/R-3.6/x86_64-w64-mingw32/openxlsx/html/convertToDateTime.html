@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert from excel time number to R POSIXct type.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for convertToDateTime {openxlsx}"><tr><td>convertToDateTime {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert from excel time number to R POSIXct type.</h2>
+
+<h3>Description</h3>
+
+<p>Convert from excel time number to R POSIXct type.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+convertToDateTime(x, origin = "1900-01-01", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A numeric vector</p>
+</td></tr>
+<tr valign="top"><td><code>origin</code></td>
+<td>
+<p>date. Default value is for Windows Excel 2010</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters passed to as.POSIXct</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Excel stores dates as number of days from some origin date
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## 2014-07-01, 2014-06-30, 2014-06-29
+x &lt;- c(41821.8127314815, 41820.8127314815, NA, 41819, NaN)
+convertToDateTime(x)
+convertToDateTime(x, tz = "Australia/Perth")
+convertToDateTime(x, tz = "UTC")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

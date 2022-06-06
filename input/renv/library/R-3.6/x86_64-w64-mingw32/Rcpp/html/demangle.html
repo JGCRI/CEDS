@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: c++ type information</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for demangle {Rcpp}"><tr><td>demangle {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+c++ type information 
+</h2>
+
+<h3>Description</h3>
+
+<p><code>demangle</code> gives the demangled type, <code>sizeof</code> its size (in bytes). 
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+    demangle(type = "int", ...)
+    sizeof(type = "int", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>The type we want to demangle</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further argument for <code><a href="cppFunction.html">cppFunction</a></code> </p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The following function is compiled and invoked: 
+</p>
+<pre>
+        SEXP demangle_this_type(){
+            typedef 
+            return wrap( DEMANGLE(type) ) ;
+        }
+        
+        SEXP sizeof_this_type(){
+            typedef 
+            return wrap( sizeof(type) ) ;
+        }
+    </pre>    
+<p><code>DEMANGLE</code> is a macro in <span class="samp">Rcpp</span> that does the work. 
+</p>
+
+
+<h3>Value</h3>
+
+<p>The demangled type, as a string. 
+</p>
+
+
+<h3>Note</h3>
+
+<p>We only know how to demangle with gcc. If you know how to demangle types
+with your compiler, let us know. 
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Romain Francois &lt;romain@r-enthusiasts.com&gt;
+</p>
+
+
+<h3>References</h3>
+
+<p>See this <a href="http://gcc.gnu.org/onlinedocs/libstdc++/manual/ext_demangling.html">chapter</a>
+from the GNU C++ library manual. 
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="cppFunction.html">cppFunction</a></code> is used to compile the function <code>demangle</code> creates. 
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+    demangle( "int64_t" )
+    demangle( "uint64_t" )
+
+    demangle( "NumericVector" )
+    demangle( "std::map&lt;std::string,double&gt;" )
+    
+    sizeof( "long" )
+    sizeof( "long long" )
+    
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

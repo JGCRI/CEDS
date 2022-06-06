@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate UUID</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for UUIDgenerate {uuid}"><tr><td>UUIDgenerate {uuid}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Generate UUID
+</h2>
+
+<h3>Description</h3>
+
+<p><code>UUIDgenerate</code> generates a new Universally Unique Identifier. It
+can be either time-based or random.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+UUIDgenerate(use.time = NA, n = 1L)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>use.time</code></td>
+<td>
+<p>logical, if <code>TRUE</code> then time-based UUID is
+generated, if <code>FALSE</code> then a random UUID is generated, if
+<code>NA</code> then random one is generated if a sufficiently reliable
+source of random numbers can be found, otherwise a time-based UUID
+is generated.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>integer, number of UUIDs to generate. Must be in [0, 2^31)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>String, UUID in lowercase form.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Simon Urbanek, based on libuuid by Theodore Ts'o.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+UUIDgenerate()
+UUIDgenerate(TRUE)
+UUIDgenerate(FALSE)
+## see if the randomness is any good
+length(unique(UUIDgenerate(n=1000)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>uuid</em> version 1.0-3 <a href="00Index.html">Index</a>]</div>
+</body></html>

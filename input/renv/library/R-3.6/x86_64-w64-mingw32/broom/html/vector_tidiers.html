@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy atomic vectors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidy.numeric {broom}"><tr><td>tidy.numeric {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy atomic vectors</h2>
+
+<h3>Description</h3>
+
+<p>Vector tidiers are deprecated and will be removed from an upcoming release
+of broom.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'numeric'
+tidy(x, ...)
+
+## S3 method for class 'character'
+tidy(x, ...)
+
+## S3 method for class 'logical'
+tidy(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object of class &quot;numeric&quot;, &quot;integer&quot;, &quot;character&quot;, or &quot;logical&quot;.
+Most likely a named vector</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Extra arguments (not used)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Turn atomic vectors into data frames, where the names of the vector (if they
+exist) are a column and the values of the vector are a column.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other deprecated: 
+<code><a href="bootstrap.html">bootstrap</a>()</code>,
+<code><a href="confint_tidy.html">confint_tidy</a>()</code>,
+<code><a href="data.frame_tidiers.html">data.frame_tidiers</a></code>,
+<code><a href="finish_glance.html">finish_glance</a>()</code>,
+<code><a href="fix_data_frame.html">fix_data_frame</a>()</code>,
+<code><a href="summary_tidiers.html">summary_tidiers</a></code>,
+<code><a href="tidy.density.html">tidy.density</a>()</code>,
+<code><a href="tidy.dist.html">tidy.dist</a>()</code>,
+<code><a href="tidy.ftable.html">tidy.ftable</a>()</code>
+</p>
+<p>Other deprecated: 
+<code><a href="bootstrap.html">bootstrap</a>()</code>,
+<code><a href="confint_tidy.html">confint_tidy</a>()</code>,
+<code><a href="data.frame_tidiers.html">data.frame_tidiers</a></code>,
+<code><a href="finish_glance.html">finish_glance</a>()</code>,
+<code><a href="fix_data_frame.html">fix_data_frame</a>()</code>,
+<code><a href="summary_tidiers.html">summary_tidiers</a></code>,
+<code><a href="tidy.density.html">tidy.density</a>()</code>,
+<code><a href="tidy.dist.html">tidy.dist</a>()</code>,
+<code><a href="tidy.ftable.html">tidy.ftable</a>()</code>
+</p>
+<p>Other deprecated: 
+<code><a href="bootstrap.html">bootstrap</a>()</code>,
+<code><a href="confint_tidy.html">confint_tidy</a>()</code>,
+<code><a href="data.frame_tidiers.html">data.frame_tidiers</a></code>,
+<code><a href="finish_glance.html">finish_glance</a>()</code>,
+<code><a href="fix_data_frame.html">fix_data_frame</a>()</code>,
+<code><a href="summary_tidiers.html">summary_tidiers</a></code>,
+<code><a href="tidy.density.html">tidy.density</a>()</code>,
+<code><a href="tidy.dist.html">tidy.dist</a>()</code>,
+<code><a href="tidy.ftable.html">tidy.ftable</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+x &lt;- 1:5
+names(x) &lt;- letters[1:5]
+tidy(x)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

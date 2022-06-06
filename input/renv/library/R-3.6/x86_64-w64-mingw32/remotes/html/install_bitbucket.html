@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Install a package directly from Bitbucket</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for install_bitbucket {remotes}"><tr><td>install_bitbucket {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Install a package directly from Bitbucket</h2>
+
+<h3>Description</h3>
+
+<p>This function is vectorised so you can install multiple packages in
+a single command.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+install_bitbucket(
+  repo,
+  ref = "HEAD",
+  subdir = NULL,
+  auth_user = bitbucket_user(),
+  password = bitbucket_password(),
+  host = "api.bitbucket.org/2.0",
+  dependencies = NA,
+  upgrade = c("default", "ask", "always", "never"),
+  force = FALSE,
+  quiet = FALSE,
+  build = TRUE,
+  build_opts = c("--no-resave-data", "--no-manual", "--no-build-vignettes"),
+  build_manual = FALSE,
+  build_vignettes = FALSE,
+  repos = getOption("repos"),
+  type = getOption("pkgType"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>Repository address in the format
+<code style="white-space: pre;">username/repo[/subdir][@ref]</code>. Alternatively, you can
+specify <code>subdir</code> and/or <code>ref</code> using the respective parameters
+(see below); if both are specified, the values in <code>repo</code> take
+precedence.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>Desired git reference; could be a commit, tag, or branch name.
+Defaults to HEAD.</p>
+</td></tr>
+<tr valign="top"><td><code>subdir</code></td>
+<td>
+<p>Subdirectory within repo that contains the R package.</p>
+</td></tr>
+<tr valign="top"><td><code>auth_user</code></td>
+<td>
+<p>your account username if you're attempting to install
+a package hosted in a private repository (and your username is different
+to <code>username</code>). Defaults to the <code>BITBUCKET_USER</code> environment
+variable.</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>your password. Defaults to the <code>BITBUCKET_PASSWORD</code>
+environment variable. See details for further information on setting
+up a password.</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>GitHub API host to use. Override with your GitHub enterprise
+hostname, for example, <code>"github.hostname.com/api/v3"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>Which dependencies do you want to check?
+Can be a character vector (selecting from &quot;Depends&quot;, &quot;Imports&quot;,
+&quot;LinkingTo&quot;, &quot;Suggests&quot;, or &quot;Enhances&quot;), or a logical vector.
+</p>
+<p><code>TRUE</code> is shorthand for &quot;Depends&quot;, &quot;Imports&quot;, &quot;LinkingTo&quot; and
+&quot;Suggests&quot;. <code>NA</code> is shorthand for &quot;Depends&quot;, &quot;Imports&quot; and &quot;LinkingTo&quot;
+and is the default. <code>FALSE</code> is shorthand for no dependencies (i.e.
+just check this package, not its dependencies).
+</p>
+<p>The value &quot;soft&quot; means the same as <code>TRUE</code>, &quot;hard&quot; means the same as <code>NA</code>.
+</p>
+<p>You can also specify dependencies from one or more additional fields,
+common ones include:
+</p>
+
+<ul>
+<li><p> Config/Needs/website - for dependencies used in building the pkgdown site.
+</p>
+</li>
+<li><p> Config/Needs/coverage for dependencies used in calculating test coverage.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>upgrade</code></td>
+<td>
+<p>Should package dependencies be upgraded? One of &quot;default&quot;, &quot;ask&quot;, &quot;always&quot;, or &quot;never&quot;. &quot;default&quot;
+respects the value of the <code>R_REMOTES_UPGRADE</code> environment variable if set,
+and falls back to &quot;ask&quot; if unset. &quot;ask&quot; prompts the user for which out of
+date packages to upgrade. For non-interactive sessions &quot;ask&quot; is equivalent
+to &quot;always&quot;. <code>TRUE</code> and <code>FALSE</code> are also accepted and correspond to
+&quot;always&quot; and &quot;never&quot; respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>Force installation, even if the remote state has not changed
+since the previous install.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If <code>TRUE</code>, suppress output.</p>
+</td></tr>
+<tr valign="top"><td><code>build</code></td>
+<td>
+<p>If <code>TRUE</code> build the package before installing.</p>
+</td></tr>
+<tr valign="top"><td><code>build_opts</code></td>
+<td>
+<p>Options to pass to <code style="white-space: pre;">R CMD build</code>, only used when <code>build</code> is <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>build_manual</code></td>
+<td>
+<p>If <code>FALSE</code>, don't build PDF manual ('&ndash;no-manual').</p>
+</td></tr>
+<tr valign="top"><td><code>build_vignettes</code></td>
+<td>
+<p>If <code>FALSE</code>, don't build package vignettes ('&ndash;no-build-vignettes').</p>
+</td></tr>
+<tr valign="top"><td><code>repos</code></td>
+<td>
+<p>A character vector giving repositories to use.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Type of package to <code>update</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>To install from a private repo, or more generally, access the
+Bitbucket API with your own credentials, you will need to get an access
+token. You can create an access token following the instructions found in
+the
+<a href="https://support.atlassian.com/bitbucket-cloud/docs/app-passwords/">Bitbucket
+App Passwords documentation</a>. The App Password requires read-only access to
+your repositories and pull requests. Then store your password in the
+environment variable <code>BITBUCKET_PASSWORD</code> (e.g. <code>evelynwaugh:swordofhonour</code>)
+</p>
+<p>Note that on Windows, authentication requires the &quot;libcurl&quot; download
+method. You can set the default download method via the
+<code>download.file.method</code> option:</p>
+<pre>options(download.file.method = "libcurl")
+</pre>
+<p>In particular, if unset, RStudio sets the download method to &quot;wininet&quot;.
+To override this, you might want to set it to &quot;libcurl&quot; in your
+R profile, see <a href="../../base/html/Startup.html">base::Startup</a>. The caveat of the &quot;libcurl&quot; method is
+that it does <em>not</em> set the system proxies automatically, see
+&quot;Setting Proxies&quot; in <code><a href="../../utils/html/download.file.html">utils::download.file()</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Bitbucket API docs:
+<a href="https://confluence.atlassian.com/bitbucket/use-the-bitbucket-cloud-rest-apis-222724129.html">https://confluence.atlassian.com/bitbucket/use-the-bitbucket-cloud-rest-apis-222724129.html</a>
+</p>
+<p>Other package installation: 
+<code><a href="install_bioc.html">install_bioc</a>()</code>,
+<code><a href="install_cran.html">install_cran</a>()</code>,
+<code><a href="install_dev.html">install_dev</a>()</code>,
+<code><a href="install_github.html">install_github</a>()</code>,
+<code><a href="install_gitlab.html">install_gitlab</a>()</code>,
+<code><a href="install_git.html">install_git</a>()</code>,
+<code><a href="install_local.html">install_local</a>()</code>,
+<code><a href="install_svn.html">install_svn</a>()</code>,
+<code><a href="install_url.html">install_url</a>()</code>,
+<code><a href="install_version.html">install_version</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+install_bitbucket("sulab/mygene.r@default")
+install_bitbucket("djnavarro/lsr")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

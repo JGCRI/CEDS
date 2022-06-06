@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Ranking</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_rank {stringi}"><tr><td>stri_rank {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Ranking</h2>
+
+<h3>Description</h3>
+
+<p>This function ranks each string in a character vector according to a
+locale-dependent lexicographic order.
+It is a portable replacement for the base <code>xtfrm</code> function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_rank(str, ..., opts_collator = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>a character vector</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional settings for <code>opts_collator</code></p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator</code></td>
+<td>
+<p>a named list with <span class="pkg">ICU</span> Collator's options,
+see <code><a href="stri_opts_collator.html">stri_opts_collator</a></code>, <code>NULL</code>
+for default collation options</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Missing values result in missing ranks and tied observations receive
+the same ranks (based on min).
+</p>
+<p>For more information on <span class="pkg">ICU</span>'s Collator and how to tune it up
+in <span class="pkg">stringi</span>, refer to <code><a href="stri_opts_collator.html">stri_opts_collator</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The result is a vector of ranks corresponding to each
+string in <code>str</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Collation</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/collation/">https://unicode-org.github.io/icu/userguide/collation/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_rank(c('hladny', 'chladny'), locale='pl_PL')
+stri_rank(c('hladny', 'chladny'), locale='sk_SK')
+
+stri_rank("a" %s+% c(1, 100, 2, 101, 11, 10))  # lexicographic order
+stri_rank("a" %s+% c(1, 100, 2, 101, 11, 10), numeric=TRUE)
+
+# Ordering a data frame with respect to two criteria:
+X &lt;- data.frame(a=c("b", NA, "b", "b", NA, "a", "a", "c"), b=runif(8))
+X[order(stri_rank(X$a), X$b), ]
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

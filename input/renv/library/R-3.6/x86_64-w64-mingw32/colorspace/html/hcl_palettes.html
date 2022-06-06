@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: HCL Color Palettes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hcl_palettes {colorspace}"><tr><td>hcl_palettes {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>HCL Color Palettes</h2>
+
+<h3>Description</h3>
+
+<p>Qualitative, sequential (single-hue and multi-hue), and diverging
+color palettes based on the HCL (hue-chroma-luminance) color model.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hcl_palettes(type = NULL, palette = NULL, plot = FALSE, n = 5L, ...)
+
+## S3 method for class 'hcl_palettes'
+print(x, ...)
+
+## S3 method for class 'hcl_palettes'
+summary(object, ...)
+
+## S3 method for class 'hcl_palettes'
+plot(x, n = 5L, fixup = TRUE, off = NULL, border = NULL, ...)
+
+qualitative_hcl(
+  n,
+  h = c(0, 360 * (n - 1)/n),
+  c = 80,
+  l = 60,
+  fixup = TRUE,
+  alpha = 1,
+  palette = NULL,
+  rev = FALSE,
+  register = "",
+  ...,
+  h1,
+  h2,
+  c1,
+  l1
+)
+
+sequential_hcl(
+  n,
+  h = 260,
+  c = 80,
+  l = c(30, 90),
+  power = 1.5,
+  gamma = NULL,
+  fixup = TRUE,
+  alpha = 1,
+  palette = NULL,
+  rev = FALSE,
+  register = "",
+  ...,
+  h1,
+  h2,
+  c1,
+  c2,
+  l1,
+  l2,
+  p1,
+  p2,
+  cmax,
+  c.
+)
+
+diverging_hcl(
+  n,
+  h = c(260, 0),
+  c = 80,
+  l = c(30, 90),
+  power = 1.5,
+  gamma = NULL,
+  fixup = TRUE,
+  alpha = 1,
+  palette = NULL,
+  rev = FALSE,
+  register = "",
+  ...,
+  h1,
+  h2,
+  c1,
+  l1,
+  l2,
+  p1,
+  p2,
+  cmax
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>character indicating type of HCL palette.</p>
+</td></tr>
+<tr valign="top"><td><code>palette</code></td>
+<td>
+<p>character. Name of HCL color palette.</p>
+</td></tr>
+<tr valign="top"><td><code>plot</code></td>
+<td>
+<p>logical. Should the selected HCL color palettes be visualized?</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>the number of colors (<i>&gt;= 1</i>) to be in the palette.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed to <code><a href="hex.html">hex</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x, object</code></td>
+<td>
+<p>A <code>hcl_palettes</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>fixup</code></td>
+<td>
+<p>logical. Should the color be corrected to a valid RGB value?</p>
+</td></tr>
+<tr valign="top"><td><code>off</code></td>
+<td>
+<p>numeric. Vector of length 2 indicating horizontal and vertical
+offsets between the color rectangles displayed.</p>
+</td></tr>
+<tr valign="top"><td><code>border</code></td>
+<td>
+<p>character. Color of rectangle borders.</p>
+</td></tr>
+<tr valign="top"><td><code>h, h1, h2</code></td>
+<td>
+<p>hue value in the HCL color description, has to be in [0, 360].</p>
+</td></tr>
+<tr valign="top"><td><code>c, c., c1, c2</code></td>
+<td>
+<p>chroma value in the HCL color description.</p>
+</td></tr>
+<tr valign="top"><td><code>l, l1, l2</code></td>
+<td>
+<p>luminance value in the HCL color description.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>numeric vector of values in the range <code>[0, 1]</code> for alpha
+transparency channel (0 means transparent and 1 means opaque).</p>
+</td></tr>
+<tr valign="top"><td><code>rev</code></td>
+<td>
+<p>logical. Should the color palette vector be returned in reverse order?</p>
+</td></tr>
+<tr valign="top"><td><code>register</code></td>
+<td>
+<p>character. If set to a non-empty character string, the corresponding
+palette is registered with that name for subsequent use (within the same session).</p>
+</td></tr>
+<tr valign="top"><td><code>power, p1, p2</code></td>
+<td>
+<p>control parameter determining how chroma and luminance should
+be increased (1 = linear, 2 = quadratic, etc.).</p>
+</td></tr>
+<tr valign="top"><td><code>gamma</code></td>
+<td>
+<p>Deprecated.</p>
+</td></tr>
+<tr valign="top"><td><code>cmax</code></td>
+<td>
+<p>Maximum chroma value in the HCL color description.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The HCL (hue-chroma-luminance) color model is a perceptual color model
+obtained by using polar coordinates in CIE <code><a href="LUV.html">LUV</a></code> space
+(i.e., <code><a href="polarLUV.html">polarLUV</a></code>), where steps of equal size correspond to
+approximately equal perceptual changes in color. By taking polar coordinates
+the resulting three dimensions capture the three perceptual axes very well:
+hue is the type of color, chroma the colorfulness compared
+to the corresponding gray, and luminance the brightness. This makes it relatively
+easy to create balanced palettes through trajectories in this HCL space.
+In contrast, in the more commonly-used <code><a href="HSV.html">HSV</a></code> (hue-saturation-value)
+model (a simple transformation of <code><a href="RGB.html">RGB</a></code>), the three axes are
+confounded so that luminance changes along with the hue leading to very
+unbalanced palettes (see <code><a href="rainbow_hcl.html">rainbow_hcl</a></code> for further illustrations).
+</p>
+<p>Three types of palettes are derived based on the HCL model: </p>
+
+<ul>
+<li><p> Qualitative: Designed for coding categorical information, i.e.,
+where no particular ordering of categories is available and every color
+should receive the same perceptual weight.
+</p>
+</li>
+<li><p> Sequential: Designed for coding ordered/numeric information, i.e.,
+where colors go from high to low (or vice versa).
+</p>
+</li>
+<li><p> Diverging: Designed for coding numeric information around a central
+neutral value, i.e., where colors diverge from neutral to two extremes.
+</p>
+</li></ul>
+
+<p>The corresponding functions are <code>qualitative_hcl</code>, <code>sequential_hcl</code>,
+and <code>diverging_hcl</code>. Their construction principles are explained in more detail below.
+At the core is the luminance axis (i.e., light-dark contrasts):
+These are easily decoded by humans and matched to high-low differences in the underlying
+data. Therefore, <code>sequential_hcl</code> palettes are always based on a <em>monotonic</em>
+luminance sequence whereas the colors in a <code>qualitative_hcl</code> palette all have the
+<em>same</em> luminance. Finally, <code>diverging_hcl</code> palettes use the same monotonic
+luminance sequence in both &ldquo;arms&rdquo; of the palette, i.e., correspond to
+two balanced sequential palettes diverging from the same neutral value.
+The other two axes, hue and chroma, are used to enhance the luminance information and/or
+to further discriminate the color.
+</p>
+<p>All three palette functions specify trajectories in HCL space and hence need either
+single values or intervals of the coordinates <code>h</code>, <code>c</code>, <code>l</code>. Their
+interfaces are always designed such that <code>h</code>, <code>c</code>, <code>l</code> can take vector
+arguments (as needed) but alternatively or additionally <code>h1</code>/<code>h2</code>,
+<code>c1</code>/<code>c2</code>/<code>cmax</code>, and <code>l1</code>/<code>l2</code> can be specified. If so,
+the latter coordinates overwrite the former.
+</p>
+<p><code>qualitative_hcl</code> distinguishes the underlying categories by a sequence of
+hues while keeping both chroma and luminance constant to give each color in the
+resulting palette the same perceptual weight. Thus, <code>h</code> should be a pair of
+hues (or equivalently <code>h1</code> and <code>h2</code> can be used) with the starting and
+ending hue of the palette. Then, an equidistant sequence between these hues is
+employed, by default spanning the full color wheel (i.e, the full 360 degrees).
+Chroma <code>c</code> (or equivalently <code>c1</code>) and luminance <code>l</code> (or equivalently
+<code>l1</code>) are constants.
+</p>
+<p><code>sequential_hcl</code> codes the underlying numeric values by a monotonic sequence
+of increasing (or decreasing) luminance. Thus, the <code>l</code> argument should provide
+a vector of length 2 with starting and ending luminance (equivalently, <code>l1</code> and
+<code>l2</code> can be used). Without chroma (i.e., <code>c = 0</code>), this simply corresponds
+to a grayscale palette like <code><a href="../../grDevices/html/gray.colors.html">gray.colors</a></code>. For adding chroma, a simple
+strategy would be to pick a single hue (via <code>h</code> or <code>h1</code>) and then decrease
+chroma from some value (<code>c</code> or <code>c1</code>) to zero (i.e., gray) along with
+increasing luminance. For bringing out the extremes (a dark high-chroma color vs.
+a light gray) this is already very effective. For distinguishing also colors in the
+middle two strategies can be employed: (a) Hue can be varied as well by specifying an
+interval of hues in <code>h</code> (or beginning hue <code>h1</code> and ending hue <code>h2</code>).
+(b) Instead of a decreasing chroma a triangular chroma trajectory can be employed
+from <code>c1</code> over <code>cmax</code> to <code>c2</code> (or equivalently a vector <code>c</code> of
+length 3). This yields high-chroma colors in the middle of the palette that are
+more easily distinguished from the dark and light extremes. Finally, instead of
+employing linear trajectories, power transformations are supported in chroma and
+luminance via a vector <code>power</code> (or separate <code>p1</code> and <code>p2</code>). If
+<code>power[2]</code> (or <code>p2</code>) for the luminance trajectory is missing, it defaults
+to <code>power[1]</code>/<code>p1</code> from the chroma trajectory.
+</p>
+<p><code>diverging_hcl</code> codes the underlying numeric values by a triangular luminance
+sequence with different hues in the left and in the right arm of the palette. Thus,
+it can be seen as a combination of two sequential palettes with some restrictions:
+(a) a single hue is used for each arm of the palette, (b) chroma and luminance trajectory
+are balanced between the two arms, (c) the neutral central value has zero chroma.
+To specify such a palette a vector of two hues <code>h</code> (or equivalently <code>h1</code>
+and <code>h2</code>), either a single chroma value <code>c</code> (or <code>c1</code>) or a vector
+of two chroma values <code>c</code> (or <code>c1</code> and <code>cmax</code>), a vector of two
+luminances <code>l</code> (or <code>l1</code> and <code>l2</code>), and power parameter(s) <code>power</code>
+(or <code>p1</code> and <code>p2</code>) are used. For more flexible diverging palettes without
+the restrictrictions above (and consequently more parameters)
+<code><a href="divergingx_hcl.html">divergingx_hcl</a></code> is available. For backward compatibility, <code>diverge_hcl</code>
+is a copy of <code>diverging_hcl</code>.
+</p>
+<p>To facilitate using HCL-based palettes a wide range of example palettes are
+provided in the package and can be specified by a name instead of a set of
+parameters/coordinates. The examples have been taken from the literature and many
+approximate color palettes from other software packages such as ColorBrewer.org
+(<span class="pkg">RColorBrewer</span>), CARTO colors (<span class="pkg">rcartocolor</span>), <span class="pkg">scico</span>, or <span class="pkg">virids</span>. The
+function <code>hcl_palettes</code> can be used to query the available pre-specified palettes. It
+comes with a <code>print</code> method (listing names and types), a <code>summary</code> method
+(additionally listing the underlying parameters/coordinates), and a <code>plot</code>
+method that creates a <code><a href="swatchplot.html">swatchplot</a></code> with suitable labels.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>qualitative_hcl</code>, <code>sequential_hcl</code>, <code>diverging_hcl</code> return
+a vector of <code>n</code> color strings (hex codes).
+</p>
+<p>The function <code>hcl_palettes</code> returns a data frame of class <code>"hcl_palettes"</code>
+where each row contains information about one of the requested palettes (name, type,
+HCL trajectory coordinates). Suitable <code>print</code>, <code>summary</code>, and <code>plot</code>
+methods are available.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Hornik K, Murrell P (2009).  Escaping RGBland:
+Selecting Colors for Statistical Graphics.  <em>Computational Statistics &amp;
+Data Analysis</em>, <b>53</b>, 3259&ndash;3270.
+doi: <a href="https://doi.org/10.1016/j.csda.2008.11.033">10.1016/j.csda.2008.11.033</a>
+Preprint available from
+<a href="https://www.zeileis.org/papers/Zeileis+Hornik+Murrell-2009.pdf">https://www.zeileis.org/papers/Zeileis+Hornik+Murrell-2009.pdf</a>.
+</p>
+<p>Stauffer R, Mayr GJ, Dabernig M, Zeileis A (2015).  Somewhere Over the
+Rainbow: How to Make Effective Use of Colors in Meteorological
+Visualizations.  <em>Bulletin of the American Meteorological Society</em>,
+<b>96</b>(2), 203&ndash;216.
+doi: <a href="https://doi.org/10.1175/BAMS-D-13-00155.1">10.1175/BAMS-D-13-00155.1</a>
+</p>
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="divergingx_hcl.html">divergingx_hcl</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## overview of all _named_ HCL palettes
+hcl_palettes()
+
+## visualize
+hcl_palettes("qualitative", plot = TRUE)
+hcl_palettes("sequential (single-hue)", n = 7, plot = TRUE)
+hcl_palettes("sequential (multi-hue)", n = 7, plot = TRUE)
+hcl_palettes("diverging", n = 7, plot = TRUE)
+
+## inspect a specific palette
+## (upper-case, spaces, etc. are ignored for matching)
+hcl_palettes(palette = "Dark 2")
+hcl_palettes(palette = "dark2")
+
+## set up actual colors
+qualitative_hcl(4, h = c(0, 288), c = 50, l = 60) ## by hand
+qualitative_hcl(4, palette = "dark2")             ## by name
+qualitative_hcl(4, palette = "dark2", c = 80)     ## by name plus modification
+
+## how HCL palettes are constructed:
+## by varying the perceptual properties via hue/chroma/luminance
+swatchplot(
+  "Hue"       = sequential_hcl(5, h = c(0, 300), c = c(60, 60), l = 65),
+  "Chroma"    = sequential_hcl(5, h = 0, c = c(100, 0), l = 65, rev = TRUE, power = 1),
+  "Luminance" = sequential_hcl(5, h = 260, c = c(25, 25), l = c(25, 90), rev = TRUE, power = 1),
+  off = 0
+)
+
+## for qualitative palettes luminance and chroma are fixed, varying only hue
+hclplot(qualitative_hcl(9, c = 50, l = 70))
+
+## single-hue sequential palette (h = 260) with linear vs. power-transformed trajectory
+hclplot(sequential_hcl(7, h = 260, c = 80, l = c(35, 95), power = 1))
+hclplot(sequential_hcl(7, h = 260, c = 80, l = c(35, 95), power = 1.5))
+
+## advanced single-hue sequential palette with triangular chroma trajectory
+## (piecewise linear vs. power-transformed)
+hclplot(sequential_hcl(7, h = 245, c = c(40, 75, 0), l = c(30, 95), power = 1))
+hclplot(sequential_hcl(7, h = 245, c = c(40, 75, 0), l = c(30, 95), power = c(0.8, 1.4)))
+
+## multi-hue sequential palette with small hue range and triangular chroma vs.
+## large hue range and linear chroma trajectory
+hclplot(sequential_hcl(7, h = c(260, 220), c = c(50, 75, 0), l = c(30, 95), power = 1))
+hclplot(sequential_hcl(7, h = c(260, 60), c = 60, l = c(40, 95), power = 1))
+
+## balanced diverging palette constructed from two simple single-hue sequential
+## palettes (for hues 260/blue and 0/red)
+hclplot(diverging_hcl(7, h = c(260, 0), c = 80, l = c(35, 95), power = 1))
+
+## to register a particular adapted palette for re-use in the same session
+## with a new name the register=... argument can be used once, e.g.,
+diverging_hcl(7, palette = "Tropic", h2 = 0, register = "mytropic")
+
+## subsequently palete="mytropic" is available in diverging_hcl() and the diverging
+## ggplot2 scales such as scale_color_continuous_diverging() etc.
+demoplot(diverging_hcl(11, "mytropic"), type = "map")
+
+## to register this palette in all R sessions you could place the following
+## code in a startup script (e.g., .Rprofile):
+## colorspace::diverging_hcl(7, palette = "Tropic", h2 = 0, register = "mytropic")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

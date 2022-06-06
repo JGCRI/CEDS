@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Test if paths are relative or absolute</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_abs_path {xfun}"><tr><td>is_abs_path {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Test if paths are relative or absolute</h2>
+
+<h3>Description</h3>
+
+<p>On Unix, check if the paths start with &lsquo;<span class="file">/</span>&rsquo; or &lsquo;<span class="file">~</span>&rsquo; (if they do, they
+are absolute paths). On Windows, check if a path remains the same (via
+<code>xfun::<a href="same_path.html">same_path</a>()</code>) if it is prepended with &lsquo;<span class="file">./</span>&rsquo; (if it
+does, it is a relative path).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_abs_path(x)
+
+is_rel_path(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector of paths.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A logical vector.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::is_abs_path(c("C:/foo", "foo.txt", "/Users/john/", tempdir()))
+xfun::is_rel_path(c("C:/foo", "foo.txt", "/Users/john/", tempdir()))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

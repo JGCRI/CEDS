@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert Hexadecimal Color Specifications to sRGB Objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hex2RGB {colorspace}"><tr><td>hex2RGB {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert Hexadecimal Color Specifications to sRGB Objects</h2>
+
+<h3>Description</h3>
+
+<p>This function takes a vector of strings of the form <code>"#RRGGBB"</code>
+(hexadecimal color descriptions) into <code><a href="sRGB.html">sRGB</a></code> objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hex2RGB(x, gamma = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a vector of hexadecimal color descriptions.</p>
+</td></tr>
+<tr valign="top"><td><code>gamma</code></td>
+<td>
+<p>Whether to apply gamma-correction.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function converts device-dependent color descriptions of the form
+<code>"#RRGGBB"</code> into sRGB color descriptions (linearized if <code>gamma</code> is
+<code>TRUE</code>).  The alpha channel will be ignored if given
+(<code>"#RRGGBBAA"</code>).
+</p>
+
+
+<h3>Value</h3>
+
+<p>An sRGB object describing the colors.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="hex.html">hex</a></code>, <code><a href="RGB.html">RGB</a></code>, <code><a href="sRGB.html">sRGB</a></code>,
+<code><a href="HSV.html">HSV</a></code>, <code><a href="XYZ.html">XYZ</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>,
+<code><a href="LUV.html">LUV</a></code>, <code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+hex2RGB(c("#FF0000","#00FF00", "#0000FF50"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

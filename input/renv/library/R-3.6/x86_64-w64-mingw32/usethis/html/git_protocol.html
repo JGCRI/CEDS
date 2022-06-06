@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: See or set the default Git protocol</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_protocol {usethis}"><tr><td>git_protocol {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>See or set the default Git protocol</h2>
+
+<h3>Description</h3>
+
+<p>Git operations that address a remote use a so-called &quot;transport protocol&quot;.
+usethis supports HTTPS and SSH. The protocol dictates the Git URL format used
+when usethis needs to configure the first GitHub remote for a repo:
+</p>
+
+<ul>
+<li> <p><code>protocol = "https"</code> implies <code style="white-space: pre;">https://github.com/&lt;OWNER&gt;/&lt;REPO&gt;.git</code>
+</p>
+</li>
+<li> <p><code>protocol = "ssh"</code> implies <code style="white-space: pre;">git@github.com:&lt;OWNER&gt;/&lt;REPO&gt;.git</code>
+</p>
+</li></ul>
+
+<p>Two helper functions are available:
+</p>
+
+<ul>
+<li> <p><code>git_protocol()</code> reveals the protocol &quot;in force&quot;. As of usethis v2.0.0,
+this defaults to &quot;https&quot;. You can change this for the duration of the
+R session with <code>use_git_protocol()</code>. Change the default for all R
+sessions with code like this in your <code>.Rprofile</code> (easily editable via
+<code><a href="edit.html">edit_r_profile()</a></code>):</p>
+<pre>options(usethis.protocol = "ssh")
+</pre>
+</li>
+<li> <p><code>use_git_protocol()</code> sets the Git protocol for the current R session
+</p>
+</li></ul>
+
+<p>This protocol only affects the Git URL for newly configured remotes. All
+existing Git remote URLs are always respected, whether HTTPS or SSH.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_protocol()
+
+use_git_protocol(protocol)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>protocol</code></td>
+<td>
+<p>One of &quot;https&quot; or &quot;ssh&quot;</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The protocol, either &quot;https&quot; or &quot;ssh&quot;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+git_protocol()
+
+use_git_protocol("ssh")
+git_protocol()
+
+use_git_protocol("https")
+git_protocol()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

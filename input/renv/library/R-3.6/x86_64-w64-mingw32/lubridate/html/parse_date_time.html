@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: User friendly date-time parsing functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for parse_date_time {lubridate}"><tr><td>parse_date_time {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>User friendly date-time parsing functions</h2>
+
+<h3>Description</h3>
+
+<p><code>parse_date_time()</code> parses an input vector into POSIXct date-time
+object. It differs from <code><a href="../../base/html/strptime.html">base::strptime()</a></code> in two respects. First,
+it allows specification of the order in which the formats occur without the
+need to include separators and the <code style="white-space: pre;">%</code> prefix. Such a formatting argument is
+referred to as &quot;order&quot;. Second, it allows the user to specify several
+format-orders to handle heterogeneous date-time character
+representations.
+</p>
+<p><code>parse_date_time2()</code> is a fast C parser of numeric orders.
+</p>
+<p><code>fast_strptime()</code> is a fast C parser of numeric formats only
+that accepts explicit format arguments, just like <code><a href="../../base/html/strptime.html">base::strptime()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+parse_date_time(
+  x,
+  orders,
+  tz = "UTC",
+  truncated = 0,
+  quiet = FALSE,
+  locale = Sys.getlocale("LC_TIME"),
+  select_formats = .select_formats,
+  exact = FALSE,
+  train = TRUE,
+  drop = FALSE
+)
+
+parse_date_time2(
+  x,
+  orders,
+  tz = "UTC",
+  exact = FALSE,
+  lt = FALSE,
+  cutoff_2000 = 68L
+)
+
+fast_strptime(x, format, tz = "UTC", lt = TRUE, cutoff_2000 = 68L)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a character or numeric vector of dates</p>
+</td></tr>
+<tr valign="top"><td><code>orders</code></td>
+<td>
+<p>a character vector of date-time formats. Each order string is
+a series of formatting characters as listed in <code><a href="../../base/html/strptime.html">base::strptime()</a></code> but
+might not include the <code>"%"</code> prefix. For example, &quot;ymd&quot; will match all the
+possible dates in year, month, day order. Formatting orders might include
+arbitrary separators. These are discarded. See details for the implemented
+formats. If multiple order strings are supplied, they are applied in turn
+for <code>parse_date_time2()</code> and <code>fast_strptime()</code>. For <code>parse_date_time()</code>
+the order of applied formats is determined by <code>select_formats</code> parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>a character string that specifies the time zone with which to
+parse the dates</p>
+</td></tr>
+<tr valign="top"><td><code>truncated</code></td>
+<td>
+<p>integer, number of formats that can be missing. The most
+common type of irregularity in date-time data is the truncation due to
+rounding or unavailability of the time stamp. If the <code>truncated</code> parameter
+is non-zero <code>parse_date_time()</code> also checks for truncated formats. For
+example,  if the format order is &quot;ymdHMS&quot; and <code>truncated = 3</code>,
+<code>parse_date_time()</code> will correctly parse incomplete date-times like
+<code style="white-space: pre;">2012-06-01 12:23</code>, <code style="white-space: pre;">2012-06-01 12</code> and <code>2012-06-01</code>. <b>NOTE:</b> The
+<code>ymd()</code> family of functions is based on <code><a href="../../base/html/strptime.html">base::strptime()</a></code> which currently
+fails to parse <code style="white-space: pre;">%Y-%m</code> formats.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, progress messages are not printed, and <code style="white-space: pre;">No formats found</code> error is suppressed and the function simply returns a
+vector of NAs.  This mirrors the behavior of base R functions
+<code><a href="../../base/html/strptime.html">base::strptime()</a></code> and <code><a href="../../base/html/as.POSIXlt.html">base::as.POSIXct()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>locale to be used, see <a href="../../base/html/locales.html">locales</a>. On Linux systems you
+can use <code>system("locale -a")</code> to list all the installed locales.</p>
+</td></tr>
+<tr valign="top"><td><code>select_formats</code></td>
+<td>
+<p>A function to select actual formats for parsing from a
+set of formats which matched a training subset of <code>x</code>. It receives a named
+integer vector and returns a character vector of selected formats. Names
+of the input vector are formats (not orders) that matched the training
+set. Numeric values are the number of dates (in the training set) that
+matched the corresponding format. You should use this argument if the
+default selection method fails to select the formats in the right
+order. By default the formats with most formatting tokens (<code style="white-space: pre;">%</code>) are
+selected and <code style="white-space: pre;">%Y</code> counts as 2.5 tokens (so that it has a priority over
+<code style="white-space: pre;">%y%m</code>). See examples.</p>
+</td></tr>
+<tr valign="top"><td><code>exact</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, the <code>orders</code> parameter is interpreted as an
+exact <code><a href="../../base/html/strptime.html">base::strptime()</a></code> format and no training or guessing are performed
+(i.e. <code>train</code>, <code>drop</code> parameters are irrelevant).</p>
+</td></tr>
+<tr valign="top"><td><code>train</code></td>
+<td>
+<p>logical, default <code>TRUE</code>. Whether to train formats on a subset
+of the input vector. The result of this is that supplied orders are sorted
+according to performance on this training set, which commonly results in
+increased performance. Please note that even when <code>train = FALSE</code> (and
+<code>exact = FALSE</code>) guessing of the actual formats is still performed on a
+pseudo-random subset of the original input vector. This might result in
+<code style="white-space: pre;">All formats failed to parse</code> error. See notes below.</p>
+</td></tr>
+<tr valign="top"><td><code>drop</code></td>
+<td>
+<p>logical, default <code>FALSE</code>. Whether to drop formats that didn't
+match on the training set. If <code>FALSE</code>, unmatched on the training set
+formats are tried as a last resort at the end of the parsing
+queue. Applies only when <code>train = TRUE</code>. Setting this parameter to <code>TRUE</code>
+might slightly speed up parsing in situations involving many
+formats. Prior to v1.7.0 this parameter was implicitly <code>TRUE</code>, which
+resulted in occasional surprising behavior when rare patterns where not
+present in the training set.</p>
+</td></tr>
+<tr valign="top"><td><code>lt</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, returned object is of class POSIXlt, and POSIXct
+otherwise. For compatibility with <code><a href="../../base/html/strptime.html">base::strptime()</a></code> the default is <code>TRUE</code>
+for <code>fast_strptime()</code> and <code>FALSE</code> for <code>parse_date_time2()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cutoff_2000</code></td>
+<td>
+<p>integer. For <code>y</code> format,  two-digit numbers smaller or equal
+to <code>cutoff_2000</code> are parsed as though starting with <code>20</code>, otherwise parsed
+as though starting with <code>19</code>. Available only for functions relying on
+<code>lubridate</code>s internal parser.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>a vector of formats. If multiple formats supplied they are
+applied in turn till success. The formats should include all the
+separators and each format letter must be prefixed with %, just as in the
+format argument of <code><a href="../../base/html/strptime.html">base::strptime()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>When several format-orders are specified, <code>parse_date_time()</code> selects
+(guesses) format-orders based on a training subset of the input
+strings. After guessing the formats are ordered according to the performance
+on the training set and applied recursively on the entire input vector. You
+can disable training with <code>train = FALSE</code>.
+</p>
+<p><code>parse_date_time()</code>, and all derived functions, such as <code>ymd_hms()</code>,
+<code>ymd()</code>, etc., will drop into <code>fast_strptime()</code> instead of
+<code><a href="../../base/html/strptime.html">base::strptime()</a></code> whenever the guessed from the input data formats are all
+numeric.
+</p>
+<p>The list below contains formats recognized by <span class="pkg">lubridate</span>. For numeric
+formats leading 0s are optional. As compared to <code><a href="../../base/html/strptime.html">base::strptime()</a></code>, some of
+the formats are new or have been extended for efficiency reasons. These
+formats are marked with &quot;(*)&quot; below. Fast parsers <code>parse_date_time2()</code> and
+<code>fast_strptime()</code> accept only formats marked with &quot;(!)&quot;.
+</p>
+ <dl>
+<dt><code>a</code></dt><dd><p>Abbreviated weekday name in the current
+locale. (Also matches full name)</p>
+</dd>
+<dt><code>A</code></dt><dd><p>Full weekday name in the current locale.  (Also matches
+abbreviated name).
+</p>
+<p>You don't need to specify <code>a</code> and <code>A</code> formats explicitly. Wday is
+automatically handled if <code>preproc_wday = TRUE</code></p>
+</dd>
+<dt><code>b</code> (!)</dt><dd><p>Abbreviated or full month name in the current locale. The C
+parser currently understands only English month names.</p>
+</dd>
+<dt><code>B</code> (!)</dt><dd><p>Same as b.</p>
+</dd>
+<dt><code>d</code> (!)</dt><dd><p>Day of the month as decimal number (01&ndash;31 or 0&ndash;31)</p>
+</dd>
+<dt><code>H</code> (!)</dt><dd><p>Hours as decimal number (00&ndash;24 or 0&ndash;24).</p>
+</dd>
+<dt><code>I</code> (!)</dt><dd><p>Hours as decimal number (01&ndash;12 or 1&ndash;12).</p>
+</dd>
+<dt><code>j</code></dt><dd><p>Day of year as decimal number (001&ndash;366 or 1&ndash;366).</p>
+</dd>
+<dt><code>q</code> (!*)</dt><dd><p>Quarter (1&ndash;4). The quarter month is added to the parsed
+month if <code>m</code> element is present.</p>
+</dd>
+<dt><code>m</code> (!*)</dt><dd><p>Month as decimal number (01&ndash;12 or 1&ndash;12). For
+<code>parse_date_time</code> also matches abbreviated and full months names as <code>b</code>
+and <code>B</code> formats. C parser understands only English month names.</p>
+</dd>
+<dt><code>M</code> (!)</dt><dd><p>Minute as decimal number (00&ndash;59 or 0&ndash;59).</p>
+</dd>
+<dt><code>p</code> (!)</dt><dd><p>AM/PM indicator in the locale. Commonly used in conjunction
+with <code>I</code> and <b>not</b> with <code>H</code>.  But <span class="pkg">lubridate</span>'s C parser accepts H
+format as long as hour is not greater than 12. C parser understands only
+English locale AM/PM indicator.</p>
+</dd>
+<dt><code>S</code> (!)</dt><dd><p>Second as decimal number (00&ndash;61 or 0&ndash;61), allowing for up
+to two leap-seconds (but POSIX-compliant implementations will ignore leap
+seconds).</p>
+</dd>
+<dt><code>OS</code></dt><dd><p>Fractional second.</p>
+</dd>
+<dt><code>U</code></dt><dd><p>Week of the year as decimal number (00&ndash;53 or 0&ndash;53) using
+Sunday as the first day 1 of the week (and typically with the first Sunday
+of the year as day 1 of week 1).  The US convention.</p>
+</dd>
+<dt><code>w</code></dt><dd><p>Weekday as decimal number (0&ndash;6, Sunday is 0).</p>
+</dd>
+<dt><code>W</code></dt><dd><p>Week of the year as decimal number (00&ndash;53 or 0&ndash;53) using
+Monday as the first day of week (and typically with the first Monday of the
+year as day 1 of week 1).  The UK convention.</p>
+</dd>
+<dt><code>y</code> (!*)</dt><dd><p>Year without century (00&ndash;99 or 0&ndash;99).  In
+<code>parse_date_time()</code> also matches year with century (Y format).</p>
+</dd>
+<dt><code>Y</code> (!)</dt><dd><p>Year with century.</p>
+</dd>
+<dt><code>z</code> (!*)</dt><dd><p>ISO8601 signed offset in hours and minutes from UTC. For
+example <code>-0800</code>, <code>-08:00</code> or <code>-08</code>, all represent 8 hours behind UTC. This
+format also matches the Z (Zulu) UTC indicator. Because <code><a href="../../base/html/strptime.html">base::strptime()</a></code>
+doesn't fully support ISO8601 this format is implemented as an union of 4
+formats: Ou (Z), Oz (-0800), OO (-08:00) and Oo (-08). You can use these
+formats as any other but it is rarely necessary. <code>parse_date_time2()</code> and
+<code>fast_strptime()</code> support all of these formats.</p>
+</dd>
+<dt><code>Om</code> (!*)</dt><dd><p>Matches numeric month and English alphabetic months
+(Both, long and abbreviated forms).</p>
+</dd>
+<dt><code>Op</code> (!*)</dt><dd><p>Matches AM/PM English indicator.</p>
+</dd>
+<dt><code>r</code> (*)</dt><dd><p>Matches <code>Ip</code> and <code>H</code> orders.</p>
+</dd>
+<dt><code>R</code> (*)</dt><dd><p>Matches <code>HM</code> and<code>IMp</code> orders.</p>
+</dd>
+<dt><code>T</code> (*)</dt><dd><p>Matches <code>IMSp</code>, <code>HMS</code>, and <code>HMOS</code> orders.</p>
+</dd>
+</dl>
+
+
+
+<h3>Value</h3>
+
+<p>a vector of POSIXct date-time objects
+</p>
+
+
+<h3>Note</h3>
+
+<p><code>parse_date_time()</code> (and the derivatives <code>ymd()</code>, <code>ymd_hms()</code>, etc.)
+relies on a sparse guesser that takes at most 501 elements from the
+supplied character vector in order to identify appropriate formats from
+the supplied orders. If you get the error <code style="white-space: pre;">All formats failed to parse</code>
+and you are confident that your vector contains valid dates, you should
+either set <code>exact</code> argument to <code>TRUE</code> or use functions that don't perform
+format guessing (<code>fast_strptime()</code>, <code>parse_date_time2()</code> or
+<code><a href="../../base/html/strptime.html">base::strptime()</a></code>).
+</p>
+<p>For performance reasons, when timezone is not UTC,
+<code>parse_date_time2()</code> and <code>fast_strptime()</code> perform no validity checks for
+daylight savings time. Thus, if your input string contains an invalid date
+time which falls into DST gap and <code>lt = TRUE</code> you will get an <code>POSIXlt</code>
+object with a non-existent time. If <code>lt = FALSE</code> your time instant will be
+adjusted to a valid time by adding an hour. See examples. If you want to
+get NA for invalid date-times use <code><a href="fit_to_timeline.html">fit_to_timeline()</a></code> explicitly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../base/html/strptime.html">base::strptime()</a></code>, <code><a href="ymd.html">ymd()</a></code>, <code><a href="ymd_hms.html">ymd_hms()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## ** orders are much easier to write **
+x &lt;- c("09-01-01", "09-01-02", "09-01-03")
+parse_date_time(x, "ymd")
+parse_date_time(x, "y m d")
+parse_date_time(x, "%y%m%d")
+#  "2009-01-01 UTC" "2009-01-02 UTC" "2009-01-03 UTC"
+
+## ** heterogeneous date-times **
+x &lt;- c("09-01-01", "090102", "09-01 03", "09-01-03 12:02")
+parse_date_time(x, c("ymd", "ymd HM"))
+
+## ** different ymd orders **
+x &lt;- c("2009-01-01", "02022010", "02-02-2010")
+parse_date_time(x, c("dmY", "ymd"))
+##  "2009-01-01 UTC" "2010-02-02 UTC" "2010-02-02 UTC"
+
+## ** truncated time-dates **
+x &lt;- c("2011-12-31 12:59:59", "2010-01-01 12:11", "2010-01-01 12", "2010-01-01")
+parse_date_time(x, "Ymd HMS", truncated = 3)
+
+## ** specifying exact formats and avoiding training and guessing **
+parse_date_time(x, c("%m-%d-%y", "%m%d%y", "%m-%d-%y %H:%M"), exact = TRUE)
+parse_date_time(c('12/17/1996 04:00:00','4/18/1950 0130'),
+                c('%m/%d/%Y %I:%M:%S','%m/%d/%Y %H%M'), exact = TRUE)
+
+## ** quarters and partial dates **
+parse_date_time(c("2016.2", "2016-04"), orders = "Yq")
+parse_date_time(c("2016", "2016-04"), orders = c("Y", "Ym"))
+
+## ** fast parsing **
+## Not run: 
+  options(digits.secs = 3)
+  ## random times between 1400 and 3000
+  tt &lt;- as.character(.POSIXct(runif(1000, -17987443200, 32503680000)))
+  tt &lt;- rep.int(tt, 1000)
+
+  system.time(out &lt;- as.POSIXct(tt, tz = "UTC"))
+  system.time(out1 &lt;- ymd_hms(tt)) # constant overhead on long vectors
+  system.time(out2 &lt;- parse_date_time2(tt, "YmdHMOS"))
+  system.time(out3 &lt;- fast_strptime(tt, "%Y-%m-%d %H:%M:%OS"))
+
+  all.equal(out, out1)
+  all.equal(out, out2)
+  all.equal(out, out3)
+
+## End(Not run)
+
+## ** how to use `select_formats` argument **
+## By default %Y has precedence:
+parse_date_time(c("27-09-13", "27-09-2013"), "dmy")
+
+## to give priority to %y format, define your own select_format function:
+
+my_select &lt;-   function(trained, drop=FALSE, ...){
+   n_fmts &lt;- nchar(gsub("[^%]", "", names(trained))) + grepl("%y", names(trained))*1.5
+   names(trained[ which.max(n_fmts) ])
+}
+
+parse_date_time(c("27-09-13", "27-09-2013"), "dmy", select_formats = my_select)
+
+## ** invalid times with "fast" parsing **
+parse_date_time("2010-03-14 02:05:06",  "YmdHMS", tz = "America/New_York")
+parse_date_time2("2010-03-14 02:05:06",  "YmdHMS", tz = "America/New_York")
+parse_date_time2("2010-03-14 02:05:06",  "YmdHMS", tz = "America/New_York", lt = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

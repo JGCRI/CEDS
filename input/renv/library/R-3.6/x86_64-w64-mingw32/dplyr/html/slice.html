@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset rows using their positions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for slice {dplyr}"><tr><td>slice {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset rows using their positions</h2>
+
+<h3>Description</h3>
+
+<p><code>slice()</code> lets you index rows by their (integer) locations. It allows you
+to select, remove, and duplicate rows. It is accompanied by a number of
+helpers for common use cases:
+</p>
+
+<ul>
+<li> <p><code>slice_head()</code> and <code>slice_tail()</code> select the first or last rows.
+</p>
+</li>
+<li> <p><code>slice_sample()</code> randomly selects rows.
+</p>
+</li>
+<li> <p><code>slice_min()</code> and <code>slice_max()</code> select rows with highest or lowest values
+of a variable.
+</p>
+</li></ul>
+
+<p>If <code>.data</code> is a <a href="grouped_df.html">grouped_df</a>, the operation will be performed on each group,
+so that (e.g.) <code>slice_head(df, n = 5)</code> will select the first five rows in
+each group.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+slice(.data, ..., .preserve = FALSE)
+
+slice_head(.data, ..., n, prop)
+
+slice_tail(.data, ..., n, prop)
+
+slice_min(.data, order_by, ..., n, prop, with_ties = TRUE)
+
+slice_max(.data, order_by, ..., n, prop, with_ties = TRUE)
+
+slice_sample(.data, ..., n, prop, weight_by = NULL, replace = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>slice()</code>: &lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Integer row
+values.
+</p>
+<p>Provide either positive values to keep, or negative values to drop.
+The values provided must be either all positive or all negative.
+Indices beyond the number of rows in the input are silently ignored.
+</p>
+<p>For <code>slice_helpers()</code>, these arguments are passed on to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>.preserve</code></td>
+<td>
+<p>Relevant when the <code>.data</code> input is grouped.
+If <code>.preserve = FALSE</code> (the default), the grouping structure
+is recalculated based on the resulting data, otherwise the grouping is kept as is.</p>
+</td></tr>
+<tr valign="top"><td><code>n, prop</code></td>
+<td>
+<p>Provide either <code>n</code>, the number of rows, or <code>prop</code>, the
+proportion of rows to select. If neither are supplied, <code>n = 1</code> will be
+used.
+</p>
+<p>If <code>n</code> is greater than the number of rows in the group (or <code>prop &gt; 1</code>),
+the result will be silently truncated to the group size. If the
+<code>prop</code>ortion of a group size is not an integer, it is rounded down.</p>
+</td></tr>
+<tr valign="top"><td><code>order_by</code></td>
+<td>
+<p>Variable or function of variables to order by.</p>
+</td></tr>
+<tr valign="top"><td><code>with_ties</code></td>
+<td>
+<p>Should ties be kept together? The default, <code>TRUE</code>,
+may return more rows than you request. Use <code>FALSE</code> to ignore ties,
+and return the first <code>n</code> rows.</p>
+</td></tr>
+<tr valign="top"><td><code>weight_by</code></td>
+<td>
+<p>Sampling weights. This must evaluate to a vector of
+non-negative numbers the same length as the input. Weights are
+automatically standardised to sum to 1.</p>
+</td></tr>
+<tr valign="top"><td><code>replace</code></td>
+<td>
+<p>Should sampling be performed with (<code>TRUE</code>) or without
+(<code>FALSE</code>, the default) replacement.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Slice does not work with relational databases because they have no
+intrinsic notion of row order. If you want to perform the equivalent
+operation, use <code><a href="filter.html">filter()</a></code> and <code><a href="ranking.html">row_number()</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following
+properties:
+</p>
+
+<ul>
+<li><p> Each row may appear 0, 1, or many times in the output.
+</p>
+</li>
+<li><p> Columns are not modified.
+</p>
+</li>
+<li><p> Groups are not modified.
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li></ul>
+
+
+
+<h3>Methods</h3>
+
+<p>These function are <strong>generic</strong>s, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>Methods available in currently loaded packages:
+</p>
+
+<ul>
+<li> <p><code>slice()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>slice_head()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>slice_tail()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>slice_min()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>slice_max()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>slice_sample()</code>: no methods found.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="arrange.html">arrange</a>()</code>,
+<code><a href="filter.html">filter</a>()</code>,
+<code><a href="mutate.html">mutate</a>()</code>,
+<code><a href="rename.html">rename</a>()</code>,
+<code><a href="select.html">select</a>()</code>,
+<code><a href="summarise.html">summarise</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+mtcars %&gt;% slice(1L)
+# Similar to tail(mtcars, 1):
+mtcars %&gt;% slice(n())
+mtcars %&gt;% slice(5:n())
+# Rows can be dropped with negative indices:
+slice(mtcars, -(1:4))
+
+# First and last rows based on existing order
+mtcars %&gt;% slice_head(n = 5)
+mtcars %&gt;% slice_tail(n = 5)
+
+# Rows with minimum and maximum values of a variable
+mtcars %&gt;% slice_min(mpg, n = 5)
+mtcars %&gt;% slice_max(mpg, n = 5)
+
+# slice_min() and slice_max() may return more rows than requested
+# in the presence of ties. Use with_ties = FALSE to suppress
+mtcars %&gt;% slice_min(cyl, n = 1)
+mtcars %&gt;% slice_min(cyl, n = 1, with_ties = FALSE)
+
+# slice_sample() allows you to random select with or without replacement
+mtcars %&gt;% slice_sample(n = 5)
+mtcars %&gt;% slice_sample(n = 5, replace = TRUE)
+
+# you can optionally weight by a variable - this code weights by the
+# physical weight of the cars, so heavy cars are more likely to get
+# selected
+mtcars %&gt;% slice_sample(weight_by = wt, n = 5)
+
+# Group wise operation ----------------------------------------
+df &lt;- tibble(
+  group = rep(c("a", "b", "c"), c(1, 2, 4)),
+  x = runif(7)
+)
+
+# All slice helpers operate per group, silently truncating to the group
+# size, so the following code works without error
+df %&gt;% group_by(group) %&gt;% slice_head(n = 2)
+
+# When specifying the proportion of rows to include non-integer sizes
+# are rounded down, so group a gets 0 rows
+df %&gt;% group_by(group) %&gt;% slice_head(prop = 0.5)
+
+# Filter equivalents --------------------------------------------
+# slice() expressions can often be written to use `filter()` and
+# `row_number()`, which can also be translated to SQL. For many databases,
+# you'll need to supply an explicit variable to use to compute the row number.
+filter(mtcars, row_number() == 1L)
+filter(mtcars, row_number() == n())
+filter(mtcars, between(row_number(), 5, n()))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Low-level RSA encryption</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rsa_encrypt {openssl}"><tr><td>rsa_encrypt {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Low-level RSA encryption</h2>
+
+<h3>Description</h3>
+
+<p>Asymmetric encryption and decryption with RSA. Because RSA can only encrypt messages
+smaller than the size of the key, it is typically used only for exchanging a random
+session-key. This session key is used to encipher arbitrary sized data via a stream
+cipher such as <a href="aes_cbc.html">aes_cbc</a>. See <code><a href="encrypt_envelope.html">encrypt_envelope</a></code> for a high-level
+wrappers combining RSA and AES in this way.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rsa_encrypt(data, pubkey = my_pubkey())
+
+rsa_decrypt(data, key = my_key(), password = askpass)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>raw vector of max 245 bytes (for 2048 bit keys) with data to encrypt/decrypt</p>
+</td></tr>
+<tr valign="top"><td><code>pubkey</code></td>
+<td>
+<p>public key or file path. See <code><a href="read_key.html">read_pubkey</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>private key or file path. See <code><a href="read_key.html">read_key</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>string or a function to read protected keys. See <code><a href="read_key.html">read_key</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate test keys
+key &lt;- rsa_keygen()
+pubkey &lt;- key$pubkey
+
+# Encrypt data with AES
+tempkey &lt;- rand_bytes(32)
+iv &lt;- rand_bytes(16)
+blob &lt;- aes_cbc_encrypt(system.file("CITATION"), tempkey, iv = iv)
+
+# Encrypt tempkey using receivers public RSA key
+ciphertext &lt;- rsa_encrypt(tempkey, pubkey)
+
+# Receiver decrypts tempkey from private RSA key
+tempkey &lt;- rsa_decrypt(ciphertext, key)
+message &lt;- aes_cbc_decrypt(blob, tempkey, iv)
+out &lt;- rawToChar(message)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

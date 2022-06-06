@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Color Vision Deficiency (CVD) Conversion Tables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cvd {colorspace}"><tr><td>cvd {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Color Vision Deficiency (CVD) Conversion Tables</h2>
+
+<h3>Description</h3>
+
+<p>Conversion tables for simulating different types of color vision deficiency (CVD):
+Protanomaly, deutanomaly, tritanomaly.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+protanomaly_cvd
+
+deutanomaly_cvd
+
+tritanomaly_cvd
+</pre>
+
+
+<h3>Format</h3>
+
+<p>Lists of 3x3 RGB-color transformation matrices for the various types of CVD. Each list contains 11 transformation matrices 
+representing increasingly severe color vision deficiency.
+</p>
+
+
+<h3>Details</h3>
+
+<p>Machado et al. (2009) have established a novel model, that allows to handle normal color
+vision, anomalous trichromacy, and dichromacy in a unified way. They also provide conversion
+formulas along with tables of certain constants that allow to simulate various types of
+CVD. See <code><a href="simulate_cvd.html">simulate_cvd</a></code> for the corresponding simulation functions.
+</p>
+
+
+<h3>References</h3>
+
+<p>Machado GM, Oliveira MM, Fernandes LAF (2009).
+A Physiologically-Based Model for Simulation of Color Vision Deficiency.
+<em>IEEE Transactions on Visualization and Computer Graphics</em>. <b>15</b>(6), 1291&ndash;1298.
+doi: <a href="https://doi.org/10.1109/TVCG.2009.113">10.1109/TVCG.2009.113</a>
+Online version with supplements at
+<a href="http://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html">http://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html</a>.
+</p>
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="simulate_cvd.html">simulate_cvd</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

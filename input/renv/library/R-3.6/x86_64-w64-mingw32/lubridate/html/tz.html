@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get/set time zone component of a date-time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tz {lubridate}"><tr><td>tz {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get/set time zone component of a date-time</h2>
+
+<h3>Description</h3>
+
+<p>Conveniently get and set the time zone of a date-time.
+</p>
+<p><code style="white-space: pre;">tz&lt;-</code> is an alias for <code><a href="force_tz.html">force_tz()</a></code>, which preserves the local time,
+creating a different instant in time. Use <code><a href="with_tz.html">with_tz()</a></code> if you want keep
+the instant the same, but change the printed representation.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tz(x)
+
+tz(x) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A date-time vector, usually of class <code>POSIXct</code> or <code>POSIXlt</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>New value of time zone.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of length 1. An empty string (<code>""</code>) represents
+your current time zone.
+</p>
+<p>For backward compatibility, the time zone of a date, <code>NA</code>, or
+character vector is <code>"UTC"</code>.
+</p>
+
+
+<h3>Valid time zones</h3>
+
+<p>Time zones are stored in system specific database, so are not guaranteed
+to be the same on every system (however, they are usually pretty similar
+unless your system is very out of date). You can see a complete list with
+<code><a href="../../base/html/timezones.html">OlsonNames()</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>See <a href="../../base/html/DateTimeClasses.html">DateTimeClasses</a> for a description of the underlying
+<code>tzone</code> attribute..
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- y &lt;- ymd_hms("2012-03-26 10:10:00", tz = "UTC")
+tz(x)
+
+# Note that setting tz() preserved the clock time, which implies
+# that the actual instant in time is changing
+tz(y) &lt;- "Pacific/Auckland"
+y
+x - y
+
+# This is the same as force_tz()
+force_tz(x, "Pacific/Auckland")
+
+# Use with_tz() if you want to change the time zone, leave
+# the instant in time the same
+with_tz(x, "Pacific/Auckland")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

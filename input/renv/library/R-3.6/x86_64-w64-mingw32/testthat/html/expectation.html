@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Construct an expectation object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expectation {testthat}"><tr><td>expectation {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Construct an expectation object</h2>
+
+<h3>Description</h3>
+
+<p>For advanced use only. If you are creating your own expectation, you should
+call <code><a href="expect.html">expect()</a></code> instead. See <code>vignette("custom-expectation")</code> for more
+details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expectation(type, message, srcref = NULL, trace = NULL)
+
+new_expectation(
+  type,
+  message,
+  ...,
+  srcref = NULL,
+  trace = NULL,
+  .subclass = NULL
+)
+
+exp_signal(exp)
+
+is.expectation(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Expectation type. Must be one of &quot;success&quot;, &quot;failure&quot;, &quot;error&quot;,
+&quot;skip&quot;, &quot;warning&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>Message describing test failure</p>
+</td></tr>
+<tr valign="top"><td><code>srcref</code></td>
+<td>
+<p>Optional <code>srcref</code> giving location of test.</p>
+</td></tr>
+<tr valign="top"><td><code>trace</code></td>
+<td>
+<p>An optional backtrace created by <code><a href="../../rlang/html/trace_back.html">rlang::trace_back()</a></code>.
+When supplied, the expectation is displayed with the backtrace.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional attributes for the expectation object.</p>
+</td></tr>
+<tr valign="top"><td><code>.subclass</code></td>
+<td>
+<p>An optional subclass for the expectation object.</p>
+</td></tr>
+<tr valign="top"><td><code>exp</code></td>
+<td>
+<p>An expectation object, as created by
+<code><a href="expectation.html">new_expectation()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>object to test for class membership</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Create an expectation with <code>expectation()</code> or <code>new_expectation()</code>
+and signal it with <code>exp_signal()</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

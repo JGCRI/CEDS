@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Backports of wrappers around 'file.info' for R &lt; 3.2.0</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file.mode {backports}"><tr><td>file.mode {backports}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Backports of wrappers around <code>file.info</code> for R &lt; 3.2.0</h2>
+
+<h3>Description</h3>
+
+<p>See the original description in <code>base::file.size</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file.mode(...)
+
+file.mtime(...)
+
+file.size(...)
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get functions from namespace instead of possibly getting
+# implementations shipped with recent R versions:
+bp_file.size = getFromNamespace("file.size", "backports")
+bp_file.mode = getFromNamespace("file.size", "backports")
+bp_file.mtime = getFromNamespace("file.size", "backports")
+
+fn = file.path(R.home(), "COPYING")
+bp_file.size(fn)
+bp_file.mode(fn)
+bp_file.size(fn)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>backports</em> version 1.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format and interpolate a string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glue {glue}"><tr><td>glue {glue}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format and interpolate a string</h2>
+
+<h3>Description</h3>
+
+<p>Expressions enclosed by braces will be evaluated as R code. Long strings are
+broken by line and concatenated together. Leading whitespace and blank lines
+from the first and last lines are automatically trimmed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+glue_data(
+  .x,
+  ...,
+  .sep = "",
+  .envir = parent.frame(),
+  .open = "{",
+  .close = "}",
+  .na = "NA",
+  .null = character(),
+  .comment = "#",
+  .literal = FALSE,
+  .transformer = identity_transformer,
+  .trim = TRUE
+)
+
+glue(
+  ...,
+  .sep = "",
+  .envir = parent.frame(),
+  .open = "{",
+  .close = "}",
+  .na = "NA",
+  .null = character(),
+  .comment = "#",
+  .literal = FALSE,
+  .transformer = identity_transformer,
+  .trim = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.x</code></td>
+<td>
+<p>[<code>listish</code>]<br /> An environment, list, or data frame used to lookup values.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>[<code>expressions</code>]<br /> Unnamed arguments are taken to be expression
+string(s) to format. Multiple inputs are concatenated together before formatting.
+Named arguments are taken to be temporary variables available for substitution.</p>
+</td></tr>
+<tr valign="top"><td><code>.sep</code></td>
+<td>
+<p>[<code>character(1)</code>: &lsquo;&quot;&quot;&rsquo;]<br /> Separator used to separate elements.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>[<code>environment</code>: <code>parent.frame()</code>]<br /> Environment to evaluate each expression in. Expressions are
+evaluated from left to right. If <code>.x</code> is an environment, the expressions are
+evaluated in that environment and <code>.envir</code> is ignored. If <code>NULL</code> is passed, it is equivalent to <code><a href="../../base/html/environment.html">emptyenv()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.open</code></td>
+<td>
+<p>[<code>character(1)</code>: &lsquo;\{&rsquo;]<br /> The opening delimiter. Doubling the
+full delimiter escapes it.</p>
+</td></tr>
+<tr valign="top"><td><code>.close</code></td>
+<td>
+<p>[<code>character(1)</code>: &lsquo;\}&rsquo;]<br /> The closing delimiter. Doubling the
+full delimiter escapes it.</p>
+</td></tr>
+<tr valign="top"><td><code>.na</code></td>
+<td>
+<p>[<code>character(1)</code>: &lsquo;NA&rsquo;]<br /> Value to replace <code>NA</code> values
+with. If <code>NULL</code> missing values are propagated, that is an <code>NA</code> result will
+cause <code>NA</code> output. Otherwise the value is replaced by the value of <code>.na</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.null</code></td>
+<td>
+<p>[<code>character(1)</code>: &lsquo;character()&rsquo;]<br /> Value to replace
+NULL values with. If <code>character()</code> whole output is <code>character()</code>. If
+<code>NULL</code> all NULL values are dropped (as in <code>paste0()</code>). Otherwise the
+value is replaced by the value of <code>.null</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.comment</code></td>
+<td>
+<p>[<code>character(1)</code>: &lsquo;#&rsquo;]<br /> Value to use as the comment
+character.</p>
+</td></tr>
+<tr valign="top"><td><code>.literal</code></td>
+<td>
+<p>[<code>boolean(1)</code>: &lsquo;FALSE&rsquo;]<br /> Whether to treat single or
+double quotes, backticks, and comments as regular characters (vs. as
+syntactic elements), when parsing the expression string. Setting <code>.literal = TRUE</code> probably only makes sense in combination with a custom
+<code>.transformer</code>, as is the case with <code>glue_col()</code>. Regard this argument
+(especially, its name) as experimental.</p>
+</td></tr>
+<tr valign="top"><td><code>.transformer</code></td>
+<td>
+<p>[<code style="white-space: pre;">function]</code><br /> A function taking three parameters <code>code</code>, <code>envir</code> and
+<code>data</code> used to transform the output of each block before, during, or after
+evaluation. For example transformers see <code>vignette("transformers")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.trim</code></td>
+<td>
+<p>[<code>logical(1)</code>: &lsquo;TRUE&rsquo;]<br /> Whether to trim the input
+template with <code><a href="trim.html">trim()</a></code> or not.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://www.python.org/dev/peps/pep-0498/">https://www.python.org/dev/peps/pep-0498/</a> and
+<a href="https://www.python.org/dev/peps/pep-0257/">https://www.python.org/dev/peps/pep-0257/</a> upon which this is based.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+name &lt;- "Fred"
+age &lt;- 50
+anniversary &lt;- as.Date("1991-10-12")
+glue('My name is {name},',
+  'my age next year is {age + 1},',
+  'my anniversary is {format(anniversary, "%A, %B %d, %Y")}.')
+
+# single braces can be inserted by doubling them
+glue("My name is {name}, not {{name}}.")
+
+# Named arguments can be used to assign temporary variables.
+glue('My name is {name},',
+  ' my age next year is {age + 1},',
+  ' my anniversary is {format(anniversary, "%A, %B %d, %Y")}.',
+  name = "Joe",
+  age = 40,
+  anniversary = as.Date("2001-10-12"))
+
+# `glue()` can also be used in user defined functions
+intro &lt;- function(name, profession, country){
+  glue("My name is {name}, a {profession}, from {country}")
+}
+intro("Shelmith", "Senior Data Analyst", "Kenya")
+intro("Cate", "Data Scientist", "Kenya")
+
+# `glue_data()` is useful in magrittr pipes
+if (require(magrittr)) {
+
+mtcars %&gt;% glue_data("{rownames(.)} has {hp} hp")
+
+# Or within dplyr pipelines
+if (require(dplyr)) {
+
+head(iris) %&gt;%
+  mutate(description = glue("This {Species} has a petal length of {Petal.Length}"))
+
+}}
+
+# Alternative delimiters can also be used if needed
+one &lt;- "1"
+glue("The value of $e^{2\\pi i}$ is $&lt;&lt;one&gt;&gt;$.", .open = "&lt;&lt;", .close = "&gt;&gt;")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>glue</em> version 1.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

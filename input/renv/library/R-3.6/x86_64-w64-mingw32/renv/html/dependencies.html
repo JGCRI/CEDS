@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find R Package Dependencies in a Project</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dependencies {renv}"><tr><td>dependencies {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find R Package Dependencies in a Project</h2>
+
+<h3>Description</h3>
+
+<p>Find <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages used within a project.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dependencies(path = getwd(), root = NULL, quiet = FALSE, dev = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The path to a (possibly multi-mode) <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> file, or a directory
+containing such files.</p>
+</td></tr>
+<tr valign="top"><td><code>root</code></td>
+<td>
+<p>The root directory to be used for dependency discovery.
+Defaults to the active project directory. You may need to set this
+explicitly to ensure that your project's <code>.renvignore</code>s (if any) are
+properly handled.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>Boolean; report problems discovered (if any) during dependency
+discovery?</p>
+</td></tr>
+<tr valign="top"><td><code>dev</code></td>
+<td>
+<p>Boolean; include 'development' dependencies as well? That is,
+packages which may be required during development but are unlikely to be
+required during runtime for your project. By default, only runtime
+dependencies are returned.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>dependencies()</code> will crawl files within your project, looking for <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> files
+and the packages used within those <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> files. This is done primarily by
+parsing the code and looking for calls of the form:
+</p>
+
+<ul>
+<li> <p><code>library(package)</code>
+</p>
+</li>
+<li> <p><code>require(package)</code>
+</p>
+</li>
+<li> <p><code>requireNamespace("package")</code>
+</p>
+</li>
+<li> <p><code>package::method()</code>
+</p>
+</li></ul>
+
+<p>For <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> package projects, dependencies expressed in the <code>DESCRIPTION</code> file
+will also be discovered. Note that the <code>rmarkdown</code> package is required in
+order to crawl dependencies in R Markdown files.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> <code>data.frame</code> of discovered dependencies, mapping inferred
+package names to the files in which they were discovered.
+</p>
+
+
+<h3>Ignoring Files</h3>
+
+<p>By default, <code>renv</code> will read your project's <code>.gitignore</code>s (if any) to
+determine whether certain files or folders should be included when traversing
+directories. If preferred, you can also create a <code>.renvignore</code> file (with
+entries of the same format as a standard <code>.gitignore</code> file) to tell <code>renv</code>
+which files to ignore within a directory. If both <code>.renvignore</code> and
+<code>.gitignore</code> exist within a folder, the <code>.renvignore</code> will be used in lieu of
+the <code>.gitignore</code>.
+</p>
+<p>See <a href="https://git-scm.com/docs/gitignore">https://git-scm.com/docs/gitignore</a> for documentation on the
+<code>.gitignore</code> format. Some simple examples here:</p>
+<pre># ignore all R Markdown files
+*.Rmd
+
+# ignore all data folders
+data/
+
+# ignore only data folders from the root of the project
+/data/
+</pre>
+
+
+<h3>Development Dependencies</h3>
+
+<p><code>renv</code> attempts to distinguish between 'development' dependencies and
+'runtime' dependencies. For example, you might rely on e.g.
+<a href="https://cran.r-project.org/package=devtools">devtools</a> and
+<a href="https://cran.r-project.org/package=roxygen2">roxygen2</a> during development
+for a project, but may not actually require these packages at runtime.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# find R package dependencies in the current directory
+renv::dependencies()
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Import a function from another package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_import_from {usethis}"><tr><td>use_import_from {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Import a function from another package</h2>
+
+<h3>Description</h3>
+
+<p><code>use_import_from()</code> imports a function from another package by adding the
+roxygen2 <code style="white-space: pre;">@importFrom</code> tag to the package-level documentation (which can be
+created with <code><a href="use_package_doc.html">use_package_doc()</a></code>). Importing a function from another
+package allows you to refer to it without a namespace (e.g., <code>fun()</code> instead
+of <code>package::fun()</code>).
+</p>
+<p><code>use_import_from()</code> also re-documents the NAMESPACE, and re-load the current
+package. This ensures that <code>fun</code> is immediately available in your development
+session.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_import_from(package, fun, load = is_interactive())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>Package name</p>
+</td></tr>
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>A vector of function names</p>
+</td></tr>
+<tr valign="top"><td><code>load</code></td>
+<td>
+<p>Logical. Re-load with <code><a href="../../pkgload/html/load_all.html">pkgload::load_all()</a></code>?</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Invisibly, <code>TRUE</code> if the package document has changed, <code>FALSE</code> if not.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+use_import_from("usethis", "ui_todo")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

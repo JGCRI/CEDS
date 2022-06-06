@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Publish an R Markdown Website</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for publish_site {rmarkdown}"><tr><td>publish_site {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Publish an R Markdown Website</h2>
+
+<h3>Description</h3>
+
+<p>Publish a website to RStudio Connect
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+publish_site(
+  site_dir = ".",
+  site_name = NULL,
+  method = c("rsconnect"),
+  server = NULL,
+  account = NULL,
+  render = TRUE,
+  launch_browser = interactive()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>site_dir</code></td>
+<td>
+<p>Directory containing website. Defaults to current working directory.</p>
+</td></tr>
+<tr valign="top"><td><code>site_name</code></td>
+<td>
+<p>Name for the site (names must be unique within an account). Defaults
+to the 'name' provided by the site generator (or to the name of the site_dir if
+there is no 'name' specified).</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Publishing method (currently only &quot;rsconnect&quot; is available)</p>
+</td></tr>
+<tr valign="top"><td><code>server</code></td>
+<td>
+<p>Server name. Required only if you use the same account name on
+multiple servers.</p>
+</td></tr>
+<tr valign="top"><td><code>account</code></td>
+<td>
+<p>Account to deploy application to. This parameter is only required for
+the initial deployment of an application when there are multiple accounts configured
+on the system.</p>
+</td></tr>
+<tr valign="top"><td><code>render</code></td>
+<td>
+<p>'TRUE' to render the site locally before publishing.</p>
+</td></tr>
+<tr valign="top"><td><code>launch_browser</code></td>
+<td>
+<p>If &lsquo;TRUE', the system&rsquo;s default web browser will be launched
+automatically after the site is deployed. Defaults to 'TRUE' in interactive sessions
+only.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+publish_site()
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

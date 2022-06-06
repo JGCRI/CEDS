@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate random bytes and numbers with OpenSSL</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rand_bytes {openssl}"><tr><td>rand_bytes {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate random bytes and numbers with OpenSSL</h2>
+
+<h3>Description</h3>
+
+<p>this set of functions generates random bytes or numbers from OpenSSL. This
+provides a cryptographically secure alternative to R's default random number generator.
+<code>rand_bytes</code> generates <code>n</code> random cryptographically secure bytes
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rand_bytes(n = 1)
+
+rand_num(n = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>number of random bytes or numbers to generate</p>
+</td></tr>
+</table>
+
+
+<h3>References</h3>
+
+<p>OpenSSL manual: <a href="https://www.openssl.org/docs/man1.1.1/man3/RAND_bytes.html">https://www.openssl.org/docs/man1.1.1/man3/RAND_bytes.html</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+rnd &lt;- rand_bytes(10)
+as.numeric(rnd)
+as.character(rnd)
+as.logical(rawToBits(rnd))
+
+# bytes range from 0 to 255
+rnd &lt;- rand_bytes(100000)
+hist(as.numeric(rnd), breaks=-1:255)
+
+# Generate random doubles between 0 and 1
+rand_num(5)
+
+# Use CDF to map [0,1] into random draws from a distribution
+x &lt;- qnorm(rand_num(1000), mean=100, sd=15)
+hist(x)
+
+y &lt;- qbinom(rand_num(1000), size=10, prob=0.3)
+hist(y)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

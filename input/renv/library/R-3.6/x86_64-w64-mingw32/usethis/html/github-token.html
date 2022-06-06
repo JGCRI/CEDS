@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get help with GitHub personal access tokens</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for github-token {usethis}"><tr><td>github-token {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get help with GitHub personal access tokens</h2>
+
+<h3>Description</h3>
+
+<p>A <a href="https://docs.github.com/articles/creating-a-personal-access-token-for-the-command-line">personal access token</a>
+(PAT) is needed for certain tasks usethis does via the GitHub API, such as
+creating a repository, a fork, or a pull request. If you use HTTPS remotes,
+your PAT is also used when interacting with GitHub as a conventional Git
+remote. These functions help you get and manage your PAT:
+</p>
+
+<ul>
+<li> <p><code>gh_token_help()</code> guides you through token troubleshooting and setup.
+</p>
+</li>
+<li> <p><code>create_github_token()</code> opens a browser window to the GitHub form to
+generate a PAT, with suggested scopes pre-selected. It also offers advice
+on storing your PAT.
+</p>
+</li>
+<li> <p><code>gitcreds::gitcreds_set()</code> helps you register your PAT with the Git
+credential manager used by your operating system. Later, other packages,
+such as usethis, gert, and gh can automatically retrieve that PAT and use
+it to work with GitHub on your behalf.
+</p>
+</li></ul>
+
+<p>Usually, the first time the PAT is retrieved in an R session, it is cached in
+an environment variable, for easier reuse for the duration of that R session.
+After initial acquisition and storage, all of this should happen
+automatically in the background. GitHub is encouraging the use of PATs that
+expire after, e.g., 30 days, so prepare yourself to re-generate and re-store
+your PAT periodically.
+</p>
+<p>Git/GitHub credential management is covered in a dedicated article: <a href="https://usethis.r-lib.org/articles/articles/git-credentials.html">Managing Git(Hub) Credentials</a>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+create_github_token(
+  scopes = c("repo", "user", "gist", "workflow"),
+  description = "DESCRIBE THE TOKEN'S USE CASE",
+  host = NULL
+)
+
+gh_token_help(host = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>scopes</code></td>
+<td>
+<p>Character vector of token scopes, pre-selected in the web form.
+Final choices are made in the GitHub form. Read more about GitHub API
+scopes at
+<a href="https://docs.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/">https://docs.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>description</code></td>
+<td>
+<p>Short description or nickname for the token. You might
+(eventually) have multiple tokens on your GitHub account and a label can
+help you keep track of what each token is for.</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>GitHub host to target, passed to the <code>.api_url</code> argument of
+<code><a href="../../gh/html/gh.html">gh::gh()</a></code>. If unspecified, gh defaults to &quot;https://api.github.com&quot;,
+although gh's default can be customised by setting the GITHUB_API_URL
+environment variable.
+</p>
+<p>For a hypothetical GitHub Enterprise instance, either
+&quot;https://github.acme.com/api/v3&quot; or &quot;https://github.acme.com&quot; is
+acceptable.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>create_github_token()</code> has previously gone by some other names:
+<code>browse_github_token()</code> and <code>browse_github_pat()</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Nothing
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../gh/html/gh_whoami.html">gh::gh_whoami()</a></code> for information on an existing token and
+<code>gitcreds::gitcreds_set()</code> and <code>gitcreds::gitcreds_get()</code> for a secure way
+to store and retrieve your PAT.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+create_github_token()
+
+## End(Not run)
+## Not run: 
+gh_token_help()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

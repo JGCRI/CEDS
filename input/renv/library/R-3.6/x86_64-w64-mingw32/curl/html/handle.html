@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create and configure a curl handle</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for handle {curl}"><tr><td>handle {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create and configure a curl handle</h2>
+
+<h3>Description</h3>
+
+<p>Handles are the work horses of libcurl. A handle is used to configure a
+request with custom options, headers and payload. Once the handle has been
+set up, it can be passed to any of the download functions such as <code><a href="curl.html">curl</a></code>
+,<code><a href="curl_download.html">curl_download</a></code> or <code><a href="curl_fetch.html">curl_fetch_memory</a></code>. The handle will maintain
+state in between requests, including keep-alive connections, cookies and
+settings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_handle(...)
+
+handle_setopt(handle, ..., .list = list())
+
+handle_setheaders(handle, ..., .list = list())
+
+handle_getheaders(handle)
+
+handle_getcustom(handle)
+
+handle_setform(handle, ..., .list = list())
+
+handle_reset(handle)
+
+handle_data(handle)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>named options / headers to be set in the handle.
+To send a file, see <code><a href="multipart.html">form_file</a></code>. To list all allowed options,
+see <code><a href="curl_options.html">curl_options</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>Handle to modify</p>
+</td></tr>
+<tr valign="top"><td><code>.list</code></td>
+<td>
+<p>A named list of options. This is useful if you've created
+a list of options elsewhere, avoiding the use of <code>do.call()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Use <code>new_handle()</code> to create a new clean curl handle that can be
+configured with custom options and headers. Note that <code>handle_setopt</code>
+appends or overrides options in the handle, whereas <code>handle_setheaders</code>
+replaces the entire set of headers with the new ones. The <code>handle_reset</code>
+function resets only options/headers/forms in the handle. It does not affect
+active connections, cookies or response data from previous requests. The safest
+way to perform multiple independent requests is by using a separate handle for
+each request. There is very little performance overhead in creating handles.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A handle object (external pointer to the underlying curl handle).
+All functions modify the handle in place but also return the handle
+so you can create a pipeline of operations.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other handles: 
+<code><a href="handle_cookies.html">handle_cookies</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+h &lt;- new_handle()
+handle_setopt(h, customrequest = "PUT")
+handle_setform(h, a = "1", b = "2")
+r &lt;- curl_fetch_memory("http://httpbin.org/put", h)
+cat(rawToChar(r$content))
+
+# Or use the list form
+h &lt;- new_handle()
+handle_setopt(h, .list = list(customrequest = "PUT"))
+handle_setform(h, .list = list(a = "1", b = "2"))
+r &lt;- curl_fetch_memory("http://httpbin.org/put", h)
+cat(rawToChar(r$content))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new github_remote</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for github_remote {remotes}"><tr><td>github_remote {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new github_remote</h2>
+
+<h3>Description</h3>
+
+<p>This is an internal function to create a new github_remote, users should
+generally have no need for it.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+github_remote(
+  repo,
+  ref = "HEAD",
+  subdir = NULL,
+  auth_token = github_pat(),
+  sha = NULL,
+  host = "api.github.com",
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>Repository address in the format
+<code style="white-space: pre;">username/repo[/subdir][@ref|#pull|@*release]</code>. Alternatively, you can
+specify <code>subdir</code> and/or <code>ref</code> using the respective parameters
+(see below); if both are specified, the values in <code>repo</code> take
+precedence.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>Desired git reference. Could be a commit, tag, or branch
+name, or a call to <code><a href="github_refs.html">github_pull()</a></code> or <code><a href="github_refs.html">github_release()</a></code>. Defaults to
+<code>"HEAD"</code>, which means the default branch on GitHub and for git remotes.
+See <a href="https://help.github.com/en/github/administering-a-repository/setting-the-default-branch">setting-the-default-branch</a>
+for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>subdir</code></td>
+<td>
+<p>Subdirectory within repo that contains the R package.</p>
+</td></tr>
+<tr valign="top"><td><code>auth_token</code></td>
+<td>
+<p>To install from a private repo, generate a personal
+access token (PAT) with at least repo scope in
+<a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a> and
+supply to this argument. This is safer than using a password because
+you can easily delete a PAT without affecting any others. Defaults to
+the <code>GITHUB_PAT</code> environment variable.</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>GitHub API host to use. Override with your GitHub enterprise
+hostname, for example, <code>"github.hostname.com/api/v3"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code>.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

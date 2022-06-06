@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: OpenSSH fingerprint</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fingerprint {openssl}"><tr><td>fingerprint {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>OpenSSH fingerprint</h2>
+
+<h3>Description</h3>
+
+<p>Calculates the OpenSSH fingerprint of a public key. This value should
+match what you get to see when connecting with SSH to a server. Note
+that some other systems might use a different algorithm to derive a
+(different) fingerprint for the same keypair.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fingerprint(key, hashfun = md5)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>a public or private key</p>
+</td></tr>
+<tr valign="top"><td><code>hashfun</code></td>
+<td>
+<p>which hash function to use to calculate the fingerprint</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+mykey &lt;- rsa_keygen()
+pubkey &lt;- as.list(mykey)$pubkey
+fingerprint(mykey)
+fingerprint(pubkey)
+
+# Some systems use other hash functions
+fingerprint(pubkey, sha1)
+fingerprint(pubkey, sha256)
+
+# Other key types
+fingerprint(dsa_keygen())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

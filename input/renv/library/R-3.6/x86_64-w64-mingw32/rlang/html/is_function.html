@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is object a function?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_function {rlang}"><tr><td>is_function {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is object a function?</h2>
+
+<h3>Description</h3>
+
+<p>The R language defines two different types of functions: primitive
+functions, which are low-level, and closures, which are the regular
+kind of functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_function(x)
+
+is_closure(x)
+
+is_primitive(x)
+
+is_primitive_eager(x)
+
+is_primitive_lazy(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to be tested.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Closures are functions written in R, named after the way their
+arguments are scoped within nested environments (see
+<a href="https://en.wikipedia.org/wiki/Closure_(computer_programming)">https://en.wikipedia.org/wiki/Closure_(computer_programming)</a>). The
+root environment of the closure is called the closure
+environment. When closures are evaluated, a new environment called
+the evaluation frame is created with the closure environment as
+parent. This is where the body of the closure is evaluated. These
+closure frames appear on the evaluation stack, as opposed to
+primitive functions which do not necessarily have their own
+evaluation frame and never appear on the stack.
+</p>
+<p>Primitive functions are more efficient than closures for two
+reasons. First, they are written entirely in fast low-level
+code. Second, the mechanism by which they are passed arguments is
+more efficient because they often do not need the full procedure of
+argument matching (dealing with positional versus named arguments,
+partial matching, etc). One practical consequence of the special
+way in which primitives are passed arguments is that they
+technically do not have formal arguments, and <code><a href="../../base/html/formals.html">formals()</a></code> will
+return <code>NULL</code> if called on a primitive function. Finally, primitive
+functions can either take arguments lazily, like R closures do,
+or evaluate them eagerly before being passed on to the C code.
+The former kind of primitives are called &quot;special&quot; in R terminology,
+while the latter is referred to as &quot;builtin&quot;. <code>is_primitive_eager()</code>
+and <code>is_primitive_lazy()</code> allow you to check whether a primitive
+function evaluates arguments eagerly or lazily.
+</p>
+<p>You will also encounter the distinction between primitive and
+internal functions in technical documentation. Like primitive
+functions, internal functions are defined at a low level and
+written in C. However, internal functions have no representation in
+the R language. Instead, they are called via a call to
+<code><a href="../../base/html/Internal.html">base::.Internal()</a></code> within a regular closure. This ensures that
+they appear as normal R function objects: they obey all the usual
+rules of argument passing, and they appear on the evaluation stack
+as any other closures. As a result, <code><a href="fn_fmls.html">fn_fmls()</a></code> does not need to
+look in the <code>.ArgsEnv</code> environment to obtain a representation of
+their arguments, and there is no way of querying from R whether
+they are lazy ('special' in R terminology) or eager ('builtin').
+</p>
+<p>You can call primitive functions with <code><a href="../../base/html/Primitive.html">.Primitive()</a></code> and internal
+functions with <code><a href="../../base/html/Internal.html">.Internal()</a></code>. However, calling internal functions
+in a package is forbidden by CRAN's policy because they are
+considered part of the private API. They often assume that they
+have been called with correctly formed arguments, and may cause R
+to crash if you call them with unexpected objects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Primitive functions are not closures:
+is_closure(base::c)
+is_primitive(base::c)
+
+# On the other hand, internal functions are wrapped in a closure
+# and appear as such from the R side:
+is_closure(base::eval)
+
+# Both closures and primitives are functions:
+is_function(base::c)
+is_function(base::eval)
+
+# Many primitive functions evaluate arguments eagerly:
+is_primitive_eager(base::c)
+is_primitive_eager(base::list)
+is_primitive_eager(base::`+`)
+
+# However, primitives that operate on expressions, like quote() or
+# substitute(), are lazy:
+is_primitive_lazy(base::quote)
+is_primitive_lazy(base::substitute)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

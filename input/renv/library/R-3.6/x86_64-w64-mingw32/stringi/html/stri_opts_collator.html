@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate a List with Collator Settings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_opts_collator {stringi}"><tr><td>stri_opts_collator {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate a List with Collator Settings</h2>
+
+<h3>Description</h3>
+
+<p>A convenience function to tune the <span class="pkg">ICU</span> Collator's behavior,
+e.g., in <code><a href="stri_compare.html">stri_compare</a></code>, <code><a href="stri_order.html">stri_order</a></code>,
+<code><a href="stri_unique.html">stri_unique</a></code>, <code><a href="stri_duplicated.html">stri_duplicated</a></code>,
+as well as <code><a href="stri_detect.html">stri_detect_coll</a></code>
+and other <a href="about_search_coll.html">stringi-search-coll</a> functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_opts_collator(
+  locale = NULL,
+  strength = 3L,
+  alternate_shifted = FALSE,
+  french = FALSE,
+  uppercase_first = NA,
+  case_level = FALSE,
+  normalization = FALSE,
+  normalisation = normalization,
+  numeric = FALSE,
+  ...
+)
+
+stri_coll(
+  locale = NULL,
+  strength = 3L,
+  alternate_shifted = FALSE,
+  french = FALSE,
+  uppercase_first = NA,
+  case_level = FALSE,
+  normalization = FALSE,
+  normalisation = normalization,
+  numeric = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>single string, <code>NULL</code> or
+<code>''</code> for default locale</p>
+</td></tr>
+<tr valign="top"><td><code>strength</code></td>
+<td>
+<p>single integer in {1,2,3,4}, which defines collation strength;
+<code>1</code> for the most permissive collation rules, <code>4</code> for the strictest
+ones</p>
+</td></tr>
+<tr valign="top"><td><code>alternate_shifted</code></td>
+<td>
+<p>single logical value; <code>FALSE</code>
+treats all the code points with non-ignorable primary weights in the same way,
+<code>TRUE</code> causes code points with primary weights that are equal or below
+the variable top value to be ignored on primary level and moved to the quaternary level</p>
+</td></tr>
+<tr valign="top"><td><code>french</code></td>
+<td>
+<p>single logical value; used in Canadian French;
+<code>TRUE</code> results in secondary weights being considered backwards</p>
+</td></tr>
+<tr valign="top"><td><code>uppercase_first</code></td>
+<td>
+<p>single logical value; <code>NA</code>
+orders upper and lower case letters in accordance to their tertiary weights,
+<code>TRUE</code> forces upper case letters to sort before lower case letters,
+<code>FALSE</code> does the opposite</p>
+</td></tr>
+<tr valign="top"><td><code>case_level</code></td>
+<td>
+<p>single logical value;
+controls whether an extra case level (positioned before the third level) is generated or not</p>
+</td></tr>
+<tr valign="top"><td><code>normalization</code></td>
+<td>
+<p>single logical value; if <code>TRUE</code>,
+then incremental check is performed to see whether the input data is in
+the FCD form. If the data is not in the FCD form, incremental NFD
+normalization is performed</p>
+</td></tr>
+<tr valign="top"><td><code>normalisation</code></td>
+<td>
+<p>alias of <code>normalization</code></p>
+</td></tr>
+<tr valign="top"><td><code>numeric</code></td>
+<td>
+<p>single logical value;
+when turned on, this attribute generates a collation key for
+the numeric value of substrings of digits;
+this is a way to get '100' to sort AFTER '2'</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>[DEPRECATED] any other arguments passed to this function
+generate a warning; this argument will be removed in the future</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><span class="pkg">ICU</span>'s <em>collator</em> performs a locale-aware, natural-language
+alike string comparison.
+This is a more reliable way of establishing relationships between
+strings than the one provided by base <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span>, and definitely
+one that is more complex and appropriate than ordinary bytewise
+comparison.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a named list object; missing settings are left with default values.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Collation</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/collation/">https://unicode-org.github.io/icu/userguide/collation/</a>
+</p>
+<p><em>ICU Collation Service Architecture</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/collation/architecture.html">https://unicode-org.github.io/icu/userguide/collation/architecture.html</a>
+</p>
+<p><em><code>icu::Collator</code> Class Reference</em> &ndash; ICU4C API Documentation,
+<a href="https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1Collator.html">https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/classicu_1_1Collator.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+<p>Other search_coll: 
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="about_search.html">about_search</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_cmp('number100', 'number2')
+stri_cmp('number100', 'number2', opts_collator=stri_opts_collator(numeric=TRUE))
+stri_cmp('number100', 'number2', numeric=TRUE) # equivalent
+stri_cmp('above mentioned', 'above-mentioned')
+stri_cmp('above mentioned', 'above-mentioned', alternate_shifted=TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

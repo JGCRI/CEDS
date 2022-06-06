@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Unload a package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for unload {pkgload}"><tr><td>unload {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Unload a package</h2>
+
+<h3>Description</h3>
+
+<p>This function attempts to cleanly unload a package, including unloading
+its namespace, deleting S4 class definitions and unloading any loaded
+DLLs. Unfortunately S4 classes are not really designed to be cleanly
+unloaded, and so we have to manually modify the class dependency graph in
+order for it to work - this works on the cases for which we have tested
+but there may be others.  Similarly, automated DLL unloading is best tested
+for simple scenarios (particularly with <code>useDynLib(pkgname)</code> and may
+fail in other cases. If you do encounter a failure, please file a bug report
+at <a href="https://github.com/r-lib/pkgload/issues">https://github.com/r-lib/pkgload/issues</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+unload(package = pkg_name(), quiet = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>package name.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>if <code>TRUE</code> suppresses output from this function.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# Unload package that is in current directory
+unload()
+
+# Unload package that is in ./ggplot2/
+unload(pkg_name("ggplot2/"))
+
+library(ggplot2)
+# unload the ggplot2 package directly by name
+unload("ggplot2")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

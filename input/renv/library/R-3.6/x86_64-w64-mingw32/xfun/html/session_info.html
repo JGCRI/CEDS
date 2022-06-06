@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: An alternative to sessionInfo() to print session information</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for session_info {xfun}"><tr><td>session_info {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>An alternative to sessionInfo() to print session information</h2>
+
+<h3>Description</h3>
+
+<p>This function tweaks the output of <code><a href="../../utils/html/sessionInfo.html">sessionInfo</a>()</code>: (1) It adds
+the RStudio version information if running in the RStudio IDE; (2) It removes
+the information about matrix products, BLAS, and LAPACK; (3) It removes the
+names of base R packages; (4) It prints out package versions in a single
+group, and does not differentiate between loaded and attached packages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+session_info(packages = NULL, dependencies = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>packages</code></td>
+<td>
+<p>A character vector of package names, of which the versions
+will be printed. If not specified, it means all loaded and attached
+packages in the current R session.</p>
+</td></tr>
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>Whether to print out the versions of the recursive
+dependencies of packages.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It also allows you to only print out the versions of specified packages (via
+the <code>packages</code> argument) and optionally their recursive dependencies.
+For these specified packages (if provided), if a function
+<code>xfun_session_info()</code> exists in a package, it will be called and
+expected to return a character vector to be appended to the output of
+<code>session_info()</code>. This provides a mechanism for other packages to inject
+more information into the <code>session_info</code> output. For example,
+<span class="pkg">rmarkdown</span> (&gt;= 1.20.2) has a function <code>xfun_session_info()</code> that
+returns the version of Pandoc, which can be very useful information for
+diagnostics.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector of the session information marked as
+<code><a href="raw_string.html">raw_string</a>()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::session_info()
+if (xfun::loadable("MASS")) xfun::session_info("MASS")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Snapshot management</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for snapshot_accept {testthat}"><tr><td>snapshot_accept {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Snapshot management</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>snapshot_accept()</code> accepts all modified snapshots.
+</p>
+</li>
+<li> <p><code>snapshot_review()</code> opens a Shiny app that shows a visual diff of each
+modified snapshot. This is particularly useful for whole file snapshots
+created by <code>expect_snapshot_file()</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+snapshot_accept(files = NULL, path = "tests/testthat")
+
+snapshot_review(files = NULL, path = "tests/testthat")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>Optionally, filter effects to snapshots from specified files.
+This can be a snapshot name (e.g. <code>foo</code> or <code>foo.md</code>), a snapshot file name
+(e.g. <code>testfile/foo.txt</code>), or a snapshot file directory (e.g. <code style="white-space: pre;">testfile/</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to tests.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

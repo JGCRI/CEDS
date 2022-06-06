@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Show 8 Bit CSI SGR Colors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sgr_256 {fansi}"><tr><td>sgr_256 {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Show 8 Bit CSI SGR Colors</h2>
+
+<h3>Description</h3>
+
+<p>Generates text with each 8 bit SGR code (e.g. the &quot;###&quot; in &quot;38;5;###&quot;) with
+the background colored by itself, and the foreground in a contrasting color
+and interesting color (we sacrifice some contrast for interest as this is
+intended for demo rather than reference purposes).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sgr_256()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>character vector with SGR codes with background color set as
+themselves.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="make_styles.html">make_styles()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+writeLines(sgr_256())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

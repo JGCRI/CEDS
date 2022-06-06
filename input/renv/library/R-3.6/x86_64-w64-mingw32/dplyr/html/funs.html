@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a list of function calls</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for funs {dplyr}"><tr><td>funs {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a list of function calls</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>funs()</code> is deprecated; please use <code>list()</code> instead. We deprecated this
+function because it provided a unique way of specifying anonymous functions,
+rather than adopting the conventions used by purrr and other packages
+in the tidyverse.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+funs(..., .args = list())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; A list of functions
+specified by:
+</p>
+
+<ul>
+<li><p> Their name, <code>"mean"</code>
+</p>
+</li>
+<li><p> The function itself, <code>mean</code>
+</p>
+</li>
+<li><p> A call to the function with <code>.</code> as a dummy argument,
+<code>mean(., na.rm = TRUE)</code>
+</p>
+</li></ul>
+
+<p>The following notations are <strong>not</strong> supported, see examples:
+</p>
+
+<ul>
+<li><p> An anonymous function, <code>function(x) mean(x, na.rm = TRUE)</code>
+</p>
+</li>
+<li><p> An anonymous function in <span class="pkg">purrr</span> notation, <code>~mean(., na.rm = TRUE)</code>
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>.args, args</code></td>
+<td>
+<p>A named list of additional arguments to be added to all
+function calls. As <code>funs()</code> is being deprecated, use other methods to
+supply arguments: <code>...</code> argument in <a href="summarise_all.html">scoped verbs</a> or make
+own functions with <code><a href="../../purrr/html/partial.html">purrr::partial()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+funs("mean", mean(., na.rm = TRUE))
+# -&gt;
+list(mean = mean, mean = ~ mean(.x, na.rm = TRUE))
+
+funs(m1 = mean, m2 = "mean", m3 = mean(., na.rm = TRUE))
+# -&gt;
+list(m1 = mean, m2 = "mean", m3 = ~ mean(.x, na.rm = TRUE))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

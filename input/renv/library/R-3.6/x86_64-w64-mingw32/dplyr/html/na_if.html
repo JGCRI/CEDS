@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert values to NA</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for na_if {dplyr}"><tr><td>na_if {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert values to NA</h2>
+
+<h3>Description</h3>
+
+<p>This is a translation of the SQL command <code>NULLIF</code>. It is useful
+if you want to convert an annoying value to <code>NA</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+na_if(x, y)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Vector to modify</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>Value to replace with NA</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A modified version of <code>x</code> that replaces any values that
+are equal to <code>y</code> with NA.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="coalesce.html">coalesce()</a></code> to replace missing values with a specified
+value.
+</p>
+<p><code><a href="../../tidyr/html/replace_na.html">tidyr::replace_na()</a></code> to replace <code>NA</code> with a value.
+</p>
+<p><code><a href="recode.html">recode()</a></code> to more generally replace values.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+na_if(1:5, 5:1)
+
+x &lt;- c(1, -1, 0, 10)
+100 / x
+100 / na_if(x, 0)
+
+y &lt;- c("abc", "def", "", "ghi")
+na_if(y, "")
+
+# na_if() is particularly useful inside mutate(),
+# and is meant for use with vectors rather than entire data frames
+starwars %&gt;%
+  select(name, eye_color) %&gt;%
+  mutate(eye_color = na_if(eye_color, "unknown"))
+
+# na_if() can also be used with mutate() and across()
+# to mutate multiple columns
+starwars %&gt;%
+   mutate(across(where(is.character), ~na_if(., "unknown")))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

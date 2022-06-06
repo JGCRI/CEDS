@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Call R CMD 'command' with build tools active</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rcmd_build_tools {pkgbuild}"><tr><td>rcmd_build_tools {pkgbuild}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Call R CMD 'command' with build tools active</h2>
+
+<h3>Description</h3>
+
+<p>This is a wrapper around <code>callr::rcmd_safe()</code> that checks
+that you have build tools available, and on Windows, automatically sets
+the path to include Rtools.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rcmd_build_tools(..., env = character(), required = TRUE, quiet = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Parameters passed on to <code>rcmd_safe</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Additional environment variables to set. The defaults from
+<code>callr::rcmd_safe_env()</code> are always set.</p>
+</td></tr>
+<tr valign="top"><td><code>required</code></td>
+<td>
+<p>If <code>TRUE</code>, and build tools are not available,
+will throw an error. Otherwise will attempt to run <code>code</code> without
+them.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>if <code>TRUE</code> suppresses output from this function.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# These env vars are always set
+callr::rcmd_safe_env()
+
+if (has_build_tools()) {
+  rcmd_build_tools("CONFIG", "CC")$stdout
+  rcmd_build_tools("CC", "--version")$stdout
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgbuild</em> version 1.3.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

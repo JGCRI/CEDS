@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Measure the Character String Width</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for utf8_width {utf8}"><tr><td>utf8_width {utf8}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Measure the Character String Width</h2>
+
+<h3>Description</h3>
+
+<p>Compute the display widths of the elements of a character object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+utf8_width(x, encode = TRUE, quote = FALSE, utf8 = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character object.</p>
+</td></tr>
+<tr valign="top"><td><code>encode</code></td>
+<td>
+<p>whether to encode the object before measuring its
+width.</p>
+</td></tr>
+<tr valign="top"><td><code>quote</code></td>
+<td>
+<p>whether to quote the object before measuring its
+width.</p>
+</td></tr>
+<tr valign="top"><td><code>utf8</code></td>
+<td>
+<p>logical scalar indicating whether to determine widths
+assuming a UTF-8 capable display (ASCII-only otherwise), or
+<code>NULL</code> to format for output capabilities as determined
+by <code>output_utf8()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>utf8_width</code> returns the printed widths of the elements of
+a character object on a UTF-8 device (or on an ASCII device
+when <code>output_utf8()</code> is <code>FALSE</code>), when printed with
+<code>utf8_print</code>. If the string is not printable on the device,
+for example if it contains a control code like <code>"\n"</code>, then
+the result is <code>NA</code>. If <code>encode = TRUE</code>, the default,
+then the function returns the widths of the encoded elements
+via <code>utf8_encode</code>); otherwise, the function returns the
+widths of the original elements.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An integer object,  with the same <code>names</code>, <code>dim</code>, and
+<code>dimnames</code> as <code>x</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="utf8_print.html">utf8_print</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# the second element is encoded in latin-1, but declared as UTF-8
+x &lt;- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
+Encoding(x) &lt;- c("UTF-8", "UTF-8", "bytes")
+
+# get widths
+utf8_width(x)
+utf8_width(x, encode = FALSE)
+utf8_width('"')
+utf8_width('"', quote = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>utf8</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

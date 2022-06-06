@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Augment data with information from a(n) lm object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for augment.lm {broom}"><tr><td>augment.lm {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Augment data with information from a(n) lm object</h2>
+
+<h3>Description</h3>
+
+<p>Augment accepts a model object and a dataset and adds
+information about each observation in the dataset. Most commonly, this
+includes predicted values in the <code>.fitted</code> column, residuals in the
+<code>.resid</code> column, and standard errors for the fitted values in a <code>.se.fit</code>
+column. New columns always begin with a <code>.</code> prefix to avoid overwriting
+columns in the original dataset.
+</p>
+<p>Users may pass data to augment via either the <code>data</code> argument or the
+<code>newdata</code> argument. If the user passes data to the <code>data</code> argument,
+it <strong>must</strong> be exactly the data that was used to fit the model
+object. Pass datasets to <code>newdata</code> to augment data that was not used
+during model fitting. This still requires that at least all predictor
+variable columns used to fit the model are present. If the original outcome
+variable used to fit the model is not included in <code>newdata</code>, then no
+<code>.resid</code> column will be included in the output.
+</p>
+<p>Augment will often behave differently depending on whether <code>data</code> or
+<code>newdata</code> is given. This is because there is often information
+associated with training observations (such as influences or related)
+measures that is not meaningfully defined for new observations.
+</p>
+<p>For convenience, many augment methods provide default <code>data</code> arguments,
+so that <code>augment(fit)</code> will return the augmented training data. In these
+cases, augment tries to reconstruct the original data based on the model
+object with varying degrees of success.
+</p>
+<p>The augmented dataset is always returned as a <a href="../../tibble/html/tibble.html">tibble::tibble</a> with the
+<strong>same number of rows</strong> as the passed dataset. This means that the
+passed data must be coercible to a tibble. At this time, tibbles do not
+support matrix-columns. This means you should not specify a matrix
+of covariates in a model formula during the original model fitting
+process, and that <code><a href="../../splines/html/ns.html">splines::ns()</a></code>, <code><a href="../../stats/html/poly.html">stats::poly()</a></code> and
+<code><a href="../../survival/html/Surv.html">survival::Surv()</a></code> objects are not supported in input data. If you
+encounter errors, try explicitly passing a tibble, or fitting the original
+model on data in a tibble.
+</p>
+<p>We are in the process of defining behaviors for models fit with various
+<code>na.action</code> arguments, but make no guarantees about behavior when data is
+missing at this time.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'lm'
+augment(
+  x,
+  data = model.frame(x),
+  newdata = NULL,
+  se_fit = FALSE,
+  interval = c("none", "confidence", "prediction"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An <code>lm</code> object created by <code><a href="../../stats/html/lm.html">stats::lm()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <a href="../../base/html/data.frame.html">base::data.frame</a> or <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> containing the original
+data that was used to produce the object <code>x</code>. Defaults to
+<code>stats::model.frame(x)</code> so that <code>augment(my_fit)</code> returns the augmented
+original data. <strong>Do not</strong> pass new data to the <code>data</code> argument.
+Augment will report information such as influence and cooks distance for
+data passed to the <code>data</code> argument. These measures are only defined for
+the original training data.</p>
+</td></tr>
+<tr valign="top"><td><code>newdata</code></td>
+<td>
+<p>A <code><a href="../../base/html/data.frame.html">base::data.frame()</a></code> or <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> containing all
+the original predictors used to create <code>x</code>. Defaults to <code>NULL</code>, indicating
+that nothing has been passed to <code>newdata</code>. If <code>newdata</code> is specified,
+the <code>data</code> argument will be ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>se_fit</code></td>
+<td>
+<p>Logical indicating whether or not a <code>.se.fit</code> column should be
+added to the augmented output. For some models, this calculation can be
+somewhat time-consuming. Defaults to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>interval</code></td>
+<td>
+<p>Character indicating the type of confidence interval columns
+to be added to the augmented output. Passed on to <code>predict()</code> and defaults
+to &quot;none&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>When the modeling was performed with <code>na.action = "na.omit"</code>
+(as is the typical default), rows with NA in the initial data are omitted
+entirely from the augmented data frame. When the modeling was performed
+with <code>na.action = "na.exclude"</code>, one should provide the original data
+as a second argument, at which point the augmented data will contain those
+rows (typically with NAs in place of the new columns). If the original data
+is not provided to <code><a href="reexports.html">augment()</a></code> and <code>na.action = "na.exclude"</code>, a
+warning is raised and the incomplete rows are dropped.
+</p>
+<p>Some unusual <code>lm</code> objects, such as <code>rlm</code> from MASS, may omit
+<code>.cooksd</code> and <code>.std.resid</code>. <code>gam</code> from mgcv omits <code>.sigma</code>.
+</p>
+<p>When <code>newdata</code> is supplied, only returns <code>.fitted</code>, <code>.resid</code> and
+<code>.se.fit</code> columns.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>.cooksd</code></td>
+<td>
+<p>Cooks distance.</p>
+</td></tr>
+<tr valign="top"><td><code>.fitted</code></td>
+<td>
+<p>Fitted or predicted value.</p>
+</td></tr>
+<tr valign="top"><td><code>.hat</code></td>
+<td>
+<p>Diagonal of the hat matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>.lower</code></td>
+<td>
+<p>Lower bound on interval for fitted values.</p>
+</td></tr>
+<tr valign="top"><td><code>.resid</code></td>
+<td>
+<p>The difference between observed and fitted values.</p>
+</td></tr>
+<tr valign="top"><td><code>.se.fit</code></td>
+<td>
+<p>Standard errors of fitted values.</p>
+</td></tr>
+<tr valign="top"><td><code>.sigma</code></td>
+<td>
+<p>Estimated residual standard deviation when corresponding observation is dropped from model.</p>
+</td></tr>
+<tr valign="top"><td><code>.std.resid</code></td>
+<td>
+<p>Standardised residuals.</p>
+</td></tr>
+<tr valign="top"><td><code>.upper</code></td>
+<td>
+<p>Upper bound on interval for fitted values.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../stats/html/na.action.html">stats::na.action</a>
+</p>
+<p><code><a href="reexports.html">augment()</a></code>, <code><a href="../../stats/html/predict.lm.html">stats::predict.lm()</a></code>
+</p>
+<p>Other lm tidiers: 
+<code><a href="augment.glm.html">augment.glm</a>()</code>,
+<code><a href="glance.glm.html">glance.glm</a>()</code>,
+<code><a href="glance.lm.html">glance.lm</a>()</code>,
+<code><a href="glance.summary.lm.html">glance.summary.lm</a>()</code>,
+<code><a href="glance.svyglm.html">glance.svyglm</a>()</code>,
+<code><a href="tidy.glm.html">tidy.glm</a>()</code>,
+<code><a href="tidy.lm.beta.html">tidy.lm.beta</a>()</code>,
+<code><a href="tidy.lm.html">tidy.lm</a>()</code>,
+<code><a href="tidy.mlm.html">tidy.mlm</a>()</code>,
+<code><a href="tidy.summary.lm.html">tidy.summary.lm</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+library(ggplot2)
+library(dplyr)
+
+mod &lt;- lm(mpg ~ wt + qsec, data = mtcars)
+
+tidy(mod)
+glance(mod)
+
+# coefficient plot
+d &lt;- tidy(mod, conf.int = TRUE)
+
+ggplot(d, aes(estimate, term, xmin = conf.low, xmax = conf.high, height = 0)) +
+  geom_point() +
+  geom_vline(xintercept = 0, lty = 4) +
+  geom_errorbarh()
+  
+# Aside: There are tidy() and glance() methods for lm.summary objects too. 
+# This can be useful when you want to conserve memory by converting large lm 
+# objects into their leaner summary.lm equivalents.
+s &lt;- summary(mod)
+tidy(s, conf.int = TRUE)
+glance(s)
+
+augment(mod)
+augment(mod, mtcars, interval = "confidence")
+
+# predict on new data
+newdata &lt;- mtcars %&gt;%
+  head(6) %&gt;%
+  mutate(wt = wt + 1)
+augment(mod, newdata = newdata)
+
+# ggplot2 example where we also construct 95% prediction interval
+mod2 &lt;- lm(mpg ~ wt, data = mtcars) ## simpler bivariate model since we're plotting in 2D
+
+au &lt;- augment(mod2, newdata = newdata, interval = "prediction")
+
+ggplot(au, aes(wt, mpg)) + 
+  geom_point() +
+  geom_line(aes(y = .fitted)) + 
+  geom_ribbon(aes(ymin = .lower, ymax = .upper), col = NA, alpha = 0.3)
+
+# predict on new data without outcome variable. Output does not include .resid
+newdata &lt;- newdata %&gt;%
+  select(-mpg)
+augment(mod, newdata = newdata)
+
+au &lt;- augment(mod, data = mtcars)
+
+ggplot(au, aes(.hat, .std.resid)) +
+  geom_vline(size = 2, colour = "white", xintercept = 0) +
+  geom_hline(size = 2, colour = "white", yintercept = 0) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+
+plot(mod, which = 6)
+ggplot(au, aes(.hat, .cooksd)) +
+  geom_vline(xintercept = 0, colour = NA) +
+  geom_abline(slope = seq(0, 3, by = 0.5), colour = "white") +
+  geom_smooth(se = FALSE) +
+  geom_point()
+
+# column-wise models
+a &lt;- matrix(rnorm(20), nrow = 10)
+b &lt;- a + rnorm(length(a))
+result &lt;- lm(b ~ a)
+tidy(result)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

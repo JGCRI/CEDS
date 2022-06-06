@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read a delimited file into a tibble</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vroom {vroom}"><tr><td>vroom {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read a delimited file into a tibble</h2>
+
+<h3>Description</h3>
+
+<p>Read a delimited file into a tibble
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vroom(
+  file,
+  delim = NULL,
+  col_names = TRUE,
+  col_types = NULL,
+  col_select = NULL,
+  id = NULL,
+  skip = 0,
+  n_max = Inf,
+  na = c("", "NA"),
+  quote = "\"",
+  comment = "",
+  skip_empty_rows = TRUE,
+  trim_ws = TRUE,
+  escape_double = TRUE,
+  escape_backslash = FALSE,
+  locale = default_locale(),
+  guess_max = 100,
+  altrep = TRUE,
+  altrep_opts = deprecated(),
+  num_threads = vroom_threads(),
+  progress = vroom_progress(),
+  show_col_types = NULL,
+  .name_repair = "unique"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>path to a local file.</p>
+</td></tr>
+<tr valign="top"><td><code>delim</code></td>
+<td>
+<p>One or more characters used to delimit fields within a
+file. If <code>NULL</code> the delimiter is guessed from the set of <code>c(",", "\t", " ", "|", ":", ";")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>col_names</code></td>
+<td>
+<p>Either <code>TRUE</code>, <code>FALSE</code> or a character vector
+of column names.
+</p>
+<p>If <code>TRUE</code>, the first row of the input will be used as the column
+names, and will not be included in the data frame. If <code>FALSE</code>, column
+names will be generated automatically: X1, X2, X3 etc.
+</p>
+<p>If <code>col_names</code> is a character vector, the values will be used as the
+names of the columns, and the first row of the input will be read into
+the first row of the output data frame.
+</p>
+<p>Missing (<code>NA</code>) column names will generate a warning, and be filled
+in with dummy names <code>...1</code>, <code>...2</code> etc. Duplicate column names
+will generate a warning and be made unique, see <code>name_repair</code> to control
+how this is done.</p>
+</td></tr>
+<tr valign="top"><td><code>col_types</code></td>
+<td>
+<p>One of <code>NULL</code>, a <code><a href="../../readr/html/cols.html">cols()</a></code> specification, or
+a string. See <code>vignette("readr")</code> for more details.
+</p>
+<p>If <code>NULL</code>, all column types will be imputed from <code>guess_max</code> rows
+on the input interspersed throughout the file. This is convenient (and
+fast), but not robust. If the imputation fails, you'll need to increase
+the <code>guess_max</code> or supply the correct types yourself.
+</p>
+<p>Column specifications created by <code><a href="../../base/html/list.html">list()</a></code> or <code><a href="../../readr/html/cols.html">cols()</a></code> must contain
+one column specification for each column. If you only want to read a
+subset of the columns, use <code><a href="../../readr/html/cols.html">cols_only()</a></code>.
+</p>
+<p>Alternatively, you can use a compact string representation where each
+character represents one column:
+</p>
+
+<ul>
+<li><p> c = character
+</p>
+</li>
+<li><p> i = integer
+</p>
+</li>
+<li><p> n = number
+</p>
+</li>
+<li><p> d = double
+</p>
+</li>
+<li><p> l = logical
+</p>
+</li>
+<li><p> f = factor
+</p>
+</li>
+<li><p> D = date
+</p>
+</li>
+<li><p> T = date time
+</p>
+</li>
+<li><p> t = time
+</p>
+</li>
+<li><p> ? = guess
+</p>
+</li>
+<li><p> _ or - = skip
+</p>
+<p>By default, reading a file without a column specification will print a
+message showing what <code>readr</code> guessed they were. To remove this message,
+set <code>show_col_types = FALSE</code> or set 'options(readr.show_col_types = FALSE).
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>col_select</code></td>
+<td>
+<p>One or more selection expressions, like in
+<code>dplyr::select()</code>. Use <code>c()</code> or <code>list()</code> to use more than one expression.
+See <code>?dplyr::select</code> for details on available selection options.</p>
+</td></tr>
+<tr valign="top"><td><code>id</code></td>
+<td>
+<p>Either a string or 'NULL'. If a string, the output will contain a
+variable with that name with the filename(s) as the value. If 'NULL', the
+default, no variable will be created.</p>
+</td></tr>
+<tr valign="top"><td><code>skip</code></td>
+<td>
+<p>Number of lines to skip before reading data. If <code>comment</code> is
+supplied any commented lines are ignored <em>after</em> skipping.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Maximum number of lines to read.</p>
+</td></tr>
+<tr valign="top"><td><code>na</code></td>
+<td>
+<p>Character vector of strings to interpret as missing values. Set this
+option to <code>character()</code> to indicate no missing values.</p>
+</td></tr>
+<tr valign="top"><td><code>quote</code></td>
+<td>
+<p>Single character used to quote strings.</p>
+</td></tr>
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>A string used to identify comments. Any text after the
+comment characters will be silently ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>skip_empty_rows</code></td>
+<td>
+<p>Should blank rows be ignored altogether? i.e. If this
+option is <code>TRUE</code> then blank rows will not be represented at all.  If it is
+<code>FALSE</code> then they will be represented by <code>NA</code> values in all the columns.</p>
+</td></tr>
+<tr valign="top"><td><code>trim_ws</code></td>
+<td>
+<p>Should leading and trailing whitespace (ASCII spaces and tabs) be trimmed from
+each field before parsing it?</p>
+</td></tr>
+<tr valign="top"><td><code>escape_double</code></td>
+<td>
+<p>Does the file escape quotes by doubling them?
+i.e. If this option is <code>TRUE</code>, the value '&quot;&quot;' represents
+a single quote, '&quot;'.</p>
+</td></tr>
+<tr valign="top"><td><code>escape_backslash</code></td>
+<td>
+<p>Does the file use backslashes to escape special
+characters? This is more general than <code>escape_double</code> as backslashes
+can be used to escape the delimiter character, the quote character, or
+to add special characters like <code style="white-space: pre;">\\n</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>The locale controls defaults that vary from place to place.
+The default locale is US-centric (like R), but you can use
+<code><a href="../../readr/html/locale.html">locale()</a></code> to create your own locale that controls things like
+the default time zone, encoding, decimal mark, big mark, and day/month
+names.</p>
+</td></tr>
+<tr valign="top"><td><code>guess_max</code></td>
+<td>
+<p>Maximum number of lines to use for guessing column types.</p>
+</td></tr>
+<tr valign="top"><td><code>altrep</code></td>
+<td>
+<p>Control which column types use Altrep representations,
+either a character vector of types, <code>TRUE</code> or <code>FALSE</code>. See
+<code><a href="vroom_altrep.html">vroom_altrep()</a></code> for for full details.</p>
+</td></tr>
+<tr valign="top"><td><code>altrep_opts</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a></p>
+</td></tr>
+<tr valign="top"><td><code>num_threads</code></td>
+<td>
+<p>Number of threads to use when reading and materializing
+vectors. If your data contains newlines within fields the parser will
+automatically be forced to use a single thread only.</p>
+</td></tr>
+<tr valign="top"><td><code>progress</code></td>
+<td>
+<p>Display a progress bar? By default it will only display
+in an interactive session and not while knitting a document. The automatic
+progress bar can be disabled by setting option <code>readr.show_progress</code> to
+<code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>show_col_types</code></td>
+<td>
+<p>Control showing the column specifications. If <code>TRUE</code>
+column specifications are always show, if <code>FALSE</code> they are never shown. If
+<code>NULL</code> (the default) they are shown only if an explicit specification is not
+given to <code>col_types</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.name_repair</code></td>
+<td>
+<p>Handling of column names. By default, vroom ensures
+column names are not empty and unique. See <code>.name_repair</code> as documented in
+<code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> for additional options including supplying user defined
+name repair functions.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get path to example file
+input_file &lt;- vroom_example("mtcars.csv")
+input_file
+
+# Read from a path
+
+# Input sources -------------------------------------------------------------
+# Read from a path
+vroom(input_file)
+# You can also use paths directly
+# vroom("mtcars.csv")
+
+## Not run: 
+# Including remote paths
+vroom("https://github.com/r-lib/vroom/raw/main/inst/extdata/mtcars.csv")
+
+## End(Not run)
+
+# Or directly from a string with `I()`
+vroom(I("x,y\n1,2\n3,4\n"))
+
+# Column selection ----------------------------------------------------------
+# Pass column names or indexes directly to select them
+vroom(input_file, col_select = c(model, cyl, gear))
+vroom(input_file, col_select = c(1, 3, 11))
+
+# Or use the selection helpers
+vroom(input_file, col_select = starts_with("d"))
+
+# You can also rename specific columns
+vroom(input_file, col_select = list(car = model, everything()))
+
+# Column types --------------------------------------------------------------
+# By default, vroom guesses the columns types, looking at 1000 rows
+# throughout the dataset.
+# You can specify them explicitly with a compact specification:
+vroom(I("x,y\n1,2\n3,4\n"), col_types = "dc")
+
+# Or with a list of column types:
+vroom(I("x,y\n1,2\n3,4\n"), col_types = list(col_double(), col_character()))
+
+# File types ----------------------------------------------------------------
+# csv
+vroom(I("a,b\n1.0,2.0\n"), delim = ",")
+# tsv
+vroom(I("a\tb\n1.0\t2.0\n"))
+# Other delimiters
+vroom(I("a|b\n1.0|2.0\n"), delim = "|")
+
+# Read datasets across multiple files ---------------------------------------
+mtcars_by_cyl &lt;- vroom_example(vroom_examples("mtcars-"))
+mtcars_by_cyl
+
+# Pass the filenames directly to vroom, they are efficiently combined
+vroom(mtcars_by_cyl)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

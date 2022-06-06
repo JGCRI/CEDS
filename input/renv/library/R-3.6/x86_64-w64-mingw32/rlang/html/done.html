@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Box a final value for early termination</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for done {rlang}"><tr><td>done {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Box a final value for early termination</h2>
+
+<h3>Description</h3>
+
+<p>A value boxed with <code>done()</code> signals to its caller that it
+should stop iterating. Use it to shortcircuit a loop.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+done(x)
+
+is_done_box(x, empty = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For <code>done()</code>, a value to box. For <code>is_done_box()</code>, a
+value to test.</p>
+</td></tr>
+<tr valign="top"><td><code>empty</code></td>
+<td>
+<p>Whether the box is empty. If <code>NULL</code>, <code>is_done_box()</code>
+returns <code>TRUE</code> for all done boxes. If <code>TRUE</code>, it returns <code>TRUE</code>
+only for empty boxes. Otherwise it returns <code>TRUE</code> only for
+non-empty boxes.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <a href="box.html">boxed</a> value.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+done(3)
+
+x &lt;- done(3)
+is_done_box(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

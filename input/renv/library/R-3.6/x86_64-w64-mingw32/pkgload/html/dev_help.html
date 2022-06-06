@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: In-development help for package loaded with devtools</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dev_help {pkgload}"><tr><td>dev_help {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>In-development help for package loaded with devtools</h2>
+
+<h3>Description</h3>
+
+<p><code>dev_help</code> searches for source documentation provided in
+packages loaded by devtools. To improve performance, the <code>.Rd</code> files
+are parsed to create to index once, then cached. Use
+<code>dev_topic_index_reset</code> to clear that index.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dev_help(
+  topic,
+  dev_packages = NULL,
+  stage = "render",
+  type = getOption("help_type")
+)
+
+dev_topic_index_reset(pkg_name)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>topic</code></td>
+<td>
+<p>name of help to search for.</p>
+</td></tr>
+<tr valign="top"><td><code>dev_packages</code></td>
+<td>
+<p>A character vector of package names to search within.
+If <code>NULL</code>, defaults to all packages loaded by devtools.</p>
+</td></tr>
+<tr valign="top"><td><code>stage</code></td>
+<td>
+<p>at which stage (&quot;build&quot;, &quot;install&quot;, or &quot;render&quot;) should
+<code style="white-space: pre;">\\Sexpr</code> macros be executed? This is only important if you're using
+<code style="white-space: pre;">\\Sexpr</code> macro's in your Rd files.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>of html to produce: <code>"html"</code> or <code>"text"</code>. Defaults to
+your default documentation type.</p>
+</td></tr>
+<tr valign="top"><td><code>pkg_name</code></td>
+<td>
+<p>Name of package.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library("ggplot2")
+help("ggplot") # loads installed documentation for ggplot
+
+load_all("ggplot2")
+dev_help("ggplot") # loads development documentation for ggplot
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

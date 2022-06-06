@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add text output to a progress bar</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_progress_output {cli}"><tr><td>cli_progress_output {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add text output to a progress bar</h2>
+
+<h3>Description</h3>
+
+<p>The text is calculated via <code><a href="cli_text.html">cli_text()</a></code>, so all cli features can be
+used here, including progress variables.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_progress_output(text, id = NULL, .envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>Text to output. It is formatted via <code><a href="cli_text.html">cli_text()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>id</code></td>
+<td>
+<p>Progress bar id. The default is the current progress bar.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>Environment to use for glue interpolation of <code>text</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The text is passed to the progress handler(s), that may or may not be
+able to print it.<div class="sourceCode r"></p>
+<pre>fun &lt;- function() {
+  cli_alert_info("Before the progress bar")
+  cli_progress_bar("Calculating", total = 100)
+  for (i in 1:50) {
+    Sys.sleep(4/100)
+    cli_progress_update()
+  }
+  cli_progress_output("Already half way!")
+  for (i in 1:50) {
+    Sys.sleep(4/100)
+    cli_progress_update()
+  }
+  cli_alert_info("All done")
+}
+fun()
+</pre></div>
+<p><img src="../help/figures/progress-output2.svg" alt="progress-output2.svg" />
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>TRUE</code>, always.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

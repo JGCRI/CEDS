@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Transform Strings with Case Mapping or Folding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_trans_tolower {stringi}"><tr><td>stri_trans_tolower {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Transform Strings with Case Mapping or Folding</h2>
+
+<h3>Description</h3>
+
+<p>These functions transform strings either to lower case,
+UPPER CASE, or Title Case or perform case folding.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_trans_tolower(str, locale = NULL)
+
+stri_trans_toupper(str, locale = NULL)
+
+stri_trans_casefold(str)
+
+stri_trans_totitle(str, ..., opts_brkiter = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for case mapping following
+the conventions of the default locale, or a single string with
+locale identifier, see <a href="about_locale.html">stringi-locale</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional settings for <code>opts_brkiter</code></p>
+</td></tr>
+<tr valign="top"><td><code>opts_brkiter</code></td>
+<td>
+<p>a named list with <span class="pkg">ICU</span> BreakIterator's settings,
+see <code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a></code>;
+<code>NULL</code> for default break iterator, i.e., <code>word</code>;
+<code>stri_trans_totitle</code> only</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>.
+</p>
+<p><span class="pkg">ICU</span> implements full Unicode string case mappings. It is
+worth noting that, generally, case mapping:
+</p>
+
+<ul>
+<li><p> can change the number of code points and/or code units
+of a string,
+</p>
+</li>
+<li><p> is language-sensitive (results may differ depending on the locale), and
+</p>
+</li>
+<li><p> is context-sensitive (a character in the input string may map
+differently depending on surrounding characters).
+</p>
+</li></ul>
+
+<p>With <code>stri_trans_totitle</code>, if <code>word</code> <code>BreakIterator</code>
+is used (the default), then the first letter of each word will be capitalized
+and the rest will be transformed to lower case.
+With the break iterator of type <code>sentence</code>, the first letter
+of each sentence will be capitalized only.
+Note that according the <span class="pkg">ICU</span> User Guide,
+the string <code>'one. two. three.'</code> consists of one sentence.
+</p>
+<p>Case folding, on the other hand, is locale-independent.
+Its purpose is to make two pieces of text that differ only in case identical.
+This may come in handy when comparing strings.
+</p>
+<p>For more general (but not locale dependent)
+text transforms refer to <code><a href="stri_trans_general.html">stri_trans_general</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Each function returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Case Mappings</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/transforms/casemappings.html">https://unicode-org.github.io/icu/userguide/transforms/casemappings.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+<p>Other transform: 
+<code><a href="stri_trans_char.html">stri_trans_char</a>()</code>,
+<code><a href="stri_trans_general.html">stri_trans_general</a>()</code>,
+<code><a href="stri_trans_list.html">stri_trans_list</a>()</code>,
+<code><a href="stri_trans_nf.html">stri_trans_nfc</a>()</code>
+</p>
+<p>Other text_boundaries: 
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_split_lines.html">stri_split_lines</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_trans_toupper('\u00DF', 'de_DE') # small German Eszett / scharfes S
+stri_cmp_eq(stri_trans_toupper('i', 'en_US'), stri_trans_toupper('i', 'tr_TR'))
+stri_trans_toupper(c('abc', '123', '\u0105\u0104'))
+stri_trans_tolower(c('AbC', '123', '\u0105\u0104'))
+stri_trans_totitle(c('AbC', '123', '\u0105\u0104'))
+stri_trans_casefold(c('AbC', '123', '\u0105\u0104'))
+stri_trans_totitle('stringi is a FREE R pAcKaGe. WItH NO StrinGS attached.') # word boundary
+stri_trans_totitle('stringi is a FREE R pAcKaGe. WItH NO StrinGS attached.', type='sentence')
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

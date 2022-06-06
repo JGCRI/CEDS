@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Path Customization</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for paths {renv}"><tr><td>paths {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Path Customization</h2>
+
+<h3>Description</h3>
+
+<p>Access the paths that <code>renv</code> uses for global state storage.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+paths
+</pre>
+
+
+<h3>Format</h3>
+
+<p>An object of class <code>list</code> of length 3.</p>
+
+
+<h3>Details</h3>
+
+<p>By default, <code>renv</code> collects state into these folders:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<strong>Platform</strong> </td><td style="text-align: left;"> <strong>Location</strong> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+Linux        </td><td style="text-align: left;"> <code style="white-space: pre;">~/.local/share/renv</code> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+macOS        </td><td style="text-align: left;"> <code style="white-space: pre;">~/Library/Application Support/renv</code> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+Windows      </td><td style="text-align: left;"> <code style="white-space: pre;">%LOCALAPPDATA%/renv</code> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+<p>If desired, this path can be adjusted by setting the <code>RENV_PATHS_ROOT</code>
+environment variable. This can be useful if you'd like, for example, multiple
+users to be able to share a single global cache.
+</p>
+<p>The various state sub-directories can also be individually adjusted, if so
+desired (e.g. you'd prefer to keep the cache of package installations on a
+separate volume). The various environment variables that can be set are
+enumerated below:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+<strong>Environment Variable</strong> </td><td style="text-align: left;"> <strong>Description</strong> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_ROOT</code>        </td><td style="text-align: left;"> The root path used for global state storage. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_LIBRARY</code>     </td><td style="text-align: left;"> The root path containing different <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> libraries. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_LOCAL</code>       </td><td style="text-align: left;"> The path containing local package sources. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_SOURCE</code>      </td><td style="text-align: left;"> The path containing downloaded package sources. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_BINARY</code>      </td><td style="text-align: left;"> The path containing downloaded package binaries. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_CACHE</code>       </td><td style="text-align: left;"> The path containing cached package installations. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_RTOOLS</code>      </td><td style="text-align: left;"> (Windows only) The path to <a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a>. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+<code>RENV_PATHS_EXTSOFT</code>     </td><td style="text-align: left;"> (Windows only) The path containing external software needed for compilation of Windows source packages. </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+<p>Note that <code>renv</code> will append platform-specific and version-specific entries
+to the set paths as appropriate. For example, if you have set:</p>
+<pre>Sys.setenv(RENV_PATHS_CACHE = "/mnt/shared/renv/cache")
+</pre>
+<p>then the directory used for the cache will still depend on the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> version
+(e.g. <code>3.5</code>) and the <code>renv</code> cache version (e.g. <code>v2</code>). For example:</p>
+<pre>/mnt/shared/renv/cache/R-3.5/v2
+</pre>
+<p>This ensures that you can set a single <code>RENV_PATHS_CACHE</code> environment variable
+globally without worry that it may cause collisions or errors if multiple
+versions of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> needed to interact with the same cache.
+</p>
+<p>If reproducibility of a project is desired on a particular machine, it is
+highly recommended that the <code>renv</code> cache of installed packages + binary
+packages is stored, so that packages can be easily restored in the future &ndash;
+installation of packages from source can often be arduous.
+</p>
+<p>If you want these settings to persist in your project, it is recommended that
+you add these to an appropriate <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> startup file. For example, these could be
+set in:
+</p>
+
+<ul>
+<li><p> A project-local <code>.Renviron</code>;
+</p>
+</li>
+<li><p> The user-level <code>.Renviron</code>;
+</p>
+</li>
+<li><p> A file at <code style="white-space: pre;">$(R RHOME)/etc/Renviron.site</code>.
+</p>
+</li></ul>
+
+<p>Please see ?<a href="../../base/html/Startup.html">Startup</a> for more details.
+</p>
+
+
+<h3>Local Sources</h3>
+
+<p>If your project depends on one or <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages that are not available in any
+remote location, you can still provide a locally-available tarball for <code>renv</code>
+to use during restore. By default, these packages should be made available in
+the folder as specified by the <code>RENV_PATHS_LOCAL</code> environment variable. The
+package sources should be placed in a file at one of these locations:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">${RENV_PATHS_LOCAL}/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code>
+</p>
+</li>
+<li> <p><code style="white-space: pre;">${RENV_PATHS_LOCAL}/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code>
+</p>
+</li>
+<li> <p><code style="white-space: pre;">&lt;project&gt;/renv/local/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code>
+</p>
+</li>
+<li> <p><code style="white-space: pre;">&lt;project&gt;/renv/local/&lt;package&gt;/&lt;package&gt;_&lt;version&gt;.&lt;ext&gt;</code>
+</p>
+</li></ul>
+
+<p>where <code style="white-space: pre;">.&lt;ext&gt;</code> is <code>.tar.gz</code> for source packages, or <code>.tgz</code> for binaries on
+macOS and <code>.zip</code> for binaries on Windows. During a <code>restore()</code>, packages
+installed from an unknown source will be searched for in this location.
+</p>
+
+
+<h3>Projects</h3>
+
+<p>In order to determine whether a package can safely be removed from the cache,
+<code>renv</code> needs to know which projects are using packages from the cache. Since
+packages may be symlinked from the cache, and symlinks are by nature a one-way
+link, projects need to also report that they're using the <code>renv</code> cache.
+</p>
+<p>To accomplish this, whenever <code>renv</code> is used with a project, it will record
+itself as being used within a file located at:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">${RENV_PATHS_ROOT}/projects</code>
+</p>
+</li></ul>
+
+<p>This file is list of projects currently using the <code>renv</code> cache. With this,
+<code>renv</code> can crawl projects registered with <code>renv</code> and use that to determine if
+any packages within the cache are no longer in use, and can be removed.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get the path to the project library
+path &lt;- renv::paths$library()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

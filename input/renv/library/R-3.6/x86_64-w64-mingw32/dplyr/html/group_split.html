@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Split data frame by groups</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group_split {dplyr}"><tr><td>group_split {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Split data frame by groups</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+<code><a href="group_split.html">group_split()</a></code> works like <code><a href="../../base/html/split.html">base::split()</a></code> but
+</p>
+
+<ul>
+<li><p> it uses the grouping structure from <code><a href="group_by.html">group_by()</a></code> and therefore is subject to the data mask
+</p>
+</li>
+<li><p> it does not name the elements of the list based on the grouping as this typically
+loses information and is confusing.
+</p>
+</li></ul>
+
+<p><code><a href="group_data.html">group_keys()</a></code> explains the grouping structure, by returning a data frame that has one row
+per group and one column per grouping variable.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+group_split(.tbl, ..., .keep = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.tbl</code></td>
+<td>
+<p>A tbl</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Grouping specification, forwarded to <code><a href="group_by.html">group_by()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>.keep</code></td>
+<td>
+<p>Should the grouping columns be kept</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code><a href="group_split.html">group_split()</a></code> returns a list of tibbles. Each tibble contains the rows of <code>.tbl</code> for the associated group and
+all the columns, including the grouping variables.
+</p>
+</li>
+<li> <p><code><a href="group_data.html">group_keys()</a></code> returns a tibble with one row per group, and one column per grouping variable
+</p>
+</li></ul>
+
+
+
+<h3>Grouped data frames</h3>
+
+<p>The primary use case for <code><a href="group_split.html">group_split()</a></code> is with already grouped data frames,
+typically a result of <code><a href="group_by.html">group_by()</a></code>. In this case <code><a href="group_split.html">group_split()</a></code> only uses
+the first argument, the grouped tibble, and warns when <code>...</code> is used.
+</p>
+<p>Because some of these groups may be empty, it is best paired with <code><a href="group_data.html">group_keys()</a></code>
+which identifies the representatives of each grouping variable for the group.
+</p>
+
+
+<h3>Ungrouped data frames</h3>
+
+<p>When used on ungrouped data frames, <code><a href="group_split.html">group_split()</a></code> and <code><a href="group_data.html">group_keys()</a></code> forwards the <code>...</code> to
+<code><a href="group_by.html">group_by()</a></code> before the split, therefore the <code>...</code> are subject to the data mask.
+</p>
+<p>Using these functions on an ungrouped data frame only makes sense if you need only one or the
+other, because otherwise the grouping algorithm is performed each time.
+</p>
+
+
+<h3>Rowwise data frames</h3>
+
+<p><code><a href="group_split.html">group_split()</a></code> returns a list of one-row tibbles is returned, and the <code>...</code> are ignored and warned against
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other grouping functions: 
+<code><a href="group_by.html">group_by</a>()</code>,
+<code><a href="group_map.html">group_map</a>()</code>,
+<code><a href="group_nest.html">group_nest</a>()</code>,
+<code><a href="group_trim.html">group_trim</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# ----- use case 1 : on an already grouped tibble
+ir &lt;- iris %&gt;%
+  group_by(Species)
+
+group_split(ir)
+group_keys(ir)
+
+# this can be useful if the grouped data has been altered before the split
+ir &lt;- iris %&gt;%
+  group_by(Species) %&gt;%
+  filter(Sepal.Length &gt; mean(Sepal.Length))
+
+group_split(ir)
+group_keys(ir)
+
+# ----- use case 2: using a group_by() grouping specification
+
+# both group_split() and group_keys() have to perform the grouping
+# so it only makes sense to do this if you only need one or the other
+iris %&gt;%
+  group_split(Species)
+
+iris %&gt;%
+  group_keys(Species)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

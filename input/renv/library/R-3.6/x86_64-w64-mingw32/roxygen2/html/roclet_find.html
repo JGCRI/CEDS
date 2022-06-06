@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a roclet from a string.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for roclet_find {roxygen2}"><tr><td>roclet_find {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a roclet from a string.</h2>
+
+<h3>Description</h3>
+
+<p>This provides a flexible way of specifying a roclet in a string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+roclet_find(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Arbitrary R code evaluated in roxygen2 package.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# rd, namespace, and vignette work for backward compatibility
+roclet_find("rd")
+
+# But generally you should specify the name of a function that
+# returns a roclet
+roclet_find("rd_roclet")
+
+# If it lives in another package, you'll need to use ::
+roclet_find("roxygen2::rd_roclet")
+
+# If it takes parameters (which no roclet does currently), you'll need
+# to call the function
+roclet_find("roxygen2::rd_roclet()")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

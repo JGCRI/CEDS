@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Construct an 'rd_section' object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rd_section {roxygen2}"><tr><td>rd_section {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Construct an <code>rd_section</code> object</h2>
+
+<h3>Description</h3>
+
+<p>An <code>rd_section</code> represents an Rd command that can appear at the top-level
+of an Rd document, like <code style="white-space: pre;">\name{}</code>, <code style="white-space: pre;">\title{}</code>, <code style="white-space: pre;">\description{}</code>, or
+<code style="white-space: pre;">\section{}</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rd_section(type, value)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Section type. Stored in <code>type</code> field, and in class
+<code style="white-space: pre;">rd_section_{type}</code>. To avoid namespace clashes between different
+extensions, this should include the package name.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>Section data. Only used by <code>format()</code> and <code>merge()</code> methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+<p>If provide your own <code>rd_section</code> type, you'll also need to define a
+<code style="white-space: pre;">format.rd_section_{type}</code> method that returns formatted Rd output. You
+may also need to provide a <code style="white-space: pre;">merge.rd_section_{type}</code> method if two
+sections can not be combined with <code>rd_section(x$type, c(x$value, y$value))</code>.
+See <code>vignette("extending")</code> for more details.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

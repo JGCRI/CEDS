@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rename a (work)sheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_rename {googlesheets4}"><tr><td>sheet_rename {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rename a (work)sheet</h2>
+
+<h3>Description</h3>
+
+<p>Changes the name of a (work)sheet.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_rename(ss, sheet = NULL, new_name)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to rename, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. Defaults to the first visible sheet.</p>
+</td></tr>
+<tr valign="top"><td><code>new_name</code></td>
+<td>
+<p>New name of the sheet, as a string. This is required.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes an <code>UpdateSheetPropertiesRequest</code>:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest</a>
+</p>
+</li></ul>
+
+<p>Other worksheet functions: 
+<code><a href="sheet_add.html">sheet_add</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_delete.html">sheet_delete</a>()</code>,
+<code><a href="sheet_properties.html">sheet_properties</a>()</code>,
+<code><a href="sheet_relocate.html">sheet_relocate</a>()</code>,
+<code><a href="sheet_resize.html">sheet_resize</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  ss &lt;- gs4_create(
+    "sheet-rename-demo",
+    sheets = list(cars = head(cars), chickwts = head(chickwts))
+  )
+  sheet_names(ss)
+
+  ss %&gt;%
+    sheet_rename(1, new_name = "automobiles") %&gt;%
+    sheet_rename("chickwts", new_name = "poultry")
+
+  # clean up
+  gs4_find("sheet-rename-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

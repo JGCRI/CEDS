@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get and set active reporter.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reporter-accessors {testthat}"><tr><td>reporter-accessors {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get and set active reporter.</h2>
+
+<h3>Description</h3>
+
+<p><code>get_reporter()</code> and <code>set_reporter()</code> access and modify the current &quot;active&quot;
+reporter. Generally, these functions should not be called directly; instead
+use <code>with_reporter()</code> to temporarily change, then reset, the active reporter.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+set_reporter(reporter)
+
+get_reporter()
+
+with_reporter(reporter, code, start_end_reporter = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>reporter</code></td>
+<td>
+<p>Reporter to use to summarise output. Can be supplied
+as a string (e.g. &quot;summary&quot;) or as an R6 object
+(e.g. <code>SummaryReporter$new()</code>).
+</p>
+<p>See <a href="Reporter.html">Reporter</a> for more details and a list of built-in reporters.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to execute.</p>
+</td></tr>
+<tr valign="top"><td><code>start_end_reporter</code></td>
+<td>
+<p>Should the reporters <code>start_reporter()</code> and
+<code>end_reporter()</code> methods be called? For expert use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>with_reporter()</code> invisible returns the reporter active when <code>code</code>
+was evaluated.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

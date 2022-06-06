@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Declare tunable parameters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tunable {generics}"><tr><td>tunable {generics}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Declare tunable parameters</h2>
+
+<h3>Description</h3>
+
+<p>Returns information on potential hyper-parameters that can be optimized.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tunable(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object, such as a recipe, recipe step, workflow, or model
+specification.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed to methods</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>For a model specification, an engine must be chosen.
+</p>
+<p>If the object has no tunable parameters, a tibble with no rows is returned.
+</p>
+<p>The information about the default parameter object takes the form of a
+named list with an element for the function call and an optional element for
+the source of the function (e.g. the <code>dials</code> package). For model
+specifications, If the parameter is unknown to the underlying <code>tunable</code>
+method, a <code>NULL</code> is returned.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A tibble with a column for the parameter <code>name</code>, information on the
+<em>default</em> method for generating a corresponding parameter object, the
+<code>source</code> of the parameter (e.g. &quot;recipe&quot;, etc.), and the <code>component</code> within
+the source. For the <code>component</code> column, a little more specificity is given
+about the location of the parameter (e.g. &quot;step_normalize&quot; or recipes or
+&quot;boost_tree&quot; for models). The <code>component_id</code> column contains the unique step
+<code>id</code> field or, for models, a logical for whether the model specification
+argument was a main parameter or one associated with the engine.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>No methods found in currently loaded packages.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>generics</em> version 0.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

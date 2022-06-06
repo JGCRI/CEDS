@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: serialize R objects to JSON</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for serializeJSON {jsonlite}"><tr><td>serializeJSON {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>serialize R objects to JSON</h2>
+
+<h3>Description</h3>
+
+<p>The <code><a href="serializeJSON.html">serializeJSON()</a></code> and <code><a href="serializeJSON.html">unserializeJSON()</a></code> functions convert between
+<span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> objects to JSON data. Instead of using a class based mapping like
+<code><a href="fromJSON.html">toJSON()</a></code> and <code><a href="fromJSON.html">fromJSON()</a></code>, the serialize functions base the encoding
+schema on the storage type, and capture all data and attributes from any object.
+Thereby the object can be restored almost perfectly from its JSON representation, but
+the resulting JSON output is very verbose. Apart from environments, all standard storage
+types are supported.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+serializeJSON(x, digits = 8, pretty = FALSE)
+
+unserializeJSON(txt)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> object to be serialized</p>
+</td></tr>
+<tr valign="top"><td><code>digits</code></td>
+<td>
+<p>max number of digits (after the dot) to print for numeric values</p>
+</td></tr>
+<tr valign="top"><td><code>pretty</code></td>
+<td>
+<p>add indentation/whitespace to JSON output. See <code><a href="prettify.html">prettify()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>txt</code></td>
+<td>
+<p>a JSON string which was created using <code>serializeJSON</code></p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p>JSON is a text based format which leads to loss of precision when printing numbers.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+jsoncars &lt;- serializeJSON(mtcars)
+mtcars2 &lt;- unserializeJSON(jsoncars)
+identical(mtcars, mtcars2)
+
+set.seed('123')
+myobject &lt;- list(
+  mynull = NULL,
+  mycomplex = lapply(eigen(matrix(-rnorm(9),3)), round, 3),
+  mymatrix = round(matrix(rnorm(9), 3),3),
+  myint = as.integer(c(1,2,3)),
+  mydf = cars,
+  mylist = list(foo='bar', 123, NA, NULL, list('test')),
+  mylogical = c(TRUE,FALSE,NA),
+  mychar = c('foo', NA, 'bar'),
+  somemissings = c(1,2,NA,NaN,5, Inf, 7 -Inf, 9, NA),
+  myrawvec = charToRaw('This is a test')
+);
+identical(unserializeJSON(serializeJSON(myobject)), myobject);
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

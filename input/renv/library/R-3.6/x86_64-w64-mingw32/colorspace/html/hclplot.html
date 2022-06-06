@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Palette Plot in HCL Space</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hclplot {colorspace}"><tr><td>hclplot {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Palette Plot in HCL Space</h2>
+
+<h3>Description</h3>
+
+<p>Visualization of color palettes in HCL space projections.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hclplot(
+  x,
+  type = NULL,
+  h = NULL,
+  c = NULL,
+  l = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  main = NULL,
+  cex = 1,
+  axes = TRUE,
+  bg = "white",
+  lwd = 1,
+  size = 2.5,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector containing color hex codes, or a <code><a href="color-class.html">color-class</a></code>
+object.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>type character specifying which type of palette should be visualized
+(<code>"qualitative"</code>, <code>"sequential"</code>, or <code>"diverging"</code>).
+For qualitative palettes a hue-chroma plane is used, otherwise a chroma-luminance plane.
+By default, the <code>type</code> is inferred from the luminance trajectory corresponding
+to <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>h</code></td>
+<td>
+<p>numeric hue(s) to be used for <code>type = "sequential"</code> and <code>type = "diverging"</code>.
+By default, these are inferred from the colors in <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>c</code></td>
+<td>
+<p>numeric. Maximal chroma value to be used.</p>
+</td></tr>
+<tr valign="top"><td><code>l</code></td>
+<td>
+<p>numeric luminance(s) to be used for <code>type = "qualitative"</code>.
+By default, this is inferred from the colors in <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab, ylab, main</code></td>
+<td>
+<p>character strings for annotation, by default generated from
+the type of color palette visualized.</p>
+</td></tr>
+<tr valign="top"><td><code>cex</code></td>
+<td>
+<p>numeric character extension.</p>
+</td></tr>
+<tr valign="top"><td><code>axes</code></td>
+<td>
+<p>logical. Should axes be drawn?</p>
+</td></tr>
+<tr valign="top"><td><code>bg, lwd, size</code></td>
+<td>
+<p>graphical control parameters for the color palette trajectory.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>currently not used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function <code>hclplot</code> is an auxiliary function for illustrating
+the trajectories of color palettes in two-dimensional HCL space projections.
+It collapses over one of the three coordinates (either the hue H or the
+luminance L) and displays a heatmap of colors combining the remaining
+two dimensions. The coordinates for the given color palette are highlighted
+to bring out its trajectory.
+</p>
+<p>The function <code>hclplot</code> has been designed to work well with the
+<code><a href="hcl_palettes.html">hcl_palettes</a></code> in this package. While it is possible to apply
+it to other color palettes as well, the results might look weird or confusing
+if these palettes are constructed very differently (e.g., as in the highly
+saturated base R palettes).
+</p>
+<p>More specifically, the following palettes can be visualized well: </p>
+
+<ul>
+<li><p> Qualitative with (approximately) constant luminance. In this case,
+<code>hclplot</code> shows a hue-chroma plane (in polar coordinates), keeping
+luminance at a fixed level (by default displayed in the main title of
+the plot). If the luminance is, in fact, not approximately constant,
+the luminance varies along with hue and chroma, using a simple linear
+function (fitted by least squares).
+<code>hclplot</code> shows a chroma-luminance plane, keeping hue at a fixed
+level (by default displayed in the main title of the plot). If the hue
+is, in fact, not approximately constant, the hue varies along with
+chroma and luminance, using a simple linear function (fitted by least
+squares.
+</p>
+</li>
+<li><p> Diverging with two (approximately) constant hues: This case is
+visualized with two back-to-back sequential displays.
+</p>
+</li></ul>
+
+<p>To infer the type of display to use, by default, the following heuristic is
+used: If luminance is not approximately constant (range &gt; 10) and follows
+rougly a triangular pattern, a diverging display is used. If luminance is
+not constant and follows roughly a linear pattern, a sequential display is
+used. Otherwise a qualitative display is used.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>hclplot</code> invisibly returns a matrix with the HCL coordinates corresponding to <code>x</code>.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="specplot.html">specplot</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## for qualitative palettes luminance and chroma are fixed, varying only hue
+hclplot(qualitative_hcl(9, c = 50, l = 70))
+
+## single-hue sequential palette (h = 260) with linear vs. power-transformed trajectory
+hclplot(sequential_hcl(7, h = 260, c = 80, l = c(35, 95), power = 1))
+hclplot(sequential_hcl(7, h = 260, c = 80, l = c(35, 95), power = 1.5))
+
+## advanced single-hue sequential palette with triangular chroma trajectory
+## (piecewise linear vs. power-transformed)
+hclplot(sequential_hcl(7, h = 245, c = c(40, 75, 0), l = c(30, 95), power = 1))
+hclplot(sequential_hcl(7, h = 245, c = c(40, 75, 0), l = c(30, 95), power = c(0.8, 1.4)))
+
+## multi-hue sequential palette with small hue range and triangular chroma vs.
+## large hue range and linear chroma trajectory
+hclplot(sequential_hcl(7, h = c(260, 220), c = c(50, 75, 0), l = c(30, 95), power = 1))
+hclplot(sequential_hcl(7, h = c(260, 60), c = 60, l = c(40, 95), power = 1))
+
+## balanced diverging palette constructed from two simple single-hue sequential
+## palettes (for hues 260/blue and 0/red)
+hclplot(diverging_hcl(7, h = c(260, 0), c = 80, l = c(35, 95), power = 1))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

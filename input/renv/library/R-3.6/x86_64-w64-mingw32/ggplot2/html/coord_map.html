@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Map projections</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coord_map {ggplot2}"><tr><td>coord_map {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Map projections</h2>
+
+<h3>Description</h3>
+
+<p><code>coord_map()</code> projects a portion of the earth, which is approximately
+spherical, onto a flat 2D plane using any projection defined by the
+<code>mapproj</code> package. Map projections do not, in general, preserve straight
+lines, so this requires considerable computation. <code>coord_quickmap()</code> is a
+quick approximation that does preserve straight lines. It works best for
+smaller areas closer to the equator.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coord_map(
+  projection = "mercator",
+  ...,
+  parameters = NULL,
+  orientation = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  clip = "on"
+)
+
+coord_quickmap(xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>projection</code></td>
+<td>
+<p>projection to use, see
+<code><a href="../../mapproj/html/mapproject.html">mapproj::mapproject()</a></code> for list</p>
+</td></tr>
+<tr valign="top"><td><code>..., parameters</code></td>
+<td>
+<p>Other arguments passed on to
+<code><a href="../../mapproj/html/mapproject.html">mapproj::mapproject()</a></code>. Use <code>...</code> for named parameters to
+the projection, and <code>parameters</code> for unnamed parameters.
+<code>...</code> is ignored if the <code>parameters</code> argument is present.</p>
+</td></tr>
+<tr valign="top"><td><code>orientation</code></td>
+<td>
+<p>projection orientation, which defaults to
+<code>c(90, 0, mean(range(x)))</code>.  This is not optimal for many
+projections, so you will have to supply your own. See
+<code><a href="../../mapproj/html/mapproject.html">mapproj::mapproject()</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>xlim, ylim</code></td>
+<td>
+<p>Manually specific x/y limits (in degrees of
+longitude/latitude)</p>
+</td></tr>
+<tr valign="top"><td><code>clip</code></td>
+<td>
+<p>Should drawing be clipped to the extent of the plot panel? A
+setting of <code>"on"</code> (the default) means yes, and a setting of <code>"off"</code>
+means no. For details, please see <code><a href="coord_cartesian.html">coord_cartesian()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>expand</code></td>
+<td>
+<p>If <code>TRUE</code>, the default, adds a small expansion factor to
+the limits to ensure that data and axes don't overlap. If <code>FALSE</code>,
+limits are taken exactly from the data or <code>xlim</code>/<code>ylim</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In general, map projections must account for the fact that the actual length
+(in km) of one degree of longitude varies between the equator and the pole.
+Near the equator, the ratio between the lengths of one degree of latitude and
+one degree of longitude is approximately 1. Near the pole, it tends
+towards infinity because the length of one degree of longitude tends towards
+0. For regions that span only a few degrees and are not too close to the
+poles, setting the aspect ratio of the plot to the appropriate lat/lon ratio
+approximates the usual mercator projection. This is what
+<code>coord_quickmap()</code> does, and is much faster (particularly for complex
+plots like <code><a href="geom_tile.html">geom_tile()</a></code>) at the expense of correctness.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require("maps")) {
+nz &lt;- map_data("nz")
+# Prepare a map of NZ
+nzmap &lt;- ggplot(nz, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black")
+
+# Plot it in cartesian coordinates
+nzmap
+}
+
+if (require("maps")) {
+# With correct mercator projection
+nzmap + coord_map()
+}
+
+if (require("maps")) {
+# With the aspect ratio approximation
+nzmap + coord_quickmap()
+}
+
+if (require("maps")) {
+# Other projections
+nzmap + coord_map("azequalarea", orientation = c(-36.92, 174.6, 0))
+}
+
+if (require("maps")) {
+states &lt;- map_data("state")
+usamap &lt;- ggplot(states, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black")
+
+# Use cartesian coordinates
+usamap
+}
+
+if (require("maps")) {
+# With mercator projection
+usamap + coord_map()
+}
+
+if (require("maps")) {
+# See ?mapproject for coordinate systems and their parameters
+usamap + coord_map("gilbert")
+}
+
+if (require("maps")) {
+# For most projections, you'll need to set the orientation yourself
+# as the automatic selection done by mapproject is not available to
+# ggplot
+usamap + coord_map("orthographic")
+}
+
+if (require("maps")) {
+usamap + coord_map("conic", lat0 = 30)
+}
+
+if (require("maps")) {
+usamap + coord_map("bonne", lat0 = 50)
+}
+
+## Not run: 
+if (require("maps")) {
+# World map, using geom_path instead of geom_polygon
+world &lt;- map_data("world")
+worldmap &lt;- ggplot(world, aes(x = long, y = lat, group = group)) +
+  geom_path() +
+  scale_y_continuous(breaks = (-2:2) * 30) +
+  scale_x_continuous(breaks = (-4:4) * 45)
+
+# Orthographic projection with default orientation (looking down at North pole)
+worldmap + coord_map("ortho")
+}
+
+if (require("maps")) {
+# Looking up up at South Pole
+worldmap + coord_map("ortho", orientation = c(-90, 0, 0))
+}
+
+if (require("maps")) {
+# Centered on New York (currently has issues with closing polygons)
+worldmap + coord_map("ortho", orientation = c(41, -74, 0))
+}
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse date-times with *y*ear, *m*onth, and *d*ay, *h*our,...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ymd_hms {lubridate}"><tr><td>ymd_hms {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse date-times with <strong>y</strong>ear, <strong>m</strong>onth, and <strong>d</strong>ay, <strong>h</strong>our,
+<strong>m</strong>inute, and <strong>s</strong>econd components.</h2>
+
+<h3>Description</h3>
+
+<p>Transform dates stored as character or numeric vectors to POSIXct
+objects. The <code>ymd_hms()</code> family of functions recognizes all non-alphanumeric
+separators (with the exception of &quot;.&quot; if <code>frac = TRUE</code>) and correctly
+handles heterogeneous date-time representations. For more flexibility in
+treatment of heterogeneous formats, see low level parser
+<code><a href="parse_date_time.html">parse_date_time()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ymd_hms(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+ymd_hm(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+ymd_h(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+dmy_hms(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+dmy_hm(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+dmy_h(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+mdy_hms(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+mdy_hm(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+mdy_h(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+ydm_hms(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+ydm_hm(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+
+ydm_h(
+  ...,
+  quiet = FALSE,
+  tz = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
+  truncated = 0
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>a character vector of dates in year, month, day, hour, minute,
+second format</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, function evaluates without displaying customary messages.</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>a character string that specifies which time zone to parse the date with. The string
+must be a time zone that is recognized by the user's OS.</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p>locale to be used, see <a href="../../base/html/locales.html">locales</a>. On Linux systems you
+can use <code>system("locale -a")</code> to list all the installed locales.</p>
+</td></tr>
+<tr valign="top"><td><code>truncated</code></td>
+<td>
+<p>integer, indicating how many formats can be missing. See details.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>ymd_hms()</code> functions automatically assign the Universal Coordinated Time
+Zone (UTC) to the parsed date. This time zone can be changed with
+<code><a href="force_tz.html">force_tz()</a></code>.
+</p>
+<p>The most common type of irregularity in date-time data is the truncation
+due to rounding or unavailability of the time stamp. If the <code>truncated</code>
+parameter is non-zero, the <code>ymd_hms()</code> functions also check for truncated
+formats. For example, <code>ymd_hms()</code> with <code>truncated = 3</code> will also parse
+incomplete dates like <code style="white-space: pre;">2012-06-01 12:23</code>, <code style="white-space: pre;">2012-06-01 12</code> and
+<code>2012-06-01</code>. NOTE: The <code>ymd()</code> family of functions is based on
+<code><a href="../../base/html/strptime.html">base::strptime()</a></code> which currently fails to parse <code style="white-space: pre;">%y-%m</code> formats.
+</p>
+<p>In case of heterogeneous date formats the <code>ymd_hms()</code> family guesses formats
+based on a subset of the input vector. If the input vector contains many
+missing values or non-date strings, the subset might not contain meaningful
+dates and the date-time format won't be guessed resulting in
+<code style="white-space: pre;">All formats failed to parse</code> error. In such cases please see
+<code><a href="parse_date_time.html">parse_date_time()</a></code> for a more flexible parsing interface.
+</p>
+<p>As of version 1.3.0, <span class="pkg">lubridate</span>'s parse functions no longer return a
+message that displays which format they used to parse their input. You can
+change this by setting the <code>lubridate.verbose</code> option to <code>TRUE</code> with
+<code>options(lubridate.verbose = TRUE)</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a vector of <a href="posix_utils.html">POSIXct</a> date-time objects
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="ymd.html">ymd()</a></code>, <code><a href="hms.html">hms()</a></code>
+</p>
+</li>
+<li> <p><code><a href="parse_date_time.html">parse_date_time()</a></code> for the underlying mechanism
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+x &lt;- c("2010-04-14-04-35-59", "2010-04-01-12-00-00")
+ymd_hms(x)
+x &lt;- c("2011-12-31 12:59:59", "2010-01-01 12:00:00")
+ymd_hms(x)
+
+
+## ** heterogeneous formats **
+x &lt;- c(20100101120101, "2009-01-02 12-01-02", "2009.01.03 12:01:03",
+       "2009-1-4 12-1-4",
+       "2009-1, 5 12:1, 5",
+       "200901-08 1201-08",
+       "2009 arbitrary 1 non-decimal 6 chars 12 in between 1 !!! 6",
+       "OR collapsed formats: 20090107 120107 (as long as prefixed with zeros)",
+       "Automatic wday, Thu, detection, 10-01-10 10:01:10 and p format: AM",
+       "Created on 10-01-11 at 10:01:11 PM")
+ymd_hms(x)
+
+## ** fractional seconds **
+op &lt;- options(digits.secs=3)
+dmy_hms("20/2/06 11:16:16.683")
+options(op)
+
+## ** different formats for ISO8601 timezone offset **
+ymd_hms(c("2013-01-24 19:39:07.880-0600",
+"2013-01-24 19:39:07.880", "2013-01-24 19:39:07.880-06:00",
+"2013-01-24 19:39:07.880-06", "2013-01-24 19:39:07.880Z"))
+
+## ** internationalization **
+## Not run: 
+x_RO &lt;- "Ma 2012 august 14 11:28:30 "
+  ymd_hms(x_RO, locale = "ro_RO.utf8")
+
+## End(Not run)
+
+## ** truncated time-dates **
+x &lt;- c("2011-12-31 12:59:59", "2010-01-01 12:11", "2010-01-01 12", "2010-01-01")
+ymd_hms(x, truncated = 3)
+x &lt;- c("2011-12-31 12:59", "2010-01-01 12", "2010-01-01")
+ymd_hm(x, truncated = 2)
+## ** What lubridate might not handle **
+## Extremely weird cases when one of the separators is "" and some of the
+## formats are not in double digits might not be parsed correctly:
+## Not run: 
+ymd_hm("20100201 07-01", "20100201 07-1", "20100201 7-01")
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

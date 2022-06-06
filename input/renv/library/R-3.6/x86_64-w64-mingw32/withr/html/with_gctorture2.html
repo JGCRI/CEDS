@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Torture Garbage Collector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_gctorture2 {withr}"><tr><td>with_gctorture2 {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Torture Garbage Collector</h2>
+
+<h3>Description</h3>
+
+<p>Temporarily turn gctorture2 on.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_gctorture2(new, code, wait = new, inhibit_release = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p><code style="white-space: pre;">[integer]</code><br /> run GC every 'step' allocations.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>wait</code></td>
+<td>
+<p>integer; number of allocations to wait before starting
+GC torture.</p>
+</td></tr>
+<tr valign="top"><td><code>inhibit_release</code></td>
+<td>
+<p>logical; do not release free objects for
+re-use: use with caution.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

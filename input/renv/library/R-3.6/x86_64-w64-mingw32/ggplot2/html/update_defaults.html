@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Modify geom/stat aesthetic defaults for future plots</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for update_geom_defaults {ggplot2}"><tr><td>update_geom_defaults {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Modify geom/stat aesthetic defaults for future plots</h2>
+
+<h3>Description</h3>
+
+<p>Modify geom/stat aesthetic defaults for future plots
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+update_geom_defaults(geom, new)
+
+update_stat_defaults(stat, new)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p>Named list of aesthetics.</p>
+</td></tr>
+<tr valign="top"><td><code>stat, geom</code></td>
+<td>
+<p>Name of geom/stat to modify (like <code>"point"</code> or
+<code>"bin"</code>), or a Geom/Stat object (like <code>GeomPoint</code> or
+<code>StatBin</code>).</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+update_geom_defaults("point", list(colour = "darkblue"))
+ggplot(mtcars, aes(mpg, wt)) + geom_point()
+update_geom_defaults("point", list(colour = "black"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

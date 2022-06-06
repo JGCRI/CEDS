@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Evaluate an expression with quosures and pronoun support</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for eval_tidy {rlang}"><tr><td>eval_tidy {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Evaluate an expression with quosures and pronoun support</h2>
+
+<h3>Description</h3>
+
+<p><code>eval_tidy()</code> is a variant of <code><a href="../../base/html/eval.html">base::eval()</a></code> that powers the tidy
+evaluation framework. Like <code>eval()</code> it accepts user data as
+argument. Whereas <code>eval()</code> simply transforms the data to an
+environment, <code>eval_tidy()</code> transforms it to a <a href="topic-data-mask.html">data mask</a> with <code><a href="as_data_mask.html">as_data_mask()</a></code>. Evaluating in a data
+mask enables the following features:
+</p>
+
+<ul>
+<li> <p><a href="topic-quosure.html">Quosures</a>. Quosures are expressions bundled with
+an environment. If <code>data</code> is supplied, objects in the data mask
+always have precedence over the quosure environment, i.e. the
+data masks the environment.
+</p>
+</li>
+<li> <p><a href="dot-data.html">Pronouns</a>. If <code>data</code> is supplied, the <code>.env</code> and <code>.data</code>
+pronouns are installed in the data mask. <code>.env</code> is a reference to
+the calling environment and <code>.data</code> refers to the <code>data</code>
+argument. These pronouns are an escape hatch for the <a href="topic-data-mask-ambiguity.html">data mask ambiguity</a> problem.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+eval_tidy(expr, data = NULL, env = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An <a href="topic-defuse.html">expression</a> or
+<a href="topic-quosure.html">quosure</a> to evaluate.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A data frame, or named list or vector. Alternatively, a
+data mask created with <code><a href="as_data_mask.html">as_data_mask()</a></code> or
+<code><a href="as_data_mask.html">new_data_mask()</a></code>. Objects in <code>data</code> have priority over those in
+<code>env</code>. See the section about data masking.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>The environment in which to evaluate <code>expr</code>. This
+environment is not applicable for quosures because they have
+their own environments.</p>
+</td></tr>
+</table>
+
+
+<h3>When should eval_tidy() be used instead of eval()?</h3>
+
+<p><code>base::eval()</code> is sufficient for simple evaluation. Use
+<code>eval_tidy()</code> when you'd like to support expressions referring to
+the <code>.data</code> pronoun, or when you need to support quosures.
+</p>
+<p>If you're evaluating an expression captured with
+<a href="topic-inject.html">injection</a> support, it is recommended to use
+<code>eval_tidy()</code> because users may inject quosures.
+</p>
+<p>Note that unwrapping a quosure with <code><a href="quosure-tools.html">quo_get_expr()</a></code> does not
+guarantee that there is no quosures inside the expression. Quosures
+might be unquoted anywhere in the expression tree. For instance,
+the following does not work reliably in the presence of nested
+quosures:</p>
+<pre>my_quoting_fn &lt;- function(x) {
+  x &lt;- enquo(x)
+  expr &lt;- quo_get_expr(x)
+  env &lt;- quo_get_env(x)
+  eval(expr, env)
+}
+
+# Works:
+my_quoting_fn(toupper(letters))
+
+# Fails because of a nested quosure:
+my_quoting_fn(toupper(!!quo(letters)))
+</pre>
+
+
+<h3>Stack semantics of <code>eval_tidy()</code></h3>
+
+<p><code>eval_tidy()</code> always evaluates in a data mask, even when <code>data</code> is
+<code>NULL</code>. Because of this, it has different stack semantics than
+<code><a href="../../base/html/eval.html">base::eval()</a></code>:
+</p>
+
+<ul>
+<li><p> Lexical side effects, such as assignment with <code style="white-space: pre;">&lt;-</code>, occur in the
+mask rather than <code>env</code>.
+</p>
+</li>
+<li><p> Functions that require the evaluation environment to correspond
+to a frame on the call stack do not work. This is why <code>return()</code>
+called from a quosure does not work.
+</p>
+</li>
+<li><p> The mask environment creates a new branch in the tree
+representation of backtraces (which you can visualise in a
+<code><a href="../../base/html/browser.html">browser()</a></code> session with <code>lobstr::cst()</code>).
+</p>
+</li></ul>
+
+<p>See also <code><a href="eval_bare.html">eval_bare()</a></code> for more information about these differences.
+</p>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-data-mask.html">What is data-masking and why do I need {{?</a>.
+</p>
+</li>
+<li> <p><a href="topic-quosure.html">What are quosures and when are they needed?</a>.
+</p>
+</li>
+<li> <p><a href="topic-defuse.html">Defusing R expressions</a>.
+</p>
+</li>
+<li> <p><code><a href="as_data_mask.html">new_data_mask()</a></code> and <code><a href="as_data_mask.html">as_data_mask()</a></code> for manually creating data masks.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# With simple defused expressions eval_tidy() works the same way as
+# eval():
+fruit &lt;- "apple"
+vegetable &lt;- "potato"
+expr &lt;- quote(paste(fruit, vegetable, sep = " or "))
+expr
+
+eval(expr)
+eval_tidy(expr)
+
+# Both accept a data mask as argument:
+data &lt;- list(fruit = "banana", vegetable = "carrot")
+eval(expr, data)
+eval_tidy(expr, data)
+
+# The main difference is that eval_tidy() supports quosures:
+with_data &lt;- function(data, expr) {
+  quo &lt;- enquo(expr)
+  eval_tidy(quo, data)
+}
+with_data(NULL, fruit)
+with_data(data, fruit)
+
+# eval_tidy() installs the `.data` and `.env` pronouns to allow
+# users to be explicit about variable references:
+with_data(data, .data$fruit)
+with_data(data, .env$fruit)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

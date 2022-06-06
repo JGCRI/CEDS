@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get data from a REST API</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rest_api {xfun}"><tr><td>rest_api {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get data from a REST API</h2>
+
+<h3>Description</h3>
+
+<p>Read data from a REST API and optionally with an authorization token in the
+request header. The function <code>rest_api_raw()</code> returns the raw text of
+the response, and <code>rest_api()</code> will parse the response with
+<code>jsonlite::fromJSON()</code> (assuming that the response is in the JSON
+format).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rest_api(...)
+
+rest_api_raw(root, endpoint, token = "", params = list(), headers = NULL)
+
+github_api(
+  endpoint,
+  token = "",
+  params = list(),
+  headers = NULL,
+  raw = !loadable("jsonlite")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to be passed to <code>rest_api_raw()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>root</code></td>
+<td>
+<p>The API root URL.</p>
+</td></tr>
+<tr valign="top"><td><code>endpoint</code></td>
+<td>
+<p>The API endpoint.</p>
+</td></tr>
+<tr valign="top"><td><code>token</code></td>
+<td>
+<p>A named character string (e.g., <code>c(token = "xxxx")</code>), which
+will be used to create an authorization header of the form
+<span class="samp">Authorization: NAME TOKEN</span> for the API call, where <span class="samp">NAME</span> is the
+name of the string and <span class="samp">TOKEN</span> is the string. If the string does not
+have a name, <span class="samp">Basic</span> will be used as the default name.</p>
+</td></tr>
+<tr valign="top"><td><code>params</code></td>
+<td>
+<p>A list of query parameters to be sent with the API call.</p>
+</td></tr>
+<tr valign="top"><td><code>headers</code></td>
+<td>
+<p>A named character vector of HTTP headers, e.g., <code>c(Accept
+= "application/vnd.github.v3+json")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>raw</code></td>
+<td>
+<p>Whether to return the raw response or parse the response with
+<span class="pkg">jsonlite</span>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions are simple wrappers based on <code><a href="../../base/html/connections.html">url</a>()</code> and
+<code><a href="read_utf8.html">read_utf8</a>()</code>. Specifically, the <code>headers</code> argument is
+passed to <code>url()</code>, and <code>read_utf8()</code> will send a <span class="samp">GET</span> request
+to the API server. This means these functions only support the <span class="samp">GET</span>
+method. If you need to use other HTTP methods (such as <span class="samp">POST</span>), you have
+to use other packages such as <span class="pkg">curl</span> and <span class="pkg">httr</span>.
+</p>
+<p><code>github_api()</code> is a wrapper function based on
+<code>rest_api_raw()</code> to obtain data from the Github API:
+<a href="https://docs.github.com/en/rest">https://docs.github.com/en/rest</a>. You can provide a personal access
+token (PAT) via the <code>token</code> argument, or via one of the environment
+variables <var>GITHUB_PAT</var>, <var>GITHUB_TOKEN</var>, <var>GH_TOKEN</var>. A PAT
+allows for a much higher rate limit in API calls. Without a token, you can
+only make 60 calls in an hour.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector (the raw JSON response) or an R object parsed from
+the JSON text.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# a normal GET request
+xfun::rest_api("https://httpbin.org", "/get")
+xfun::rest_api_raw("https://httpbin.org", "/get")
+
+# send the request with an auth header
+xfun::rest_api("https://httpbin.org", "/headers", "OPEN SESAME!")
+
+# with query parameters
+xfun::rest_api("https://httpbin.org", "/response-headers", params = list(foo = "bar"))
+
+# get the rate limit info from Github
+xfun::github_api("/rate_limit")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

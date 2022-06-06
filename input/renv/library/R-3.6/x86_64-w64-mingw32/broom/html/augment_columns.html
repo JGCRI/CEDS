@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add fitted values, residuals, and other common outputs to an...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for augment_columns {broom}"><tr><td>augment_columns {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add fitted values, residuals, and other common outputs to
+an augment call</h2>
+
+<h3>Description</h3>
+
+<p><code>augment_columns</code> is intended for use in the internals of <code>augment</code> methods
+only and is exported for developers extending the broom package. Please
+instead use <code><a href="reexports.html">augment()</a></code> to appropriately make use of the functionality
+in <code>augment_columns()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+augment_columns(
+  x,
+  data,
+  newdata = NULL,
+  type,
+  type.predict = type,
+  type.residuals = type,
+  se.fit = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a model</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>original data onto which columns should be added</p>
+</td></tr>
+<tr valign="top"><td><code>newdata</code></td>
+<td>
+<p>new data to predict on, optional</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Type of prediction and residuals to compute</p>
+</td></tr>
+<tr valign="top"><td><code>type.predict</code></td>
+<td>
+<p>Type of prediction to compute; by default
+same as <code>type</code></p>
+</td></tr>
+<tr valign="top"><td><code>type.residuals</code></td>
+<td>
+<p>Type of residuals to compute; by default
+same as <code>type</code></p>
+</td></tr>
+<tr valign="top"><td><code>se.fit</code></td>
+<td>
+<p>Value to pass to predict's <code>se.fit</code>, or NULL for
+no value</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>extra arguments (not used)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that, in the case that a <code>residuals()</code> or <code>influence()</code> generic is
+not implemented for the supplied model <code>x</code>, the function will fail quietly.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

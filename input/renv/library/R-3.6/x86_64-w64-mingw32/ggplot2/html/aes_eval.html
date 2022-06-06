@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Control aesthetic evaluation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for aes_eval {ggplot2}"><tr><td>aes_eval {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Control aesthetic evaluation</h2>
+
+<h3>Description</h3>
+
+<p>Most aesthetics are mapped from variables found in the data. Sometimes,
+however, you want to delay the mapping until later in the rendering process.
+ggplot2 has three stages of the data that you can map aesthetics from. The
+default is to map at the beginning, using the layer data provided by the
+user. The second stage is after the data has been transformed by the layer
+stat. The third and last stage is after the data has been transformed and
+mapped by the plot scales. The most common example of mapping from stat
+transformed data is the height of bars in <code><a href="geom_histogram.html">geom_histogram()</a></code>:
+the height does not come from a variable in the underlying data, but
+is instead mapped to the <code>count</code> computed by <code><a href="geom_histogram.html">stat_bin()</a></code>. An example of
+mapping from scaled data could be to use a desaturated version of the stroke
+colour for fill. If you want to map directly from the layer data you should
+not do anything special. In order to map from stat transformed data you
+should use the <code>after_stat()</code> function to flag that evaluation of the
+aesthetic mapping should be postponed until after stat transformation.
+Similarly, you should use <code>after_scale()</code> to flag evaluation of mapping for
+after data has been scaled. If you want to map the same aesthetic multiple
+times, e.g. map <code>x</code> to a data column for the stat, but remap it for the geom,
+you can use the <code>stage()</code> function to collect multiple mappings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+after_stat(x)
+
+after_scale(x)
+
+stage(start = NULL, after_stat = NULL, after_scale = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An aesthetic expression using variables calculated by the stat
+(<code>after_stat()</code>) or layer aesthetics (<code>after_scale()</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>An aesthetic expression using variables from the layer data.</p>
+</td></tr>
+<tr valign="top"><td><code>after_stat</code></td>
+<td>
+<p>An aesthetic expression using variables calculated by the
+stat.</p>
+</td></tr>
+<tr valign="top"><td><code>after_scale</code></td>
+<td>
+<p>An aesthetic expression using layer aesthetics.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>after_stat()</code> replaces the old approaches of using either <code>stat()</code> or
+surrounding the variable names with <code>..</code>.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Evaluation after stat transformation will only have access to the
+variables calculated by the stat. Evaluation after scaling will only have
+access to the final aesthetics of the layer (including non-mapped, default
+aesthetics). The original layer data can only be accessed at the first stage.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Default histogram display
+ggplot(mpg, aes(displ)) +
+  geom_histogram(aes(y = after_stat(count)))
+
+# Scale tallest bin to 1
+ggplot(mpg, aes(displ)) +
+  geom_histogram(aes(y = after_stat(count / max(count))))
+
+# Use a transparent version of colour for fill
+ggplot(mpg, aes(class, hwy)) +
+  geom_boxplot(aes(colour = class, fill = after_scale(alpha(colour, 0.4))))
+
+# Use stage to modify the scaled fill
+ggplot(mpg, aes(class, hwy)) +
+  geom_boxplot(aes(fill = stage(class, after_scale = alpha(fill, 0.4))))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

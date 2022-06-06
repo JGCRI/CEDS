@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Expectations: is the output or the value equal to a known...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_known_output {testthat}"><tr><td>expect_known_output {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Expectations: is the output or the value equal to a known good value?</h2>
+
+<h3>Description</h3>
+
+<p>For complex printed output and objects, it is often challenging to describe
+exactly what you expect to see. <code>expect_known_value()</code> and
+<code>expect_known_output()</code> provide a slightly weaker guarantee, simply
+asserting that the values have not changed since the last time that you ran
+them.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_known_output(
+  object,
+  file,
+  update = TRUE,
+  ...,
+  info = NULL,
+  label = NULL,
+  print = FALSE,
+  width = 80
+)
+
+expect_known_value(
+  object,
+  file,
+  update = TRUE,
+  ...,
+  info = NULL,
+  label = NULL,
+  version = 2
+)
+
+expect_known_hash(object, hash = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Computation and value to compare it to.
+</p>
+<p>Both arguments supports limited unquoting to make it easier to generate
+readable failures within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>File path where known value/output will be stored.</p>
+</td></tr>
+<tr valign="top"><td><code>update</code></td>
+<td>
+<p>Should the file be updated? Defaults to <code>TRUE</code>, with
+the expectation that you'll notice changes because of the first failure,
+and then see the modified files in git.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed on to <code><a href="../../waldo/html/compare.html">waldo::compare()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert
+use only.</p>
+</td></tr>
+<tr valign="top"><td><code>print</code></td>
+<td>
+<p>If <code>TRUE</code> and the result of evaluating <code>code</code> is
+visible, print the result using <code>testthat_print()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Number of characters per line of output. This does not
+inherit from <code>getOption("width")</code> so that tests always use the same
+output width, minimising spurious differences.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>The serialization format version to use. The default, 2, was
+the default format from R 1.4.0 to 3.5.3. Version 3 became the default from
+R 3.6.0 and can only be read by R versions 3.5.0 and higher.</p>
+</td></tr>
+<tr valign="top"><td><code>hash</code></td>
+<td>
+<p>Known hash value. Leave empty and you'll be informed what
+to use in the test output.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These expectations should be used in conjunction with git, as otherwise
+there is no way to revert to previous values. Git is particularly useful
+in conjunction with <code>expect_known_output()</code> as the diffs will show you
+exactly what has changed.
+</p>
+<p>Note that known values updates will only be updated when running tests
+interactively. <code style="white-space: pre;">R CMD check</code> clones the package source so any changes to
+the reference files will occur in a temporary directory, and will not be
+synchronised back to the source package.
+</p>
+
+
+<h3>3rd edition</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>expect_known_output()</code> and friends are deprecated in the 3rd edition;
+please use <code><a href="expect_snapshot.html">expect_snapshot_output()</a></code> and friends instead.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+tmp &lt;- tempfile()
+
+# The first run always succeeds
+expect_known_output(mtcars[1:10, ], tmp, print = TRUE)
+
+# Subsequent runs will succeed only if the file is unchanged
+# This will succeed:
+expect_known_output(mtcars[1:10, ], tmp, print = TRUE)
+
+## Not run: 
+# This will fail
+expect_known_output(mtcars[1:9, ], tmp, print = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

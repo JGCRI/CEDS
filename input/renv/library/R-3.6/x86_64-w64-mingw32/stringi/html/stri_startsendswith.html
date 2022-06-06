@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine if the Start or End of a String Matches a Pattern</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_startswith {stringi}"><tr><td>stri_startswith {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine if the Start or End of a String Matches a Pattern</h2>
+
+<h3>Description</h3>
+
+<p>These functions check if a string starts or ends with a match
+to a given pattern. Also, it is possible to check if there is a match
+at a specific position.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_startswith(str, ..., fixed, coll, charclass)
+
+stri_endswith(str, ..., fixed, coll, charclass)
+
+stri_startswith_fixed(
+  str,
+  pattern,
+  from = 1L,
+  negate = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_endswith_fixed(
+  str,
+  pattern,
+  to = -1L,
+  negate = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_startswith_charclass(str, pattern, from = 1L, negate = FALSE)
+
+stri_endswith_charclass(str, pattern, to = -1L, negate = FALSE)
+
+stri_startswith_coll(
+  str,
+  pattern,
+  from = 1L,
+  negate = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_endswith_coll(
+  str,
+  pattern,
+  to = -1L,
+  negate = FALSE,
+  ...,
+  opts_collator = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>, <code>opts_fixed</code>,
+and so on.</p>
+</td></tr>
+<tr valign="top"><td><code>pattern, fixed, coll, charclass</code></td>
+<td>
+<p>character vector defining search patterns;
+for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>integer vector</p>
+</td></tr>
+<tr valign="top"><td><code>negate</code></td>
+<td>
+<p>single logical value; whether a no-match to a pattern
+is rather of interest</p>
+</td></tr>
+<tr valign="top"><td><code>to</code></td>
+<td>
+<p>integer vector</p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed</code></td>
+<td>
+<p>a named list used to tune up
+the search engine's settings; see <code><a href="stri_opts_collator.html">stri_opts_collator</a></code>
+and <code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>, respectively; <code>NULL</code>
+for the defaults</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>, <code>pattern</code>,
+and <code>from</code> or <code>to</code> (with recycling
+of the elements in the shorter vector if necessary).
+</p>
+<p>If <code>pattern</code> is empty, then the result is <code>NA</code>
+and a warning is generated.
+</p>
+<p>Argument <code>start</code> controls the start position in <code>str</code>
+where there is a match to a <code>pattern</code>.
+<code>to</code> gives the end position.
+</p>
+<p>Indexes given by <code>from</code> or <code>to</code> are of course 1-based,
+i.e., an index 1 denotes the first character
+in a string. This gives a typical R look-and-feel.
+</p>
+<p>For negative indexes in <code>from</code> or <code>to</code>, counting starts
+at the end of the string. For instance, index -1 denotes the last code point
+in the string.
+</p>
+<p>If you wish to test for a pattern match at an arbitrary
+position in <code>str</code>, use <code><a href="stri_detect.html">stri_detect</a></code>.
+</p>
+<p><code>stri_startswith</code> and <code>stri_endswith</code> are convenience functions.
+They call either <code>stri_*_fixed</code>, <code>stri_*_coll</code>,
+or <code>stri_*_charclass</code>, depending on the argument used.
+Relying on these underlying functions directly will make your code run
+slightly faster.
+</p>
+<p>Note that testing for a pattern match at the start or end of a string
+has not been implemented separately for regex patterns.
+For that you may use the '<code>^</code>' and '<code>$</code>' meta-characters,
+see <a href="about_search_regex.html">stringi-search-regex</a>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Each function returns a logical vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_detect: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_detect.html">stri_detect</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_startswith_charclass(' trim me! ', '\\p{WSpace}')
+stri_startswith_fixed(c('a1', 'a2', 'b3', 'a4', 'c5'), 'a')
+stri_detect_regex(c('a1', 'a2', 'b3', 'a4', 'c5'), '^a')
+stri_startswith_fixed('ababa', 'ba')
+stri_startswith_fixed('ababa', 'ba', from=2)
+stri_startswith_coll(c('a1', 'A2', 'b3', 'A4', 'C5'), 'a', strength=1)
+pat &lt;- stri_paste('\u0635\u0644\u0649 \u0627\u0644\u0644\u0647 ',
+                  '\u0639\u0644\u064a\u0647 \u0648\u0633\u0644\u0645XYZ')
+stri_endswith_coll('\ufdfa\ufdfa\ufdfaXYZ', pat, strength=1)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

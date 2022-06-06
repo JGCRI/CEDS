@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check Whether System Has less as Pager</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pager_is_less {diffobj}"><tr><td>pager_is_less {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check Whether System Has less as Pager</h2>
+
+<h3>Description</h3>
+
+<p>If <code>getOption(pager)</code> is set to the default value, checks whether
+<code>Sys.getenv("PAGER")</code> appears to be <code>less</code> by trying to run the
+pager with the &ldquo;version&rdquo; and parsing the output.  If
+<code>getOption(pager)</code> is not the default value, then checks whether it
+points to the <code>less</code> program by the same mechanism.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pager_is_less()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>Some systems may have <code>less</code> pagers installed that do not respond to the
+<code>$LESS</code> environment variable.  For example, <code>more</code> on at least some
+versions of OS X is <code>less</code>, but does not actually respond to
+<code>$LESS</code>.  If such as pager is the system pager you will likely end up
+seeing gibberish in the pager.  If this is your use case you will need to
+set-up a custom pager configuration object that sets the correct system
+variables (see <code><a href="Pager.html">Pager</a></code>).
+</p>
+
+
+<h3>Value</h3>
+
+<p>TRUE or FALSE
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="Pager.html">Pager</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+pager_is_less()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

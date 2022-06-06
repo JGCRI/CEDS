@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Colored terminal output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for crayon {crayon}"><tr><td>crayon {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Colored terminal output</h2>
+
+<h3>Description</h3>
+
+<p>With crayon it is easy to add color to terminal output, create styles
+for notes, warnings, errors; and combine styles.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## Simple styles
+red(...)
+bold(...)
+# ...
+
+## See more styling below
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Strings to style.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>ANSI color support is automatically detected and used. Crayon was largely
+inspired by chalk <a href="https://github.com/chalk/chalk">https://github.com/chalk/chalk</a>.
+</p>
+<p>Crayon defines several styles, that can be combined. Each style in the list
+has a corresponding function with the same name.
+</p>
+
+
+<h3>Genaral styles</h3>
+
+
+<ul>
+<li><p> reset
+</p>
+</li>
+<li><p> bold
+</p>
+</li>
+<li><p> blurred (usually called &lsquo;dim&rsquo;, renamed to avoid name clash)
+</p>
+</li>
+<li><p> italic (not widely supported)
+</p>
+</li>
+<li><p> underline
+</p>
+</li>
+<li><p> inverse
+</p>
+</li>
+<li><p> hidden
+</p>
+</li>
+<li><p> strikethrough (not widely supported)
+</p>
+</li></ul>
+
+
+
+<h3>Text colors</h3>
+
+
+<ul>
+<li><p> black
+</p>
+</li>
+<li><p> red
+</p>
+</li>
+<li><p> green
+</p>
+</li>
+<li><p> yellow
+</p>
+</li>
+<li><p> blue
+</p>
+</li>
+<li><p> magenta
+</p>
+</li>
+<li><p> cyan
+</p>
+</li>
+<li><p> white
+</p>
+</li>
+<li><p> silver (usually called &lsquo;gray&rsquo;, renamed to avoid name clash)
+</p>
+</li></ul>
+
+
+
+<h3>Background colors</h3>
+
+
+<ul>
+<li><p> bgBlack
+</p>
+</li>
+<li><p> bgRed
+</p>
+</li>
+<li><p> bgGreen
+</p>
+</li>
+<li><p> bgYellow
+</p>
+</li>
+<li><p> bgBlue
+</p>
+</li>
+<li><p> bgMagenta
+</p>
+</li>
+<li><p> bgCyan
+</p>
+</li>
+<li><p> bgWhite
+</p>
+</li></ul>
+
+
+
+<h3>Styling</h3>
+
+<p>The styling functions take any number of character vectors as arguments,
+and they concatenate and style them: </p>
+<pre>  library(crayon)
+  cat(blue("Hello", "world!\n"))
+</pre>
+<p>Crayon defines the <code>%+%</code> string concatenation operator, to make it easy
+to assemble stings with different styles. </p>
+<pre>  cat("... to highlight the " %+% red("search term") %+%
+      " in a block of text\n")
+</pre>
+<p>Styles can be combined using the <code>$</code> operator: </p>
+<pre>  cat(yellow$bgMagenta$bold('Hello world!\n'))
+</pre><p> See also <code><a href="combine_styles.html">combine_styles()</a></code>.
+</p>
+<p>Styles can also be nested, and then inner style takes
+precedence: </p>
+<pre>  cat(green(
+    'I am a green line ' %+%
+    blue$underline$bold('with a blue substring') %+%
+    ' that becomes green again!\n'
+  ))
+</pre>
+<p>It is easy to define your own themes: </p>
+<pre>  error &lt;- red $ bold
+  warn &lt;- magenta $ underline
+  note &lt;- cyan
+  cat(error("Error: subscript out of bounds!\n"))
+  cat(warn("Warning: shorter argument was recycled.\n"))
+  cat(note("Note: no such directory.\n"))
+</pre>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="make_style.html">make_style()</a></code> for using the 256 ANSI colors.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+cat(blue("Hello", "world!"))
+
+cat("... to highlight the " %+% red("search term") %+%
+    " in a block of text")
+
+cat(yellow$bgMagenta$bold('Hello world!'))
+
+cat(green(
+ 'I am a green line ' %+%
+ blue$underline$bold('with a blue substring') %+%
+ ' that becomes green again!'
+))
+
+error &lt;- red $ bold
+warn &lt;- magenta $ underline
+note &lt;- cyan
+cat(error("Error: subscript out of bounds!\n"))
+cat(warn("Warning: shorter argument was recycled.\n"))
+cat(note("Note: no such directory.\n"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

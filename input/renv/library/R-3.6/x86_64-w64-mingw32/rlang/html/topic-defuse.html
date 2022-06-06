@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defusing R expressions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-defuse {rlang}"><tr><td>topic-defuse {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defusing R expressions</h2>
+
+<h3>Description</h3>
+
+<p>When a piece of R code is defused, R doesn't return its value like it normally would. Instead it returns the expression in a special tree-like object that describes how to compute a value. These defused expressions can be thought of as blueprints or recipes for computing values.
+</p>
+<p>Using <code><a href="expr.html">expr()</a></code> we can observe the difference between computing an expression and defusing it:<div class="sourceCode r"></p>
+<pre># Return the result of `1 + 1`
+1 + 1
+#&gt; [1] 2
+
+# Return the expression `1 + 1`
+expr(1 + 1)
+#&gt; 1 + 1
+</pre></div>
+<p>Evaluation of a defused expression can be resumed at any time with <code><a href="../../base/html/eval.html">eval()</a></code> (see also <code><a href="eval_tidy.html">eval_tidy()</a></code>).<div class="sourceCode r"></p>
+<pre># Return the expression `1 + 1`
+e &lt;- expr(1 + 1)
+
+# Return the result of `1 + 1`
+eval(e)
+#&gt; [1] 2
+</pre></div>
+<p>The most common use case for defusing expressions is to resume its evaluation in a <a href="topic-data-mask.html">data mask</a>. This makes it possible for the expression to refer to columns of a data frame as if they were regular objects.<div class="sourceCode r"></p>
+<pre>e &lt;- expr(mean(cyl))
+eval(e, mtcars)
+#&gt; [1] 6.1875
+</pre></div>
+
+
+<h3>Do I need to know about defused expressions?</h3>
+
+<p>As a tidyverse user you will rarely need to defuse expressions manually with <code>expr()</code>, and even more rarely need to resume evaluation with <code><a href="../../base/html/eval.html">eval()</a></code> or <code><a href="eval_tidy.html">eval_tidy()</a></code>. Instead, you call <a href="topic-data-mask.html">data-masking</a> functions which take care of defusing your arguments and resuming them in the context of a data mask.<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% dplyr::summarise(
+  mean(cyl)  # This is defused and data-masked
+)
+#&gt; # A tibble: 1 x 1
+#&gt;   `mean(cyl)`
+#&gt;         &lt;dbl&gt;
+#&gt; 1        6.19
+</pre></div>
+<p>It is important to know that a function defuses its arguments because it requires slightly different methods when called from a function. The main thing is that arguments must be transported with the <a href="embrace-operator.html">embrace operator</a> <code style="white-space: pre;">{{</code>. It allows the data-masking function to defuse the correct expression.<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  dplyr::summarise(data, mean = mean({{ var }}))
+}
+</pre></div>
+<p>Read more about this in:
+</p>
+
+<ul>
+<li> <p><a href="topic-data-mask.html">What is data-masking and why do I need {{?</a>
+</p>
+</li>
+<li> <p><a href="topic-data-mask-programming.html">Data mask programming patterns</a>
+</p>
+</li></ul>
+
+
+
+<h3>The booby trap analogy</h3>
+
+<p>The term &quot;defusing&quot; comes from an analogy to the evaluation model in R. As you may know, R uses lazy evaluation, which means that arguments are only evaluated when they are needed for a computation. Let's take two functions, <code>ignore()</code> which doesn't do anything with its argument, and <code>force()</code> which returns it:<div class="sourceCode r"></p>
+<pre>ignore &lt;- function(arg) NULL
+force &lt;- function(arg) arg
+
+ignore(warning("boom"))
+#&gt; NULL
+
+force(warning("boom"))
+#&gt; Warning in force(warning("boom")): boom
+</pre></div>
+<p>A warning is only emitted when the function actually <em>triggers</em> evaluation of its argument. Evaluation of arguments can be chained by passing them to other functions. If one of the functions ignores its argument, it breaks the chain of evaluation.<div class="sourceCode r"></p>
+<pre>f &lt;- function(x) g(x)
+g &lt;- function(y) h(y)
+h &lt;- function(z) ignore(z)
+
+f(warning("boom"))
+#&gt; NULL
+</pre></div>
+<p>In a way, arguments are like <em>booby traps</em> which explode (evaluate) when touched. Defusing an argument can be seen as defusing the booby trap.<div class="sourceCode r"></p>
+<pre>expr(force(warning("boom")))
+#&gt; force(warning("boom"))
+</pre></div>
+
+
+<h3>Types of defused expressions</h3>
+
+
+<ul>
+<li> <p><strong>Calls</strong>, like <code>f(1, 2, 3)</code> or <code>1 + 1</code> represent the action of calling a function to compute a new value, such as a vector.
+</p>
+</li>
+<li> <p><strong>Symbols</strong>, like <code>x</code> or <code>df</code>, represent named objects. When the object pointed to by the symbol was defined in a function or in the global environment, we call it an environment-variable. When the object is a column in a data frame, we call it a data-variable.
+</p>
+</li>
+<li> <p><strong>Constants</strong>, like <code>1</code> or <code>NULL</code>.
+</p>
+</li></ul>
+
+<p>You can create new call or symbol objects by using the defusing function <code>expr()</code>:<div class="sourceCode r"></p>
+<pre># Create a symbol representing objects called `foo`
+expr(foo)
+#&gt; foo
+
+# Create a call representing the computation of the mean of `foo`
+expr(mean(foo, na.rm = TRUE))
+#&gt; mean(foo, na.rm = TRUE)
+
+# Return a constant
+expr(1)
+#&gt; [1] 1
+
+expr(NULL)
+#&gt; NULL
+</pre></div>
+<p>Defusing is not the only way to create defused expressions. You can also assemble them from data:<div class="sourceCode r"></p>
+<pre># Assemble a symbol from a string
+var &lt;- "foo"
+sym(var)
+
+# Assemble a call from strings, symbols, and constants
+call("mean", sym(var), na.rm = TRUE)
+</pre></div>
+
+
+<h3>Local expressions versus function arguments</h3>
+
+<p>There are two main ways to defuse expressions, to which correspond two functions in rlang, <code><a href="expr.html">expr()</a></code> and <code><a href="enquo.html">enquo()</a></code>:
+</p>
+
+<ul>
+<li><p> You can defuse your <em>own</em> R expressions with <code>expr()</code>.
+</p>
+</li>
+<li><p> You can defuse the expressions supplied by <em>the user</em> of your function with the <code>en</code>-prefixed operators, such as <code>enquo()</code> and <code>enquos()</code>. These operators defuse function arguments.
+</p>
+</li></ul>
+
+
+
+<h3>Defuse and inject</h3>
+
+<p>One purpose for defusing evaluation of an expression is to interface with <a href="topic-data-mask.html">data-masking</a> functions by injecting the expression back into another function with <code style="white-space: pre;">!!</code>. This is the <a href="topic-metaprogramming.html">defuse-and-inject pattern</a>.<div class="sourceCode r"></p>
+<pre>my_summarise &lt;- function(data, arg) {
+  # Defuse the user expression in `arg`
+  arg &lt;- enquo(arg)
+
+  # Inject the expression contained in `arg`
+  # inside a `summarise()` argument
+  data |&gt; dplyr::summarise(mean = mean(!!arg, na.rm = TRUE))
+}
+</pre></div>
+<p>Defuse-and-inject is usually performed in a single step with the embrace operator <code><a href="embrace-operator.html">{{</a></code>.<div class="sourceCode r"></p>
+<pre>my_summarise &lt;- function(data, arg) {
+  # Defuse and inject in a single step with the embracing operator
+  data |&gt; dplyr::summarise(mean = mean({{ arg }}, na.rm = TRUE))
+}
+</pre></div>
+<p>Using <code>enquo()</code> and <code style="white-space: pre;">!!</code> separately is useful in more complex cases where you need access to the defused expression instead of just passing it on.
+</p>
+
+
+<h3>Defused arguments and quosures</h3>
+
+<p>If you inspect the return values of <code>expr()</code> and <code>enquo()</code>, you'll notice that the latter doesn't return a raw expression like the former. Instead it returns a <a href="quosure-tools.html">quosure</a>, a wrapper containing an expression and an environment.<div class="sourceCode r"></p>
+<pre>expr(1 + 1)
+#&gt; 1 + 1
+
+my_function &lt;- function(arg) enquo(arg)
+my_function(1 + 1)
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^1 + 1
+#&gt; env:  global
+</pre></div>
+<p>R needs information about the environment to properly evaluate argument expressions because they come from a different context than the current function. For instance when a function in your package calls <code>dplyr::mutate()</code>, the quosure environment indicates where all the private functions of your package are defined.
+</p>
+<p>Read more about the role of quosures in <a href="topic-quosure.html">What are quosures and when are they needed?</a>.
+</p>
+
+
+<h3>Comparison with base R</h3>
+
+<p>Defusing is known as <em>quoting</em> in other frameworks.
+</p>
+
+<ul>
+<li><p> The equivalent of <code>expr()</code> is <code><a href="../../base/html/bquote.html">base::bquote()</a></code>.
+</p>
+</li>
+<li><p> The equivalent of <code>enquo()</code> is <code><a href="../../base/html/substitute.html">base::substitute()</a></code>. The latter returns a naked expression instead of a quosure.
+</p>
+</li>
+<li><p> There is no equivalent for <code>enquos(...)</code> but you can defuse dots as a list of naked expressions with <code>eval(substitute(alist(...)))</code>.
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

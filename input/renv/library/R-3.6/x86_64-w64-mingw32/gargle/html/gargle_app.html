@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: OAuth app for demonstration purposes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gargle_app {gargle}"><tr><td>gargle_app {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>OAuth app for demonstration purposes</h2>
+
+<h3>Description</h3>
+
+<p>Invisibly returns an OAuth app that can be used to test drive
+gargle before obtaining your own client ID and secret. This OAuth app may
+be deleted or rotated at any time. There are no guarantees about which APIs
+are enabled. DO NOT USE THIS IN A PACKAGE or for anything other than
+interactive, small-scale experimentation.
+</p>
+<p>You can get your own OAuth app (client ID and secret), without these
+limitations. See the <a href="https://gargle.r-lib.org/articles/get-api-credentials.html">How to get your own API credentials</a>
+vignette for more details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gargle_app()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>An OAuth consumer application, produced by <code><a href="../../httr/html/oauth_app.html">httr::oauth_app()</a></code>,
+invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+gargle_app()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

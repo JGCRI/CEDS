@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Query file metadata</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file_info {fs}"><tr><td>file_info {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Query file metadata</h2>
+
+<h3>Description</h3>
+
+<p>Compared to <code style="white-space: pre;">[file.info]</code> the full results of a <code>stat(2)</code> system call are
+returned and some columns are returned as S3 classes to make manipulation
+more natural. On systems which do not support all metadata (such as Windows)
+default values are used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_info(path, fail = TRUE, follow = FALSE)
+
+file_size(path, fail = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>fail</code></td>
+<td>
+<p>Should the call fail (the default) or warn if a file cannot be
+accessed.</p>
+</td></tr>
+<tr valign="top"><td><code>follow</code></td>
+<td>
+<p>If <code>TRUE</code>, symbolic links will be followed (recursively) and
+the results will be that of the final file rather than the link.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A data.frame with metadata for each file. Columns returned are as follows.
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The input path, as a <code><a href="fs_path.html">fs_path()</a></code> character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>The file type, as a factor of file types.</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>The file size, as a <code><a href="fs_bytes.html">fs_bytes()</a></code> numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>permissions</code></td>
+<td>
+<p>The file permissions, as a <code><a href="fs_perms.html">fs_perms()</a></code> integer vector.</p>
+</td></tr>
+<tr valign="top"><td><code>modification_time</code></td>
+<td>
+<p>The time of last data modification, as a <a href="../../base/html/DateTimeClasses.html">POSIXct</a> datetime.</p>
+</td></tr>
+<tr valign="top"><td><code>user</code></td>
+<td>
+<p>The file owner name - as a character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>group</code></td>
+<td>
+<p>The file group name - as a character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>device_id</code></td>
+<td>
+<p>The file device id - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>hard_links</code></td>
+<td>
+<p>The number of hard links to the file - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>special_device_id</code></td>
+<td>
+<p>The special device id of the file - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>inode</code></td>
+<td>
+<p>The inode of the file - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>block_size</code></td>
+<td>
+<p>The optimal block for the file - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>blocks</code></td>
+<td>
+<p>The number of blocks allocated for the file - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>flags</code></td>
+<td>
+<p>The user defined flags for the file - as an integer vector.</p>
+</td></tr>
+<tr valign="top"><td><code>generation</code></td>
+<td>
+<p>The generation number for the file - as a numeric vector.</p>
+</td></tr>
+<tr valign="top"><td><code>access_time</code></td>
+<td>
+<p>The time of last access - as a <a href="../../base/html/DateTimeClasses.html">POSIXct</a> datetime.</p>
+</td></tr>
+<tr valign="top"><td><code>change_time</code></td>
+<td>
+<p>The time of last file status change - as a <a href="../../base/html/DateTimeClasses.html">POSIXct</a> datetime.</p>
+</td></tr>
+<tr valign="top"><td><code>birth_time</code></td>
+<td>
+<p>The time when the inode was created - as a <a href="../../base/html/DateTimeClasses.html">POSIXct</a> datetime.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="dir_ls.html">dir_info()</a></code> to display file information for files in a given
+directory.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+write.csv(mtcars, "mtcars.csv")
+file_info("mtcars.csv")
+
+# Files in the working directory modified more than 20 days ago
+files &lt;- file_info(dir_ls())
+files$path[difftime(Sys.time(), files$modification_time, units = "days") &gt; 20]
+
+# Cleanup
+file_delete("mtcars.csv")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Test for missing values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for are_na {rlang}"><tr><td>are_na {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Test for missing values</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p><code>are_na()</code> checks for missing values in a vector and is equivalent
+to <code><a href="../../base/html/NA.html">base::is.na()</a></code>. It is a vectorised predicate, meaning that its
+output is always the same length as its input. On the other hand,
+<code>is_na()</code> is a scalar predicate and always returns a scalar
+boolean, <code>TRUE</code> or <code>FALSE</code>. If its input is not scalar, it returns
+<code>FALSE</code>. Finally, there are typed versions that check for
+particular <a href="missing.html">missing types</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+are_na(x)
+
+is_na(x)
+
+is_lgl_na(x)
+
+is_int_na(x)
+
+is_dbl_na(x)
+
+is_chr_na(x)
+
+is_cpl_na(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The scalar predicates accept non-vector inputs. They are equivalent
+to <code><a href="type-predicates.html">is_null()</a></code> in that respect. In contrast the vectorised
+predicate <code>are_na()</code> requires a vector input since it is defined
+over vector values.
+</p>
+
+
+<h3>Life cycle</h3>
+
+<p>These functions might be moved to the vctrs package at some
+point. This is why they are marked as questioning.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# are_na() is vectorised and works regardless of the type
+are_na(c(1, 2, NA))
+are_na(c(1L, NA, 3L))
+
+# is_na() checks for scalar input and works for all types
+is_na(NA)
+is_na(na_dbl)
+is_na(character(0))
+
+# There are typed versions as well:
+is_lgl_na(NA)
+is_lgl_na(na_dbl)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

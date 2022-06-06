@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Break an UTF-8 character vector into grapheme clusters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for utf8_graphemes {cli}"><tr><td>utf8_graphemes {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Break an UTF-8 character vector into grapheme clusters</h2>
+
+<h3>Description</h3>
+
+<p>Break an UTF-8 character vector into grapheme clusters
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+utf8_graphemes(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>List of characters vectors, the grapheme clusters of the input
+string.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other UTF-8 string manipulation: 
+<code><a href="utf8_nchar.html">utf8_nchar</a>()</code>,
+<code><a href="utf8_substr.html">utf8_substr</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Five grapheme clusters
+str &lt;- paste0(
+  "\U0001f477\U0001f3ff\u200d\u2640\ufe0f",
+  "\U0001f477\U0001f3ff",
+  "\U0001f477\u200d\u2640\ufe0f",
+  "\U0001f477\U0001f3fb",
+  "\U0001f477\U0001f3ff")
+cat(str, "\n")
+chrs &lt;- utf8_graphemes(str)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

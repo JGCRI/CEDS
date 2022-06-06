@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create / delete a named region.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for createNamedRegion {openxlsx}"><tr><td>createNamedRegion {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create / delete a named region.</h2>
+
+<h3>Description</h3>
+
+<p>Create / delete a named region
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+createNamedRegion(wb, sheet, cols, rows, name, overwrite = FALSE)
+
+deleteNamedRegion(wb, name)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Numeric vector specifying columns to include in region</p>
+</td></tr>
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>Numeric vector specifying rows to include in region</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name for region. A character vector of length 1. Note region names musts be case-insensitive unique.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Boolean. Overwrite if exists ? Default to FALSE</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Region is given by: min(cols):max(cols) X min(rows):max(rows)
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="getNamedRegions.html">getNamedRegions()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## create named regions
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+
+## specify region
+writeData(wb, sheet = 1, x = iris, startCol = 1, startRow = 1)
+createNamedRegion(
+  wb = wb,
+  sheet = 1,
+  name = "iris",
+  rows = 1:(nrow(iris) + 1),
+  cols = 1:ncol(iris)
+)
+
+
+## using writeData 'name' argument
+writeData(wb, sheet = 1, x = iris, name = "iris2", startCol = 10)
+
+out_file &lt;- tempfile(fileext = ".xlsx")
+## Not run: 
+saveWorkbook(wb, out_file, overwrite = TRUE)
+
+## see named regions
+getNamedRegions(wb) ## From Workbook object
+getNamedRegions(out_file) ## From xlsx file
+
+## delete one
+deleteNamedRegion(wb = wb, name = "iris2")
+getNamedRegions(wb)
+
+## read named regions
+df &lt;- read.xlsx(wb, namedRegion = "iris")
+head(df)
+
+df &lt;- read.xlsx(out_file, namedRegion = "iris2")
+head(df)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

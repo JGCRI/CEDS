@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set the global option 'options(stringsAsFactors = FALSE)'...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stringsAsStrings {xfun}"><tr><td>stringsAsStrings {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set the global option <code><a href="../../base/html/options.html">options</a>(stringsAsFactors = FALSE)</code> inside
+a parent function and restore the option after the parent function exits</h2>
+
+<h3>Description</h3>
+
+<p>This is a shorthand of <code>opts = options(stringsAsFactors = FALSE);
+on.exit(options(opts), add = TRUE)</code>; <code>strings_please()</code> is an alias of
+<code>stringsAsStrings()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stringsAsStrings()
+
+strings_please()
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+f = function() {
+    xfun::strings_please()
+    data.frame(x = letters[1:4], y = factor(letters[1:4]))
+}
+str(f())  # the first column should be character
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

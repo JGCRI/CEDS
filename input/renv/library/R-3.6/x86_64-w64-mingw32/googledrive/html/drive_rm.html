@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delete files from Drive</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_rm {googledrive}"><tr><td>drive_rm {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delete files from Drive</h2>
+
+<h3>Description</h3>
+
+<p>Caution: this will permanently delete your files! For a safer, reversible
+option, see <code><a href="drive_trash.html">drive_trash()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_rm(..., verbose = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>One or more Drive files, specified in any valid way, i.e. as a
+<code><a href="dribble.html">dribble</a></code>, by name or path, or by file id or URL marked with <code><a href="as_id.html">as_id()</a></code>. Or
+any combination thereof. Elements are processed with <code><a href="as_dribble.html">as_dribble()</a></code> and
+row-bound prior to deletion.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Logical vector, indicating whether the delete succeeded.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>files.delete</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/files/delete">https://developers.google.com/drive/api/v3/reference/files/delete</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Target one of the official example files to copy (then remove)
+(src_file &lt;- drive_example_remote("chicken.txt"))
+
+# Create a copy, then remove it by name
+src_file %&gt;%
+  drive_cp(name = "chicken-rm.txt")
+drive_rm("chicken-rm.txt")
+
+# Create several more copies
+x1 &lt;- src_file %&gt;%
+  drive_cp(name = "chicken-abc.txt")
+drive_cp(src_file, name = "chicken-def.txt")
+x2 &lt;- src_file %&gt;%
+  drive_cp(name = "chicken-ghi.txt")
+
+# Remove the copies all at once, specified in different ways
+drive_rm(x1, "chicken-def.txt", as_id(x2))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

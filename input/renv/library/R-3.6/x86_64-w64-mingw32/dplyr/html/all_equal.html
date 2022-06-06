@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Flexible equality comparison for data frames</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for all_equal {dplyr}"><tr><td>all_equal {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Flexible equality comparison for data frames</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+<code>all_equal()</code> allows you to compare data frames, optionally ignoring
+row and column names. It is questioning as of dplyr 1.0.0, because it
+seems to solve a problem that no longer seems that important.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+all_equal(
+  target,
+  current,
+  ignore_col_order = TRUE,
+  ignore_row_order = TRUE,
+  convert = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>target, current</code></td>
+<td>
+<p>Two data frames to compare.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_col_order</code></td>
+<td>
+<p>Should order of columns be ignored?</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_row_order</code></td>
+<td>
+<p>Should order of rows be ignored?</p>
+</td></tr>
+<tr valign="top"><td><code>convert</code></td>
+<td>
+<p>Should similar classes be converted? Currently this will
+convert factor to character and integer to double.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Ignored. Needed for compatibility with <code>all.equal()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>TRUE</code> if equal, otherwise a character vector describing
+the reasons why they're not equal. Use <code><a href="../../base/html/Logic.html">isTRUE()</a></code> if using the
+result in an <code>if</code> expression.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+scramble &lt;- function(x) x[sample(nrow(x)), sample(ncol(x))]
+
+# By default, ordering of rows and columns ignored
+all_equal(mtcars, scramble(mtcars))
+
+# But those can be overriden if desired
+all_equal(mtcars, scramble(mtcars), ignore_col_order = FALSE)
+all_equal(mtcars, scramble(mtcars), ignore_row_order = FALSE)
+
+# By default all_equal is sensitive to variable differences
+df1 &lt;- data.frame(x = "a", stringsAsFactors = FALSE)
+df2 &lt;- data.frame(x = factor("a"))
+all_equal(df1, df2)
+# But you can request dplyr convert similar types
+all_equal(df1, df2, convert = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

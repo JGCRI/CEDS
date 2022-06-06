@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bind values to a parameterized/prepared statement</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbBind {DBI}"><tr><td>dbBind {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bind values to a parameterized/prepared statement</h2>
+
+<h3>Description</h3>
+
+<p>For parametrized or prepared statements,
+the <code><a href="dbSendQuery.html">dbSendQuery()</a></code> and <code><a href="dbSendStatement.html">dbSendStatement()</a></code> functions can be called with
+statements that contain placeholders for values. The <code>dbBind()</code> function
+binds these placeholders
+to actual values, and is intended to be called on the result set
+before calling <code><a href="dbFetch.html">dbFetch()</a></code> or <code><a href="dbGetRowsAffected.html">dbGetRowsAffected()</a></code>.
+</p>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+dbBind(res, params, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>res</code></td>
+<td>
+<p>An object inheriting from <a href="DBIResult-class.html">DBIResult</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>params</code></td>
+<td>
+<p>A list of bindings, named or unnamed.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><span class="pkg">DBI</span> supports parametrized (or prepared) queries and statements
+via the <code>dbBind()</code> generic.
+Parametrized queries are different from normal queries
+in that they allow an arbitrary number of placeholders,
+which are later substituted by actual values.
+Parametrized queries (and statements) serve two purposes:
+</p>
+
+<ul>
+<li><p> The same query can be executed more than once with different values.
+The DBMS may cache intermediate information for the query,
+such as the execution plan,
+and execute it faster.
+</p>
+</li>
+<li><p> Separation of query syntax and parameters protects against SQL injection.
+</p>
+</li></ul>
+
+<p>The placeholder format is currently not specified by <span class="pkg">DBI</span>;
+in the future, a uniform placeholder syntax may be supported.
+Consult the backend documentation for the supported formats.
+For automated testing, backend authors specify the placeholder syntax with
+the <code>placeholder_pattern</code> tweak.
+Known examples are:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">?</code> (positional matching in order of appearance) in <span class="pkg">RMySQL</span> and <span class="pkg">RSQLite</span>
+</p>
+</li>
+<li> <p><code style="white-space: pre;">$1</code> (positional matching by index) in <span class="pkg">RPostgres</span> and <span class="pkg">RSQLite</span>
+</p>
+</li>
+<li> <p><code style="white-space: pre;">:name</code> and <code style="white-space: pre;">$name</code> (named matching) in <span class="pkg">RSQLite</span>
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p><code>dbBind()</code> returns the result set,
+invisibly,
+for queries issued by <code><a href="dbSendQuery.html">dbSendQuery()</a></code>
+and also for data manipulation statements issued by
+<code><a href="dbSendStatement.html">dbSendStatement()</a></code>.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>Calling <code>dbBind()</code> for a query without parameters
+raises an error.
+Binding too many
+or not enough values,
+or parameters with wrong names
+or unequal length,
+also raises an error.
+If the placeholders in the query are named,
+all parameter values must have names
+(which must not be empty
+or <code>NA</code>),
+and vice versa,
+otherwise an error is raised.
+The behavior for mixing placeholders of different types
+(in particular mixing positional and named placeholders)
+is not specified.
+</p>
+<p>Calling <code>dbBind()</code> on a result set already cleared by <code><a href="dbClearResult.html">dbClearResult()</a></code>
+also raises an error.
+</p>
+
+
+<h3>Specification</h3>
+
+<p><span class="pkg">DBI</span> clients execute parametrized statements as follows:
+</p>
+
+<ol>
+<li><p> Call <code><a href="dbSendQuery.html">dbSendQuery()</a></code> or <code><a href="dbSendStatement.html">dbSendStatement()</a></code> with a query or statement
+that contains placeholders,
+store the returned <a href="DBIResult-class.html">DBIResult</a> object in a variable.
+Mixing placeholders (in particular, named and unnamed ones) is not
+recommended.
+It is good practice to register a call to <code><a href="dbClearResult.html">dbClearResult()</a></code> via
+<code><a href="../../base/html/on.exit.html">on.exit()</a></code> right after calling <code>dbSendQuery()</code> or <code>dbSendStatement()</code>
+(see the last enumeration item).
+Until <code>dbBind()</code> has been called, the returned result set object has the
+following behavior:
+</p>
+
+<ul>
+<li> <p><code><a href="dbFetch.html">dbFetch()</a></code> raises an error (for <code>dbSendQuery()</code>)
+</p>
+</li>
+<li> <p><code><a href="dbGetRowCount.html">dbGetRowCount()</a></code> returns zero (for <code>dbSendQuery()</code>)
+</p>
+</li>
+<li> <p><code><a href="dbGetRowsAffected.html">dbGetRowsAffected()</a></code> returns an integer <code>NA</code> (for <code>dbSendStatement()</code>)
+</p>
+</li>
+<li> <p><code><a href="dbIsValid.html">dbIsValid()</a></code> returns <code>TRUE</code>
+</p>
+</li>
+<li> <p><code><a href="dbHasCompleted.html">dbHasCompleted()</a></code> returns <code>FALSE</code>
+</p>
+</li></ul>
+
+</li>
+<li><p> Construct a list with parameters
+that specify actual values for the placeholders.
+The list must be named or unnamed,
+depending on the kind of placeholders used.
+Named values are matched to named parameters, unnamed values
+are matched by position in the list of parameters.
+All elements in this list must have the same lengths and contain values
+supported by the backend; a <a href="../../base/html/data.frame.html">data.frame</a> is internally stored as such
+a list.
+The parameter list is passed to a call to <code>dbBind()</code> on the <code>DBIResult</code>
+object.
+</p>
+</li>
+<li><p> Retrieve the data or the number of affected rows from the <code>DBIResult</code> object.
+</p>
+
+<ul>
+<li><p> For queries issued by <code>dbSendQuery()</code>,
+call <code><a href="dbFetch.html">dbFetch()</a></code>.
+</p>
+</li>
+<li><p> For statements issued by <code>dbSendStatements()</code>,
+call <code><a href="dbGetRowsAffected.html">dbGetRowsAffected()</a></code>.
+(Execution begins immediately after the <code>dbBind()</code> call,
+the statement is processed entirely before the function returns.)
+</p>
+</li></ul>
+
+</li>
+<li><p> Repeat 2. and 3. as necessary.
+</p>
+</li>
+<li><p> Close the result set via <code><a href="dbClearResult.html">dbClearResult()</a></code>.
+</p>
+</li></ol>
+
+<p>The elements of the <code>params</code> argument do not need to be scalars,
+vectors of arbitrary length
+(including length 0)
+are supported.
+For queries, calling <code>dbFetch()</code> binding such parameters returns
+concatenated results, equivalent to binding and fetching for each set
+of values and connecting via <code><a href="../../base/html/cbind.html">rbind()</a></code>.
+For data manipulation statements, <code>dbGetRowsAffected()</code> returns the
+total number of rows affected if binding non-scalar parameters.
+<code>dbBind()</code> also accepts repeated calls on the same result set
+for both queries
+and data manipulation statements,
+even if no results are fetched between calls to <code>dbBind()</code>,
+for both queries
+and data manipulation statements.
+</p>
+<p>If the placeholders in the query are named,
+their order in the <code>params</code> argument is not important.
+</p>
+<p>At least the following data types are accepted on input (including <a href="../../base/html/NA.html">NA</a>):
+</p>
+
+<ul>
+<li> <p><a href="../../base/html/integer.html">integer</a>
+</p>
+</li>
+<li> <p><a href="../../base/html/numeric.html">numeric</a>
+</p>
+</li>
+<li> <p><a href="../../base/html/logical.html">logical</a> for Boolean values
+</p>
+</li>
+<li> <p><a href="../../base/html/character.html">character</a>
+(also with special characters such as spaces, newlines, quotes, and backslashes)
+</p>
+</li>
+<li> <p><a href="../../base/html/factor.html">factor</a> (bound as character,
+with warning)
+</p>
+</li>
+<li> <p><a href="../../base/html/Dates.html">Date</a>
+(also when stored internally as integer)
+</p>
+</li>
+<li> <p><a href="../../base/html/DateTimeClasses.html">POSIXct</a> timestamps
+</p>
+</li>
+<li> <p><a href="../../base/html/DateTimeClasses.html">POSIXlt</a> timestamps
+</p>
+</li>
+<li> <p><a href="../../base/html/difftime.html">difftime</a> values
+(also with units other than seconds
+and with the value stored as integer)
+</p>
+</li>
+<li><p> lists of <a href="../../base/html/raw.html">raw</a> for blobs (with <code>NULL</code> entries for SQL NULL values)
+</p>
+</li>
+<li><p> objects of type <a href="../../blob/html/blob.html">blob::blob</a>
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other DBIResult generics: 
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>,
+<code><a href="dbClearResult.html">dbClearResult</a>()</code>,
+<code><a href="dbColumnInfo.html">dbColumnInfo</a>()</code>,
+<code><a href="dbFetch.html">dbFetch</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetRowCount.html">dbGetRowCount</a>()</code>,
+<code><a href="dbGetRowsAffected.html">dbGetRowsAffected</a>()</code>,
+<code><a href="dbGetStatement.html">dbGetStatement</a>()</code>,
+<code><a href="dbHasCompleted.html">dbHasCompleted</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier</a>()</code>,
+<code><a href="dbQuoteLiteral.html">dbQuoteLiteral</a>()</code>,
+<code><a href="dbQuoteString.html">dbQuoteString</a>()</code>,
+<code><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+
+dbWriteTable(con, "iris", iris)
+
+# Using the same query for different values
+iris_result &lt;- dbSendQuery(con, "SELECT * FROM iris WHERE [Petal.Width] &gt; ?")
+dbBind(iris_result, list(2.3))
+dbFetch(iris_result)
+dbBind(iris_result, list(3))
+dbFetch(iris_result)
+dbClearResult(iris_result)
+
+# Executing the same statement with different values at once
+iris_result &lt;- dbSendStatement(con, "DELETE FROM iris WHERE [Species] = $species")
+dbBind(iris_result, list(species = c("setosa", "versicolor", "unknown")))
+dbGetRowsAffected(iris_result)
+dbClearResult(iris_result)
+
+nrow(dbReadTable(con, "iris"))
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

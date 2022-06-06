@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Prepare for importing data.table</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_data_table {usethis}"><tr><td>use_data_table {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Prepare for importing data.table</h2>
+
+<h3>Description</h3>
+
+<p><code>use_data_table()</code> imports the <code>data.table()</code> function from the data.table
+package, as well as several important symbols: <code style="white-space: pre;">:=</code>, <code>.SD</code>, <code>.BY</code>, <code>.N</code>,
+<code>.I</code>, <code>.GRP</code>, <code>.NGRP</code>, <code>.EACHI</code>. This is a minimal setup to get <code>data.table</code>s
+working with your package. See the <a href="https://rdatatable.gitlab.io/data.table/articles/datatable-importing.html">importing data.table</a>
+vignette for other strategies. In addition to importing these function,
+<code>use_data_table()</code> also blocks the usage of data.table in the <code>Depends</code> field
+of the <code>DESCRIPTION</code> file; <code>data.table</code> should be used as an <em>imported</em> or
+<em>suggested</em> package only. See this
+<a href="https://github.com/Rdatatable/data.table/issues/3076">discussion</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_data_table()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

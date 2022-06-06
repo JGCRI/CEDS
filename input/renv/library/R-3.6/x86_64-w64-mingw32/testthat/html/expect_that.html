@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Expect that a condition holds.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_that {testthat}"><tr><td>expect_that {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Expect that a condition holds.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded"><img src="../help/figures/lifecycle-superseded.svg" alt='[Superseded]' /></a>
+</p>
+<p>An old style of testing that's no longer encouraged.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_that(object, condition, info = NULL, label = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>condition, </code></td>
+<td>
+<p>a function that returns whether or not the condition
+is met, and if not, an error message to display.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>the (internal) expectation result as an invisible list
+</p>
+
+
+<h3>3rd edition</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p>This style of testing is formally deprecated as of the 3rd edition.
+Use a more specific <code>expect_</code> function instead.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="fail.html">fail()</a></code> for an expectation that always fails.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+expect_that(5 * 2, equals(10))
+expect_that(sqrt(2) ^ 2, equals(2))
+## Not run: 
+expect_that(sqrt(2) ^ 2, is_identical_to(2))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

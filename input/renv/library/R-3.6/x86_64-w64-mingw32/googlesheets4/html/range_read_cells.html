@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read cells from a Sheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for range_read_cells {googlesheets4}"><tr><td>range_read_cells {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read cells from a Sheet</h2>
+
+<h3>Description</h3>
+
+<p>This low-level function returns cell data in a tibble with one row per cell.
+This tibble has integer variables <code>row</code> and <code>col</code> (referring to location
+with the Google Sheet), an A1-style reference <code>loc</code>, and a <code>cell</code>
+list-column. The flagship function <code><a href="range_read.html">read_sheet()</a></code>, a.k.a. <code><a href="range_read.html">range_read()</a></code>, is
+what most users are looking for, rather than <code>range_read_cells()</code>.
+<code><a href="range_read.html">read_sheet()</a></code> is basically <code>range_read_cells()</code> (this function), followed by
+<code><a href="spread_sheet.html">spread_sheet()</a></code>, which looks after reshaping and column typing. But if you
+really want raw cell data from the API, <code>range_read_cells()</code> is for you!
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+range_read_cells(
+  ss,
+  sheet = NULL,
+  range = NULL,
+  skip = 0,
+  n_max = Inf,
+  cell_data = c("default", "full"),
+  discard_empty = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to read, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. Ignored if the sheet is specified via <code>range</code>. If neither argument specifies the sheet, defaults to the first visible sheet.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>A cell range to read from. If <code>NULL</code>, all non-empty cells are
+read. Otherwise specify <code>range</code> as described in <a href="https://developers.google.com/sheets/api/guides/concepts#a1_notation">Sheets A1 notation</a>
+or using the helpers documented in <a href="cell-specification.html">cell-specification</a>. Sheets uses
+fairly standard spreadsheet range notation, although a bit different from
+Excel. Examples of valid ranges: <code>"Sheet1!A1:B2"</code>, <code>"Sheet1!A:A"</code>,
+<code>"Sheet1!1:2"</code>, <code>"Sheet1!A5:A"</code>, <code>"A1:B2"</code>, <code>"Sheet1"</code>. Interpreted
+strictly, even if the range forces the inclusion of leading, trailing, or
+embedded empty rows or columns. Takes precedence over <code>skip</code>, <code>n_max</code> and
+<code>sheet</code>. Note <code>range</code> can be a named range, like <code>"sales_data"</code>, without
+any cell reference.</p>
+</td></tr>
+<tr valign="top"><td><code>skip</code></td>
+<td>
+<p>Minimum number of rows to skip before reading anything, be it
+column names or data. Leading empty rows are automatically skipped, so this
+is a lower bound. Ignored if <code>range</code> is given.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Maximum number of data rows to parse into the returned tibble.
+Trailing empty rows are automatically skipped, so this is an upper bound on
+the number of rows in the result. Ignored if <code>range</code> is given. <code>n_max</code> is
+imposed locally, after reading all non-empty cells, so, if speed is an
+issue, it is better to use <code>range</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cell_data</code></td>
+<td>
+<p>How much detail to get for each cell. <code>"default"</code> retrieves
+the fields actually used when googlesheets4 guesses or imposes cell and
+column types. <code>"full"</code> retrieves all fields in the <a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells#CellData"><code>CellData</code> schema</a>.
+The main differences relate to cell formatting.</p>
+</td></tr>
+<tr valign="top"><td><code>discard_empty</code></td>
+<td>
+<p>Whether to discard cells that have no data. Literally,
+we check for an <code>effectiveValue</code>, which is one of the fields in the
+<a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells#CellData"><code>CellData</code> schema</a>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A tibble with one row per cell in the <code>range</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>spreadsheets.get</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  range_read_cells(gs4_example("deaths"), range = "arts_data")
+
+  # if you want detailed and exhaustive cell data, do this
+  range_read_cells(
+    gs4_example("formulas-and-formats"),
+    cell_data = "full",
+    discard_empty = FALSE
+  )
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

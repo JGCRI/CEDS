@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check that all dots are unnamed</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_dots_unnamed {rlang}"><tr><td>check_dots_unnamed {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check that all dots are unnamed</h2>
+
+<h3>Description</h3>
+
+<p>In functions like <code>paste()</code>, named arguments in <code>...</code> are often a
+sign of misspelled argument names. Call <code>check_dots_unnamed()</code> to
+fail with an error when named arguments are detected.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_dots_unnamed(
+  env = caller_env(),
+  error = NULL,
+  call = caller_env(),
+  action = abort
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which to look for <code>...</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>error</code></td>
+<td>
+<p>An optional error handler passed to <code><a href="try_fetch.html">try_fetch()</a></code>. Use
+this e.g. to demote an error into a warning.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>action</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(..., foofy = 8) {
+  check_dots_unnamed()
+  c(...)
+}
+
+f(1, 2, 3, foofy = 4)
+
+try(f(1, 2, 3, foof = 4))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

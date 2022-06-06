@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Concatenate character vectors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for concat {crayon}"><tr><td>concat {crayon}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Concatenate character vectors</h2>
+
+<h3>Description</h3>
+
+<p>The length of the two arguments must match, or
+one of them must be of length one. If the length of
+one argument is one, then the output's length will
+match the length of the other argument. See examples
+below.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lhs %+% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>Left hand side, character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>Right hand side, character vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Concatenated vectors.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+"foo" %+% "bar"
+
+letters[1:10] %+% chr(1:10)
+
+letters[1:10] %+% "-" %+% chr(1:10)
+
+## This is empty (unlike for parse)
+character() %+% "*"
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>crayon</em> version 1.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

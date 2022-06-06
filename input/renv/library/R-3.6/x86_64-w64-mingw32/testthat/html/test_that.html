@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run a test</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for test_that {testthat}"><tr><td>test_that {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run a test</h2>
+
+<h3>Description</h3>
+
+<p>A test encapsulates a series of expectations about a small, self-contained
+set of functionality. Each test lives in a file and contains multiple
+expectations, like <code><a href="equality-expectations.html">expect_equal()</a></code> or <code><a href="expect_error.html">expect_error()</a></code>.
+</p>
+<p>Tests are evaluated in their own environments, and should not affect
+global state.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+test_that(desc, code)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>desc</code></td>
+<td>
+<p>Test name. Names should be brief, but evocative. They are
+only used by humans, so do you</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Test code containing expectations. Braces (<code>{}</code>) should always
+be used in order to get accurate location data for test failures.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>When run interactively, returns <code>invisible(TRUE)</code> if all tests
+pass, otherwise throws an error.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+test_that("trigonometric functions match identities", {
+  expect_equal(sin(pi / 4), 1 / sqrt(2))
+  expect_equal(cos(pi / 4), 1 / sqrt(2))
+  expect_equal(tan(pi / 4), 1)
+})
+
+## Not run: 
+test_that("trigonometric functions match identities", {
+  expect_equal(sin(pi / 4), 1)
+})
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

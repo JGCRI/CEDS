@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rename files with a sequential numeric prefix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rename_seq {xfun}"><tr><td>rename_seq {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rename files with a sequential numeric prefix</h2>
+
+<h3>Description</h3>
+
+<p>Rename a series of files and add an incremental numeric prefix to the
+filenames. For example, files &lsquo;<span class="file">a.txt</span>&rsquo;, &lsquo;<span class="file">b.txt</span>&rsquo;, and &lsquo;<span class="file">c.txt</span>&rsquo;
+can be renamed to &lsquo;<span class="file">1-a.txt</span>&rsquo;, &lsquo;<span class="file">2-b.txt</span>&rsquo;, and &lsquo;<span class="file">3-c.txt</span>&rsquo;.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rename_seq(
+  pattern = "^[0-9]+-.+[.]Rmd$",
+  format = "auto",
+  replace = TRUE,
+  start = 1,
+  dry_run = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>A regular expression for <code><a href="../../base/html/list.files.html">list.files</a>()</code> to obtain
+the files to be renamed. For example, to rename <code>.jpeg</code> files, use
+<code>pattern = "[.]jpeg$"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>The format for the numeric prefix. This is passed to
+<code><a href="../../base/html/sprintf.html">sprintf</a>()</code>. The default format is <code>"%0Nd"</code> where <code>N
+= floor(log10(n)) + 1</code> and <code>n</code> is the number of files, which means the
+prefix may be padded with zeros. For example, if there are 150 files to be
+renamed, the format will be <code>"%03d"</code> and the prefixes will be
+<code>001</code>, <code>002</code>, ..., <code>150</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>replace</code></td>
+<td>
+<p>Whether to remove existing numeric prefixes in filenames.</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>The starting number for the prefix (it can start from 0).</p>
+</td></tr>
+<tr valign="top"><td><code>dry_run</code></td>
+<td>
+<p>Whether to not really rename files. To be safe, the default is
+<code>TRUE</code>. If you have looked at the new filenames and are sure the new
+names are what you want, you may rerun <code>rename_seq()</code> with
+<code>dry_run = FALSE)</code> to actually rename files.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A named character vector. The names are original filenames, and the
+vector itself is the new filenames.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+xfun::rename_seq()
+xfun::rename_seq("[.](jpeg|png)$", format = "%04d")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse tags</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tag_parsers {roxygen2}"><tr><td>tag_parsers {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse tags</h2>
+
+<h3>Description</h3>
+
+<p>These functions parse the <code>raw</code> tag value, convert a string into a richer R
+object and storing it in <code>val</code>, or provide an informative warning and
+returning <code>NULL</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tag_value(x)
+
+tag_inherit(x)
+
+tag_name(x)
+
+tag_two_part(x, first, second, required = TRUE, markdown = TRUE)
+
+tag_name_description(x)
+
+tag_words(x, min = 0, max = Inf)
+
+tag_words_line(x)
+
+tag_toggle(x)
+
+tag_code(x)
+
+tag_examples(x)
+
+tag_markdown(x)
+
+tag_markdown_with_sections(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <a href="roxy_tag.html">roxy_tag</a> object to parse</p>
+</td></tr>
+<tr valign="top"><td><code>first, second</code></td>
+<td>
+<p>Name of first and second parts of two part tags</p>
+</td></tr>
+<tr valign="top"><td><code>required</code></td>
+<td>
+<p>Is the second part required (TRUE) or can it be blank
+(FALSE)?</p>
+</td></tr>
+<tr valign="top"><td><code>markdown</code></td>
+<td>
+<p>Should the second part be parsed as markdown?</p>
+</td></tr>
+<tr valign="top"><td><code>min, max</code></td>
+<td>
+<p>Minimum and maximum number of words</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <a href="roxy_tag.html">roxy_tag</a> object with the <code>val</code> field set to the parsed value.
+</p>
+
+
+<h3>New tag</h3>
+
+<p>To create a new <code style="white-space: pre;">@mytag</code> define <code>roxy_tag_parse.roxy_tag_mytag()</code>. It should
+either call one of the functions here, or directly set <code>x$val</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

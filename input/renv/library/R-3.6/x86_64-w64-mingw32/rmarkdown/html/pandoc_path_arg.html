@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Transform path for passing to pandoc</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pandoc_path_arg {rmarkdown}"><tr><td>pandoc_path_arg {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Transform path for passing to pandoc</h2>
+
+<h3>Description</h3>
+
+<p>Transform a path for passing to pandoc on the command line. Calls
+<code><a href="../../base/html/path.expand.html">path.expand</a></code> on all platforms. On Windows,
+transform it to a short path name if it contains spaces, and then convert
+forward slashes to back slashes (as required by pandoc for some path
+references).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pandoc_path_arg(path, backslash = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to transform</p>
+</td></tr>
+<tr valign="top"><td><code>backslash</code></td>
+<td>
+<p>Whether to replace forward slashes in <code>path</code> with
+backslashes on Windows.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Transformed path that can be passed to pandoc on the command line.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

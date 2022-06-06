@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: GitHub Actions setup</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for github_actions {usethis}"><tr><td>github_actions {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>GitHub Actions setup</h2>
+
+<h3>Description</h3>
+
+<p>Sets up continuous integration (CI) for an R package that is developed on
+GitHub using <a href="https://github.com/features/actions">GitHub Actions</a>. CI can be
+used to trigger various operations for each push or pull request, such as:
+</p>
+
+<ul>
+<li><p> Run <code style="white-space: pre;">R CMD check</code> on various operating systems and R versions
+</p>
+</li>
+<li><p> Build and deploy a pkgdown site
+</p>
+</li>
+<li><p> Determine test coverage
+</p>
+</li></ul>
+
+<p>This family of functions
+</p>
+
+<ul>
+<li><p> Adds the necessary configuration files and lists them in <code>.Rbuildignore</code>
+</p>
+</li>
+<li><p> Provides the markdown to insert a badge into your README
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+use_github_actions()
+
+use_github_actions_badge(name = "R-CMD-check", repo_spec = NULL)
+
+use_github_action(
+  name,
+  url = NULL,
+  save_as = NULL,
+  readme = NULL,
+  ignore = TRUE,
+  open = FALSE
+)
+
+use_github_action_check_release(
+  save_as = "R-CMD-check.yaml",
+  ignore = TRUE,
+  open = FALSE
+)
+
+use_github_action_check_standard(
+  save_as = "R-CMD-check.yaml",
+  ignore = TRUE,
+  open = FALSE
+)
+
+use_github_action_pr_commands(
+  save_as = "pr-commands.yaml",
+  ignore = TRUE,
+  open = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>For <code>use_github_action()</code>: Name of one of the example workflows
+from <a href="https://github.com/r-lib/actions/tree/v1/examples">https://github.com/r-lib/actions/tree/v1/examples</a>, with or without a
+<code>.yaml</code> extension, e.g. &quot;pkgdown&quot; or &quot;test-coverage.yaml&quot;.
+</p>
+<p>For <code>use_github_actions_badge()</code>: Specifies the workflow whose status the
+badge will report. Usually, this is the <code>name</code> keyword that appears in the
+workflow <code>.yaml</code> file.</p>
+</td></tr>
+<tr valign="top"><td><code>repo_spec</code></td>
+<td>
+<p>Optional GitHub repo specification in this form: <code>owner/repo</code>. This can usually be inferred from the GitHub remotes of active project.</p>
+</td></tr>
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>The full URL to a <code>.yaml</code> file on GitHub.</p>
+</td></tr>
+<tr valign="top"><td><code>save_as</code></td>
+<td>
+<p>Name of the local workflow file. Defaults to <code>name</code> or
+<code>fs::path_file(url)</code> for <code>use_github_action()</code>. Do not specify any other
+part of the path; the parent directory will always be <code>.github/workflows</code>,
+within the active project.</p>
+</td></tr>
+<tr valign="top"><td><code>readme</code></td>
+<td>
+<p>The full URL to a <code>README</code> file that provides more details
+about the workflow. Ignored when <code>url</code> is <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore</code></td>
+<td>
+<p>Should the newly created file be added to <code>.Rbuildignore</code>?</p>
+</td></tr>
+<tr valign="top"><td><code>open</code></td>
+<td>
+<p>Open the newly created file for editing? Happens in RStudio, if
+applicable, or via <code><a href="../../utils/html/file.edit.html">utils::file.edit()</a></code> otherwise.</p>
+</td></tr>
+</table>
+
+
+<h3><code>use_github_actions()</code></h3>
+
+<p>Configures a basic <code style="white-space: pre;">R CMD check</code> workflow on GitHub Actions by adding a
+standard <code>R-CMD-check.yaml</code> file to the <code>.github/workflows</code> directory of the
+active project. This is actually just an alias for
+<code>use_github_action_check_release()</code>.
+</p>
+
+
+<h3><code>use_github_actions_badge()</code></h3>
+
+<p>Generates a GitHub Actions badge and that's all. It does not configure a
+workflow. This exists mostly for internal use in the other functions
+documented here.
+</p>
+
+
+<h3><code>use_github_action()</code></h3>
+
+<p>Configures an individual, specific <a href="https://github.com/features/actions">GitHub Actions</a> workflow, either one of the
+examples from
+<a href="https://github.com/r-lib/actions/tree/v1/examples">r-lib/actions/examples</a>
+or a custom workflow given by the <code>url</code> parameter.
+</p>
+<p>Used internally to power all the other GitHub Actions functions, but it can
+also be called directly by the user.
+</p>
+
+
+<h3><code>use_github_action_check_release()</code></h3>
+
+<p>This entry-level, bare-minimum workflow installs the latest release of R (on
+a current distribution of Linux) and runs <code style="white-space: pre;">R CMD check</code> via the
+<a href="https://github.com/r-lib/rcmdcheck">rcmdcheck</a> package.
+</p>
+
+
+<h3><code>use_github_action_check_standard()</code></h3>
+
+<p>This workflow runs <code style="white-space: pre;">R CMD check</code> via the
+<a href="https://github.com/r-lib/rcmdcheck">rcmdcheck</a> package on the three major
+operating systems (Linux, macOS, and Windows) on the latest release of R and
+on R-devel. This workflow is appropriate for a package that is (or aspires to
+be) on CRAN or Bioconductor.
+</p>
+
+
+<h3><code>use_github_action_pr_commands()</code></h3>
+
+<p>This workflow enables the use of two R-specific commands in pull request
+issue comments:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">/document</code> to run <code>roxygen2::roxygenise()</code> and update the PR
+</p>
+</li>
+<li> <p><code style="white-space: pre;">/style</code> to run <code>styler::style_pkg()</code> and update the PR
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><code><a href="use_github_file.html">use_github_file()</a></code> for more about <code>url</code> format and parsing.
+</p>
+</li>
+<li> <p><code><a href="tidyverse.html">use_tidy_github_actions()</a></code> for the standard GitHub Actions used for
+tidyverse packages.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+use_github_actions()
+
+use_github_action_check_standard()
+
+use_github_action("pkgdown")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

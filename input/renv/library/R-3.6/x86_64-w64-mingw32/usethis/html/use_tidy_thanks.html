@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Identify contributors via GitHub activity</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_tidy_thanks {usethis}"><tr><td>use_tidy_thanks {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Identify contributors via GitHub activity</h2>
+
+<h3>Description</h3>
+
+<p>Derives a list of GitHub usernames, based on who has opened issues or pull
+requests. Used to populate the acknowledgment section of package release blog
+posts at <a href="https://www.tidyverse.org/blog/">https://www.tidyverse.org/blog/</a>. If no arguments are given, we
+retrieve all contributors to the active project since its last (GitHub)
+release. Unexported helper functions, <code>releases()</code> and <code>ref_df()</code> can be
+useful interactively to get a quick look at release tag names and a data
+frame about refs (defaulting to releases), respectively.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_tidy_thanks(repo_spec = NULL, from = NULL, to = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo_spec</code></td>
+<td>
+<p>Optional GitHub repo specification in any form accepted for
+the <code>repo_spec</code> argument of <code><a href="create_from_github.html">create_from_github()</a></code> (plain spec or a browser
+or Git URL). A URL specification is the only way to target a GitHub host
+other than <code>"github.com"</code>, which is the default.</p>
+</td></tr>
+<tr valign="top"><td><code>from, to</code></td>
+<td>
+<p>GitHub ref (i.e., a SHA, tag, or release) or a timestamp in
+ISO 8601 format, specifying the start or end of the interval of interest,
+in the sense of <code style="white-space: pre;">[from, to]</code>. Examples: &quot;08a560d&quot;, &quot;v1.3.0&quot;,
+&quot;2018-02-24T00:13:45Z&quot;, &quot;2018-05-01&quot;. When <code style="white-space: pre;">from = NULL, to = NULL</code>, we set
+<code>from</code> to the timestamp of the most recent (GitHub) release. Otherwise,
+<code>NULL</code> means &quot;no bound&quot;.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of GitHub usernames, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# active project, interval = since the last release
+use_tidy_thanks()
+
+# active project, interval = since a specific datetime
+use_tidy_thanks(from = "2020-07-24T00:13:45Z")
+
+# r-lib/usethis, interval = since a certain date
+use_tidy_thanks("r-lib/usethis", from = "2020-08-01")
+
+# r-lib/usethis, up to a specific release
+use_tidy_thanks("r-lib/usethis", from = NULL, to = "v1.1.0")
+
+# r-lib/usethis, since a specific commit, up to a specific date
+use_tidy_thanks("r-lib/usethis", from = "08a560d", to = "2018-05-14")
+
+# r-lib/usethis, but with copy/paste of a browser URL
+use_tidy_thanks("https://github.com/r-lib/usethis")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

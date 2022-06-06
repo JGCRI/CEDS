@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format Character Vector for Display as Code in HTML</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_code_block {fansi}"><tr><td>html_code_block {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format Character Vector for Display as Code in HTML</h2>
+
+<h3>Description</h3>
+
+<p>This simulates what <code>rmarkdown</code> / <code>knitr</code> do to the output of an R markdown
+chunk, at least as of <code>rmarkdown</code> 1.10.  It is useful when we override the
+<code>knitr</code> output hooks so that we can have a result that still looks as if it
+was run by <code>knitr</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_code_block(x, class = "fansi-output")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>character vectors of classes to apply to the PRE HTML tags.  It
+is the users responsibility to ensure the classes are valid CSS class
+names.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>character(1L) <code>x</code>, with &lt;PRE&gt; and &lt;CODE&gt; HTML tags
+applied and collapsed into one line with newlines as the line separator.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+html_code_block(c("hello world"))
+html_code_block(c("hello world"), class="pretty")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

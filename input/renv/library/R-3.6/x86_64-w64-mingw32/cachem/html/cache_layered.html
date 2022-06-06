@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compose any number of cache objects into a new, layered cache...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cache_layered {cachem}"><tr><td>cache_layered {cachem}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compose any number of cache objects into a new, layered cache object</h2>
+
+<h3>Description</h3>
+
+<p>Note that <code>cache_layered</code> is currently experimental.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cache_layered(..., logfile = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Cache objects to compose into a new, layered cache object.</p>
+</td></tr>
+<tr valign="top"><td><code>logfile</code></td>
+<td>
+<p>An optional filename or connection object to where logging
+information will be written. To log to the console, use <code>stderr()</code> or
+<code>stdout()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A layered caching object, with class <code>cache_layered</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Make a layered cache from a small memory cache and large disk cache
+m &lt;- cache_mem(max_size = 100 * 1024^2)
+d &lt;- cache_disk(max_size = 2 * 1024^3)
+cl &lt;- cache_layered(m, d)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cachem</em> version 1.0.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

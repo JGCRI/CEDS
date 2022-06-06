@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Test if a Git user is configured</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for user_is_configured {gert}"><tr><td>user_is_configured {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Test if a Git user is configured</h2>
+
+<h3>Description</h3>
+
+<p>This function exists mostly to guard examples that rely on having a user
+configured, in order to make commits. <code>user_is_configured()</code> makes no
+distinction between local or global user config.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+user_is_configured(repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>An optional <code>repo</code>, in the sense of <code><a href="git_open.html">git_open()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>TRUE</code> if <code>user.name</code> and <code>user.email</code> are set locally or globally,
+<code>FALSE</code> otherwise.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+user_is_configured()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

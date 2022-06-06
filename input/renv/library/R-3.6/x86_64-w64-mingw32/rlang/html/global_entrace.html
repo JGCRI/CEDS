@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Entrace unexpected errors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for global_entrace {rlang}"><tr><td>global_entrace {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Entrace unexpected errors</h2>
+
+<h3>Description</h3>
+
+<p><code>global_entrace()</code> enriches base errors with rlang features:
+</p>
+
+<ul>
+<li><p> They are assigned a backtrace. You can configure whether to
+display a backtrace on error with the <a href="rlang_backtrace_on_error.html">rlang_backtrace_on_error</a>
+global option.
+</p>
+</li>
+<li><p> They are recorded in <code><a href="last_error.html">last_error()</a></code>. Calling this function is
+another way of inspecting the backtrace.
+</p>
+</li></ul>
+
+<p>When global entracing is enabled, all errors behave as if they had
+been thrown with <code><a href="abort.html">abort()</a></code>, even the ones thrown with
+<code><a href="../../base/html/stop.html">stop()</a></code> or from native code.
+</p>
+<p>Set global entracing in your RProfile with:</p>
+<pre>rlang::global_entrace()
+</pre>
+
+
+<h3>Usage</h3>
+
+<pre>
+global_entrace(enable = TRUE, class = c("error", "warning", "message"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>enable</code></td>
+<td>
+<p>Whether to enable or disable global handling.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>A character vector of one or several classes of
+conditions to be entraced.</p>
+</td></tr>
+</table>
+
+
+<h3>Under the hood</h3>
+
+<p>On R 4.0 and newer, <code>global_entrace()</code> installs a global handler
+with <code>globalCallingHandlers()</code>. On older R versions, <code>entrace()</code> is
+set as an <code>option(error = )</code> handler. The latter method has the
+disadvantage that only one handler can be set at a time. This means
+that you need to manually switch between <code>entrace()</code> and other
+handlers like <code><a href="../../utils/html/recover.html">recover()</a></code>. Also this causes a conflict with IDE
+handlers (e.g. in RStudio).
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

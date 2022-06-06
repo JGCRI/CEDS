@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Implementation of the print method for HTML</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_print {htmltools}"><tr><td>html_print {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Implementation of the print method for HTML</h2>
+
+<h3>Description</h3>
+
+<p>Convenience method that provides an implementation of the
+<code><a href="../../base/html/print.html">base::print()</a></code> method for HTML content.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_print(
+  html,
+  background = "white",
+  viewer = getOption("viewer", utils::browseURL)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>html</code></td>
+<td>
+<p>HTML content to print</p>
+</td></tr>
+<tr valign="top"><td><code>background</code></td>
+<td>
+<p>Background color for web page</p>
+</td></tr>
+<tr valign="top"><td><code>viewer</code></td>
+<td>
+<p>A function to be called with the URL or path to the generated
+HTML page. Can be <code>NULL</code>, in which case no viewer will be invoked.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Invisibly returns the URL or path of the generated HTML page.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

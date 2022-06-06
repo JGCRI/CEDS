@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Envelope encryption</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for encrypt_envelope {openssl}"><tr><td>encrypt_envelope {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Envelope encryption</h2>
+
+<h3>Description</h3>
+
+<p>An <a href="https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope">envelope</a>
+contains ciphertext along with an encrypted session key and optionally and initialization
+vector. The <code><a href="encrypt_envelope.html">encrypt_envelope</a></code> generates a random IV and session-key which is
+used to encrypt the <code>data</code> with <code><a href="aes_cbc.html">AES</a></code> stream cipher. The
+session key itself is encrypted using the given RSA key (see <code><a href="rsa_encrypt.html">rsa_encrypt</a></code>) and
+stored or sent along with the encrypted data. Each of these outputs is required to decrypt
+the data with the corresponding private key.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+encrypt_envelope(data, pubkey = my_pubkey())
+
+decrypt_envelope(data, iv, session, key = my_key(), password)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>raw data vector or file path for message to be signed.
+If <code>hash == NULL</code> then <code>data</code> must be a hash string or raw vector.</p>
+</td></tr>
+<tr valign="top"><td><code>pubkey</code></td>
+<td>
+<p>public key or file path. See <code><a href="read_key.html">read_pubkey</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>iv</code></td>
+<td>
+<p>16 byte raw vector returned by <code>encrypt_envelope</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>session</code></td>
+<td>
+<p>raw vector with encrypted session key as returned by <code>encrypt_envelope</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>private key or file path. See <code><a href="read_key.html">read_key</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>string or a function to read protected keys. See <code><a href="read_key.html">read_key</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>References</h3>
+
+<p><a href="https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope">https://wiki.openssl.org/index.php/EVP_Asymmetric_Encryption_and_Decryption_of_an_Envelope</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Requires RSA key
+key &lt;- rsa_keygen()
+pubkey &lt;- key$pubkey
+msg &lt;- serialize(iris, NULL)
+
+# Encrypt
+out &lt;- encrypt_envelope(msg, pubkey)
+str(out)
+
+# Decrypt
+orig &lt;- decrypt_envelope(out$data, out$iv, out$session, key)
+stopifnot(identical(msg, orig))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Try to use the system native encoding to represent a...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for native_encode {xfun}"><tr><td>native_encode {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Try to use the system native encoding to represent a character vector</h2>
+
+<h3>Description</h3>
+
+<p>Apply <code>enc2native()</code> to the character vector, and check if
+<code>enc2utf8()</code> can convert it back without a loss. If it does, return
+<code>enc2native(x)</code>, otherwise return the original vector with a warning.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+native_encode(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p>On platforms that supports UTF-8 as the native encoding
+(<code><a href="../../base/html/l10n_info.html">l10n_info</a>()[['UTF-8']]</code> returns <code>TRUE</code>), the conversion
+will be skipped.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+s = intToUtf8(c(20320, 22909))
+Encoding(s)
+
+s2 = native_encode(s)
+Encoding(s2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

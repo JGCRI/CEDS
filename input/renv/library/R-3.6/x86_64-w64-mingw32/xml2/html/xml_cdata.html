@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Construct a cdata node</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_cdata {xml2}"><tr><td>xml_cdata {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Construct a cdata node</h2>
+
+<h3>Description</h3>
+
+<p>Construct a cdata node
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_cdata(content)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>content</code></td>
+<td>
+<p>The CDATA content, does not include <code style="white-space: pre;">&lt;![CDATA[</code></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- xml_new_root("root")
+xml_add_child(x, xml_cdata("&lt;d/&gt;"))
+as.character(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

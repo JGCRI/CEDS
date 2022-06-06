@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Trim a character vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for trim {glue}"><tr><td>trim {glue}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Trim a character vector</h2>
+
+<h3>Description</h3>
+
+<p>This trims a character vector according to the trimming rules used by glue.
+These follow similar rules to <a href="https://www.python.org/dev/peps/pep-0257/">Python Docstrings</a>,
+with the following features.
+</p>
+
+<ul>
+<li><p> Leading and trailing whitespace from the first and last lines is removed.
+</p>
+</li>
+<li><p> A uniform amount of indentation is stripped from the second line on, equal
+to the minimum indentation of all non-blank lines after the first.
+</p>
+</li>
+<li><p> Lines can be continued across newlines by using <code style="white-space: pre;">\\</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+trim(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector to trim.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+glue("
+    A formatted string
+    Can have multiple lines
+      with additional indention preserved
+    ")
+
+glue("
+  \ntrailing or leading newlines can be added explicitly\n
+  ")
+
+glue("
+    A formatted string \\
+    can also be on a \\
+    single line
+    ")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>glue</em> version 1.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

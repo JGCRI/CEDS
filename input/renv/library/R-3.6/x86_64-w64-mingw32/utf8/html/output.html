@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Output Capabilities</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for output_utf8 {utf8}"><tr><td>output_utf8 {utf8}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Output Capabilities</h2>
+
+<h3>Description</h3>
+
+<p>Test whether the output connection has ANSI style escape support
+or UTF-8 support.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+output_ansi()
+
+output_utf8()
+</pre>
+
+
+<h3>Details</h3>
+
+<p><code>output_ansi</code> tests whether the output connection supports ANSI
+style escapes. This is <code>TRUE</code> if the connection is a terminal
+and not the Windows GUI. Otherwise, it is true if running in
+RStudio 1.1 or later with ANSI escapes enabled, provided <code>stdout()</code>
+has not been redirected to another connection by <code>sink()</code>.
+</p>
+<p><code>output_utf8</code> tests whether the output connection supports UTF-8. For
+most platforms <code>l10n_info()$`UTF-8`</code> gives this information, but this
+does not give an accurate result for Windows GUIs. To work around this,
+we proceed as follows:
+</p>
+
+<ul>
+<li><p> if the character locale (<code>LC_CTYPE</code>) is <code>"C"</code>, then
+the result is <code>FALSE</code>;
+</p>
+</li>
+<li><p> otherwise, if <code>l10n_info()$`UTF-8`</code> is <code>TRUE</code>,
+then the result is <code>TRUE</code>;
+</p>
+</li>
+<li><p> if running on Windows, then the result is <code>TRUE</code>;
+</p>
+</li>
+<li><p> in all other cases the result is <code>FALSE</code>.
+</p>
+</li></ul>
+
+<p>Strictly speaking, UTF-8 support is always available on Windows GUI,
+but only a subset of UTF-8 is available (defined by the current character
+locale) when the output is redirected by <code>knitr</code> or another process.
+Unfortunately, it is impossible to set the character locale to UTF-8 on
+Windows. Further, the <code>utf8</code> package only handles two character
+locales: C and UTF-8.  To get around this, on Windows, we treat all
+non-C locales on that platform as UTF-8. This liberal approach means that
+characters in the user's locale never get escaped; others will get output
+as <code>&lt;U+XXXX&gt;</code>, with incorrect values for <code>utf8_width</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A logical scalar indicating whether the output connection supports the
+given capability.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../base/html/Platform.html">.Platform</a></code>, <code><a href="../../base/html/showConnections.html">isatty</a></code>, <code><a href="../../base/html/l10n_info.html">l10n_info</a></code>,
+<code><a href="../../base/html/locales.html">Sys.getlocale</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# test whether ANSI style escapes or UTF-8 output are supported
+cat("ANSI:", output_ansi(), "\n")
+cat("UTF8:", output_utf8(), "\n")
+
+# switch to C locale
+Sys.setlocale("LC_CTYPE", "C")
+cat("ANSI:", output_ansi(), "\n")
+cat("UTF8:", output_utf8(), "\n")
+
+# switch to native locale
+Sys.setlocale("LC_CTYPE", "")
+
+tmp &lt;- tempfile()
+sink(tmp) # redirect output to a file
+cat("ANSI:", output_ansi(), "\n")
+cat("UTF8:", output_utf8(), "\n")
+sink() # restore stdout
+
+# inspect the output
+readLines(tmp)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>utf8</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

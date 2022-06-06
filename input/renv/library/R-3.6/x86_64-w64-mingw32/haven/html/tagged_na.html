@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: &quot;Tagged&quot; missing values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tagged_na {haven}"><tr><td>tagged_na {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>&quot;Tagged&quot; missing values</h2>
+
+<h3>Description</h3>
+
+<p>&quot;Tagged&quot; missing values work exactly like regular R missing values except
+that they store one additional byte of information a tag, which is usually
+a letter (&quot;a&quot; to &quot;z&quot;). When by loading a SAS and Stata file, the tagged
+missing values always use lower case values.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tagged_na(...)
+
+na_tag(x)
+
+is_tagged_na(x, tag = NULL)
+
+format_tagged_na(x, digits = getOption("digits"))
+
+print_tagged_na(x, digits = getOption("digits"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Vectors containing single character. The letter will be used to
+&quot;tag&quot; the missing value.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A numeric vector</p>
+</td></tr>
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>If <code>NULL</code>, will only return true if the tag has this value.</p>
+</td></tr>
+<tr valign="top"><td><code>digits</code></td>
+<td>
+<p>Number of digits to use in string representation</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>format_tagged_na()</code> and <code>print_tagged_na()</code> format tagged
+NA's as NA(a), NA(b), etc.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- c(1:5, tagged_na("a"), tagged_na("z"), NA)
+
+# Tagged NA's work identically to regular NAs
+x
+is.na(x)
+
+# To see that they're special, you need to use na_tag(),
+# is_tagged_na(), or print_tagged_na():
+is_tagged_na(x)
+na_tag(x)
+print_tagged_na(x)
+
+# You can test for specific tagged NAs with the second argument
+is_tagged_na(x, "a")
+
+# Because the support for tagged's NAs is somewhat tagged on to R,
+# the left-most NA will tend to be preserved in arithmetic operations.
+na_tag(tagged_na("a") + tagged_na("z"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

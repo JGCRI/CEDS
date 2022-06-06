@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Squash a quosure</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for quo_squash {rlang}"><tr><td>quo_squash {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Squash a quosure</h2>
+
+<h3>Description</h3>
+
+<p><code>quo_squash()</code> flattens all nested quosures within an expression.
+For example it transforms <code style="white-space: pre;">^foo(^bar(), ^baz)</code> to the bare
+expression <code>foo(bar(), baz)</code>.
+</p>
+<p>This operation is safe if the squashed quosure is used for
+labelling or printing (see <code><a href="as_label.html">as_label()</a></code>, but note that <code>as_label()</code>
+squashes quosures automatically). However if the squashed quosure
+is evaluated, all expressions of the flattened quosures are
+resolved in a single environment. This is a source of bugs so it is
+good practice to set <code>warn</code> to <code>TRUE</code> to let the user know about
+the lossy squashing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+quo_squash(quo, warn = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>quo</code></td>
+<td>
+<p>A quosure or expression.</p>
+</td></tr>
+<tr valign="top"><td><code>warn</code></td>
+<td>
+<p>Whether to warn if the quosure contains other quosures
+(those will be collapsed). This is useful when you use
+<code>quo_squash()</code> in order to make a non-tidyeval API compatible
+with quosures. In that case, getting rid of the nested quosures
+is likely to cause subtle bugs and it is good practice to warn
+the user about it.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Quosures can contain nested quosures:
+quo &lt;- quo(wrapper(!!quo(wrappee)))
+quo
+
+# quo_squash() flattens all the quosures and returns a simple expression:
+quo_squash(quo)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

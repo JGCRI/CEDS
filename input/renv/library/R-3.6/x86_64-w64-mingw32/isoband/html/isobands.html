@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Efficient calculation of isolines and isobands from elevation...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for isobands {isoband}"><tr><td>isobands {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Efficient calculation of isolines and isobands from elevation grid</h2>
+
+<h3>Description</h3>
+
+<p>Efficient calculation of isolines and isobands from elevation grid
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+isobands(x, y, z, levels_low, levels_high)
+
+isolines(x, y, z, levels)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Numeric vector specifying the x locations of the grid points.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>Numeric vector specifying the y locations of the grid points.</p>
+</td></tr>
+<tr valign="top"><td><code>z</code></td>
+<td>
+<p>Numeric matrix specifying the elevation values for each grid point.</p>
+</td></tr>
+<tr valign="top"><td><code>levels_low, levels_high</code></td>
+<td>
+<p>Numeric vectors of minimum/maximum z values
+for which isobands should be generated. Any z values that are exactly
+equal to a value in <code>levels_low</code> are considered part of the corresponding
+isoband, but any z values that are exactly equal to a value in <code>levels_high</code>
+are not considered part of the corresponding isoband. In other words, the
+intervals specifying isobands are closed at their lower boundary and open
+at their upper boundary.</p>
+</td></tr>
+<tr valign="top"><td><code>levels</code></td>
+<td>
+<p>Numeric vector of z values for which isolines should be generated.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="plot_iso.html">plot_iso</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(grid)
+
+#' # one simple connected shape
+m &lt;- matrix(c(0, 0, 0, 0, 0, 0,
+              0, 0, 0, 1, 1, 0,
+              0, 0, 1, 1, 1, 0,
+              0, 1, 1, 0, 0, 0,
+              0, 0, 0, 1, 0, 0,
+              0, 0, 0, 0, 0, 0), 6, 6, byrow = TRUE)
+
+df_bands &lt;- isobands((1:ncol(m))/(ncol(m)+1), (nrow(m):1)/(nrow(m)+1), m, 0.5, 1.5)[[1]]
+df_lines &lt;- isolines((1:ncol(m))/(ncol(m)+1), (nrow(m):1)/(nrow(m)+1), m, 0.5)[[1]]
+g &lt;- expand.grid(x = (1:ncol(m))/(ncol(m)+1), y = (nrow(m):1)/(nrow(m)+1))
+grid.newpage()
+grid.points(g$x, g$y, default.units = "npc", pch = 19, size = unit(0.5, "char"))
+grid.path(df_bands$x, df_bands$y, df_bands$id, gp = gpar(fill = "cornsilk", col = NA))
+grid.polyline(df_lines$x, df_lines$y, df_lines$id)
+
+# a similar plot can be generated with the plot_iso() function,
+# which is useful for exploring how the algorithm works
+plot_iso(m, 0.5, 1.5)
+
+# NAs are ignored
+m &lt;- matrix(c(NA, NA, NA, 0, 0, 0,
+              NA, NA, NA, 1, 1, 0,
+               0,  0,  1, 1, 1, 0,
+               0,  1,  1, 0, 0, 0,
+               0,  0,  0, 1, 0, 0,
+               0,  0,  0, 0, 0, 0), 6, 6, byrow = TRUE)
+plot_iso(m, 0.5, 1.5)
+
+# two separate shapes
+m &lt;- matrix(c(0, 0, 1, 1,
+              0, 1, 1, 1,
+              1, 1, 0, 0,
+              0, 0, 0.8, 0), 4, 4, byrow = TRUE)
+plot_iso(m, 0.5, 1.5)
+
+# shape with hole
+m &lt;- matrix(c(0, 0, 0, 0, 0, 0,
+              0, 1, 1, 1, 1, 0,
+              0, 1, 2, 2, 1, 0,
+              0, 1, 2, 2, 1, 0,
+              0, 1, 1, 1, 1, 0,
+              0, 0, 0, 0, 0, 0), 6, 6, byrow = TRUE)
+plot_iso(m, 0.5, 1.5)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

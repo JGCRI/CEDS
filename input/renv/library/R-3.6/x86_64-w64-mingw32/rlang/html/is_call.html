@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is object a call?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_call {rlang}"><tr><td>is_call {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is object a call?</h2>
+
+<h3>Description</h3>
+
+<p>This function tests if <code>x</code> is a <a href="call2.html">call</a>. This is a
+pattern-matching predicate that returns <code>FALSE</code> if <code>name</code> and <code>n</code>
+are supplied and the call does not match these properties.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_call(x, name = NULL, n = NULL, ns = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test. Formulas and quosures are treated
+literally.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>An optional name that the call should match. It is
+passed to <code><a href="sym.html">sym()</a></code> before matching. This argument is vectorised
+and you can supply a vector of names to match. In this case,
+<code>is_call()</code> returns <code>TRUE</code> if at least one name matches.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>An optional number of arguments that the call should
+match.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>The namespace of the call. If <code>NULL</code>, the namespace
+doesn't participate in the pattern-matching. If an empty string
+<code>""</code> and <code>x</code> is a namespaced call, <code>is_call()</code> returns
+<code>FALSE</code>. If any other string, <code>is_call()</code> checks that <code>x</code> is
+namespaced within <code>ns</code>.
+</p>
+<p>Can be a character vector of namespaces, in which case the call
+has to match at least one of them, otherwise <code>is_call()</code> returns
+<code>FALSE</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="is_expression.html">is_expression()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+is_call(quote(foo(bar)))
+
+# You can pattern-match the call with additional arguments:
+is_call(quote(foo(bar)), "foo")
+is_call(quote(foo(bar)), "bar")
+is_call(quote(foo(bar)), quote(foo))
+
+# Match the number of arguments with is_call():
+is_call(quote(foo(bar)), "foo", 1)
+is_call(quote(foo(bar)), "foo", 2)
+
+
+# By default, namespaced calls are tested unqualified:
+ns_expr &lt;- quote(base::list())
+is_call(ns_expr, "list")
+
+# You can also specify whether the call shouldn't be namespaced by
+# supplying an empty string:
+is_call(ns_expr, "list", ns = "")
+
+# Or if it should have a namespace:
+is_call(ns_expr, "list", ns = "utils")
+is_call(ns_expr, "list", ns = "base")
+
+# You can supply multiple namespaces:
+is_call(ns_expr, "list", ns = c("utils", "base"))
+is_call(ns_expr, "list", ns = c("utils", "stats"))
+
+# If one of them is "", unnamespaced calls will match as well:
+is_call(quote(list()), "list", ns = "base")
+is_call(quote(list()), "list", ns = c("base", ""))
+is_call(quote(base::list()), "list", ns = c("base", ""))
+
+
+# The name argument is vectorised so you can supply a list of names
+# to match with:
+is_call(quote(foo(bar)), c("bar", "baz"))
+is_call(quote(foo(bar)), c("bar", "foo"))
+is_call(quote(base::list), c("::", ":::", "$", "@"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

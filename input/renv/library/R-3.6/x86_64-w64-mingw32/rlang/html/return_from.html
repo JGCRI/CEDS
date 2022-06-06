@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Jump to or from a frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for return_from {rlang}"><tr><td>return_from {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Jump to or from a frame</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p>While <code><a href="../../base/html/function.html">base::return()</a></code> can only return from the current local
+frame, <code>return_from()</code> will return from any frame on the
+current evaluation stack, between the global and the currently
+active context.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+return_from(frame, value = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>An execution environment of a currently running
+function.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The return value.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+fn &lt;- function() {
+  g(current_env())
+  "ignored"
+}
+g &lt;- function(env) {
+  h(env)
+  "ignored"
+}
+h &lt;- function(env) {
+  return_from(env, "early return")
+  "ignored"
+}
+
+fn()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

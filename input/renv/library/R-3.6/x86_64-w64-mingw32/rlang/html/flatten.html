@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Flatten or squash a list of lists into a simpler vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for flatten {rlang}"><tr><td>flatten {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Flatten or squash a list of lists into a simpler vector</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p><code>flatten()</code> removes one level hierarchy from a list, while
+<code>squash()</code> removes all levels. These functions are similar to
+<code><a href="../../base/html/unlist.html">unlist()</a></code> but they are type-stable so you always know what the
+type of the output is.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+flatten(x)
+
+flatten_lgl(x)
+
+flatten_int(x)
+
+flatten_dbl(x)
+
+flatten_cpl(x)
+
+flatten_chr(x)
+
+flatten_raw(x)
+
+squash(x)
+
+squash_lgl(x)
+
+squash_int(x)
+
+squash_dbl(x)
+
+squash_cpl(x)
+
+squash_chr(x)
+
+squash_raw(x)
+
+flatten_if(x, predicate = is_spliced)
+
+squash_if(x, predicate = is_spliced)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A list to flatten or squash. The contents of the list can
+be anything for unsuffixed functions <code>flatten()</code> and <code>squash()</code>
+(as a list is returned), but the contents must match the type for
+the other functions.</p>
+</td></tr>
+<tr valign="top"><td><code>predicate</code></td>
+<td>
+<p>A function of one argument returning whether it
+should be spliced.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>flatten()</code> returns a list, <code>flatten_lgl()</code> a logical
+vector, <code>flatten_int()</code> an integer vector, <code>flatten_dbl()</code> a
+double vector, and <code>flatten_chr()</code> a character vector. Similarly
+for <code>squash()</code> and the typed variants (<code>squash_lgl()</code> etc).
+</p>
+
+
+<h3>Life cycle</h3>
+
+<p>These functions are in the questioning stage. They have slightly
+different semantics than the flattening functions in purrr and we
+are currently rethinking our approach to flattening with the new
+typing facilities of the vctrs package.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- replicate(2, sample(4), simplify = FALSE)
+x
+
+flatten(x)
+flatten_int(x)
+
+# With flatten(), only one level gets removed at a time:
+deep &lt;- list(1, list(2, list(3)))
+flatten(deep)
+flatten(flatten(deep))
+
+# But squash() removes all levels:
+squash(deep)
+squash_dbl(deep)
+
+# The typed flatten functions remove one level and coerce to an atomic
+# vector at the same time:
+flatten_dbl(list(1, list(2)))
+
+# Only bare lists are flattened, but you can splice S3 lists
+# explicitly:
+foo &lt;- set_attrs(list("bar"), class = "foo")
+str(flatten(list(1, foo, list(100))))
+str(flatten(list(1, splice(foo), list(100))))
+
+# Instead of splicing manually, flatten_if() and squash_if() let
+# you specify a predicate function:
+is_foo &lt;- function(x) inherits(x, "foo") || is_bare_list(x)
+str(flatten_if(list(1, foo, list(100)), is_foo))
+
+# squash_if() does the same with deep lists:
+deep_foo &lt;- list(1, list(foo, list(foo, 100)))
+str(deep_foo)
+
+str(squash(deep_foo))
+str(squash_if(deep_foo, is_foo))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

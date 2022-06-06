@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rug plots in the margins</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for geom_rug {ggplot2}"><tr><td>geom_rug {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rug plots in the margins</h2>
+
+<h3>Description</h3>
+
+<p>A rug plot is a compact visualisation designed to supplement a 2d display
+with the two 1d marginal distributions. Rug plots display individual
+cases so are best used with smaller datasets.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+geom_rug(
+  mapping = NULL,
+  data = NULL,
+  stat = "identity",
+  position = "identity",
+  ...,
+  outside = FALSE,
+  sides = "bl",
+  length = unit(0.03, "npc"),
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>stat</code></td>
+<td>
+<p>The statistical transformation to use on the data for this
+layer, as a string.</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>outside</code></td>
+<td>
+<p>logical that controls whether to move the rug tassels outside of the plot area. Default is off (FALSE). You will also need to use <code>coord_cartesian(clip = "off")</code>. When set to TRUE, also consider changing the sides argument to &quot;tr&quot;. See examples.</p>
+</td></tr>
+<tr valign="top"><td><code>sides</code></td>
+<td>
+<p>A string that controls which sides of the plot the rugs appear on.
+It can be set to a string containing any of <code>"trbl"</code>, for top, right,
+bottom, and left.</p>
+</td></tr>
+<tr valign="top"><td><code>length</code></td>
+<td>
+<p>A <code><a href="../../grid/html/unit.html">grid::unit()</a></code> object that sets the length of the rug lines. Use scale expansion to avoid overplotting of data.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>By default, the rug lines are drawn with a length that corresponds to 3%
+of the total plot size. Since the default scale expansion of for continuous
+variables is 5% at both ends of the scale, the rug will not overlap with
+any data points under the default settings.
+</p>
+
+
+<h3>Aesthetics</h3>
+
+<p><code>geom_rug()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><code>alpha</code>
+</p>
+</li>
+<li> <p><code>colour</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>linetype</code>
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li>
+<li> <p><code>x</code>
+</p>
+</li>
+<li> <p><code>y</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(wt, mpg)) +
+  geom_point()
+p
+p + geom_rug()
+p + geom_rug(sides="b")    # Rug on bottom only
+p + geom_rug(sides="trbl") # All four sides
+
+# Use jittering to avoid overplotting for smaller datasets
+ggplot(mpg, aes(displ, cty)) +
+  geom_point() +
+  geom_rug()
+
+ggplot(mpg, aes(displ, cty)) +
+  geom_jitter() +
+  geom_rug(alpha = 1/2, position = "jitter")
+
+# move the rug tassels to outside the plot
+# remember to set clip = "off".
+p +
+  geom_rug(outside = TRUE) +
+  coord_cartesian(clip = "off")
+
+# set sides to top right, and then move the margins
+p +
+  geom_rug(outside = TRUE, sides = "tr") +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin = margin(1, 1, 1, 1, "cm"))
+
+# increase the line length and
+# expand axis to avoid overplotting
+p +
+  geom_rug(length = unit(0.05, "npc")) +
+  scale_y_continuous(expand = c(0.1, 0.1))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Resolve a list of dependencies</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for resolveDependencies {htmltools}"><tr><td>resolveDependencies {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Resolve a list of dependencies</h2>
+
+<h3>Description</h3>
+
+<p>Given a list of dependencies, removes any redundant dependencies (based on
+name equality). If multiple versions of a dependency are found, the copy with
+the latest version number is used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+resolveDependencies(dependencies, resolvePackageDir = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>A list of <code><a href="htmlDependency.html">htmlDependency()</a></code> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>resolvePackageDir</code></td>
+<td>
+<p>Whether to resolve the relative path to an absolute
+path via <code><a href="../../base/html/system.file.html">system.file()</a></code> when the <code>package</code> attribute is
+present in a dependency object.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>dependencies A list of <code><a href="htmlDependency.html">htmlDependency()</a></code> objects with
+redundancies removed.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

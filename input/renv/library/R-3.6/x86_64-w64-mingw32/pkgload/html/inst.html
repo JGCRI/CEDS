@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the installation path of a package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for inst {pkgload}"><tr><td>inst {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the installation path of a package</h2>
+
+<h3>Description</h3>
+
+<p>Given the name of a package, this returns a path to the installed
+copy of the package, which can be passed to other devtools functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+inst(name)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>the name of a package.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>It searches for the package in <code><a href="../../base/html/libPaths.html">.libPaths()</a></code>. If multiple
+dirs are found, it will return the first one.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+inst("pkgload")
+inst("grid")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

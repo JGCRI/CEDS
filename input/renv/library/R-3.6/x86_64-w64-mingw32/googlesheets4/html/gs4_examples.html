@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Example Sheets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gs4_examples {googlesheets4}"><tr><td>gs4_examples {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Example Sheets</h2>
+
+<h3>Description</h3>
+
+<p>googlesheets4 makes a variety of world-readable example Sheets available for
+use in documentation and reprexes. These functions help you access the
+example Sheets. See <code>vignette("example-sheets", package = "googlesheets4")</code>
+for more.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gs4_examples(matches)
+
+gs4_example(matches)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>matches</code></td>
+<td>
+<p>A regular expression that matches the name of the desired
+example Sheet(s). <code>matches</code> is optional for the plural <code>gs4_examples()</code>
+and, if provided, it can match multiple Sheets. The singular
+<code>gs4_example()</code> requires <code>matches</code> and it must match exactly one Sheet.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code>gs4_example()</code>: a <a href="sheets_id.html">sheets_id</a>
+</p>
+</li>
+<li> <p><code>gs4_examples()</code>: a named vector of all built-in examples, with class
+<code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+gs4_examples()
+gs4_examples("gap")
+
+gs4_example("gapminder")
+gs4_example("deaths")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

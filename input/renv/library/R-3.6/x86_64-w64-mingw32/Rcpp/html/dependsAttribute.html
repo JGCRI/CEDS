@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rcpp::depends Attribute</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dependsAttribute {Rcpp}"><tr><td>dependsAttribute {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rcpp::depends Attribute</h2>
+
+<h3>Description</h3>
+
+<p>The <code>Rcpp::depends</code> attribute is added to a C++ source file to indicate that it has a compilation dependency on one or more other packages. For example:
+</p>
+<pre>
+// [[Rcpp::depends(RcppArmadillo)]]
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Packages which the source file depends on for compilation
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>Rcpp::depends</code> attribute is used by the implementation of the <code><a href="sourceCpp.html">sourceCpp</a></code> function to correctly setup the build environment for <code>R CMD SHLIB</code>. 
+</p>
+<p>The include directories of the specified packages are added to the <code>CLINK_CPPFLAGS</code> environment variable. In addition, if the referenced package provides an <a href="../../inline/html/plugins.html">inline plugin</a> it is called to determine additional environment variables required to successfully build.
+</p>
+
+
+<h3>Note</h3>
+
+<p>The <code>Rcpp::depends</code> attribute is specified using a syntax compatible with the new <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2761.pdf">generalized attributes</a> feature of the C++11 standard. Note however that since this feature is not yet broadly supported by compilers it needs to be specified within a comment (see examples below).
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="sourceCpp.html">sourceCpp</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+// [[Rcpp::depends(RcppArmadillo)]]
+
+// [[Rcpp::depends(Matrix, RcppGSL)]]
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

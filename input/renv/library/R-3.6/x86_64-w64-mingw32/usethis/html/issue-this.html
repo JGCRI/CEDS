@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Helpers for GitHub issues</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for issue-this {usethis}"><tr><td>issue-this {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Helpers for GitHub issues</h2>
+
+<h3>Description</h3>
+
+<p>The <code style="white-space: pre;">issue_*</code> family of functions allows you to perform common operations on
+GitHub issues from within R. They're designed to help you efficiently deal
+with large numbers of issues, particularly motivated by the challenges faced
+by the tidyverse team.
+</p>
+
+<ul>
+<li> <p><code>issue_close_community()</code> closes an issue, because it's not a bug report or
+feature request, and points the author towards RStudio Community as a
+better place to discuss usage (<a href="https://community.rstudio.com">https://community.rstudio.com</a>).
+</p>
+</li>
+<li> <p><code>issue_reprex_needed()</code> labels the issue with the &quot;reprex&quot; label and
+gives the author some advice about what is needed.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+issue_close_community(number, reprex = FALSE)
+
+issue_reprex_needed(number)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>number</code></td>
+<td>
+<p>Issue number</p>
+</td></tr>
+<tr valign="top"><td><code>reprex</code></td>
+<td>
+<p>Does the issue also need a reprex?</p>
+</td></tr>
+</table>
+
+
+<h3>Saved replies</h3>
+
+<p>Unlike GitHub's &quot;saved replies&quot;, these functions can:
+</p>
+
+<ul>
+<li><p> Be shared between people
+</p>
+</li>
+<li><p> Perform other actions, like labelling, or closing
+</p>
+</li>
+<li><p> Have additional arguments
+</p>
+</li>
+<li><p> Include randomness (like friendly gifs)
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+issue_close_community(12, reprex = TRUE)
+
+issue_reprex_needed(241)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Merge cells within a worksheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mergeCells {openxlsx}"><tr><td>mergeCells {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Merge cells within a worksheet</h2>
+
+<h3>Description</h3>
+
+<p>Merge cells within a worksheet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+mergeCells(wb, sheet, cols, rows)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Columns to merge</p>
+</td></tr>
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>corresponding rows to merge</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>As merged region must be rectangular, only min and max of cols and rows are used.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="removeCellMerge.html">removeCellMerge()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook()
+
+## Add a worksheet
+addWorksheet(wb, "Sheet 1")
+addWorksheet(wb, "Sheet 2")
+
+## Merge cells: Row 2 column C to F (3:6)
+mergeCells(wb, "Sheet 1", cols = 2, rows = 3:6)
+
+## Merge cells:Rows 10 to 20 columns A to J (1:10)
+mergeCells(wb, 1, cols = 1:10, rows = 10:20)
+
+## Intersecting merges
+mergeCells(wb, 2, cols = 1:10, rows = 1)
+mergeCells(wb, 2, cols = 5:10, rows = 2)
+mergeCells(wb, 2, cols = c(1, 10), rows = 12) ## equivalent to 1:10 as only min/max are used
+# mergeCells(wb, 2, cols = 1, rows = c(1,10)) # Throws error because intersects existing merge
+
+## remove merged cells
+removeCellMerge(wb, 2, cols = 1, rows = 1) # removes any intersecting merges
+mergeCells(wb, 2, cols = 1, rows = 1:10) # Now this works
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "mergeCellsExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

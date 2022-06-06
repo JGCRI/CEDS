@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tee pipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %T&amp;gt;% {magrittr}"><tr><td>%T&gt;% {magrittr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tee pipe</h2>
+
+<h3>Description</h3>
+
+<p>Pipe a value forward into a function- or call expression and return the
+original value instead of the result. This is useful when an expression
+is used for its side-effect, say plotting or printing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lhs %T&gt;% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>A value or the magrittr placeholder.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>A function call using the magrittr semantics.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The tee pipe works like <code><a href="pipe.html">%&gt;%</a></code>, except the
+return value is <code>lhs</code> itself, and not the result of <code>rhs</code> function/expression.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pipe.html">%&gt;%</a></code>, <code><a href="compound.html">%&lt;&gt;%</a></code>, <code><a href="exposition.html">%$%</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+rnorm(200) %&gt;%
+matrix(ncol = 2) %T&gt;%
+plot %&gt;% # plot usually does not return anything. 
+colSums
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>magrittr</em> version 2.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

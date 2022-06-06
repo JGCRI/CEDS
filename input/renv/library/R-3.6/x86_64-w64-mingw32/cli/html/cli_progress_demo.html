@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: cli progress bar demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cli_progress_demo {cli}"><tr><td>cli_progress_demo {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>cli progress bar demo</h2>
+
+<h3>Description</h3>
+
+<p>Useful for experimenting with format strings and for documentation.
+It creates a progress bar, iterates it until it terminates and saves the
+progress updates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cli_progress_demo(
+  name = NULL,
+  status = NULL,
+  type = c("iterator", "tasks", "download", "custom"),
+  total = NA,
+  .envir = parent.frame(),
+  ...,
+  at = if (is_interactive()) NULL else 50,
+  show_after = 0,
+  live = NULL,
+  delay = 0,
+  start = as.difftime(5, units = "secs")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>status</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>total</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.envir</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed to <code><a href="cli_progress_bar.html">cli_progress_bar()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>at</code></td>
+<td>
+<p>The number of progress units to show and capture the progress
+bar at. If <code>NULL</code>, then a sequence of states is generated to show the
+progress from beginning to end.</p>
+</td></tr>
+<tr valign="top"><td><code>show_after</code></td>
+<td>
+<p>Delay to show the progress bar. Overrides the
+<code>cli.progress_show_after</code> option.</p>
+</td></tr>
+<tr valign="top"><td><code>live</code></td>
+<td>
+<p>Whether to show the progress bat on the screen, or just
+return the recorded updates. Defaults to the value of the
+<code>cli.progress_demo_live</code> options. If unset, then it is <code>TRUE</code> in
+interactive sessions.</p>
+</td></tr>
+<tr valign="top"><td><code>delay</code></td>
+<td>
+<p>Delay between progress bar updates.</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>Time to subtract from the start time, to simulate a
+progress bar that takes longer to run.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>List with class <code>cli_progress_demo</code>, which has a print and a
+format method for pretty printing. The <code>lines</code> entry contains the
+output lines, each corresponding to one update.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

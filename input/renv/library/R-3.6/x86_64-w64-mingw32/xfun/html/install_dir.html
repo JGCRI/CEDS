@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Install a source package from a directory</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for install_dir {xfun}"><tr><td>install_dir {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Install a source package from a directory</h2>
+
+<h3>Description</h3>
+
+<p>Run <code>R CMD build</code> to build a tarball from a source directory, and run
+<code>R CMD INSTALL</code> to install it.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+install_dir(pkg, build = TRUE, build_opts = NULL, install_opts = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkg</code></td>
+<td>
+<p>The package source directory.</p>
+</td></tr>
+<tr valign="top"><td><code>build</code></td>
+<td>
+<p>Whether to build a tarball from the source directory. If
+<code>FALSE</code>, run <code>R CMD INSTALL</code> on the directory directly (note
+that vignettes will not be automatically built).</p>
+</td></tr>
+<tr valign="top"><td><code>build_opts</code></td>
+<td>
+<p>The options for <code>R CMD build</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>install_opts</code></td>
+<td>
+<p>The options for <code>R CMD INSTALL</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Invisible status from <code>R CMD INSTALL</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

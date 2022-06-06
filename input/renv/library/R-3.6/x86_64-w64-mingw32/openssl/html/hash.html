@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Vectorized hash/hmac functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hashing {openssl}"><tr><td>hashing {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Vectorized hash/hmac functions</h2>
+
+<h3>Description</h3>
+
+<p>All hash functions either calculate a hash-digest for <code>key == NULL</code> or HMAC
+(hashed message authentication code) when <code>key</code> is not <code>NULL</code>. Supported
+inputs are binary (raw vector), strings (character vector) or a connection object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sha1(x, key = NULL)
+
+sha224(x, key = NULL)
+
+sha256(x, key = NULL)
+
+sha384(x, key = NULL)
+
+sha512(x, key = NULL)
+
+sha2(x, size = 256, key = NULL)
+
+md4(x, key = NULL)
+
+md5(x, key = NULL)
+
+blake2b(x, key = NULL)
+
+blake2s(x, key = NULL)
+
+ripemd160(x, key = NULL)
+
+multihash(x, algos = c("md5", "sha1", "sha256", "sha384", "sha512"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector, raw vector or connection object.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>string or raw vector used as the key for HMAC hashing</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>must be equal to 224 256 384 or 512</p>
+</td></tr>
+<tr valign="top"><td><code>algos</code></td>
+<td>
+<p>string vector with names of hashing algorithms</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The most efficient way to calculate hashes is by using input <a href="../../base/html/connections.html">connections</a>,
+such as a <a href="../../base/html/connections.html">file()</a> or <a href="../../base/html/connections.html">url()</a> object.
+In this case the hash is calculated streamingly, using almost no memory or disk space,
+regardless of the data size. When using a connection input in the <a href="hash.html">multihash</a>
+function, the data is only read only once while streaming to multiple hash functions
+simultaneously. Therefore several hashes are calculated simultanously, without the
+need to store any data or download it multiple times.
+</p>
+<p>Functions are vectorized for the case of character vectors: a vector with <code>n</code>
+strings returns <code>n</code> hashes. When passing a connection object, the contents will
+be stream-hashed which minimizes the amount of required memory. This is recommended
+for hashing files from disk or network.
+</p>
+<p>The sha2 family of algorithms (sha224, sha256, sha384 and sha512) is generally
+recommended for sensitive information. While sha1 and md5 are usually sufficient for
+collision-resistant identifiers, they are no longer considered secure for cryptographic
+purposes.
+</p>
+<p>In applications where hashes should be irreversible (such as names or passwords) it is
+often recommended to use a random <em>key</em> for HMAC hashing. This prevents attacks where
+we can lookup hashes of common and/or short strings. See examples. A common special case
+is adding a random salt to a large number of records to test for uniqueness within the
+dataset, while simultaneously rendering the results incomparable to other datasets.
+</p>
+<p>The <code>blake2b</code> and <code>blake2s</code> algorithms are only available if your system has
+libssl 1.1 or newer.
+</p>
+
+
+<h3>References</h3>
+
+<p>Digest types: <a href="https://www.openssl.org/docs/man1.1.1/man1/openssl-dgst.html">https://www.openssl.org/docs/man1.1.1/man1/openssl-dgst.html</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Support both strings and binary
+md5(c("foo", "bar"))
+md5("foo", key = "secret")
+
+hash &lt;- md5(charToRaw("foo"))
+as.character(hash, sep = ":")
+
+# Compare to digest
+digest::digest("foo", "md5", serialize = FALSE)
+
+# Other way around
+digest::digest(cars, skip = 0)
+md5(serialize(cars, NULL))
+
+# Stream-verify from connections (including files)
+myfile &lt;- system.file("CITATION")
+md5(file(myfile))
+md5(file(myfile), key = "secret")
+
+## Not run: check md5 from: http://cran.r-project.org/bin/windows/base/old/3.1.1/md5sum.txt
+md5(url("http://cran.r-project.org/bin/windows/base/old/3.1.1/R-3.1.1-win.exe"))
+## End(Not run)
+
+# Use a salt to prevent dictionary attacks
+sha1("admin") # googleable
+sha1("admin", key = "random_salt_value") #not googleable
+
+# Use a random salt to identify duplicates while anonymizing values
+sha256("john") # googleable
+sha256(c("john", "mary", "john"), key = "random_salt_value")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

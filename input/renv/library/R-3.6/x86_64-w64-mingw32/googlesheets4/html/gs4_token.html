@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Produce configured token</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for gs4_token {googlesheets4}"><tr><td>gs4_token {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Produce configured token</h2>
+
+<h3>Description</h3>
+
+<p>For internal use or for those programming around the Sheets API.
+Returns a token pre-processed with <code><a href="../../httr/html/config.html">httr::config()</a></code>. Most users
+do not need to handle tokens &quot;by hand&quot; or, even if they need some
+control, <code><a href="gs4_auth.html">gs4_auth()</a></code> is what they need. If there is no current
+token, <code><a href="gs4_auth.html">gs4_auth()</a></code> is called to either load from cache or
+initiate OAuth2.0 flow.
+If auth has been deactivated via <code><a href="gs4_deauth.html">gs4_deauth()</a></code>, <code>gs4_token()</code>
+returns <code>NULL</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+gs4_token()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>A <code>request</code> object (an S3 class provided by <a href="../../httr/html/httr-package.html">httr</a>).
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other low-level API functions: 
+<code><a href="gs4_has_token.html">gs4_has_token</a>()</code>,
+<code><a href="request_generate.html">request_generate</a>()</code>,
+<code><a href="request_make.html">request_make</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  req &lt;- request_generate(
+    "sheets.spreadsheets.get",
+    list(spreadsheetId = "abc"),
+    token = gs4_token()
+  )
+  req
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

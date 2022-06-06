@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Token for use with workload identity federation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for WifToken {gargle}"><tr><td>WifToken {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Token for use with workload identity federation</h2>
+
+<h3>Description</h3>
+
+<p>Token for use with workload identity federation
+</p>
+<p>Token for use with workload identity federation
+</p>
+
+
+<h3>Details</h3>
+
+<p>Not intended for direct use. See <code><a href="credentials_external_account.html">credentials_external_account()</a></code> instead.
+</p>
+
+
+<h3>Super classes</h3>
+
+<p><code><a href="../../httr/html/Token.html">httr::Token</a></code> -&gt; <code><a href="../../httr/html/Token2.0.html">httr::Token2.0</a></code> -&gt; <code>WifToken</code>
+</p>
+
+
+<h3>Methods</h3>
+
+
+
+<h4>Public methods</h4>
+
+
+<ul>
+<li> <p><a href="#method-new"><code>WifToken$new()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-init_credentials"><code>WifToken$init_credentials()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-refresh"><code>WifToken$refresh()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-format"><code>WifToken$format()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-print"><code>WifToken$print()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-can_refresh"><code>WifToken$can_refresh()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-cache"><code>WifToken$cache()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-load_from_cache"><code>WifToken$load_from_cache()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-validate"><code>WifToken$validate()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-revoke"><code>WifToken$revoke()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-clone"><code>WifToken$clone()</code></a>
+</p>
+</li></ul>
+
+
+
+<details open ><summary>Inherited methods</summary>
+
+<ul>
+<li> <span class="pkg-link" data-pkg="httr" data-topic="Token" data-id="hash"><p><a href="../../httr/html/Token.html#method-hash"><code>httr::Token$hash()</code></a></span>
+</p>
+</li>
+<li> <span class="pkg-link" data-pkg="httr" data-topic="Token2.0" data-id="sign"><p><a href="../../httr/html/Token2.0.html#method-sign"><code>httr::Token2.0$sign()</code></a></span>
+</p>
+</li></ul>
+
+</details>
+
+<hr>
+<a id="method-new"></a>
+
+
+
+<h4>Method <code>new()</code></h4>
+
+<p>Get a token via workload identity federation
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$new(params = list())</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>params</code></dt><dd><p>A list of parameters for <code>init_oauth_external_account()</code>.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>A WifToken.
+</p>
+
+
+<hr>
+<a id="method-init_credentials"></a>
+
+
+
+<h4>Method <code>init_credentials()</code></h4>
+
+<p>Enact the actual token exchange for workload identity
+federation.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$init_credentials()</pre></div>
+
+
+<hr>
+<a id="method-refresh"></a>
+
+
+
+<h4>Method <code>refresh()</code></h4>
+
+<p>Refreshes the token, which means re-doing the entire token
+flow in this case.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$refresh()</pre></div>
+
+
+<hr>
+<a id="method-format"></a>
+
+
+
+<h4>Method <code>format()</code></h4>
+
+<p>Format a <code><a href="WifToken.html">WifToken()</a></code>.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$format(...)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>...</code></dt><dd><p>Not used.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-print"></a>
+
+
+
+<h4>Method <code>print()</code></h4>
+
+<p>Print a <code><a href="WifToken.html">WifToken()</a></code>.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$print(...)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>...</code></dt><dd><p>Not used.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-can_refresh"></a>
+
+
+
+<h4>Method <code>can_refresh()</code></h4>
+
+<p>Placeholder implementation of required method. Returns <code>TRUE</code>.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$can_refresh()</pre></div>
+
+
+<hr>
+<a id="method-cache"></a>
+
+
+
+<h4>Method <code>cache()</code></h4>
+
+<p>Placeholder implementation of required method. Returns self.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$cache()</pre></div>
+
+
+<hr>
+<a id="method-load_from_cache"></a>
+
+
+
+<h4>Method <code>load_from_cache()</code></h4>
+
+<p>Placeholder implementation of required method. Returns self.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$load_from_cache()</pre></div>
+
+
+<hr>
+<a id="method-validate"></a>
+
+
+
+<h4>Method <code>validate()</code></h4>
+
+<p>Placeholder implementation of required method.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$validate()</pre></div>
+
+
+<hr>
+<a id="method-revoke"></a>
+
+
+
+<h4>Method <code>revoke()</code></h4>
+
+<p>Placeholder implementation of required method.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$revoke()</pre></div>
+
+
+<hr>
+<a id="method-clone"></a>
+
+
+
+<h4>Method <code>clone()</code></h4>
+
+<p>The objects of this class are cloneable with this method.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>WifToken$clone(deep = FALSE)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

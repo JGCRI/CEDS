@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add and subtract months to a date without exceeding the last...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %m+% {lubridate}"><tr><td>%m+% {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add and subtract months to a date without exceeding the last day of the new month</h2>
+
+<h3>Description</h3>
+
+<p>Adding months frustrates basic arithmetic because consecutive months have
+different lengths. With other elements, it is helpful for arithmetic to
+perform automatic roll over. For example, 12:00:00 + 61 seconds becomes
+12:01:01. However, people often prefer that this behavior NOT occur with
+months. For example, we sometimes want January 31 + 1 month = February 28 and
+not March 3. <code>%m+%</code> performs this type of arithmetic. Date <code>%m+%</code> months(n)
+always returns a date in the nth month after Date. If the new date would
+usually spill over into the n + 1th month, <code>%m+%</code> will return the last day of
+the nth month (<code><a href="rollbackward.html">rollback()</a></code>). Date <code>%m-%</code> months(n) always returns a
+date in the nth month before Date.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+e1 %m+% e2
+
+add_with_rollback(e1, e2, roll_to_first = FALSE, preserve_hms = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>e1</code></td>
+<td>
+<p>A period or a date-time object of class <a href="../../base/html/DateTimeClasses.html">POSIXlt</a>, <a href="posix_utils.html">POSIXct</a>
+or <a href="date_utils.html">Date</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>e2</code></td>
+<td>
+<p>A period or a date-time object of class <a href="../../base/html/DateTimeClasses.html">POSIXlt</a>, <a href="posix_utils.html">POSIXct</a>
+or <a href="date_utils.html">Date</a>. Note that one of e1 and e2 must be a period and the other a
+date-time object.</p>
+</td></tr>
+<tr valign="top"><td><code>roll_to_first</code></td>
+<td>
+<p>rollback to the first day of the month instead of the
+last day of the previous month (passed to <code><a href="rollbackward.html">rollback()</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>preserve_hms</code></td>
+<td>
+<p>retains the same hour, minute, and second information? If
+FALSE, the new date will be at 00:00:00 (passed to <code><a href="rollbackward.html">rollback()</a></code>)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>%m+%</code> and <code>%m-%</code> handle periods with components less than a month by first
+adding/subtracting months and then performing usual arithmetics with smaller
+units.
+</p>
+<p><code>%m+%</code> and <code>%m-%</code> should be used with caution as they are not one-to-one
+operations and results for either will be sensitive to the order of
+operations.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A date-time object of class POSIXlt, POSIXct or Date
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+jan &lt;- ymd_hms("2010-01-31 03:04:05")
+jan + months(1:3) # Feb 31 and April 31 returned as NA
+# NA "2010-03-31 03:04:05 UTC" NA
+jan %m+% months(1:3) # No rollover
+
+leap &lt;- ymd("2012-02-29")
+"2012-02-29 UTC"
+leap %m+% years(1)
+leap %m+% years(-1)
+leap %m-% years(1)
+
+x &lt;- ymd_hms("2019-01-29 01:02:03")
+add_with_rollback(x, months(1))
+add_with_rollback(x, months(1), preserve_hms = FALSE)
+add_with_rollback(x, months(1), roll_to_first = TRUE)
+add_with_rollback(x, months(1), roll_to_first = TRUE, preserve_hms = FALSE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

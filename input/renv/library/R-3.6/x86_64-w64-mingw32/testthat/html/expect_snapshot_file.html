@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Snapshot testing for whole files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_snapshot_file {testthat}"><tr><td>expect_snapshot_file {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Snapshot testing for whole files</h2>
+
+<h3>Description</h3>
+
+<p>Whole file snapshot testing is designed for testing objects that don't have
+a convenient textual representation, with initial support for images
+(<code>.png</code>, <code>.jpg</code>, <code>.svg</code>), data frames (<code>.csv</code>), and text files
+(<code>.R</code>, <code>.txt</code>, <code>.json</code>, ...).
+</p>
+<p>The first time <code>expect_snapshot_file()</code> is run, it will create
+<code style="white-space: pre;">_snaps/{test}/{name}.{ext}</code> containing reference output. Future runs will
+be compared to this reference: if different, the test will fail and the new
+results will be saved in <code style="white-space: pre;">_snaps/{test}/{name}.new.{ext}</code>. To review
+failures, call <code><a href="snapshot_accept.html">snapshot_review()</a></code>.
+</p>
+<p>We generally expect this function to be used via a wrapper that takes care
+of ensuring that output is as reproducible as possible, e.g. automatically
+skipping tests where it's known that images can't be reproduced exactly.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_snapshot_file(
+  path,
+  name = basename(path),
+  binary = lifecycle::deprecated(),
+  cran = FALSE,
+  compare = NULL,
+  transform = NULL,
+  variant = NULL
+)
+
+announce_snapshot_file(path, name = basename(path))
+
+compare_file_binary(old, new)
+
+compare_file_text(old, new)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to file to snapshot. Optional for
+<code>announce_snapshot_file()</code> if <code>name</code> is supplied.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Snapshot name, taken from <code>path</code> by default.</p>
+</td></tr>
+<tr valign="top"><td><code>binary</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> Please use the
+<code>compare</code> argument instead.</p>
+</td></tr>
+<tr valign="top"><td><code>cran</code></td>
+<td>
+<p>Should these expectations be verified on CRAN? By default,
+they are not, because snapshot tests tend to be fragile because they
+often rely on minor details of dependencies.</p>
+</td></tr>
+<tr valign="top"><td><code>compare</code></td>
+<td>
+<p>A function used to compare the snapshot files. It should take
+two inputs, the paths to the <code>old</code> and <code>new</code> snapshot, and return either
+<code>TRUE</code> or <code>FALSE</code>. This defaults to <code>compare_file_text</code> if <code>name</code> has
+extension <code>.r</code>, <code>.R</code>, <code>.Rmd</code>, <code>.md</code>, or <code>.txt</code>, and otherwise uses
+<code>compare_file_binary</code>.
+</p>
+<p><code>compare_file_binary()</code> compares byte-by-byte and
+<code>compare_file_text()</code> compares lines-by-line, ignoring
+the difference between Windows and Mac/Linux line endings.</p>
+</td></tr>
+<tr valign="top"><td><code>transform</code></td>
+<td>
+<p>Optionally, a function to scrub sensitive or stochastic
+text from the output. Should take a character vector of lines as input
+and return a modified character vector as output.</p>
+</td></tr>
+<tr valign="top"><td><code>variant</code></td>
+<td>
+<p>If not-<code>NULL</code>, results will be saved in
+<code style="white-space: pre;">_snaps/{variant}/{test}/{name}.{ext}</code>. This allows you to create
+different snapshots for different scenarios, like different operating
+systems or different R versions.</p>
+</td></tr>
+<tr valign="top"><td><code>old, new</code></td>
+<td>
+<p>Paths to old and new snapshot files.</p>
+</td></tr>
+</table>
+
+
+<h3>Announcing snapshots</h3>
+
+<p>testthat automatically detects dangling snapshots that have been
+written to the <code style="white-space: pre;">_snaps</code> directory but which no longer have
+corresponding R code to generate them. These dangling files are
+automatically deleted so they don't clutter the snapshot
+directory. However we want to preserve snapshot files when the R
+code wasn't executed because of an unexpected error or because of a
+<code><a href="skip.html">skip()</a></code>. Let testthat know about these files by calling
+<code>announce_snapshot_file()</code> before <code>expect_snapshot_file()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# To use expect_snapshot_file() you'll typically need to start by writing
+# a helper function that creates a file from your code, returning a path
+save_png &lt;- function(code, width = 400, height = 400) {
+  path &lt;- tempfile(fileext = ".png")
+  png(path, width = width, height = height)
+  on.exit(dev.off())
+  code
+
+  path
+}
+path &lt;- save_png(plot(1:5))
+path
+
+## Not run: 
+expect_snapshot_file(save_png(hist(mtcars$mpg)), "plot.png")
+
+## End(Not run)
+
+# You'd then also provide a helper that skips tests where you can't
+# be sure of producing exactly the same output
+expect_snapshot_plot &lt;- function(name, code) {
+  # Other packages might affect results
+  skip_if_not_installed("ggplot2", "2.0.0")
+  # Or maybe the output is different on some operation systems
+  skip_on_os("windows")
+  # You'll need to carefully think about and experiment with these skips
+
+  name &lt;- paste0(name, ".png")
+
+  # Announce the file before touching `code`. This way, if `code`
+  # unexpectedly fails or skips, testthat will not auto-delete the
+  # corresponding snapshot file.
+  announce_snapshot_file(name = name)
+
+  path &lt;- save_png(code)
+  expect_snapshot_file(path, name)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

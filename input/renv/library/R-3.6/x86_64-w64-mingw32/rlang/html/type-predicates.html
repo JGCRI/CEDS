@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Type predicates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for type-predicates {rlang}"><tr><td>type-predicates {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Type predicates</h2>
+
+<h3>Description</h3>
+
+<p>These type predicates aim to make type testing in R more
+consistent. They are wrappers around <code><a href="../../base/html/typeof.html">base::typeof()</a></code>, so operate
+at a level beneath S3/S4 etc.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_list(x, n = NULL)
+
+is_atomic(x, n = NULL)
+
+is_vector(x, n = NULL)
+
+is_integer(x, n = NULL)
+
+is_double(x, n = NULL, finite = NULL)
+
+is_complex(x, n = NULL, finite = NULL)
+
+is_character(x, n = NULL)
+
+is_logical(x, n = NULL)
+
+is_raw(x, n = NULL)
+
+is_bytes(x, n = NULL)
+
+is_null(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to be tested.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Expected length of a vector.</p>
+</td></tr>
+<tr valign="top"><td><code>finite</code></td>
+<td>
+<p>Whether all values of the vector are finite. The
+non-finite values are <code>NA</code>, <code>Inf</code>, <code>-Inf</code> and <code>NaN</code>. Setting this
+to something other than <code>NULL</code> can be expensive because the whole
+vector needs to be traversed and checked.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Compared to base R functions:
+</p>
+
+<ul>
+<li><p> The predicates for vectors include the <code>n</code> argument for
+pattern-matching on the vector length.
+</p>
+</li>
+<li><p> Unlike <code>is.atomic()</code>, <code>is_atomic()</code> does not return <code>TRUE</code> for
+<code>NULL</code>.
+</p>
+</li>
+<li><p> Unlike <code>is.vector()</code>, <code>is_vector()</code> tests if an object is an
+atomic vector or a list. <code>is.vector</code> checks for the presence of
+attributes (other than name).
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><a href="bare-type-predicates.html">bare-type-predicates</a> <a href="scalar-type-predicates.html">scalar-type-predicates</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

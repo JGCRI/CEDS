@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Match supplied arguments to function definition</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for call_match {rlang}"><tr><td>call_match {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Match supplied arguments to function definition</h2>
+
+<h3>Description</h3>
+
+<p><code>call_match()</code> is like <code><a href="../../base/html/match.call.html">match.call()</a></code> with these differences:
+</p>
+
+<ul>
+<li><p> It supports matching missing argument to their defaults in the
+function definition.
+</p>
+</li>
+<li><p> It requires you to be a little more specific in some cases.
+Either all arguments are inferred from the call stack or none of
+them are (see the Inference section).
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+call_match(
+  call = NULL,
+  fn = NULL,
+  ...,
+  defaults = FALSE,
+  dots_env = NULL,
+  dots_expand = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>A call. The arguments will be matched to <code>fn</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fn</code></td>
+<td>
+<p>A function definition to match arguments to.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots must be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>defaults</code></td>
+<td>
+<p>Whether to match missing arguments to their
+defaults.</p>
+</td></tr>
+<tr valign="top"><td><code>dots_env</code></td>
+<td>
+<p>An execution environment where to find dots. If
+supplied and dots exist in this environment, and if <code>call</code>
+includes <code>...</code>, the forwarded dots are matched to numbered dots
+(e.g. <code>..1</code>, <code>..2</code>, etc). By default this is set to the empty
+environment which means that <code>...</code> expands to nothing.</p>
+</td></tr>
+<tr valign="top"><td><code>dots_expand</code></td>
+<td>
+<p>If <code>FALSE</code>, arguments passed through <code>...</code> will
+not be spliced into <code>call</code>. Instead, they are gathered in a
+pairlist and assigned to an argument named <code>...</code>. Gathering dots
+arguments is useful if you need to separate them from the other
+named arguments.
+</p>
+<p>Note that the resulting call is not meant to be evaluated since R
+does not support passing dots through a named argument, even if
+named <code>"..."</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Inference from the call stack</h3>
+
+<p>When <code>call</code> is not supplied, it is inferred from the call stack
+along with <code>fn</code> and <code>dots_env</code>.
+</p>
+
+<ul>
+<li> <p><code>call</code> and <code>fn</code> are inferred from the calling environment:
+<code>sys.call(sys.parent())</code> and <code>sys.function(sys.parent())</code>.
+</p>
+</li>
+<li> <p><code>dots_env</code> is inferred from the caller of the calling
+environment: <code>caller_env(2)</code>.
+</p>
+</li></ul>
+
+<p>If <code>call</code> is supplied, then you must supply <code>fn</code> as well. Also
+consider supplying <code>dots_env</code> as it is set to the empty environment
+when not inferred.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# `call_match()` supports matching missing arguments to their
+# defaults
+fn &lt;- function(x = "default") fn
+call_match(quote(fn()), fn)
+call_match(quote(fn()), fn, defaults = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

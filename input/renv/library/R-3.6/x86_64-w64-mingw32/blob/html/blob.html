@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Construct a blob object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for blob {blob}"><tr><td>blob {blob}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Construct a blob object</h2>
+
+<h3>Description</h3>
+
+<p><code>new_blob()</code> is a low-level constructor that takes a list of
+raw vectors.
+<code>blob()</code> constructs a blob from individual raw vectors.
+<code>as_blob()</code> and <code>is_blob()</code> are simple forwarders to <code><a href="../../vctrs/html/vec_cast.html">vctrs::vec_cast()</a></code>
+and <code><a href="../../base/html/class.html">inherits()</a></code>, respectively.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+blob(...)
+
+new_blob(x = list())
+
+validate_blob(x)
+
+as_blob(x)
+
+is_blob(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Individual raw vectors</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A list of raw vectors, or other object to coerce</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="as.blob.html">as.blob()</a></code> for the legacy interface for specifying casts.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x1 &lt;- charToRaw("Good morning")
+x2 &lt;- as.raw(c(0x48, 0x65, 0x6c, 0x6c, 0x6f))
+
+new_blob(list(x1, x2))
+blob(x1, x2)
+
+as.blob(c("Good morning", "Good evening"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>blob</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

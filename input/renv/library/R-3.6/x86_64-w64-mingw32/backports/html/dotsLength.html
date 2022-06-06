@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Backport of ...length for R &lt; 3.4.2</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ...length {backports}"><tr><td>...length {backports}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Backport of ...length for R &lt; 3.4.2</h2>
+
+<h3>Description</h3>
+
+<p>See the original description in <code>base::...length</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+...length()
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get function from namespace instead of possibly getting
+# implementation shipped with recent R versions:
+bp_...length = getFromNamespace("...length", "backports")
+
+foo = function(...) bp_...length()
+foo(1, 2, 3)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>backports</em> version 1.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build a new roclet.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for roclet {roxygen2}"><tr><td>roclet {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build a new roclet.</h2>
+
+<h3>Description</h3>
+
+<p>To create a new roclet, you will need to create a constructor function
+that wraps <code>roclet</code>, and then implement the methods described below.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+roclet(subclass, ...)
+
+roclet_preprocess(x, blocks, base_path)
+
+roclet_process(x, blocks, env, base_path)
+
+roclet_output(x, results, base_path, ...)
+
+roclet_clean(x, base_path)
+
+roclet_tags(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>roclet</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>blocks</code></td>
+<td>
+<p>A list of <a href="roxy_block.html">roxy_block</a> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>base_path</code></td>
+<td>
+<p>Path to root of source package.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Package environment.</p>
+</td></tr>
+<tr valign="top"><td><code>results</code></td>
+<td>
+<p>Value returned from your <code>roclet_process()</code> method.</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<ul>
+<li> <p><code>roclet_preprocess()</code> is called after blocks have been parsed but before
+code has been evaluated. This should only be needed if your roclet affects
+how code will evaluated. Should return a roclet.
+</p>
+</li>
+<li> <p><code>roclet_process()</code> called after blocks have been evaluated; i.e. the
+<code style="white-space: pre;">@eval</code> tag has been processed, and the object associated with each block
+has been determined.
+</p>
+</li>
+<li> <p><code>roclet_output()</code> is given the output from <code>roclet_process()</code> and should
+produce files on disk.
+</p>
+</li>
+<li> <p><code>roclet_clean()</code> called when <code>roxygenise(clean = TRUE)</code>. Should remove
+any files created by the roclet.
+</p>
+</li></ul>
+
+
+
+<h4>Deprecated methods</h4>
+
+<p><code>roclet_tags()</code> is no longer used; instead provide a <code><a href="roxy_tag.html">roxy_tag_parse()</a></code>
+method for each tag.
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

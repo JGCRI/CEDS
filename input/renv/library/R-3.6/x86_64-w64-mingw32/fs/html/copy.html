@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Copy files, directories or links</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for copy {fs}"><tr><td>copy {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Copy files, directories or links</h2>
+
+<h3>Description</h3>
+
+<p><code>file_copy()</code> copies files.
+</p>
+<p><code>link_copy()</code> creates a new link pointing to the same location as the previous link.
+</p>
+<p><code>dir_copy()</code> copies the directory recursively at the new location.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_copy(path, new_path, overwrite = FALSE)
+
+dir_copy(path, new_path, overwrite = FALSE)
+
+link_copy(path, new_path, overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>new_path</code></td>
+<td>
+<p>A character vector of paths to the new locations.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Overwrite files if they exist. If this is <code>FALSE</code> and the
+file exists an error will be thrown.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The behavior of <code>dir_copy()</code> differs slightly than that of <code>file.copy()</code> when
+<code>overwrite = TRUE</code>. The directory will always be copied to <code>new_path</code>, even
+if the name differs from the basename of <code>path</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The new path (invisibly).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+file_create("foo")
+file_copy("foo", "bar")
+try(file_copy("foo", "bar"))
+file_copy("foo", "bar", overwrite = TRUE)
+file_delete(c("foo", "bar"))
+
+dir_create("foo")
+# Create a directory and put a few files in it
+files &lt;- file_create(c("foo/bar", "foo/baz"))
+file_exists(files)
+
+# Copy the directory
+dir_copy("foo", "foo2")
+file_exists(path("foo2", path_file(files)))
+
+# Create a link to the directory
+link_create(path_abs("foo"), "loo")
+link_path("loo")
+link_copy("loo", "loo2")
+link_path("loo2")
+
+# Cleanup
+dir_delete(c("foo", "foo2"))
+link_delete(c("loo", "loo2"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

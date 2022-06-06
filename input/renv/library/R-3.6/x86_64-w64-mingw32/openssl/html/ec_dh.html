@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Diffie-Hellman Key Agreement</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ec_dh {openssl}"><tr><td>ec_dh {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Diffie-Hellman Key Agreement</h2>
+
+<h3>Description</h3>
+
+<p>Key agreement is one-step method of creating a shared secret between two
+peers. Both peers can independently derive the joined secret by combining
+his or her private key with the public key from the peer.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ec_dh(key = my_key(), peerkey, password = askpass)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>your own private key</p>
+</td></tr>
+<tr valign="top"><td><code>peerkey</code></td>
+<td>
+<p>the public key from your peer</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>passed to <a href="read_key.html">read_key</a> for reading protected private keys</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Currently only Elliptic Curve Diffie Hellman (ECDH) is implemented.
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="https://wiki.openssl.org/index.php/EVP_Key_Agreement">https://wiki.openssl.org/index.php/EVP_Key_Agreement</a>,
+<a href="https://wiki.openssl.org/index.php/Elliptic_Curve_Diffie_Hellman">https://wiki.openssl.org/index.php/Elliptic_Curve_Diffie_Hellman</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# Need two EC keypairs from the same curve
+alice_key &lt;- ec_keygen("P-521")
+bob_key &lt;- ec_keygen("P-521")
+
+# Derive public keys
+alice_pub &lt;- as.list(alice_key)$pubkey
+bob_pub &lt;- as.list(bob_key)$pubkey
+
+# Both peers can derive the (same) shared secret via each other's pubkey
+ec_dh(alice_key, bob_pub)
+ec_dh(bob_key, alice_pub)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

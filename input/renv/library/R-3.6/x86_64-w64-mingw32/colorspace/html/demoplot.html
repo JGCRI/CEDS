@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Color Palette Demonstration Plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for demoplot {colorspace}"><tr><td>demoplot {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Color Palette Demonstration Plot</h2>
+
+<h3>Description</h3>
+
+<p>Demonstration of color palettes in various kinds of statistical graphics.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+demoplot(
+  x,
+  type = c("map", "heatmap", "scatter", "spine", "bar", "pie", "perspective", "mosaic",
+    "lines"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector containing color hex codes.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>character indicating the type of demonstration plot.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>currently not used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>To demonstrate how different kinds of color palettes work in different
+kinds of statistical displays, <code>demoplot</code> provides a simple convenience
+interface to some base graphics with (mostly artificial) data sets.
+All types of demos can deal with arbitrarily many colors. However, some
+displays are much more suitable for a low number of colors (e.g., the pie
+chart) while others work better with more colors (e.g., the heatmap).
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>demoplot</code> returns invisibly what the respective base graphics
+functions return that are called internally.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="specplot.html">specplot</a></code>, <code><a href="hclplot.html">hclplot</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## all built-in demos with the same sequential heat color palette
+par(mfrow = c(3, 3))
+cl &lt;- sequential_hcl(5, "Heat")
+for (i in c("map", "heatmap", "scatter", "spine", "bar", "pie", "perspective", "mosaic", "lines")) {
+  demoplot(cl, type = i)
+}
+
+## qualitative palettes: light pastel colors for shading areas (pie)
+## and darker colorful palettes for points or lines
+demoplot(qualitative_hcl(4, "Pastel 1"), type = "pie")
+demoplot(qualitative_hcl(4, "Set 2"), type = "scatter")
+demoplot(qualitative_hcl(4, "Dark 3"), type = "lines")
+
+## sequential palettes: display almost continuous gradients with
+## strong luminance contrasts (heatmap, perspective) and colorful
+## sequential palette for spine plot with only a few ordered categories
+demoplot(sequential_hcl(99, "Purple-Blue"), type = "heatmap")
+demoplot(sequential_hcl(99, "Reds"), type = "perspective")
+demoplot(sequential_hcl(4, "Viridis"), type = "spine")
+
+## diverging palettes: display almost continuous gradient with
+## strong luminance contrast bringing out the extremes (map),
+## more colorful palette with lower luminance contrasts for displays
+## with fewer colors (mosaic, bar)
+demoplot(diverging_hcl(99, "Tropic", power = 2.5), type = "map")
+demoplot(diverging_hcl(5, "Green-Orange"), type = "mosaic")
+demoplot(diverging_hcl(5, "Blue-Red 2"), type = "bar")
+
+## some palettes that work well on black backgrounds
+par(mfrow = c(2, 3), bg = "black")
+demoplot(sequential_hcl(9, "Oslo"), "heatmap")
+demoplot(sequential_hcl(9, "Turku"), "heatmap")
+demoplot(sequential_hcl(9, "Inferno", rev = TRUE), "heatmap")
+demoplot(qualitative_hcl(9, "Set 2"), "lines")
+demoplot(diverging_hcl(9, "Berlin"), "scatter")
+demoplot(diverging_hcl(9, "Cyan-Magenta", l2 = 20), "lines")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

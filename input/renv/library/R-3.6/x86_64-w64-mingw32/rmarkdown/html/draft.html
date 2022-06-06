@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new document based on a template</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for draft {rmarkdown}"><tr><td>draft {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new document based on a template</h2>
+
+<h3>Description</h3>
+
+<p>Create (and optionally edit) a draft of an R Markdown document based on a
+template.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+draft(file, template, package = NULL, create_dir = "default", edit = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>File name for the draft</p>
+</td></tr>
+<tr valign="top"><td><code>template</code></td>
+<td>
+<p>Template to use as the basis for the draft. This is either
+the full path to a template directory or the name of a template directory
+within the <code>rmarkdown/templates</code> directory of a package.</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>(Optional) Name of package where the template is located.</p>
+</td></tr>
+<tr valign="top"><td><code>create_dir</code></td>
+<td>
+<p><code>TRUE</code> to create a new directory for the document
+(the &quot;default&quot; setting leaves this behavior up to the creator of the
+template).</p>
+</td></tr>
+<tr valign="top"><td><code>edit</code></td>
+<td>
+<p><code>TRUE</code> to edit the template immediately</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>draft</code> function creates new R Markdown documents based on
+templates that are either located on the filesystem or within an R package.
+The template and its supporting files will be copied to the location
+specified by <code>file</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The file name of the new document (invisibly).
+</p>
+
+
+<h3>Note</h3>
+
+<p>An R Markdown template consists of a directory that contains a
+description of the template, a skeleton Rmd file used as the basis for new
+documents, and optionally additional supporting files that are provided
+along with the skeleton (e.g. a logo graphic).
+</p>
+<p>If the template directory is contained within a package then it should be
+located at <code>inst/rmarkdown/templates</code>. For example, a package named
+<span class="pkg">pubtools</span> that wanted to provide a template named
+<code>quarterly_report</code> would need to provide the following files within
+the <code>pubtools/inst/rmarkdown/templates</code> directory:
+</p>
+<p><code>quarterly_report/template.yaml</code> <br />
+<code>quarterly_report/skeleton/skeleton.Rmd</code> <br />
+</p>
+<p>The <code>template.yaml</code> file should include a <code>name</code> field. If you
+want to ensure that a new directory is always created for a given template,
+then you can add the <code>create_dir</code> field to the <code>template.yaml</code>
+file. For example:
+</p>
+<p><code>create_dir: true</code> <br />
+</p>
+<p>The <code>skeleton/skeleton.Rmd</code> file should include the initial contents
+you want for files created from this template. Additional files can be
+added to the <code>skeleton</code> directory, for example:
+</p>
+<p><code>skeleton/logo.png</code> <br />
+</p>
+<p>These files will automatically be copied to the directory containing the
+new R Markdown draft.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+rmarkdown::draft("Q4Report.Rmd",
+                 template="/opt/rmd/templates/quarterly_report")
+
+rmarkdown::draft("Q4Report.Rmd",
+                 template="quarterly_report", package="pubtools")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

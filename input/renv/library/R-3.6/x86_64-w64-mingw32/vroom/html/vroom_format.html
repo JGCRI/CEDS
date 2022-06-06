@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert a data frame to a delimited string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vroom_format {vroom}"><tr><td>vroom_format {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert a data frame to a delimited string</h2>
+
+<h3>Description</h3>
+
+<p>This is equivalent to <code><a href="vroom_write.html">vroom_write()</a></code>, but instead of writing to
+disk, it returns a string. It is primarily useful for examples and for
+testing.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vroom_format(
+  x,
+  delim = "\t",
+  eol = "\n",
+  na = "NA",
+  col_names = TRUE,
+  escape = c("double", "backslash", "none"),
+  quote = c("needed", "all", "none"),
+  bom = FALSE,
+  num_threads = vroom_threads()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A data frame or tibble to write to disk.</p>
+</td></tr>
+<tr valign="top"><td><code>delim</code></td>
+<td>
+<p>Delimiter used to separate values. Defaults to <code style="white-space: pre;">\t</code> to write
+tab separated value (TSV) files.</p>
+</td></tr>
+<tr valign="top"><td><code>eol</code></td>
+<td>
+<p>The end of line character to use. Most commonly either <code>"\n"</code> for
+Unix style newlines, or <code>"\r\n"</code> for Windows style newlines.</p>
+</td></tr>
+<tr valign="top"><td><code>na</code></td>
+<td>
+<p>String used for missing values. Defaults to 'NA'.</p>
+</td></tr>
+<tr valign="top"><td><code>col_names</code></td>
+<td>
+<p>If <code>FALSE</code>, column names will not be included at the top of the file. If <code>TRUE</code>,
+column names will be included. If not specified, <code>col_names</code> will take the opposite value given to <code>append</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>escape</code></td>
+<td>
+<p>The type of escape to use when quotes are in the data.
+</p>
+
+<ul>
+<li> <p><code>double</code> - quotes are escaped by doubling them.
+</p>
+</li>
+<li> <p><code>backslash</code> - quotes are escaped by a preceding backslash.
+</p>
+</li>
+<li> <p><code>none</code> - quotes are not escaped.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>quote</code></td>
+<td>
+<p>How to handle fields which contain characters that need to be quoted.
+</p>
+
+<ul>
+<li> <p><code>needed</code> - Only quote fields which need them.
+</p>
+</li>
+<li> <p><code>all</code> - Quote all fields.
+</p>
+</li>
+<li> <p><code>none</code> - Never quote fields.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>bom</code></td>
+<td>
+<p>If <code>TRUE</code> add a UTF-8 BOM at the beginning of the file. This is
+recommended when saving data for consumption by excel, as it will force
+excel to read the data with the correct encoding (UTF-8)</p>
+</td></tr>
+<tr valign="top"><td><code>num_threads</code></td>
+<td>
+<p>Number of threads to use when reading and materializing
+vectors. If your data contains newlines within fields the parser will
+automatically be forced to use a single thread only.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

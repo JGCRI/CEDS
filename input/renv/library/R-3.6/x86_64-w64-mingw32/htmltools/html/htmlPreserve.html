@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Preserve HTML regions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for htmlPreserve {htmltools}"><tr><td>htmlPreserve {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Preserve HTML regions</h2>
+
+<h3>Description</h3>
+
+<p>Use &quot;magic&quot; HTML comments to protect regions of HTML from being modified by
+text processing tools.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+htmlPreserve(x)
+
+extractPreserveChunks(strval)
+
+restorePreserveChunks(strval, chunks)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector of HTML to be preserved.</p>
+</td></tr>
+<tr valign="top"><td><code>strval</code></td>
+<td>
+<p>Input string from which to extract/restore chunks.</p>
+</td></tr>
+<tr valign="top"><td><code>chunks</code></td>
+<td>
+<p>The <code>chunks</code> element of the return value of
+<code>extractPreserveChunks</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Text processing tools like markdown and pandoc are designed to turn
+human-friendly markup into common output formats like HTML. This works well
+for most prose, but components that generate their own HTML may break if
+their markup is interpreted as the input language. The <code>htmlPreserve</code>
+function is used to mark regions of an input document as containing pure HTML
+that must not be modified. This is achieved by substituting each such region
+with a benign but unique string before processing, and undoing those
+substitutions after processing.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>htmlPreserve</code> returns a single-element character vector with
+&quot;magic&quot; HTML comments surrounding the original text (unless the original
+text was empty, in which case an empty string is returned).
+</p>
+<p><code>extractPreserveChunks</code> returns a list with two named elements:
+<code>value</code> is the string with the regions replaced, and <code>chunks</code> is
+a named character vector where the names are the IDs and the values are the
+regions that were extracted.
+</p>
+<p><code>restorePreserveChunks</code> returns a character vector with the
+chunk IDs replaced with their original values.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# htmlPreserve will prevent "&lt;script&gt;alert(10*2*3);&lt;/script&gt;"
+# from getting an &lt;em&gt; tag inserted in the middle
+markup &lt;- paste(sep = "\n",
+  "This is *emphasized* text in markdown.",
+  htmlPreserve("&lt;script&gt;alert(10*2*3);&lt;/script&gt;"),
+  "Here is some more *emphasized text*."
+)
+extracted &lt;- extractPreserveChunks(markup)
+markup &lt;- extracted$value
+# Just think of this next line as Markdown processing
+output &lt;- gsub("\\*(.*?)\\*", "&lt;em&gt;\\1&lt;/em&gt;", markup)
+output &lt;- restorePreserveChunks(output, extracted$chunks)
+output
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

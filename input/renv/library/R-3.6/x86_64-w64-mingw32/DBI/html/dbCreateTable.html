@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a table in the database</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbCreateTable {DBI}"><tr><td>dbCreateTable {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a table in the database</h2>
+
+<h3>Description</h3>
+
+<p>The default <code>dbCreateTable()</code> method calls <code><a href="sqlCreateTable.html">sqlCreateTable()</a></code> and
+<code><a href="dbExecute.html">dbExecute()</a></code>.
+Backends compliant to ANSI SQL 99 don't need to override it.
+Backends with a different SQL syntax can override <code>sqlCreateTable()</code>,
+backends with entirely different ways to create tables need to
+override this method.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dbCreateTable(conn, name, fields, ..., row.names = NULL, temporary = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The table name, passed on to <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code>. Options are:
+</p>
+
+<ul>
+<li><p> a character string with the unquoted DBMS table name,
+e.g. <code>"table_name"</code>,
+</p>
+</li>
+<li><p> a call to <code><a href="Id.html">Id()</a></code> with components to the fully qualified table name,
+e.g. <code>Id(schema = "my_schema", table = "table_name")</code>
+</p>
+</li>
+<li><p> a call to <code><a href="SQL.html">SQL()</a></code> with the quoted and fully qualified table name
+given verbatim, e.g. <code>SQL('"my_schema"."table_name"')</code>
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>fields</code></td>
+<td>
+<p>Either a character vector or a data frame.
+</p>
+<p>A named character vector: Names are column names, values are types.
+Names are escaped with <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code>.
+Field types are unescaped.
+</p>
+<p>A data frame: field types are generated using
+<code><a href="dbDataType.html">dbDataType()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>row.names</code></td>
+<td>
+<p>Must be <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>temporary</code></td>
+<td>
+<p>If <code>TRUE</code>, will generate a temporary table statement.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>row.names</code> argument is not supported by this method.
+Process the values with <code><a href="rownames.html">sqlRownamesToColumn()</a></code> before calling this method.
+</p>
+<p>The argument order is different from the <code>sqlCreateTable()</code> method, the
+latter will be adapted in a later release of DBI.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>dbCreateTable()</code> returns <code>TRUE</code>, invisibly.
+</p>
+
+
+<h3>Failure modes</h3>
+
+<p>If the table exists, an error is raised; the remote table remains unchanged.
+</p>
+<p>An error is raised when calling this method for a closed
+or invalid connection.
+An error is also raised
+if <code>name</code> cannot be processed with <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code>
+or if this results in a non-scalar.
+Invalid values for the <code>row.names</code> and <code>temporary</code> arguments
+(non-scalars,
+unsupported data types,
+<code>NA</code>,
+incompatible values,
+duplicate names)
+also raise an error.
+</p>
+
+
+<h3>Additional arguments</h3>
+
+<p>The following arguments are not part of the <code>dbCreateTable()</code> generic
+(to improve compatibility across backends)
+but are part of the DBI specification:
+</p>
+
+<ul>
+<li> <p><code>temporary</code> (default: <code>FALSE</code>)
+</p>
+</li></ul>
+
+<p>They must be provided as named arguments.
+See the &quot;Specification&quot; and &quot;Value&quot; sections for details on their usage.
+</p>
+
+
+<h3>Specification</h3>
+
+<p>The <code>name</code> argument is processed as follows,
+to support databases that allow non-syntactic names for their objects:
+</p>
+
+<ul>
+<li><p> If an unquoted table name as string: <code>dbCreateTable()</code> will do the quoting,
+perhaps by calling <code>dbQuoteIdentifier(conn, x = name)</code>
+</p>
+</li>
+<li><p> If the result of a call to <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code>: no more quoting is done
+</p>
+</li></ul>
+
+<p>If the <code>temporary</code> argument is <code>TRUE</code>, the table is not available in a
+second connection and is gone after reconnecting.
+Not all backends support this argument.
+A regular, non-temporary table is visible in a second connection,
+in a pre-existing connection,
+and after reconnecting to the database.
+</p>
+<p>SQL keywords can be used freely in table names, column names, and data.
+Quotes, commas, and spaces can also be used  for table names and column names,
+if the database supports non-syntactic identifiers.
+</p>
+<p>The <code>row.names</code> argument must be missing
+or <code>NULL</code>, the default value.
+All other values for the <code>row.names</code> argument
+(in particular <code>TRUE</code>,
+<code>NA</code>,
+and a string)
+raise an error.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBIConnection generics: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetException.html">dbGetException</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetQuery.html">dbGetQuery</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbListTables.html">dbListTables</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+dbCreateTable(con, "iris", iris)
+dbReadTable(con, "iris")
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

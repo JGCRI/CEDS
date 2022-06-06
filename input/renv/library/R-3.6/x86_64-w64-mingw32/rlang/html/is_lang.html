@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is object a call?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_lang {rlang}"><tr><td>is_lang {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is object a call?</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+These functions are deprecated, please use <code><a href="is_call.html">is_call()</a></code> and its <code>n</code>
+argument instead.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_lang(x, name = NULL, n = NULL, ns = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to test. Formulas and quosures are treated
+literally.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>An optional name that the call should match. It is
+passed to <code><a href="sym.html">sym()</a></code> before matching. This argument is vectorised
+and you can supply a vector of names to match. In this case,
+<code>is_call()</code> returns <code>TRUE</code> if at least one name matches.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>An optional number of arguments that the call should
+match.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>The namespace of the call. If <code>NULL</code>, the namespace
+doesn't participate in the pattern-matching. If an empty string
+<code>""</code> and <code>x</code> is a namespaced call, <code>is_call()</code> returns
+<code>FALSE</code>. If any other string, <code>is_call()</code> checks that <code>x</code> is
+namespaced within <code>ns</code>.
+</p>
+<p>Can be a character vector of namespaces, in which case the call
+has to match at least one of them, otherwise <code>is_call()</code> returns
+<code>FALSE</code>.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

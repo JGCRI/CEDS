@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Windowed rank functions.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ranking {dplyr}"><tr><td>ranking {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Windowed rank functions.</h2>
+
+<h3>Description</h3>
+
+<p>Six variations on ranking functions, mimicking the ranking functions
+described in SQL2003. They are currently implemented using the built in
+<code>rank</code> function, and are provided mainly as a convenience when
+converting between R and SQL. All ranking functions map smallest inputs
+to smallest outputs. Use <code><a href="desc.html">desc()</a></code> to reverse the direction.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+row_number(x)
+
+ntile(x = row_number(), n)
+
+min_rank(x)
+
+dense_rank(x)
+
+percent_rank(x)
+
+cume_dist(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a vector of values to rank. Missing values are left as is.
+If you want to treat them as the smallest or largest values, replace
+with Inf or -Inf before ranking.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>number of groups to split up into.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+<ul>
+<li> <p><code>row_number()</code>: equivalent to <code>rank(ties.method = "first")</code>
+</p>
+</li>
+<li> <p><code>min_rank()</code>: equivalent to <code>rank(ties.method = "min")</code>
+</p>
+</li>
+<li> <p><code>dense_rank()</code>: like <code>min_rank()</code>, but with no gaps between
+ranks
+</p>
+</li>
+<li> <p><code>percent_rank()</code>: a number between 0 and 1 computed by
+rescaling <code>min_rank</code> to <code style="white-space: pre;">[0, 1]</code>
+</p>
+</li>
+<li> <p><code>cume_dist()</code>: a cumulative distribution function. Proportion
+of all values less than or equal to the current rank.
+</p>
+</li>
+<li> <p><code>ntile()</code>: a rough rank, which breaks the input vector into
+<code>n</code> buckets. The size of the buckets may differ by up to one,
+larger buckets have lower rank.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- c(5, 1, 3, 2, 2, NA)
+row_number(x)
+min_rank(x)
+dense_rank(x)
+percent_rank(x)
+cume_dist(x)
+
+ntile(x, 2)
+ntile(1:8, 3)
+
+# row_number can be used with single table verbs without specifying x
+# (for data frames and databases that support windowing)
+mutate(mtcars, row_number() == 1L)
+mtcars %&gt;% filter(between(row_number(), 1, 10))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

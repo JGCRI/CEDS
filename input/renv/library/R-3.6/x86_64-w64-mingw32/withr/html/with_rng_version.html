@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: RNG version</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_rng_version {withr}"><tr><td>with_rng_version {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>RNG version</h2>
+
+<h3>Description</h3>
+
+<p>Change the RNG version and restore it afterwards.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_rng_version(version, code)
+
+local_rng_version(version, .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code> an R version number, e.g.
+<code>"3.5.0"</code>, to switch to the RNG this version of R uses.
+See <code><a href="../../base/html/Random.html">RNGversion()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p>The environment to apply the change to.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>with_rng_version()</code> runs the code with the specified RNG version and
+resets it afterwards.
+</p>
+<p><code>local_rng_version()</code> changes the RNG version for the caller
+execution environment.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+<p><code><a href="../../base/html/Random.html">RNGversion()</a></code>, <code><a href="../../base/html/Random.html">RNGkind()</a></code>, <code><a href="with_seed.html">with_seed()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+RNGkind()
+with_rng_version("3.0.0", RNGkind())
+with_rng_version("1.6.0", RNGkind())
+
+with_rng_version("3.0.0",
+  with_seed(42, sample(1:100, 3)))
+
+with_rng_version("1.6.0",
+  with_seed(42, sample(1:100, 3)))
+
+RNGkind()
+
+fun1 &lt;- function() {
+  local_rng_version("3.0.0")
+  with_seed(42, sample(1:100, 3))
+}
+
+fun2 &lt;- function() {
+  local_rng_version("1.6.0")
+  with_seed(42, sample(1:100, 3))
+}
+
+RNGkind()
+fun1()
+fun2()
+RNGkind()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

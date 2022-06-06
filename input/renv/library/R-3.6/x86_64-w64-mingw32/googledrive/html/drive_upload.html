@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Upload into a new Drive file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_upload {googledrive}"><tr><td>drive_upload {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Upload into a new Drive file</h2>
+
+<h3>Description</h3>
+
+<p>Uploads a local file into a new Drive file. To update the content or metadata
+of an existing Drive file, use <code><a href="drive_update.html">drive_update()</a></code>. To upload or update,
+depending on whether the Drive file already exists, see <code><a href="drive_put.html">drive_put()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_upload(
+  media,
+  path = NULL,
+  name = NULL,
+  type = NULL,
+  ...,
+  overwrite = NA,
+  verbose = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>media</code></td>
+<td>
+<p>Character, path to the local file to upload.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Specifies target destination for the new file on Google
+Drive. Can be an actual path (character), a file id marked with
+<code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.
+</p>
+<p>If <code>path</code> is a shortcut to a folder, it is automatically resolved to its
+target folder.
+</p>
+<p>If <code>path</code> is given as a path (as opposed to a <code>dribble</code> or an id), it is
+best to explicitly indicate if it's a folder by including a trailing
+slash, since it cannot always be worked out from the context of the call.
+By default, the file is created in the current
+user's &quot;My Drive&quot; root folder.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Character, new file name if not specified as part of
+<code>path</code>. This will force <code>path</code> to be interpreted as a folder, even if it
+is character and lacks a trailing slash. Defaults to the file's local name.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. If <code>type = NULL</code>, a MIME type is automatically
+determined from the file extension, if possible. If the source file is of a
+suitable type, you can request conversion to Google Doc, Sheet or Slides by
+setting <code>type</code> to <code>document</code>, <code>spreadsheet</code>, or <code>presentation</code>,
+respectively. All non-<code>NULL</code> values for <code>type</code> are pre-processed with
+<code><a href="drive_mime_type.html">drive_mime_type()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Named parameters to pass along to the Drive API. Has <a href="../../rlang/html/dyn-dots.html">dynamic dots</a> semantics. You can affect the metadata of the target file by
+specifying properties of the Files resource via <code>...</code>. Read the &quot;Request
+body&quot; section of the Drive API docs for the associated endpoint to learn
+about relevant parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Logical, indicating whether to check for a pre-existing file
+at the targetted &quot;filepath&quot;. The quotes around &quot;filepath&quot; refer to the fact
+that Drive does not impose a 1-to-1 relationship between filepaths and files,
+like a typical file system; read more about that in <code><a href="drive_get.html">drive_get()</a></code>.
+</p>
+
+<ul>
+<li> <p><code>NA</code> (default): Just do the operation, even if it results in multiple
+files with the same filepath.
+</p>
+</li>
+<li> <p><code>TRUE</code>: Check for a pre-existing file at the filepath. If there is
+zero or one, move a pre-existing file to the trash, then carry on. Note
+that the new file does not inherit any properties from the old one, such
+as sharing or publishing settings. It will have a new file ID. An error is
+thrown if two or more pre-existing files are found.
+</p>
+</li>
+<li> <p><code>FALSE</code>: Error if there is any pre-existing file at the filepath.
+</p>
+</li></ul>
+
+<p>Note that existence checks, based on filepath, are expensive operations, i.e.
+they require additional API calls.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>files.create</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/files/create">https://developers.google.com/drive/api/v3/reference/files/create</a>
+</p>
+</li></ul>
+
+<p>MIME types that can be converted to native Google formats:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/manage-uploads#import_to_google_docs_types">https://developers.google.com/drive/api/v3/manage-uploads#import_to_google_docs_types</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# upload a csv file
+chicken_csv &lt;- drive_example_local("chicken.csv") %&gt;%
+  drive_upload("chicken-upload.csv")
+
+# or convert it to a Google Sheet
+chicken_sheet &lt;- drive_example_local("chicken.csv") %&gt;%
+  drive_upload(
+    name = "chicken-sheet-upload.csv",
+    type = "spreadsheet"
+  )
+
+# check out the new Sheet!
+drive_browse(chicken_sheet)
+
+# clean-up
+drive_find("chicken.*upload") %&gt;% drive_rm()
+
+# Upload a file and, at the same time, star it
+chicken &lt;- drive_example_local("chicken.jpg") %&gt;%
+  drive_upload(starred = "true")
+
+# Is is really starred? YES
+purrr::pluck(chicken, "drive_resource", 1, "starred")
+
+# Clean up
+drive_rm(chicken)
+
+# `overwrite = FALSE` errors if something already exists at target filepath
+# THIS WILL ERROR!
+drive_create("name-squatter")
+drive_example_local("chicken.jpg") %&gt;%
+  drive_upload(
+    name = "name-squatter",
+    overwrite = FALSE
+  )
+
+# `overwrite = TRUE` moves the existing item to trash, then proceeds
+chicken &lt;- drive_example_local("chicken.jpg") %&gt;%
+  drive_upload(
+    name = "name-squatter",
+    overwrite = TRUE
+  )
+
+# Clean up
+drive_rm(chicken)
+
+## Not run: 
+# Upload to a shared drive:
+#   * Shared drives are only available if your account is associated with a
+#     Google Workspace
+#   * The shared drive (or shared-drive-hosted folder) MUST be captured as a
+#     dribble first and provided via `path`
+sd &lt;- shared_drive_get("Marketing")
+drive_upload("fascinating.csv", path = sd)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

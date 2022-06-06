@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Regular Expressions in 'stringi'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for about_search_regex {stringi}"><tr><td>about_search_regex {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Regular Expressions in <span class="pkg">stringi</span></h2>
+
+<h3>Description</h3>
+
+<p>A regular expression is a pattern describing, possibly in a very
+abstract way, a text fragment.
+With so many regex functions in <span class="pkg">stringi</span>,
+regular expressions may be a very powerful tool
+to perform string searching, substring extraction, string splitting, etc.,
+tasks.
+</p>
+
+
+<h3>Details</h3>
+
+<p>All <code>stri_*_regex</code> functions in <span class="pkg">stringi</span> use
+the <span class="pkg">ICU</span> regex engine. Its settings may be tuned up (for example
+to perform case-insensitive search) via the
+<code><a href="stri_opts_regex.html">stri_opts_regex</a></code> function.
+</p>
+<p>Regular expression patterns in <span class="pkg">ICU</span> are quite similar in form and
+behavior to Perl's regexes. Their implementation is loosely inspired
+by JDK 1.4 <code>java.util.regex</code>.
+<span class="pkg">ICU</span> Regular Expressions conform to the Unicode Technical Standard #18
+(see References section) and its features are summarized in
+the ICU User Guide (see below). A good general introduction
+to regexes is (Friedl, 2002).
+Some general topics are also covered in the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> manual, see <a href="../../base/html/regex.html">regex</a>.
+</p>
+
+
+<h3><span class="pkg">ICU</span> Regex Operators at a Glance</h3>
+
+<p>Here is a list of operators provided by the
+ICU User Guide on regexes.
+</p>
+
+<dl>
+<dt><code>|</code></dt><dd><p>Alternation. <code>A|B</code> matches either A or B.</p>
+</dd>
+<dt><code>*</code></dt><dd><p>Match 0 or more times. Match as many times as possible.</p>
+</dd>
+<dt><code>+</code></dt><dd><p>Match 1 or more times. Match as many times as possible.</p>
+</dd>
+<dt><code>?</code></dt><dd><p>Match zero or one times. Prefer one.</p>
+</dd>
+<dt><code>{n}</code> </dt><dd><p>Match exactly n times.</p>
+</dd>
+<dt><code>{n,}</code> </dt><dd><p>Match at least n times. Match as many times as possible.</p>
+</dd>
+<dt><code>{n,m}</code> </dt><dd><p>Match between n and m times.
+Match as many times as possible, but not more than m.</p>
+</dd>
+<dt><code>*?</code></dt><dd><p>Match 0 or more times. Match as few times as possible.</p>
+</dd>
+<dt><code>+?</code></dt><dd><p>Match 1 or more times. Match as few times as possible.</p>
+</dd>
+<dt><code>??</code></dt><dd><p>Match zero or one times. Prefer zero.</p>
+</dd>
+<dt><code>{n}?</code></dt><dd><p>Match exactly n times.</p>
+</dd>
+<dt><code>{n,}?</code></dt><dd><p>Match at least n times, but no more than required
+for an overall pattern match.</p>
+</dd>
+<dt><code>{n,m}?</code></dt><dd><p>Match between n and m times. Match as few times
+as possible, but not less than n.</p>
+</dd>
+<dt><code>*+</code></dt><dd><p>Match 0 or more times. Match as many times as possible
+when first encountered, do not retry with fewer even if overall match fails
+(Possessive Match).</p>
+</dd>
+<dt><code>++</code></dt><dd><p>Match 1 or more times. Possessive match.</p>
+</dd>
+<dt><code>?+</code></dt><dd><p>Match zero or one times. Possessive match.</p>
+</dd>
+<dt><code>{n}+</code></dt><dd><p>Match exactly n times.</p>
+</dd>
+<dt><code>{n,}+</code></dt><dd><p>Match at least n times. Possessive Match.</p>
+</dd>
+<dt><code>{n,m}+</code></dt><dd><p>Match between n and m times. Possessive Match.</p>
+</dd>
+<dt><code>(...)</code></dt><dd><p>Capturing parentheses. Range of input that matched
+the parenthesized sub-expression is available after the match,
+see <code><a href="stri_match.html">stri_match</a></code>.</p>
+</dd>
+<dt><code>(?:...)</code></dt><dd><p>Non-capturing parentheses. Groups the included pattern,
+but does not provide capturing of matching text. Somewhat more efficient
+than capturing parentheses.</p>
+</dd>
+<dt><code>(?&gt;...)</code></dt><dd><p>Atomic-match parentheses. First match of the
+parenthesized sub-expression is the only one tried; if it does not lead to
+an overall pattern match, back up the search for a match to a position
+before the <code>(?&gt;</code>.</p>
+</dd>
+<dt><code>(?#...)</code></dt><dd><p>Free-format comment <code>(?# comment )</code>.</p>
+</dd>
+<dt><code>(?=...)</code></dt><dd><p>Look-ahead assertion. True if the parenthesized
+pattern matches at the current input position, but does not advance
+the input position.</p>
+</dd>
+<dt><code>(?!...)</code></dt><dd><p>Negative look-ahead assertion. True if the
+parenthesized pattern does not match at the current input position.
+Does not advance the input position.</p>
+</dd>
+<dt><code>(?&lt;=...)</code></dt><dd><p>Look-behind assertion. True if the parenthesized
+pattern matches text preceding the current input position, with the last
+character of the match being the input character just before the current
+position. Does not alter the input position. The length of possible strings
+matched by the look-behind pattern must not be unbounded (no <code>*</code>
+or <code>+</code> operators.)</p>
+</dd>
+<dt><code>(?&lt;!...)</code></dt><dd><p>Negative Look-behind assertion. True if the
+parenthesized pattern does not match text preceding the current input
+position, with the last character of the match being the input character
+just before the current position. Does not alter the input position.
+The length of possible strings matched by the look-behind pattern must
+not be unbounded (no <code>*</code> or <code>+</code> operators.)</p>
+</dd>
+<dt><code>(?&lt;name&gt;...)</code></dt><dd><p>Named capture group, where <code>name</code>
+(enclosed within the angle brackets)
+is a sequence like <code>[A-Za-z][A-Za-z0-9]*</code></p>
+</dd>
+<dt><code>(?ismwx-ismwx:...)</code></dt><dd><p>Flag settings. Evaluate the parenthesized
+expression with the specified flags enabled or <code>-</code>disabled,
+see also <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>.</p>
+</dd>
+<dt><code>(?ismwx-ismwx)</code></dt><dd><p>Flag settings. Change the flag settings.
+Changes apply to the portion of the pattern following the setting.
+For example, <code>(?i)</code> changes to a case insensitive match,
+see also <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>.</p>
+</dd>
+</dl>
+
+
+
+<h3><span class="pkg">ICU</span> Regex Meta-characters at a Glance</h3>
+
+<p>Here is a list of meta-characters provided by the
+ICU User Guide on regexes.
+</p>
+
+<dl>
+<dt><code>\a</code></dt><dd><p>Match a BELL, <code>\u0007</code>.</p>
+</dd>
+<dt><code>\A</code></dt><dd><p>Match at the beginning of the input. Differs from <code>^</code>.
+in that <code>\A</code> will not match after a new line within the input.</p>
+</dd>
+<dt><code>\b</code></dt><dd><p>Match if the current position is a word boundary.
+Boundaries occur at the transitions between word (<code>\w</code>) and non-word
+(<code>\W</code>) characters, with combining marks ignored. For better word
+boundaries, see <span class="pkg">ICU</span> Boundary Analysis, e.g., <code><a href="stri_extract_boundaries.html">stri_extract_all_words</a></code>.</p>
+</dd>
+<dt><code>\B</code></dt><dd><p>Match if the current position is not a word boundary.</p>
+</dd>
+<dt><code>\cX</code></dt><dd><p>Match a control-<code>X</code> character.</p>
+</dd>
+<dt><code>\d</code></dt><dd><p>Match any character with the Unicode General Category of
+<code>Nd</code> (Number, Decimal Digit.).</p>
+</dd>
+<dt><code>\D</code></dt><dd><p>Match any character that is not a decimal digit.</p>
+</dd>
+<dt><code>\e</code></dt><dd><p>Match an ESCAPE, <code>\u001B</code>.</p>
+</dd>
+<dt><code>\E</code></dt><dd><p>Terminates a <code>\Q</code> ... <code>\E</code> quoted sequence.</p>
+</dd>
+<dt><code>\f</code></dt><dd><p>Match a FORM FEED, <code>\u000C</code>.</p>
+</dd>
+<dt><code>\G</code></dt><dd><p>Match if the current position is at the end of the
+previous match.</p>
+</dd>
+<dt><code>\h</code></dt><dd><p>Match a Horizontal White Space character.
+They are characters with Unicode General Category of Space_Separator plus
+the ASCII tab, <code>\u0009</code>. [Since ICU 55]</p>
+</dd>
+<dt><code>\H</code></dt><dd><p>Match a non-Horizontal White Space character.
+[Since ICU 55]</p>
+</dd>
+<dt><code>\k&lt;name&gt;</code></dt><dd><p>Named Capture Back Reference. [Since ICU 55]</p>
+</dd>
+<dt><code>\n</code></dt><dd><p>Match a LINE FEED, <code>\u000A</code>.</p>
+</dd>
+<dt><code>\N{UNICODE CHARACTER NAME}</code> </dt><dd><p>Match the named character.</p>
+</dd>
+<dt><code>\p{UNICODE PROPERTY NAME}</code> </dt><dd><p>Match any character with the
+specified Unicode Property.</p>
+</dd>
+<dt><code>\P{UNICODE PROPERTY NAME}</code> </dt><dd><p>Match any character not having
+the specified Unicode Property.</p>
+</dd>
+<dt><code>\Q</code></dt><dd><p>Quotes all following characters until <code>\E</code>.</p>
+</dd>
+<dt><code>\r</code></dt><dd><p>Match a CARRIAGE RETURN, <code>\u000D</code>.</p>
+</dd>
+<dt><code>\s</code></dt><dd><p>Match a white space character. White space is defined
+as <code>[\t\n\f\r\p{Z}]</code>.</p>
+</dd>
+<dt><code>\S</code></dt><dd><p>Match a non-white space character.</p>
+</dd>
+<dt><code>\t</code></dt><dd><p>Match a HORIZONTAL TABULATION, <code>\u0009</code>.</p>
+</dd>
+<dt><code>\uhhhh</code></dt><dd><p>Match the character with the hex value <code>hhhh</code>.</p>
+</dd>
+<dt><code>\Uhhhhhhhh</code></dt><dd><p>Match the character with the hex value <code>hhhhhhhh</code>.
+Exactly eight hex digits must be provided, even though the largest
+Unicode code point is <code>\U0010ffff</code>.</p>
+</dd>
+<dt><code>\w</code></dt><dd><p>Match a word character. Word characters are
+<code>[\p{Alphabetic}\p{Mark}\p{Decimal_Number}\p{Connector_Punctuation}\u200c\u200d]</code>.</p>
+</dd>
+<dt><code>\W</code></dt><dd><p>Match a non-word character.</p>
+</dd>
+<dt><code>\x{hhhh}</code> </dt><dd><p>Match the character with hex value hhhh.
+From one to six hex digits may be supplied.</p>
+</dd>
+<dt><code>\xhh</code></dt><dd><p>Match the character with two digit hex value hh </p>
+</dd>
+<dt><code>\X</code></dt><dd><p>Match a Grapheme Cluster.</p>
+</dd>
+<dt><code>\Z</code></dt><dd><p>Match if the current position is at the end of input,
+but before the final line terminator, if one exists.</p>
+</dd>
+<dt><code>\z</code></dt><dd><p>Match if the current position is at the end of input.</p>
+</dd>
+<dt><code>\n</code></dt><dd><p>Back Reference. Match whatever the nth capturing
+group matched. n must be a number &gt; 1 and &lt; total number of capture
+groups in the pattern.</p>
+</dd>
+<dt><code>\0ooo</code></dt><dd><p>Match an Octal character.  <code>'ooo'</code> is from one to three
+octal digits.  0377 is the largest allowed Octal character.  The leading
+zero is required; it distinguishes Octal constants from back references.</p>
+</dd>
+<dt><code>[pattern]</code></dt><dd><p>Match any one character from the set.</p>
+</dd>
+<dt><code>.</code></dt><dd><p>Match any character except for - by default - newline, compare <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>.</p>
+</dd>
+<dt><code>^</code></dt><dd><p>Match at the beginning of a line.</p>
+</dd>
+<dt><code>$</code></dt><dd><p>Match at the end of a line.</p>
+</dd>
+<dt><code>\</code></dt><dd><p>[outside of sets] Quotes the following character.
+Characters that must be quoted to be treated as literals are
+<code>* ? + [ ( ) { } ^ $ | \ .</code>.</p>
+</dd>
+<dt><code>\</code></dt><dd><p>[inside sets] Quotes the following character.
+Characters that must be quoted to be treated as literals are
+<code>[ ] \</code>; Characters that may need to be quoted, depending
+on the context are <code>- &amp;</code>.</p>
+</dd>
+</dl>
+
+
+
+<h3>Character Classes</h3>
+
+<p>The syntax is similar, but not 100% compatible with the one
+described in <a href="about_search_charclass.html">about_search_charclass</a>. In particular,
+whitespaces are not ignored and set-theoretic operations are
+denoted slightly differently. However, other than this
+<a href="about_search_charclass.html">about_search_charclass</a> is a good reference
+on the capabilities offered.
+</p>
+<p>The ICU User Guide on regexes lists what follows.
+</p>
+
+<dl>
+<dt><code>[abc]</code></dt><dd><p>Match any of the characters a, b, or c</p>
+</dd>
+<dt><code>[^abc]</code></dt><dd><p>Negation &ndash; match any character except a, b, or c</p>
+</dd>
+<dt><code>[A-M]</code></dt><dd><p>Range &ndash; match any character from A to M (based on Unicode code point ordering)</p>
+</dd>
+<dt><code>[\p{L}]</code>, <code>[\p{Letter}]</code>, <code>[\p{General_Category=Letter}]</code>, <code>[:letter:]</code></dt><dd><p>Characters with Unicode Category = Letter (4 equivalent forms)</p>
+</dd>
+<dt><code>[\P{Letter}]</code></dt><dd><p>Negated property &ndash; natch everything except Letters</p>
+</dd>
+<dt><code>[\p{numeric_value=9}]</code></dt><dd><p>Match all numbers with a numeric value of 9</p>
+</dd>
+<dt><code>[\p{Letter}&amp;&amp;\p{script=cyrillic}]</code></dt><dd><p>Intersection; match the set of all Cyrillic letters</p>
+</dd>
+<dt><code>[\p{Letter}--\p{script=latin}]</code></dt><dd><p>Set difference; match all non-Latin letters</p>
+</dd>
+<dt><code>[[a-z][A-Z][0-9]]</code>, <code>[a-zA-Z0-9]</code></dt><dd><p>Union; match ASCII letters and digits (2 equivalent forms)</p>
+</dd>
+</dl>
+
+
+
+<h3>Regex Functions in <span class="pkg">stringi</span></h3>
+
+<p>Note that if a given regex <code>pattern</code> is empty,
+then all the functions in <span class="pkg">stringi</span> give <code>NA</code> in result
+and generate a warning.
+On a syntax error, a quite informative failure message is shown.
+</p>
+<p>If you wish to search for a fixed pattern,
+refer to <a href="about_search_coll.html">about_search_coll</a> or <a href="about_search_fixed.html">about_search_fixed</a>.
+They allow to perform a locale-aware text lookup,
+or a very fast exact-byte search, respectively.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>Regular expressions</em> &ndash; ICU User Guide,
+<a href="https://unicode-org.github.io/icu/userguide/strings/regexp.html">https://unicode-org.github.io/icu/userguide/strings/regexp.html</a>
+</p>
+<p>J.E.F. Friedl, <em>Mastering Regular Expressions</em>, O'Reilly, 2002
+</p>
+<p><em>Unicode Regular Expressions</em> &ndash; Unicode Technical Standard #18,
+<a href="https://www.unicode.org/reports/tr18/">https://www.unicode.org/reports/tr18/</a>
+</p>
+<p><em>Unicode Regular Expressions</em> &ndash; Regex tutorial,
+<a href="https://www.regular-expressions.info/unicode.html">https://www.regular-expressions.info/unicode.html</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_regex: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_opts_regex.html">stri_opts_regex</a>()</code>
+</p>
+<p>Other stringi_general_topics: 
+<code><a href="about_arguments.html">about_arguments</a></code>,
+<code><a href="about_encoding.html">about_encoding</a></code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_charclass.html">about_search_charclass</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="about_search_fixed.html">about_search_fixed</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="about_stringi.html">about_stringi</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

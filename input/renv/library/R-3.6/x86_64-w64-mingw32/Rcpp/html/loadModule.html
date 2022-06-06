@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Load an Rcpp Module into a Package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for loadModule {Rcpp}"><tr><td>loadModule {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Load an Rcpp Module into a Package
+</h2>
+
+<h3>Description</h3>
+
+<p>One or more calls to <code>loadModule</code> will be included in the source
+code for a package to load modules and optionally expose objects from
+them.  The actual extraction of the module takes place at load time.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+loadModule(module, what = , loadNow, env =)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>module</code></td>
+<td>
+
+<p>The name of the C++ module to load.  The code for the module should be
+in the same package as the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> call to <code>loadModule</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>what</code></td>
+<td>
+
+<p>The objects to expose in the package's namespace corresponding to
+objects in the module.  By default, nothing is exposed.
+</p>
+<p>The special value <code>TRUE</code> says to load all the objects in the
+module that have syntactically standard <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> names (which all objects
+in a module will normally have).
+</p>
+<p>Otherwise, if supplied this should be a character vector, the elements being
+objects defined in the module.  The vector can have a names attribute,
+in which case the non-empty names will be used to rename the objects;
+otherwise, the name of the object in the package namespace will be the
+same as the name in the C++ module.
+</p>
+</td></tr>
+<tr valign="top"><td><code>loadNow, env</code></td>
+<td>
+
+<p>A logical flag to say whether the load actions should happen now, and
+the environment into which the objects should be inserted.  When
+called from the source of a package, both of these arguments should
+usually be omitted.
+</p>
+<p>The value of <code>loadNow</code> will be set by checking the module's
+status.  At package installation time, the module cannot be started,
+in which case a load action (see <code><a href="../../methods/html/setLoadActions.html">setLoadAction</a></code>) is
+scheduled to do the actual module load.
+</p>
+<p>The value of <code>env</code> will default to the package's namespace.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If the purpose of loading the module is to define classes based on C++
+classes, see <code><a href="setRcppClass.html">setRcppClass</a>()</code>, which does the necessary
+module loading for you.
+</p>
+<p>When the module can be started (at namespace load time), the function
+<code><a href="Module.html">Module</a>()</code> returns an environment with a description of
+the module's contents. Function <code>loadModule()</code> saves this as a
+metadata object in the package namespace.  Therefore multiple calls to
+<code>loadModule()</code> are an efficient way to extract different objects
+from the module.
+</p>
+<p>Requesting an object that does not exist in the module produces a
+warning.
+</p>
+<p>Since assignments from the call cannot take place until namespace
+loading time, any computations using the objects must also be
+postponed until this time.  Use load actions
+(<code><a href="../../methods/html/setLoadActions.html">setLoadAction</a></code>) and make sure that the load action is
+specified after the call to <code>loadModule()</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If the load takes place, the module environment is returned.  Usually
+however the function is called for its side effects.
+</p>
+
+
+<h3>Note</h3>
+
+<p>This function requires version  2.15.0 of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> or later, in order to
+use load actions, introduced in that version.  See the note in the
+help page for <code><a href="setRcppClass.html">setRcppClass</a>()</code> for details.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>John Chambers
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="setRcppClass.html">setRcppClass</a>()</code> to avoid the explicit call.
+</p>
+<p><code><a href="loadRcppModules-deprecated.html">loadRcppModules</a>()</code> for a (deprecated) shotgun procedure to load all
+modules.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+loadModule("yada", TRUE) # load all the objects from module "yada"
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

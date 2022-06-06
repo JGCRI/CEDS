@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Expand the plot limits, using data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expand_limits {ggplot2}"><tr><td>expand_limits {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Expand the plot limits, using data</h2>
+
+<h3>Description</h3>
+
+<p>Sometimes you may want to ensure limits include a single value, for all
+panels or all plots.  This function is a thin wrapper around
+<code><a href="geom_blank.html">geom_blank()</a></code> that makes it easy to add such values.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expand_limits(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>named list of aesthetics specifying the value (or values) that
+should be included in each scale.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(mpg, wt)) + geom_point()
+p + expand_limits(x = 0)
+p + expand_limits(y = c(1, 9))
+p + expand_limits(x = 0, y = 0)
+
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point(aes(colour = cyl)) +
+  expand_limits(colour = seq(2, 10, by = 2))
+ggplot(mtcars, aes(mpg, wt)) +
+  geom_point(aes(colour = factor(cyl))) +
+  expand_limits(colour = factor(seq(2, 10, by = 2)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

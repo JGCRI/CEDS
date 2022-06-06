@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Concatenate Two Character Vectors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %s+% {stringi}"><tr><td>%s+% {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Concatenate Two Character Vectors</h2>
+
+<h3>Description</h3>
+
+<p>Binary operators for joining (concatenating) two character vectors,
+with a typical R look-and-feel.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+e1 %s+% e2
+
+e1 %stri+% e2
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>e1</code></td>
+<td>
+<p>a character vector or an object coercible to a character vector</p>
+</td></tr>
+<tr valign="top"><td><code>e2</code></td>
+<td>
+<p>a character vector or an object coercible to a character vector</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>e1</code> and <code>e2</code>.
+</p>
+<p>These operators act like a call to <code><a href="stri_join.html">stri_join</a>(e1, e2, sep='')</code>.
+However, note that joining 3 vectors, e.g., <code>e1 %s+% e2 %s+% e3</code>
+is slower than <code><a href="stri_join.html">stri_join</a>(e1, e2, e3, sep='')</code>,
+because it creates a new (temporary) result vector each time
+the operator is applied.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other join: 
+<code><a href="stri_dup.html">stri_dup</a>()</code>,
+<code><a href="stri_flatten.html">stri_flatten</a>()</code>,
+<code><a href="stri_join_list.html">stri_join_list</a>()</code>,
+<code><a href="stri_join.html">stri_join</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+c('abc', '123', 'xy') %s+% letters[1:6]
+'ID_' %s+% 1:5
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Information about the current platform</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for platform_info {sessioninfo}"><tr><td>platform_info {sessioninfo}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Information about the current platform</h2>
+
+<h3>Description</h3>
+
+<p>Information about the current platform
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+platform_info()
+</pre>
+
+
+<h3>Value</h3>
+
+<p>A list with elements:
+</p>
+
+<ul>
+<li> <p><code>version</code>: the R version string.
+</p>
+</li>
+<li> <p><code>os</code>: the OS name in human readable format, see <code><a href="os_name.html">os_name()</a></code>.
+</p>
+</li>
+<li> <p><code>system</code>: CPU, and machine readable OS name, separated by a comma.
+</p>
+</li>
+<li> <p><code>ui</code>: the user interface, e.g. <code>Rgui</code>, <code>RTerm</code>, etc. see <code>GUI</code>
+in <a href="../../base/html/Platform.html">base::.Platform</a>.
+</p>
+</li>
+<li> <p><code>language</code>: The current language setting. The <code>LANGUAGE</code> environment
+variable, if set, or <code>(EN)</code> if unset.
+</p>
+</li>
+<li> <p><code>collate</code>: Collation rule, from the current locale.
+</p>
+</li>
+<li> <p><code>ctype</code>: Native character encoding, from the current locale.
+</p>
+</li>
+<li> <p><code>tz</code>: The current time zone.
+</p>
+</li>
+<li> <p><code>date</code>: The current date.
+</p>
+</li>
+<li> <p><code>rstudio</code>: RStudio format string, only added in RStudio.
+</p>
+</li>
+<li> <p><code>pandoc</code>: pandoc version and path
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Similar functions and objects in the base packages:
+<a href="../../base/html/Version.html">base::R.version.string</a>, <code><a href="../../utils/html/sessionInfo.html">utils::sessionInfo()</a></code>, <a href="../../base/html/Version.html">base::version</a>,
+<a href="../../base/html/Platform.html">base::.Platform</a>, <code><a href="../../base/html/locales.html">base::Sys.getlocale()</a></code>, <code><a href="../../base/html/timezones.html">base::Sys.timezone()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+platform_info()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>sessioninfo</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

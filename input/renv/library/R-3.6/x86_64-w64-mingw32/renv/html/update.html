@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Update Packages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for update {renv}"><tr><td>update {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Update Packages</h2>
+
+<h3>Description</h3>
+
+<p>Update packages which are currently out-of-date. Currently, only
+CRAN and GitHub package sources are supported.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+update(
+  packages = NULL,
+  ...,
+  library = NULL,
+  rebuild = FALSE,
+  check = FALSE,
+  confirm = interactive(),
+  project = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>packages</code></td>
+<td>
+<p>A character vector of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages to update. When <code>NULL</code>,
+all packages within the required libraries will be updated.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments; reserved for future expansion.</p>
+</td></tr>
+<tr valign="top"><td><code>library</code></td>
+<td>
+<p>The <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> library to be used. When <code>NULL</code>, the active project
+library will be used instead.</p>
+</td></tr>
+<tr valign="top"><td><code>rebuild</code></td>
+<td>
+<p>Force packages to be rebuilt, thereby bypassing any installed
+versions of the package available in the cache? This can either be a
+boolean (indicating that the requested package(s) should be rebuilt), or a
+vector of package names indicating which packages should be rebuilt.</p>
+</td></tr>
+<tr valign="top"><td><code>check</code></td>
+<td>
+<p>Boolean; check for package updates without actually
+installing available updates?</p>
+</td></tr>
+<tr valign="top"><td><code>confirm</code></td>
+<td>
+<p>Boolean; prompt the user before taking any action?</p>
+</td></tr>
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Updates will only be checked from the same source &ndash; for example,
+if a package was installed from GitHub, but a newer version is
+available on CRAN, that updated version will not be seen.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A named list of package records which were installed by <code>renv</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# update the 'dplyr' package
+renv::update("dplyr")
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

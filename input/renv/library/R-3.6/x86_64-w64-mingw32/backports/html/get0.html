@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Backport of get0 for R &lt; 3.2.0</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for get0 {backports}"><tr><td>get0 {backports}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Backport of get0 for R &lt; 3.2.0</h2>
+
+<h3>Description</h3>
+
+<p>See the original description in <code>base::get0</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+get0(
+  x,
+  envir = pos.to.env(-1L),
+  mode = "any",
+  inherits = TRUE,
+  ifnotfound = NULL
+)
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+# get function from namespace instead of possibly getting
+# implementation shipped with recent R versions:
+bp_get0 = getFromNamespace("get0", "backports")
+
+bp_get0("a")
+bp_get0("a", ifnotfound = 0)
+
+foo = 12
+bp_get0("foo")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>backports</em> version 1.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

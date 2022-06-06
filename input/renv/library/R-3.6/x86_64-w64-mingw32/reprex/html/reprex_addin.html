@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render a reprex, conveniently</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reprex_addin {reprex}"><tr><td>reprex_addin {reprex}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render a reprex, conveniently</h2>
+
+<h3>Description</h3>
+
+<p><code>reprex_addin()</code> opens an <a href="https://shiny.rstudio.com/articles/gadgets.html">RStudio gadget</a> and
+<a href="http://rstudio.github.io/rstudioaddins/">addin</a> that allows you to say
+where the reprex source is (clipboard? current selection? active file?
+other file?) and to control a few other arguments. Appears as &quot;Render
+reprex&quot; in the RStudio Addins menu.
+</p>
+<p><code>reprex_selection()</code> is an
+<a href="http://rstudio.github.io/rstudioaddins/">addin</a> that reprexes the current
+selection, optionally customised by options. Appears as &quot;Reprex selection&quot;
+in the RStudio Addins menu. Heavy users might want to <a href="https://support.rstudio.com/hc/en-us/articles/206382178-Customizing-Keyboard-Shortcuts">create a keyboard shortcut</a>.
+Suggested shortcut: Cmd + Shift + R (macOS) or Ctrl + Shift + R (Windows).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+reprex_addin()
+
+reprex_selection(venue = getOption("reprex.venue", "gh"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>venue</code></td>
+<td>
+<p>Character. Must be one of the following (case insensitive):
+</p>
+
+<ul>
+<li><p> &quot;gh&quot; for <a href="https://github.github.com/gfm/">GitHub-Flavored Markdown</a>, the
+default
+</p>
+</li>
+<li><p> &quot;r&quot; for a runnable R script, with commented output interleaved. Also useful
+for <a href="https://slack.com/intl/en-ca/slack-tips/share-code-snippets">Slack code snippets</a>;
+select &quot;R&quot; from the &quot;Type&quot; drop-down menu to enjoy nice syntax
+highlighting.
+</p>
+</li>
+<li><p> &quot;rtf&quot; for
+<a href="https://en.wikipedia.org/wiki/Rich_Text_Format">Rich Text Format</a>
+(not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;html&quot; for an HTML fragment suitable for inclusion in a larger HTML
+document (not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;slack&quot; for pasting into a Slack message. Works best if you opt out of
+Slack's WYSIWYG interface and, instead, go to <strong>Preferences &gt; Advanced</strong>
+and select &quot;Format messages with markup&quot;.
+</p>
+</li>
+<li><p> &quot;so&quot; for
+<a href="https://stackoverflow.com/editing-help#syntax-highlighting">Stack Overflow Markdown</a>.
+Note: this is just an alias for &quot;gh&quot;, since Stack Overflow started to
+support CommonMark-style fenced code blocks in January 2019.
+</p>
+</li>
+<li><p> &quot;ds&quot; for Discourse, e.g.,
+<a href="https://community.rstudio.com">community.rstudio.com</a>. Note: this is
+currently just an alias for &quot;gh&quot;.
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>reprex</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

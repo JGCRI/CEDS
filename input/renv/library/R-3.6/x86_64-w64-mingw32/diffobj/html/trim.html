@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Methods to Remove Unsemantic Text Prior to Diff</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for trim {diffobj}"><tr><td>trim {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Methods to Remove Unsemantic Text Prior to Diff</h2>
+
+<h3>Description</h3>
+
+<p><code><a href="diffPrint.html">diff*</a></code> methods, in particular <code>diffPrint</code>,
+modify the text representation of an object prior to running the diff to
+reduce the incidence of spurious mismatches caused by unsemantic differences.
+For example, we look to remove matrix row indices and atomic vector indices
+(i.e. the <span class="samp">[1,]</span> or <span class="samp">[1]</span> strings at the beginning of each display
+line).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+trimPrint(obj, obj.as.chr)
+
+## S4 method for signature 'ANY,character'
+trimPrint(obj, obj.as.chr)
+
+trimStr(obj, obj.as.chr)
+
+## S4 method for signature 'ANY,character'
+trimStr(obj, obj.as.chr)
+
+trimChr(obj, obj.as.chr)
+
+## S4 method for signature 'ANY,character'
+trimChr(obj, obj.as.chr)
+
+trimDeparse(obj, obj.as.chr)
+
+## S4 method for signature 'ANY,character'
+trimDeparse(obj, obj.as.chr)
+
+trimFile(obj, obj.as.chr)
+
+## S4 method for signature 'ANY,character'
+trimFile(obj, obj.as.chr)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>obj</code></td>
+<td>
+<p>the object</p>
+</td></tr>
+<tr valign="top"><td><code>obj.as.chr</code></td>
+<td>
+<p>character the <code>print</code>ed representation of the object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Consider: </p>
+<pre>
+&gt; matrix(10:12)
+     [,1]
+[1,]   10
+[2,]   11
+[3,]   12
+&gt; matrix(11:12)
+     [,1]
+[1,]   11
+[2,]   12
+</pre>
+<p>In this case, the line by line diff would find all rows of the matrix to
+be mismatched because where the data matches (rows containing
+11 and 12) the indices do not.  By trimming out the row indices before
+the diff, the diff can recognize that row 2 and 3  from the first matrix
+should be matched to row 1 and 2 of the second.
+</p>
+<p>These methods follow a similar interface as the <code><a href="guides.html">guide*</a></code>
+methods, with one available for each <code>diff*</code> method except for
+<code>diffCsv</code> since that one uses <code>diffPrint</code> internally.  The
+unsemantic differences are added back after the diff for display purposes,
+and are colored in grey to indicate they are ignored in the diff.
+</p>
+<p>Currently only <code>trimPrint</code> and <code>trimStr</code> do anything meaningful.
+<code>trimPrint</code> removes row index headers provided that they are of the
+default un-named variety.  If you add row names, or if numeric row indices
+are not ascending from 1, they will not be stripped as those have meaning.
+<code>trimStr</code> removes the <span class="samp">..$</span>, <span class="samp">..-</span>, and <span class="samp">..@</span> tokens
+to minimize spurious matches.
+</p>
+<p>You can modify how text is trimmed by providing your own functions to the
+<code>trim</code> argument of the <code>diff*</code> methods, or by defining
+<code>trim*</code> methods for your objects.  Note that the return value for these
+functions is the start and end columns of the text that should be
+<em>kept</em> and used in the diff.
+</p>
+<p>As with guides, trimming is on a best efforts basis and may fail with
+&ldquo;pathological&rdquo; display representations.  Since the diff still works
+even with failed trimming this is considered an acceptable compromise.
+Trimming is more likely to fail with nested recursive structures.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a <code>length(obj.as.chr)</code> row and 2 column integer matrix with the
+start (first column) and end (second column) character positions of the sub
+string to run diffs on.
+</p>
+
+
+<h3>Note</h3>
+
+<p><code>obj.as.chr</code> will be as processed by
+<code><a href="strip_hz_control.html">strip_hz_control</a></code> and as such will not be identical to the
+captured output if it contains tabs, newlines, or carriage returns.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

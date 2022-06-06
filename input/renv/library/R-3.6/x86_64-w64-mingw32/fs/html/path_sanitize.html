@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Sanitize a filename by removing directory paths and invalid...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for path_sanitize {fs}"><tr><td>path_sanitize {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Sanitize a filename by removing directory paths and invalid characters</h2>
+
+<h3>Description</h3>
+
+<p><code>path_sanitize()</code> removes the following:
+</p>
+
+<ul>
+<li> <p><a href="https://en.wikipedia.org/wiki/C0_and_C1_control_codes">Control characters</a>
+</p>
+</li>
+<li> <p><a href="https://kb.acronis.com/content/39790">Reserved characters</a>
+</p>
+</li>
+<li><p> Unix reserved filenames (<code>.</code> and <code>..</code>)
+</p>
+</li>
+<li><p> Trailing periods and spaces (invalid on Windows)
+</p>
+</li>
+<li><p> Windows reserved filenames (<code>CON</code>, <code>PRN</code>, <code>AUX</code>, <code>NUL</code>, <code>COM1</code>, <code>COM2</code>,
+<code>COM3</code>, COM4, <code>COM5</code>, <code>COM6</code>, <code>COM7</code>, <code>COM8</code>, <code>COM9</code>, <code>LPT1</code>, <code>LPT2</code>,
+<code>LPT3</code>, <code>LPT4</code>, <code>LPT5</code>, <code>LPT6</code>, LPT7, <code>LPT8</code>, and <code>LPT9</code>)
+The resulting string is then truncated to <a href="https://en.wikipedia.org/wiki/Comparison_of_file_systems#Limits">255 bytes in length</a>
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+path_sanitize(filename, replacement = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filename</code></td>
+<td>
+<p>A character vector to be sanitized.</p>
+</td></tr>
+<tr valign="top"><td><code>replacement</code></td>
+<td>
+<p>A character vector used to replace invalid characters.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://www.npmjs.com/package/sanitize-filename">https://www.npmjs.com/package/sanitize-filename</a>, upon which this
+function is based.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# potentially unsafe string
+str &lt;- "~/.\u0001ssh/authorized_keys"
+path_sanitize(str)
+
+path_sanitize("..")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

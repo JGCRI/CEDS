@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Injecting with !!, !!!, and glue syntax</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-inject {rlang}"><tr><td>topic-inject {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Injecting with <code style="white-space: pre;">!!</code>, <code style="white-space: pre;">!!!</code>, and glue syntax</h2>
+
+<h3>Description</h3>
+
+<p>The injection operators are extensions of R implemented by rlang to modify a piece of code before R processes it. There are two main families:
+</p>
+
+<ul>
+<li><p> The <a href="dyn-dots.html">dynamic dots</a> operators, <code><a href="splice-operator.html">!!!</a></code> and <code><a href="glue-operators.html">&quot;{&quot;</a></code>.
+</p>
+</li>
+<li><p> The <a href="topic-metaprogramming.html">metaprogramming operators</a> <code><a href="injection-operator.html">!!</a></code>, <code><a href="embrace-operator.html">{{</a></code>, and <code><a href="glue-operators.html">&quot;{{&quot;</a></code>. Splicing with <code><a href="splice-operator.html">!!!</a></code> can also be done in metaprogramming context.
+</p>
+</li></ul>
+
+
+
+<h3>Dots injection</h3>
+
+<p>Unlike regular <code>...</code>, <a href="dyn-dots.html">dynamic dots</a> are programmable with injection operators.
+</p>
+
+
+<h4>Splicing with <code style="white-space: pre;">!!!</code></h4>
+
+<p>For instance, take a function like <code>rbind()</code> which takes data in <code>...</code>. To bind rows, you supply them as separate arguments:<div class="sourceCode r"></p>
+<pre>rbind(a = 1:2, b = 3:4)
+#&gt;   [,1] [,2]
+#&gt; a    1    2
+#&gt; b    3    4
+</pre></div>
+<p>But how do you bind a variable number of rows stored in a list? The base R solution is to invoke <code>rbind()</code> with <code>do.call()</code>:<div class="sourceCode r"></p>
+<pre>rows &lt;- list(a = 1:2, b = 3:4)
+
+do.call("rbind", rows)
+#&gt;   [,1] [,2]
+#&gt; a    1    2
+#&gt; b    3    4
+</pre></div>
+<p>Functions that implement dynamic dots include a built-in way of folding a list of arguments in <code>...</code>. To illustrate this, we'll create a variant of <code>rbind()</code> that takes dynamic dots by collecting <code>...</code> with <code><a href="list2.html">list2()</a></code>:<div class="sourceCode r"></p>
+<pre>rbind2 &lt;- function(...) {
+  do.call("rbind", list2(...))
+}
+</pre></div>
+<p>It can be used just like <code>rbind()</code>:<div class="sourceCode r"></p>
+<pre>rbind2(a = 1:2, b = 3:4)
+#&gt;   [,1] [,2]
+#&gt; a    1    2
+#&gt; b    3    4
+</pre></div>
+<p>And a list of arguments can be supplied by <em>splicing</em> the list with <code><a href="splice-operator.html">!!!</a></code>:<div class="sourceCode r"></p>
+<pre>rbind2(!!!rows, c = 5:6)
+#&gt;   [,1] [,2]
+#&gt; a    1    2
+#&gt; b    3    4
+#&gt; c    5    6
+</pre></div>
+
+
+
+<h4>Injecting names with <code style="white-space: pre;">"{"</code></h4>
+
+<p>A related problem comes up when an argument name is stored in a variable. With dynamic dots, you can inject the name using <a href="https://glue.tidyverse.org/">glue syntax</a> with <code><a href="glue-operators.html">&quot;{&quot;</a></code>:<div class="sourceCode r"></p>
+<pre>name &lt;- "foo"
+
+rbind2("{name}" := 1:2, bar = 3:4)
+#&gt;     [,1] [,2]
+#&gt; foo    1    2
+#&gt; bar    3    4
+
+rbind2("prefix_{name}" := 1:2, bar = 3:4)
+#&gt;            [,1] [,2]
+#&gt; prefix_foo    1    2
+#&gt; bar           3    4
+</pre></div>
+
+
+
+<h3>Metaprogramming injection</h3>
+
+<p><a href="topic-data-mask.html">Data-masked</a> arguments support the following injection operators. They can also be explicitly enabled with <code><a href="inject.html">inject()</a></code>.
+</p>
+
+
+<h4>Embracing with <code style="white-space: pre;">{{</code></h4>
+
+<p>The embracing operator <code><a href="embrace-operator.html">{{</a></code> is made specially for function arguments. It <a href="topic-defuse.html">defuses</a> the expression supplied as argument and immediately injects it in place. The injected argument is then evaluated in another context such as a <a href="topic-data-mask.html">data mask</a>.<div class="sourceCode r"></p>
+<pre># Inject function arguments that might contain
+# data-variables by embracing them with {{ }}
+mean_by &lt;- function(data, by, var) {
+  data %&gt;%
+    dplyr::group_by({{ by }}) %&gt;%
+    dplyr::summarise(avg = mean({{ var }}, na.rm = TRUE))
+}
+
+# The data-variables `cyl` and `disp` inside the
+# env-variables `by` and `var` are injected inside `group_by()`
+# and `summarise()`
+mtcars %&gt;% mean_by(by = cyl, var = disp)
+#&gt; # A tibble: 3 x 2
+#&gt;     cyl   avg
+#&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1     4  105.
+#&gt; 2     6  183.
+#&gt; 3     8  353.
+</pre></div>
+<p>Learn more about this pattern in <a href="topic-data-mask-programming.html">Data mask programming patterns</a>.
+</p>
+
+
+
+<h4>Injecting with <code style="white-space: pre;">!!</code></h4>
+
+<p>Unlike <code><a href="splice-operator.html">!!!</a></code> which injects a list of arguments, the injection operator <code><a href="injection-operator.html">!!</a></code> (pronounced &quot;bang-bang&quot;) injects a <em>single</em> object. One use case for <code style="white-space: pre;">!!</code>  is to substitute an environment-variable (created with <code style="white-space: pre;">&lt;-</code>) with a data-variable (inside a data frame).<div class="sourceCode r"></p>
+<pre># The env-variable `var` contains a data-symbol object, in this
+# case a reference to the data-variable `height`
+var &lt;- data_sym("disp")
+
+# We inject the data-variable contained in `var` inside `summarise()` 
+mtcars %&gt;%
+  dplyr::summarise(avg = mean(!!var, na.rm = TRUE))
+#&gt; # A tibble: 1 x 1
+#&gt;     avg
+#&gt;   &lt;dbl&gt;
+#&gt; 1  231.
+</pre></div>
+<p>Another use case is to inject a variable by value to avoid <a href="topic-data-mask-ambiguity.html">name collisions</a>.<div class="sourceCode r"></p>
+<pre>df &lt;- data.frame(x = 1)
+
+# This name conflicts with a column in `df`
+x &lt;- 100
+
+# Inject the env-variable
+df %&gt;%
+  dplyr::mutate(x = x / !!x)
+#&gt;      x
+#&gt; 1 0.01
+</pre></div>
+<p>Note that in most cases you don't need injection with <code style="white-space: pre;">!!</code>. For instance, the <code><a href="dot-data.html">.data</a></code> and <code><a href="dot-data.html">.env</a></code> pronouns provide more intuitive alternatives to injecting a column name and injecting a value.
+</p>
+
+
+
+<h4>Splicing with <code style="white-space: pre;">!!!</code></h4>
+
+<p>The splice operator <code><a href="splice-operator.html">!!!</a></code> of dynamic dots can also be used in metaprogramming context (inside <a href="topic-data-mask.html">data-masked</a> arguments and inside <code><a href="inject.html">inject()</a></code>). For instance, we could reimplement the <code>rbind2()</code> function presented above using <code>inject()</code> instead of <code>do.call()</code>:<div class="sourceCode r"></p>
+<pre>rbind2 &lt;- function(...) {
+  inject(rbind(!!!list2(...)))
+}
+</pre></div>
+<p>There are two things going on here. We collect <code>...</code> with <code><a href="list2.html">list2()</a></code> so that the callers of <code>rbind2()</code> may use <code style="white-space: pre;">!!!</code>. And we use <code>inject()</code> so that <code>rbind2()</code> itself may use <code style="white-space: pre;">!!!</code> to splice the list of arguments passed to <code>rbind2()</code>.
+</p>
+
+
+
+<h3>Injection in other languages</h3>
+
+<p>Injection is known as <strong>quasiquotation</strong> in other programming languages and in computer science. <code>expr()</code> is similar to a quasiquotation operator and <code style="white-space: pre;">!!</code> is the unquote operator. These terms have a rich history in Lisp languages, and live on in modern languages like <a href="https://docs.julialang.org/en/v1/manual/metaprogramming/">Julia</a> and <a href="https://docs.racket-lang.org/reference/quasiquote.html">Racket</a>. In base R, quasiquotation is performed with <code><a href="../../base/html/bquote.html">bquote()</a></code>.
+</p>
+<p>The main difference between rlang and other languages is that quasiquotation is often implicit instead of explicit. You can use injection operators in any defusing / quoting function (unless that function defuses its argument with a special operator like <code><a href="defusing-advanced.html">enquo0()</a></code>). This is not the case in lisp languages for example where injection / unquoting is explicit and only enabled within a backquote.
+</p>
+
+
+<h3>See also</h3>
+
+
+<ul>
+<li> <p><a href="topic-inject-out-of-context.html">What happens if I use injection operators out of context?</a>
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check pandoc availability and version</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pandoc_available {rmarkdown}"><tr><td>pandoc_available {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check pandoc availability and version</h2>
+
+<h3>Description</h3>
+
+<p>Determine whether pandoc is currently available on the system (optionally
+checking for a specific version or greater). Determine the specific version
+of pandoc available.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pandoc_available(version = NULL, error = FALSE)
+
+pandoc_version()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>Required version of pandoc</p>
+</td></tr>
+<tr valign="top"><td><code>error</code></td>
+<td>
+<p>Whether to signal an error if pandoc with the required version
+is not found</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The system environment variable <span class="samp">PATH</span> as well as the version of pandoc
+shipped with RStudio (its location is set via the environment variable
+<span class="samp">RSTUDIO_PANDOC</span> by RStudio products like the RStudio IDE, RStudio
+Server, Shiny Server, and RStudio Connect, etc) are scanned for pandoc and
+the highest version available is used. Please do not modify the environment
+variable <span class="samp">RSTUDIO_PANDOC</span> unless you know what it means.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>pandoc_available</code> returns a logical indicating whether the
+required version of pandoc is available. <code>pandoc_version</code> returns a
+<code><a href="../../base/html/numeric_version.html">numeric_version</a></code> with the version of pandoc found.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(rmarkdown)
+
+if (pandoc_available())
+  cat("pandoc", as.character(pandoc_version()), "is available!\n")
+
+if (pandoc_available("1.12.3"))
+  cat("required version of pandoc is available!\n")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

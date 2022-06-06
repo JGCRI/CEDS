@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read a text file, process the text with a function, and write...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for process_file {xfun}"><tr><td>process_file {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read a text file, process the text with a function, and write the text back</h2>
+
+<h3>Description</h3>
+
+<p>Read a text file with the UTF-8 encoding, apply a function to the text, and
+write back to the original file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+process_file(file, fun = identity, x = read_utf8(file))
+
+sort_file(..., fun = sort)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Path to a text file.</p>
+</td></tr>
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>A function to process the text.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The content of the file.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to be passed to <code>process_file()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>sort_file()</code> is an application of <code>process_file()</code>, with the
+processing function being <code><a href="../../base/html/sort.html">sort</a>()</code>, i.e., it sorts the text lines
+in a file and write back the sorted text.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>file</code> is provided, invisible <code>NULL</code> (the file is
+updated as a side effect), otherwise the processed content (as a character
+vector).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f = tempfile()
+xfun::write_utf8("Hello World", f)
+xfun::process_file(f, function(x) gsub("World", "woRld", x))
+xfun::read_utf8(f)  # see if it has been updated
+file.remove(f)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

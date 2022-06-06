@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Mark some paths as directories</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mark_dirs {xfun}"><tr><td>mark_dirs {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Mark some paths as directories</h2>
+
+<h3>Description</h3>
+
+<p>Add a trailing backlash to a file path if this is a directory. This is useful
+in messages to the console for example to quickly identify directories from
+files.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+mark_dirs(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character vector of paths to files and directories.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If <code>x</code> is a vector of relative paths, directory test is done with
+path relative to the current working dir. Use <code>xfun::<a href="in_dir.html">in_dir</a>()</code> or
+use absolute paths.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+mark_dirs(list.files(find.package("xfun"), full.names = TRUE))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

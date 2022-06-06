@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Scales for shapes, aka glyphs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for scale_shape {ggplot2}"><tr><td>scale_shape {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Scales for shapes, aka glyphs</h2>
+
+<h3>Description</h3>
+
+<p><code>scale_shape()</code> maps discrete variables to six easily discernible shapes.
+If you have more than six levels, you will get a warning message, and the
+seventh and subsequent levels will not appear on the plot. Use
+<code><a href="scale_manual.html">scale_shape_manual()</a></code> to supply your own values. You can not map
+a continuous variable to shape unless <code>scale_shape_binned()</code> is used. Still,
+as shape has no inherent order, this use is not advised.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+scale_shape(..., solid = TRUE)
+
+scale_shape_binned(..., solid = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Arguments passed on to <code><a href="discrete_scale.html">discrete_scale</a></code>
+</p>
+
+<dl>
+<dt><code>palette</code></dt><dd><p>A palette function that when called with a single integer
+argument (the number of levels in the scale) returns the values that
+they should take (e.g., <code><a href="../../scales/html/hue_pal.html">scales::hue_pal()</a></code>).</p>
+</dd>
+<dt><code>breaks</code></dt><dd><p>One of:
+</p>
+
+<ul>
+<li> <p><code>NULL</code> for no breaks
+</p>
+</li>
+<li> <p><code>waiver()</code> for the default breaks (the scale limits)
+</p>
+</li>
+<li><p> A character vector of breaks
+</p>
+</li>
+<li><p> A function that takes the limits as input and returns breaks
+as output. Also accepts rlang <a href="../../rlang/html/as_function.html">lambda</a> function
+notation.
+</p>
+</li></ul>
+</dd>
+<dt><code>limits</code></dt><dd><p>One of:
+</p>
+
+<ul>
+<li> <p><code>NULL</code> to use the default scale values
+</p>
+</li>
+<li><p> A character vector that defines possible values of the scale and their
+order
+</p>
+</li>
+<li><p> A function that accepts the existing (automatic) values and returns
+new ones. Also accepts rlang <a href="../../rlang/html/as_function.html">lambda</a> function
+notation.
+</p>
+</li></ul>
+</dd>
+<dt><code>drop</code></dt><dd><p>Should unused factor levels be omitted from the scale?
+The default, <code>TRUE</code>, uses the levels that appear in the data;
+<code>FALSE</code> uses all the levels in the factor.</p>
+</dd>
+<dt><code>na.translate</code></dt><dd><p>Unlike continuous scales, discrete scales can easily show
+missing values, and do so by default. If you want to remove missing values
+from a discrete scale, specify <code>na.translate = FALSE</code>.</p>
+</dd>
+<dt><code>na.value</code></dt><dd><p>If <code>na.translate = TRUE</code>, what aesthetic value should the
+missing values be displayed as? Does not apply to position scales
+where <code>NA</code> is always placed at the far right.</p>
+</dd>
+<dt><code>aesthetics</code></dt><dd><p>The names of the aesthetics that this scale works with.</p>
+</dd>
+<dt><code>scale_name</code></dt><dd><p>The name of the scale that should be used for error messages
+associated with this scale.</p>
+</dd>
+<dt><code>name</code></dt><dd><p>The name of the scale. Used as the axis or legend title. If
+<code>waiver()</code>, the default, the name of the scale is taken from the first
+mapping used for that aesthetic. If <code>NULL</code>, the legend title will be
+omitted.</p>
+</dd>
+<dt><code>labels</code></dt><dd><p>One of:
+</p>
+
+<ul>
+<li> <p><code>NULL</code> for no labels
+</p>
+</li>
+<li> <p><code>waiver()</code> for the default labels computed by the
+transformation object
+</p>
+</li>
+<li><p> A character vector giving labels (must be same length as <code>breaks</code>)
+</p>
+</li>
+<li><p> A function that takes the breaks as input and returns labels
+as output. Also accepts rlang <a href="../../rlang/html/as_function.html">lambda</a> function
+notation.
+</p>
+</li></ul>
+</dd>
+<dt><code>guide</code></dt><dd><p>A function used to create a guide or its name. See
+<code><a href="guides.html">guides()</a></code> for more information.</p>
+</dd>
+<dt><code>super</code></dt><dd><p>The super class to use for the constructed scale</p>
+</dd>
+</dl>
+</td></tr>
+<tr valign="top"><td><code>solid</code></td>
+<td>
+<p>Should the shapes be solid, <code>TRUE</code>, or hollow,
+<code>FALSE</code>?</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+dsmall &lt;- diamonds[sample(nrow(diamonds), 100), ]
+
+(d &lt;- ggplot(dsmall, aes(carat, price)) + geom_point(aes(shape = cut)))
+d + scale_shape(solid = TRUE) # the default
+d + scale_shape(solid = FALSE)
+d + scale_shape(name = "Cut of diamond")
+
+# To change order of levels, change order of
+# underlying factor
+levels(dsmall$cut) &lt;- c("Fair", "Good", "Very Good", "Premium", "Ideal")
+
+# Need to recreate plot to pick up new data
+ggplot(dsmall, aes(price, carat)) + geom_point(aes(shape = cut))
+
+# Show a list of available shapes
+df_shapes &lt;- data.frame(shape = 0:24)
+ggplot(df_shapes, aes(0, 0, shape = shape)) +
+  geom_point(aes(shape = shape), size = 5, fill = 'red') +
+  scale_shape_identity() +
+  facet_wrap(~shape) +
+  theme_void()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

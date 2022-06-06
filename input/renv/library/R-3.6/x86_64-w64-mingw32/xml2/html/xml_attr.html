@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Retrieve an attribute.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_attr {xml2}"><tr><td>xml_attr {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Retrieve an attribute.</h2>
+
+<h3>Description</h3>
+
+<p><code>xml_attrs()</code> retrieves all attributes values as a named character
+vector, <code style="white-space: pre;">xml_attrs() &lt;-</code> or <code>xml_set_attrs()</code> sets all attribute
+values. <code>xml_attr()</code> retrieves the value of single attribute and
+<code style="white-space: pre;">xml_attr() &lt;-</code> or <code>xml_set_attr()</code> modifies its value. If the
+attribute doesn't exist, it will return <code>default</code>, which defaults to
+<code>NA</code>. <code>xml_has_attr()</code> tests if an attribute is present.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_attr(x, attr, ns = character(), default = NA_character_)
+
+xml_has_attr(x, attr, ns = character())
+
+xml_attrs(x, ns = character())
+
+xml_attr(x, attr, ns = character()) &lt;- value
+
+xml_set_attr(x, attr, value, ns = character())
+
+xml_attrs(x, ns = character()) &lt;- value
+
+xml_set_attrs(x, value, ns = character())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>attr</code></td>
+<td>
+<p>Name of attribute to extract.</p>
+</td></tr>
+<tr valign="top"><td><code>ns</code></td>
+<td>
+<p>Optionally, a named vector giving prefix-url pairs, as produced
+by <code><a href="xml_ns.html">xml_ns()</a></code>. If provided, all names will be explicitly
+qualified with the ns prefix, i.e. if the element <code>bar</code> is defined
+in namespace <code>foo</code>, it will be called <code>foo:bar</code>. (And
+similarly for attributes). Default namespaces must be given an explicit
+name. The ns is ignored when using <code><a href="xml_name.html">xml_name&lt;-()</a></code> and
+<code><a href="xml_name.html">xml_set_name()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>default</code></td>
+<td>
+<p>Default value to use when attribute is not present.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>character vector of new value.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>xml_attr()</code> returns a character vector. <code>NA</code> is used
+to represent of attributes that aren't defined.
+</p>
+<p><code>xml_has_attr()</code> returns a logical vector.
+</p>
+<p><code>xml_attrs()</code> returns a named character vector if <code>x</code> x is single
+node, or a list of character vectors if given a nodeset
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- read_xml("&lt;root id='1'&gt;&lt;child id ='a' /&gt;&lt;child id='b' d='b'/&gt;&lt;/root&gt;")
+xml_attr(x, "id")
+xml_attr(x, "apple")
+xml_attrs(x)
+
+kids &lt;- xml_children(x)
+kids
+xml_attr(kids, "id")
+xml_has_attr(kids, "id")
+xml_attrs(kids)
+
+# Missing attributes give missing values
+xml_attr(xml_children(x), "d")
+xml_has_attr(xml_children(x), "d")
+
+# If the document has a namespace, use the ns argument and
+# qualified attribute names
+x &lt;- read_xml('
+ &lt;root xmlns:b="http://bar.com" xmlns:f="http://foo.com"&gt;
+   &lt;doc b:id="b" f:id="f" id="" /&gt;
+ &lt;/root&gt;
+')
+doc &lt;- xml_children(x)[[1]]
+ns &lt;- xml_ns(x)
+
+xml_attrs(doc)
+xml_attrs(doc, ns)
+
+# If you don't supply a ns spec, you get the first matching attribute
+xml_attr(doc, "id")
+xml_attr(doc, "b:id", ns)
+xml_attr(doc, "id", ns)
+
+# Can set a single attribute with `xml_attr() &lt;-` or `xml_set_attr()`
+xml_attr(doc, "id") &lt;- "one"
+xml_set_attr(doc, "id", "two")
+
+# Or set multiple attributes with `xml_attrs()` or `xml_set_attrs()`
+xml_attrs(doc) &lt;- c("b:id" = "one", "f:id" = "two", "id" = "three")
+xml_set_attrs(doc, c("b:id" = "one", "f:id" = "two", "id" = "three"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

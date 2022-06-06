@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Prettify or minify a JSON string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for prettify, minify {jsonlite}"><tr><td>prettify, minify {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Prettify or minify a JSON string</h2>
+
+<h3>Description</h3>
+
+<p>Prettify adds indentation to a JSON string; minify removes all indentation/whitespace.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+prettify(txt, indent = 4)
+
+minify(txt)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>txt</code></td>
+<td>
+<p>JSON string</p>
+</td></tr>
+<tr valign="top"><td><code>indent</code></td>
+<td>
+<p>number of spaces to indent</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+myjson &lt;- toJSON(cars)
+cat(myjson)
+prettify(myjson)
+minify(myjson)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

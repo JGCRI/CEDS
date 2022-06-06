@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Print a character vector in its raw form</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for raw_string {xfun}"><tr><td>raw_string {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Print a character vector in its raw form</h2>
+
+<h3>Description</h3>
+
+<p>The function <code>raw_string()</code> assigns the class <code>xfun_raw_string</code> to
+the character vector, and the corresponding printing function
+<code>print.xfun_raw_string()</code> uses <code>cat(x, sep = '\n')</code> to write the
+character vector to the console, which will suppress the leading indices
+(such as <code>[1]</code>) and double quotes, and it may be easier to read the
+characters in the raw form (especially when there are escape sequences).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+raw_string(x)
+
+## S3 method for class 'xfun_raw_string'
+print(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For <code>raw_string()</code>, a character vector. For the print method,
+the <code>raw_string()</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments (currently ignored).</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(xfun)
+raw_string(head(LETTERS))
+raw_string(c("a \"b\"", "hello\tworld!"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

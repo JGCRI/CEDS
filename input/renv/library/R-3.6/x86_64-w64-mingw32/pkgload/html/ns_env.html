@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return the namespace environment for a package.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ns_env {pkgload}"><tr><td>ns_env {pkgload}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return the namespace environment for a package.</h2>
+
+<h3>Description</h3>
+
+<p>Contains all (exported and non-exported) objects, and is a descendant of
+<code>R_GlobalEnv</code>. The hierarchy is <code style="white-space: pre;">&lt;namespace:pkg&gt;</code>,
+<code style="white-space: pre;">&lt;imports:pkg&gt;</code>, <code style="white-space: pre;">&lt;namespace:base&gt;</code>, and then
+<code>R_GlobalEnv</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ns_env(package)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>package name.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If the package is not loaded, this function returns <code>NULL</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pkg_env.html">pkg_env()</a></code> for the attached environment that
+contains the exported objects.
+</p>
+<p><code><a href="imports_env.html">imports_env()</a></code> for the environment that contains
+imported objects for the package.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pkgload</em> version 1.2.4 <a href="00Index.html">Index</a>]</div>
+</body></html>

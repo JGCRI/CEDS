@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create an annotation layer</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for annotate {ggplot2}"><tr><td>annotate {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create an annotation layer</h2>
+
+<h3>Description</h3>
+
+<p>This function adds geoms to a plot, but unlike typical a geom function,
+the properties of the geoms are not mapped from variables of a data frame,
+but are instead passed in as vectors. This is useful for adding small annotations
+(such as text labels) or if you have your data in vectors, and for some
+reason don't want to put them in a data frame.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+annotate(
+  geom,
+  x = NULL,
+  y = NULL,
+  xmin = NULL,
+  xmax = NULL,
+  ymin = NULL,
+  ymax = NULL,
+  xend = NULL,
+  yend = NULL,
+  ...,
+  na.rm = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>geom</code></td>
+<td>
+<p>name of geom to use for annotation</p>
+</td></tr>
+<tr valign="top"><td><code>x, y, xmin, ymin, xmax, ymax, xend, yend</code></td>
+<td>
+<p>positioning aesthetics -
+you must specify at least one of these.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that all position aesthetics are scaled (i.e. they will expand the
+limits of the plot so they are visible), but all other aesthetics are
+set. This means that layers created with this function will never
+affect the legend.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+p + annotate("text", x = 4, y = 25, label = "Some text")
+p + annotate("text", x = 2:5, y = 25, label = "Some text")
+p + annotate("rect", xmin = 3, xmax = 4.2, ymin = 12, ymax = 21,
+  alpha = .2)
+p + annotate("segment", x = 2.5, xend = 4, y = 15, yend = 25,
+  colour = "blue")
+p + annotate("pointrange", x = 3.5, y = 20, ymin = 12, ymax = 28,
+  colour = "red", size = 1.5)
+
+p + annotate("text", x = 2:3, y = 20:21, label = c("my label", "label 2"))
+
+p + annotate("text", x = 4, y = 25, label = "italic(R) ^ 2 == 0.75",
+  parse = TRUE)
+p + annotate("text", x = 4, y = 25,
+  label = "paste(italic(R) ^ 2, \" = .75\")", parse = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

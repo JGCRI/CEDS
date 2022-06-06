@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract/Replace a Style Class or Object from PaletteOfStyles</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for [&amp;lt;-,PaletteOfStyles-method {diffobj}"><tr><td>[&lt;-,PaletteOfStyles-method {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract/Replace a Style Class or Object from PaletteOfStyles</h2>
+
+<h3>Description</h3>
+
+<p>Extract/Replace a Style Class or Object from PaletteOfStyles
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 replacement method for signature 'PaletteOfStyles'
+x[i, j, ...] &lt;- value
+
+## S4 method for signature 'PaletteOfStyles,ANY,ANY,ANY'
+x[i, j, ..., drop = FALSE]
+
+## S4 method for signature 'PaletteOfStyles'
+x[[i, j, ..., exact = TRUE]]
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a <code><a href="PaletteOfStyles-class.html">PaletteOfStyles</a></code> object</p>
+</td></tr>
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>numeric, or character corresponding to a valid style <code>format</code></p>
+</td></tr>
+<tr valign="top"><td><code>j</code></td>
+<td>
+<p>numeric, or character corresponding to a valid style
+<code>brightness</code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>pass a numeric or character corresponding to a valid
+<code>color.mode</code></p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a <em>list</em> of <code><a href="Style.html">Style</a></code> class or
+<code><a href="Style.html">Style</a></code> objects</p>
+</td></tr>
+<tr valign="top"><td><code>drop</code></td>
+<td>
+<p>TRUE or FALSE, whether to drop dimensions, defaults to FALSE,
+which is different than generic</p>
+</td></tr>
+<tr valign="top"><td><code>exact</code></td>
+<td>
+<p>passed on to generic</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a <code><a href="Style.html">Style</a></code> <code>ClassRepresentation</code> object or
+<code><a href="Style.html">Style</a></code> object for <code>[[</code>, and a list of the same for
+<code>[</code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="diffPrint.html">diffPrint</a></code> for explanations of <code>format</code>,
+<code>brightness</code>, and <code>color.mode</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+pal &lt;- PaletteOfStyles()
+pal[["ansi256", "light", "rgb"]]
+pal["ansi256", "light", ]
+pal["ansi256", "light", "rgb"] &lt;- list(StyleAnsi8NeutralRgb())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

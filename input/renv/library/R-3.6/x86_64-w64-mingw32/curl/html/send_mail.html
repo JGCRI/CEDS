@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Send email</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for send_mail {curl}"><tr><td>send_mail {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Send email</h2>
+
+<h3>Description</h3>
+
+<p>Use the curl SMTP client to send an email. The <code>message</code> argument must be
+properly formatted <a href="https://tools.ietf.org/html/rfc2822">RFC2822</a> email message with From/To/Subject headers and CRLF
+line breaks.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+send_mail(
+  mail_from,
+  mail_rcpt,
+  message,
+  smtp_server = "smtp://localhost",
+  use_ssl = c("try", "no", "force"),
+  verbose = TRUE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mail_from</code></td>
+<td>
+<p>email address of the sender.</p>
+</td></tr>
+<tr valign="top"><td><code>mail_rcpt</code></td>
+<td>
+<p>one or more recipient email addresses. Do not include names,
+these go into the <code>message</code> headers.</p>
+</td></tr>
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>either a string or connection with (properly formatted) email
+message, including sender/recipient/subject headers. See example.</p>
+</td></tr>
+<tr valign="top"><td><code>smtp_server</code></td>
+<td>
+<p>hostname or address of the SMTP server, or, an
+<code>smtp://</code> or <code>smtps://</code> URL. See &quot;Specifying the server, port,
+and protocol&quot; below.</p>
+</td></tr>
+<tr valign="top"><td><code>use_ssl</code></td>
+<td>
+<p>Request to upgrade the connection to SSL using the STARTTLS command,
+see <a href="https://curl.se/libcurl/c/CURLOPT_USE_SSL.html">CURLOPT_USE_SSL</a>
+for details. Default will try to SSL, proceed as normal otherwise.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>print output</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other options passed to <code><a href="handle.html">handle_setopt</a></code>. In most cases
+you will need to set a <code>username</code> and <code>password</code> to authenticate
+with the SMTP server.</p>
+</td></tr>
+</table>
+
+
+<h3>Specifying the server, port, and protocol</h3>
+
+<p>The <code>smtp_server</code> argument takes a hostname, or an SMTP URL:
+</p>
+
+<ul>
+<li> <p><code>mail.example.com</code> - hostname only
+</p>
+</li>
+<li> <p><code>mail.example.com:587</code> - hostname and port
+</p>
+</li>
+<li> <p><code>smtp://mail.example.com</code> - protocol and hostname
+</p>
+</li>
+<li> <p><code>smtp://mail.example.com:587</code> - full SMTP URL
+</p>
+</li>
+<li> <p><code>smtps://mail.example.com:465</code> - full SMTPS URL
+</p>
+</li></ul>
+
+<p>By default, the port will be 25, unless <code>smtps://</code> is specified&ndash;then
+the default will be 465 instead.
+</p>
+
+
+<h3>Encrypting connections via SMTPS or STARTTLS</h3>
+
+<p>There are two different ways in which SMTP can be encrypted: SMTPS servers
+run on a port which only accepts encrypted connections, similar to HTTPS.
+Alternatively, a regular insecure smtp connection can be &quot;upgraded&quot; to a
+secure TLS connection using the STARTTLS command. It is important to know
+which method your server expects.
+</p>
+<p>If your smtp server listens on port 465, then use a  <code>smtps://hostname:465</code>
+URL. The SMTPS protocol <em>guarantees</em> that TLS will be used to protect
+all communications from the start.
+</p>
+<p>If your email server listens on port 25 or 587, use an <code>smtp://</code> URL in
+combination with the  <code>use_ssl</code> parameter to control if the connection
+should be upgraded with STARTTLS. The default value <code>"try"</code> will
+<em>opportunistically</em> try to upgrade to a secure connection if the server
+supports it, and proceed as normal otherwise.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: # Set sender and recipients (email addresses only)
+recipients &lt;- readline("Enter your email address to receive test: ")
+sender &lt;- 'test@noreply.com'
+
+# Full email message in RFC2822 format
+message &lt;- 'From: "R (curl package)" &lt;test@noreply.com&gt;
+To: "Roger Recipient" &lt;roger@noreply.com&gt;
+Subject: Hello R user!
+
+Dear R user,
+
+I am sending this email using curl.'
+
+# Send the email
+send_mail(sender, recipients, message, smtp_server = 'smtps://smtp.gmail.com',
+  username = 'curlpackage', password  = 'qyyjddvphjsrbnlm')
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

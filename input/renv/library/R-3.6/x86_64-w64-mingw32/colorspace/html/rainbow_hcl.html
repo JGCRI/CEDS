@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: HCL (and HSV) Color Palettes Corresponding to Base R Palettes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rainbow_hcl {colorspace}"><tr><td>rainbow_hcl {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>HCL (and HSV) Color Palettes Corresponding to Base R Palettes</h2>
+
+<h3>Description</h3>
+
+<p>Color palettes based on the HCL (and HSV) color space to replace
+base R palettes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rainbow_hcl(
+  n,
+  c = 50,
+  l = 70,
+  start = 0,
+  end = 360 * (n - 1)/n,
+  gamma = NULL,
+  fixup = TRUE,
+  alpha = 1,
+  ...
+)
+
+heat_hcl(
+  n,
+  h = c(0, 90),
+  c. = c(100, 30),
+  l = c(50, 90),
+  power = c(1/5, 1),
+  gamma = NULL,
+  fixup = TRUE,
+  alpha = 1,
+  ...
+)
+
+terrain_hcl(
+  n,
+  h = c(130, 0),
+  c. = c(80, 0),
+  l = c(60, 95),
+  power = c(1/10, 1),
+  gamma = NULL,
+  fixup = TRUE,
+  alpha = 1,
+  ...
+)
+
+diverging_hsv(
+  n,
+  h = c(240, 0),
+  s = 1,
+  v = 1,
+  power = 1,
+  gamma = NULL,
+  fixup = TRUE,
+  alpha = 1,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>the number of colors (<i>&gt;= 1</i>) to be in the palette.</p>
+</td></tr>
+<tr valign="top"><td><code>c, c.</code></td>
+<td>
+<p>chroma value in the HCL color description.</p>
+</td></tr>
+<tr valign="top"><td><code>l</code></td>
+<td>
+<p>luminance value in the HCL color description.</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>the hue at which the rainbow begins.</p>
+</td></tr>
+<tr valign="top"><td><code>end</code></td>
+<td>
+<p>the hue at which the rainbow ends.</p>
+</td></tr>
+<tr valign="top"><td><code>gamma</code></td>
+<td>
+<p>Deprecated.</p>
+</td></tr>
+<tr valign="top"><td><code>fixup</code></td>
+<td>
+<p>logical. Should the color be corrected to a valid RGB value
+before correction?</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>numeric vector of values in the range <code>[0, 1]</code> for alpha
+transparency channel (0 means transparent and 1 means opaque).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed to <code><a href="hex.html">hex</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>h</code></td>
+<td>
+<p>hue value in the HCL or HSV color description, has to be in [0, 360]
+for HCL and in [0, 1] for HSV colors.</p>
+</td></tr>
+<tr valign="top"><td><code>power</code></td>
+<td>
+<p>control parameter determining how chroma and luminance should
+be increased (1 = linear, 2 = quadratic, etc.).</p>
+</td></tr>
+<tr valign="top"><td><code>s</code></td>
+<td>
+<p>saturation value in the HSV color description.</p>
+</td></tr>
+<tr valign="top"><td><code>v</code></td>
+<td>
+<p>value value in the HSV color description.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Based on the general qualitative, sequential, and diverging <code><a href="hcl_palettes.html">hcl_palettes</a></code>
+within the colorspace package, convenience functions are provided as
+alternatives to standard base R palettes (which are highly saturated
+and too flashy).
+</p>
+<p><code>rainbow_hcl</code> computes a rainbow of colors via <code><a href="hcl_palettes.html">qualitative_hcl</a></code>
+defined by different hues given a single value of each chroma and luminance.
+It corresponds to <code><a href="../../grDevices/html/palettes.html">rainbow</a></code> which computes a rainbow in HSV
+space.
+</p>
+<p><code>heat_hcl</code> is an implementation of <code><a href="../../grDevices/html/heat.colors.html">heat.colors</a></code> in
+HCL space based on a call to <code><a href="hcl_palettes.html">sequential_hcl</a></code>. Similarly,
+<code>terrain_hcl</code> palette also calls <code>sequential_hcl</code> with different
+parameters, providing colors similar in spirit to <code>terrain.colors</code>
+in HCL space.
+</p>
+<p><code>diverging_hsv</code> (and equivalently its alias <code>diverge_hsv</code>)
+provides an HSV-based version of <code><a href="hcl_palettes.html">diverging_hcl</a></code>. Its purpose
+is mainly didactic to show that HSV-based diverging palettes are less
+appealing, more difficult to read and more flashy than HCL-based diverging
+palettes. <code>diverging_hsv</code> is similar to <code><a href="../../grDevices/html/cm.colors.html">cm.colors</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A character vector with (s)RGB codings of the colors in the palette.
+</p>
+
+
+<h3>References</h3>
+
+<p>Zeileis A, Hornik K, Murrell P (2009).  Escaping RGBland:
+Selecting Colors for Statistical Graphics.  <em>Computational Statistics &amp;
+Data Analysis</em>, <b>53</b>, 3259&ndash;3270.
+doi: <a href="https://doi.org/10.1016/j.csda.2008.11.033">10.1016/j.csda.2008.11.033</a>
+Preprint available from
+<a href="https://www.zeileis.org/papers/Zeileis+Hornik+Murrell-2009.pdf">https://www.zeileis.org/papers/Zeileis+Hornik+Murrell-2009.pdf</a>.
+</p>
+<p>Stauffer R, Mayr GJ, Dabernig M, Zeileis A (2015).  Somewhere over the
+Rainbow: How to Make Effective Use of Colors in Meteorological
+Visualizations.  <em>Bulletin of the American Meteorological Society</em>,
+<b>96</b>(2), 203&ndash;216.
+doi: <a href="https://doi.org/10.1175/BAMS-D-13-00155.1">10.1175/BAMS-D-13-00155.1</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="polarLUV.html">polarLUV</a></code>, <code><a href="HSV.html">HSV</a></code>,
+<code><a href="hex.html">hex</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## convenience demo function
+wheel &lt;- function(col, radius = 1, ...)
+  pie(rep(1, length(col)), col = col, radius = radius, ...) 
+
+## compare base and colorspace palettes
+## (in color and desaturated)
+par(mar = rep(0, 4), mfrow = c(2, 2))
+## rainbow color wheel
+wheel(rainbow_hcl(12))
+wheel(rainbow(12))
+wheel(desaturate(rainbow_hcl(12)))
+wheel(desaturate(rainbow(12)))
+
+## diverging red-blue colors
+swatchplot(
+  diverging_hsv(7),
+  desaturate(diverging_hsv(7)),
+  diverging_hcl(7, c = 100, l = c(50, 90)),
+  desaturate(diverging_hcl(7, c = 100, l = c(50, 90))),
+  nrow = 2
+)
+
+## diverging cyan-magenta colors
+swatchplot(
+  cm.colors(7),
+  desaturate(cm.colors(7)),
+  diverging_hcl(7, "Cyan-Magenta"), ## or, similarly: Tropic
+  desaturate(diverging_hcl(7, "Cyan-Magenta")),
+  nrow = 2
+)
+
+## heat colors
+swatchplot(
+  heat.colors(12),
+  desaturate(heat.colors(12)),
+  heat_hcl(12),
+  desaturate(heat_hcl(12)),
+  nrow = 2
+)
+
+## terrain colors
+swatchplot(
+  terrain.colors(12),
+  desaturate(terrain.colors(12)),
+  terrain_hcl(12),
+  desaturate(terrain_hcl(12)),
+  nrow = 2
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

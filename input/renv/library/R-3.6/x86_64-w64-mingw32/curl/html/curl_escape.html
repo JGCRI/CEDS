@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: URL encoding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curl_escape {curl}"><tr><td>curl_escape {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>URL encoding</h2>
+
+<h3>Description</h3>
+
+<p>Escape all special characters (i.e. everything except for a-z, A-Z, 0-9, '-',
+'.', '_' or '~') for use in URLs.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+curl_escape(url)
+
+curl_unescape(url)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>A character vector (typically containing urls or parameters) to be
+encoded/decoded</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Escape strings
+out &lt;- curl_escape("foo = bar + 5")
+curl_unescape(out)
+
+# All non-ascii characters are encoded
+mu &lt;- "\u00b5"
+curl_escape(mu)
+curl_unescape(curl_escape(mu))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

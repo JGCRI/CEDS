@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Label of an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_name {rlang}"><tr><td>env_name {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Label of an environment</h2>
+
+<h3>Description</h3>
+
+<p>Special environments like the global environment have their own
+names. <code>env_name()</code> returns:
+</p>
+
+<ul>
+<li><p> &quot;global&quot; for the global environment.
+</p>
+</li>
+<li><p> &quot;empty&quot; for the empty environment.
+</p>
+</li>
+<li><p> &quot;base&quot; for the base package environment (the last environment on
+the search path).
+</p>
+</li>
+<li><p> &quot;namespace:pkg&quot; if <code>env</code> is the namespace of the package &quot;pkg&quot;.
+</p>
+</li>
+<li><p> The <code>name</code> attribute of <code>env</code> if it exists. This is how the
+<a href="search_envs.html">package environments</a> and the <a href="ns_env.html">imports environments</a> store their names. The name of package
+environments is typically &quot;package:pkg&quot;.
+</p>
+</li>
+<li><p> The empty string <code>""</code> otherwise.
+</p>
+</li></ul>
+
+<p><code>env_label()</code> is exactly like <code>env_name()</code> but returns the memory
+address of anonymous environments as fallback.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_name(env)
+
+env_label(env)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Some environments have specific names:
+env_name(global_env())
+env_name(ns_env("rlang"))
+
+# Anonymous environments don't have names but are labelled by their
+# address in memory:
+env_name(env())
+env_label(env())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a layer of map borders</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for borders {ggplot2}"><tr><td>borders {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a layer of map borders</h2>
+
+<h3>Description</h3>
+
+<p>This is a quick and dirty way to get map data (from the maps package)
+on to your plot. This is a good place to start if you need some crude
+reference lines, but you'll typically want something more sophisticated
+for communication graphics.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+borders(
+  database = "world",
+  regions = ".",
+  fill = NA,
+  colour = "grey50",
+  xlim = NULL,
+  ylim = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>database</code></td>
+<td>
+<p>map data, see <code><a href="../../maps/html/map.html">maps::map()</a></code> for details</p>
+</td></tr>
+<tr valign="top"><td><code>regions</code></td>
+<td>
+<p>map region</p>
+</td></tr>
+<tr valign="top"><td><code>fill</code></td>
+<td>
+<p>fill colour</p>
+</td></tr>
+<tr valign="top"><td><code>colour</code></td>
+<td>
+<p>border colour</p>
+</td></tr>
+<tr valign="top"><td><code>xlim, ylim</code></td>
+<td>
+<p>latitudinal and longitudinal ranges for extracting map
+polygons, see <code><a href="../../maps/html/map.html">maps::map()</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Arguments passed on to <code><a href="geom_polygon.html">geom_polygon</a></code>
+</p>
+
+<dl>
+<dt><code>rule</code></dt><dd><p>Either <code>"evenodd"</code> or <code>"winding"</code>. If polygons with holes are
+being drawn (using the <code>subgroup</code> aesthetic) this argument defines how the
+hole coordinates are interpreted. See the examples in <code><a href="../../grid/html/grid.path.html">grid::pathGrob()</a></code> for
+an explanation.</p>
+</dd>
+<dt><code>mapping</code></dt><dd><p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</dd>
+<dt><code>data</code></dt><dd><p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</dd>
+<dt><code>stat</code></dt><dd><p>The statistical transformation to use on the data for this
+layer, as a string.</p>
+</dd>
+<dt><code>position</code></dt><dd><p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</dd>
+<dt><code>show.legend</code></dt><dd><p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</dd>
+<dt><code>inherit.aes</code></dt><dd><p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</dd>
+<dt><code>na.rm</code></dt><dd><p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</dd>
+</dl>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require("maps")) {
+
+ia &lt;- map_data("county", "iowa")
+mid_range &lt;- function(x) mean(range(x))
+seats &lt;- do.call(rbind, lapply(split(ia, ia$subregion), function(d) {
+  data.frame(lat = mid_range(d$lat), long = mid_range(d$long), subregion = unique(d$subregion))
+}))
+
+ggplot(ia, aes(long, lat)) +
+  geom_polygon(aes(group = group), fill = NA, colour = "grey60") +
+  geom_text(aes(label = subregion), data = seats, size = 2, angle = 45)
+}
+
+if (require("maps")) {
+data(us.cities)
+capitals &lt;- subset(us.cities, capital == 2)
+ggplot(capitals, aes(long, lat)) +
+  borders("state") +
+  geom_point(aes(size = pop)) +
+  scale_size_area() +
+  coord_quickmap()
+}
+
+if (require("maps")) {
+# Same map, with some world context
+ggplot(capitals, aes(long, lat)) +
+  borders("world", xlim = c(-130, -60), ylim = c(20, 50)) +
+  geom_point(aes(size = pop)) +
+  scale_size_area() +
+  coord_quickmap()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

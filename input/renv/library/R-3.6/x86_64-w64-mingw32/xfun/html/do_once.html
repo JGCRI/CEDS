@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Perform a task once in an R session</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do_once {xfun}"><tr><td>do_once {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Perform a task once in an R session</h2>
+
+<h3>Description</h3>
+
+<p>Perform a task once in an R session, e.g., emit a message or warning. Then
+give users an optional hint on how not to perform this task at all.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do_once(
+  task,
+  option,
+  hint = c("You will not see this message again in this R session.",
+    "If you never want to see this message,",
+    sprintf("you may set options(%s = FALSE) in your .Rprofile.", option))
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>task</code></td>
+<td>
+<p>Any R code expression to be evaluated once to perform a task,
+e.g., <code>warning('Danger!')</code> or <code>message('Today is ', Sys.Date())</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>option</code></td>
+<td>
+<p>An R option name. This name should be as unique as possible in
+<code><a href="../../base/html/options.html">options</a>()</code>. After the task has been successfully performed,
+this option will be set to <code>FALSE</code> in the current R session, to
+prevent the task from being performed again the next time when
+<code>do_once()</code> is called.</p>
+</td></tr>
+<tr valign="top"><td><code>hint</code></td>
+<td>
+<p>A character vector to provide a hint to users on how not to
+perform the task or see the message again in the current R session. Set
+<code>hint = ""</code> if you do not want to provide the hint.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The value returned by the <code>task</code>, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+do_once(message("Today's date is ", Sys.Date()), "xfun.date.reminder")
+# if you run it again, it will not emit the message again
+do_once(message("Today's date is ", Sys.Date()), "xfun.date.reminder")
+
+do_once({
+    Sys.sleep(2)
+    1 + 1
+}, "xfun.task.1plus1")
+do_once({
+    Sys.sleep(2)
+    1 + 1
+}, "xfun.task.1plus1")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

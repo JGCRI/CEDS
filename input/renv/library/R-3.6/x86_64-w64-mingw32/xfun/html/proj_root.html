@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return the (possible) root directory of a project</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for proj_root {xfun}"><tr><td>proj_root {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return the (possible) root directory of a project</h2>
+
+<h3>Description</h3>
+
+<p>Given a path of a file (or dir) in a potential project (e.g., an R package or
+an RStudio project), return the path to the project root directory.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+proj_root(path = "./", rules = root_rules)
+
+root_rules
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The initial path to start the search. If it is a file path, its
+parent directory will be used.</p>
+</td></tr>
+<tr valign="top"><td><code>rules</code></td>
+<td>
+<p>A matrix of character strings of two columns: the first column
+contains regular expressions to look for filenames that match the patterns,
+and the second column contains regular expressions to match the content of
+the matched files. The regular expression can be an empty string, meaning
+that it will match anything.</p>
+</td></tr>
+</table>
+
+
+<h3>Format</h3>
+
+<p>An object of class <code>matrix</code> (inherits from <code>array</code>) with 2 rows and 2 columns.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The search for the root directory is performed by a series of tests,
+currently including looking for a &lsquo;<span class="file">DESCRIPTION</span>&rsquo; file that contains
+<code>Package: *</code> (which usually indicates an R package), and a
+&lsquo;<span class="file">*.Rproj</span>&rsquo; file that contains <code>Version: *</code> (which usually indicates
+an RStudio project). If files with the expected patterns are not found in the
+initial directory, the search will be performed recursively in upper-level
+directories.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Path to the root directory if found, otherwise <code>NULL</code>.
+</p>
+
+
+<h3>Note</h3>
+
+<p>This function was inspired by the <span class="pkg">rprojroot</span> package, but is much
+less sophisticated. It is a rather simple function designed to be used in
+some of packages that I maintain, and may not meet the need of general
+users until this note is removed in the future (which should be unlikely).
+If you are sure that you are working on the types of projects mentioned in
+the &lsquo;Details&rsquo; section, this function may be helpful to you,
+otherwise please consider using <span class="pkg">rprojroot</span> instead.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

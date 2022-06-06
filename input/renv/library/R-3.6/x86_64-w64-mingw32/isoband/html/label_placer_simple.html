@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generic label placement function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for label_placer_simple {isoband}"><tr><td>label_placer_simple {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generic label placement function</h2>
+
+<h3>Description</h3>
+
+<p>The simple label placer processes separate isolines independently and places
+labels for each line using a placer function that does the actual placement work.
+This label placer is not meant to be used by end users, but rather facilitates the
+development of new label placers, such as <code><a href="label_placer.html">label_placer_minmax()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+label_placer_simple(lines, labels_data, placer_fun)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lines</code></td>
+<td>
+<p>Isolines object for which labels should be placed.</p>
+</td></tr>
+<tr valign="top"><td><code>labels_data</code></td>
+<td>
+<p>A data frame containing information about which labels should
+be placed.</p>
+</td></tr>
+<tr valign="top"><td><code>placer_fun</code></td>
+<td>
+<p>A function that takes an individual isoline plus its associated
+break id as input and returns a data frame specifying label positions. The data
+frame should have three columns called <code>x</code>, <code>y</code>, and <code>theta</code>. <code>x</code> and <code>y</code> specify
+the label position, and <code>theta</code> specifies the label angle in radians. The data
+frame can have multiple rows, which results in the same label being placed in
+multiple locations.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

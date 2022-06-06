@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run all tests in a directory</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for test_dir {testthat}"><tr><td>test_dir {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run all tests in a directory</h2>
+
+<h3>Description</h3>
+
+<p>This function is the low-level workhorse that powers <code><a href="test_package.html">test_local()</a></code> and
+<code><a href="test_package.html">test_package()</a></code>. Generally, you should not call this function directly.
+In particular, you are responsible for ensuring that the functions to test
+are available in the test <code>env</code> (e.g. via <code>load_package</code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+test_dir(
+  path,
+  filter = NULL,
+  reporter = NULL,
+  env = NULL,
+  ...,
+  load_helpers = TRUE,
+  stop_on_failure = TRUE,
+  stop_on_warning = FALSE,
+  wrap = lifecycle::deprecated(),
+  package = NULL,
+  load_package = c("none", "installed", "source")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to directory containing tests.</p>
+</td></tr>
+<tr valign="top"><td><code>filter</code></td>
+<td>
+<p>If not <code>NULL</code>, only tests with file names matching this
+regular expression will be executed. Matching is performed on the file
+name after it's stripped of <code>"test-"</code> and <code>".R"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>reporter</code></td>
+<td>
+<p>Reporter to use to summarise output. Can be supplied
+as a string (e.g. &quot;summary&quot;) or as an R6 object
+(e.g. <code>SummaryReporter$new()</code>).
+</p>
+<p>See <a href="Reporter.html">Reporter</a> for more details and a list of built-in reporters.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which to execute the tests. Expert use only.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to <code><a href="../../base/html/grep.html">grepl()</a></code> to control filtering.</p>
+</td></tr>
+<tr valign="top"><td><code>load_helpers</code></td>
+<td>
+<p>Source helper files before running the tests?
+See <code><a href="source_file.html">source_test_helpers()</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>stop_on_failure</code></td>
+<td>
+<p>If <code>TRUE</code>, throw an error if any tests fail.</p>
+</td></tr>
+<tr valign="top"><td><code>stop_on_warning</code></td>
+<td>
+<p>If <code>TRUE</code>, throw an error if any tests generate
+warnings.</p>
+</td></tr>
+<tr valign="top"><td><code>wrap</code></td>
+<td>
+<p>DEPRECATED</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>If these tests belong to a package, the name of the package.</p>
+</td></tr>
+<tr valign="top"><td><code>load_package</code></td>
+<td>
+<p>Strategy to use for load package code:
+</p>
+
+<ul>
+<li><p> &quot;none&quot;, the default, doesn't load the package.
+</p>
+</li>
+<li><p> &quot;installed&quot;, uses <code><a href="../../base/html/library.html">library()</a></code> to load an installed package.
+</p>
+</li>
+<li><p> &quot;source&quot;, uses <code><a href="../../pkgload/html/load_all.html">pkgload::load_all()</a></code> to a source package.
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list (invisibly) containing data about the test results.
+</p>
+
+
+<h3>Special files</h3>
+
+<p>There are two types of <code>.R</code> file that have special behaviour:
+</p>
+
+<ul>
+<li><p> Test files start with <code>test</code> and are executed in alphabetical order.
+</p>
+</li>
+<li><p> Setup files start with <code>setup</code> and are executed before tests. If
+clean up is needed after all tests have been run, you can use
+<code>withr::defer(clean_up(), teardown_env())</code>. See <code>vignette("test-fixtures")</code>
+for more details.
+</p>
+</li></ul>
+
+<p>There are two other types of special file that we no longer recommend using:
+</p>
+
+<ul>
+<li><p> Helper files start with <code>helper</code> and are executed before tests are
+run. They're also loaded by <code>devtools::load_all()</code>, so there's no
+real point to them and you should just put your helper code in <code style="white-space: pre;">R/</code>.
+</p>
+</li>
+<li><p> Teardown files start with <code>teardown</code> and are executed after the tests
+are run. Now we recommend interleave setup and cleanup code in <code style="white-space: pre;">setup-</code>
+files, making it easier to check that you automatically clean up every
+mess that you make.
+</p>
+</li></ul>
+
+<p>All other files are ignored by testthat.
+</p>
+
+
+<h3>Environments</h3>
+
+<p>Each test is run in a clean environment to keep tests as isolated as
+possible. For package tests, that environment that inherits from the
+package's namespace environment, so that tests can access internal functions
+and objects.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Splice lists</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for splice {rlang}"><tr><td>splice {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Splice lists</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+
+<ul>
+<li> <p><code>splice</code> marks an object to be spliced. It is equivalent to using
+<code style="white-space: pre;">!!!</code> in a function taking <a href="dyn-dots.html">dynamic dots</a>.
+</p>
+</li>
+<li> <p><code>dots_splice()</code> is like <code><a href="list2.html">dots_list()</a></code> but automatically splices
+list inputs.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+splice(x)
+
+is_spliced(x)
+
+is_spliced_bare(x)
+
+dots_splice(
+  ...,
+  .ignore_empty = c("trailing", "none", "all"),
+  .preserve_empty = FALSE,
+  .homonyms = c("keep", "first", "last", "error"),
+  .check_assign = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A list to splice.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to collect in a list. These dots are
+<a href="dyn-dots.html">dynamic</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.ignore_empty</code></td>
+<td>
+<p>Whether to ignore empty arguments. Can be one
+of <code>"trailing"</code>, <code>"none"</code>, <code>"all"</code>. If <code>"trailing"</code>, only the
+last argument is ignored if it is empty.</p>
+</td></tr>
+<tr valign="top"><td><code>.preserve_empty</code></td>
+<td>
+<p>Whether to preserve the empty arguments that
+were not ignored. If <code>TRUE</code>, empty arguments are stored with
+<code><a href="missing_arg.html">missing_arg()</a></code> values. If <code>FALSE</code> (the default) an error is
+thrown when an empty argument is detected.</p>
+</td></tr>
+<tr valign="top"><td><code>.homonyms</code></td>
+<td>
+<p>How to treat arguments with the same name. The
+default, <code>"keep"</code>, preserves these arguments. Set <code>.homonyms</code> to
+<code>"first"</code> to only keep the first occurrences, to <code>"last"</code> to keep
+the last occurrences, and to <code>"error"</code> to raise an informative
+error and indicate what arguments have duplicated names.</p>
+</td></tr>
+<tr valign="top"><td><code>.check_assign</code></td>
+<td>
+<p>Whether to check for <code style="white-space: pre;">&lt;-</code> calls. When <code>TRUE</code> a
+warning recommends users to use <code>=</code> if they meant to match a
+function parameter or wrap the <code style="white-space: pre;">&lt;-</code> call in curly braces otherwise.
+This ensures assignments are explicit.</p>
+</td></tr>
+</table>
+
+
+<h3>Standard splicing versus quoting splicing</h3>
+
+<p>The <code style="white-space: pre;">!!!</code> operator works differently in <em>standard</em> functions taking
+dots with <code>dots_list()</code> than in <em>quoting</em> functions taking dots
+with <code><a href="defusing-advanced.html">enexprs()</a></code> or <code><a href="enquo.html">enquos()</a></code>.
+</p>
+
+<ul>
+<li><p> In quoting functions <code style="white-space: pre;">!!!</code> disaggregates its argument (let's call
+it <code>x</code>) into as many objects as there are elements in
+<code>x</code>. E.g. <code>quo(foo(!!! c(1, 2)))</code> is completely equivalent to
+<code>quo(foo(1, 2))</code>. The creation of those separate objects has an
+overhead but is typically not important when manipulating calls
+because function calls typically take a small number of
+arguments.
+</p>
+</li>
+<li><p> In standard functions, disaggregating the spliced collection
+would have a negative performance impact in cases where
+<code>dots_list()</code> is used to build up data structures from user
+inputs. To avoid this spliced inputs are marked with <code><a href="splice.html">splice()</a></code>
+and the final list is built with (the equivalent of)
+<code>flatten_if(dots, is_spliced)</code>.
+</p>
+</li></ul>
+
+<p>Most of the time you should not care about the difference. However
+if you use a standard function taking tidy dots within a quoting
+function, the <code style="white-space: pre;">!!!</code> operator will disaggregate its argument because
+the behaviour of the quasiquoting function has priority. You might
+then observe some performance cost in edge cases. Here is one
+example where this would happen:</p>
+<pre>purrr::rerun(10, dplyr::bind_rows(!!! x))
+</pre>
+<p><code>purrr::rerun()</code> is a quoting function and <code>dplyr::bind_rows()</code> is
+a standard function. Because <code>bind_rows()</code> is called <em>inside</em>
+<code>rerun()</code>, the list <code>x</code> will be disaggregated into a pairlist of
+arguments. To avoid this you can use <code>splice()</code> instead:</p>
+<pre>purrr::rerun(10, dplyr::bind_rows(splice(x)))
+</pre>
+
+
+<h3>Life cycle</h3>
+
+
+<ul>
+<li> <p><code>dots_splice()</code> is in the questioning stage. It is part of our
+experiments with dots semantics. Compared to <code>dots_list()</code>,
+<code>dots_splice()</code> automatically splices lists. We now lean towards
+adopting a single type of dots semantics (those of <code>dots_list()</code>)
+where splicing is explicit.
+</p>
+</li>
+<li> <p><code>splice()</code> is in the questioning stage. It is not clear whether it is
+really needed as there are other ways to avoid the performance
+issue discussed above.
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Information about the currently loaded packages, or about a...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for package_info {sessioninfo}"><tr><td>package_info {sessioninfo}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Information about the currently loaded packages, or about a chosen set</h2>
+
+<h3>Description</h3>
+
+<p>Information about the currently loaded packages, or about a chosen set
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+package_info(
+  pkgs = c("loaded", "attached", "installed")[1],
+  include_base = FALSE,
+  dependencies = NA
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkgs</code></td>
+<td>
+<p>Which packages to show. It may be:
+</p>
+
+<ul>
+<li> <p><code>NULL</code> or <code>"loaded"</code>: show all loaded packages,
+</p>
+</li>
+<li> <p><code>"attached"</code>: show all attached packages,
+</p>
+</li>
+<li> <p><code>"installed"</code>: show all installed packages,
+</p>
+</li>
+<li><p> a character vector of package names. Their (hard) dependencies are
+also shown by default, see the <code>dependencies</code> argument.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>include_base</code></td>
+<td>
+<p>Include base packages in summary? By default this is
+false since base packages should always match the R version.</p>
+</td></tr>
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>Whether to include the (recursive) dependencies
+as well. See the <code>dependencies</code> argument of <code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A data frame with columns:
+</p>
+
+<ul>
+<li> <p><code>package</code>: package name.
+</p>
+</li>
+<li> <p><code>ondiskversion</code>: package version (on the disk, which is sometimes
+not the same as the loaded version).
+</p>
+</li>
+<li> <p><code>loadedversion</code>: package version. This is the version of the loaded
+namespace if <code>pkgs</code> is <code>NULL</code>, and it is the version of the package
+on disk otherwise. The two of them are almost always the same,
+though.
+</p>
+</li>
+<li> <p><code>path</code>: path to the package on disk.
+</p>
+</li>
+<li> <p><code>loadedpath</code>: the path the package was originally loaded from.
+</p>
+</li>
+<li> <p><code>attached</code>: logical, whether the package is attached to the search
+path.
+</p>
+</li>
+<li> <p><code>is_base</code>: logical, whether the package is a base package.
+</p>
+</li>
+<li> <p><code>date</code>: the date the package was installed or built, in UTC.
+</p>
+</li>
+<li> <p><code>source</code>: where the package was installed from. E.g.
+<code>CRAN</code>, <code>GitHub</code>, <code>local</code> (from the local machine), etc.
+</p>
+</li>
+<li> <p><code>md5ok</code>: Whether MD5 hashes for package DLL files match, on Windows.
+<code>NA</code> on other platforms.
+</p>
+</li>
+<li> <p><code>library</code>: factor, which package library the package was loaded from.
+For loaded packages, this is (the factor representation of)
+<code>loadedpath</code>, for others <code>path</code>.
+</p>
+</li></ul>
+
+<p>See <code><a href="session_info.html">session_info()</a></code> for the description of the <em>printed</em> columns
+by <code>package_info</code> (as opposed to the <em>returned</em> columns).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+package_info()
+package_info("sessioninfo")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>sessioninfo</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Lookup a hostname</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nslookup {curl}"><tr><td>nslookup {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Lookup a hostname</h2>
+
+<h3>Description</h3>
+
+<p>The <code>nslookup</code> function is similar to <code>nsl</code> but works on all platforms
+and can resolve ipv6 addresses if supported by the OS. Default behavior raises an
+error if lookup fails.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nslookup(host, ipv4_only = FALSE, multiple = FALSE, error = TRUE)
+
+has_internet()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>a string with a hostname</p>
+</td></tr>
+<tr valign="top"><td><code>ipv4_only</code></td>
+<td>
+<p>always return ipv4 address. Set to 'FALSE' to allow for ipv6 as well.</p>
+</td></tr>
+<tr valign="top"><td><code>multiple</code></td>
+<td>
+<p>returns multiple ip addresses if possible</p>
+</td></tr>
+<tr valign="top"><td><code>error</code></td>
+<td>
+<p>raise an error for failed DNS lookup. Otherwise returns <code>NULL</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>has_internet</code> function tests for internet connectivity by performing a
+dns lookup. If a proxy server is detected, it will also check for connectivity by
+connecting via the proxy.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Should always work if we are online
+nslookup("www.r-project.org")
+
+# If your OS supports IPv6
+nslookup("ipv6.test-ipv6.com", ipv4_only = FALSE, error = FALSE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

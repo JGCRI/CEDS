@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: save Workbook to file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for saveWorkbook {openxlsx}"><tr><td>saveWorkbook {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>save Workbook to file</h2>
+
+<h3>Description</h3>
+
+<p>save a Workbook object to file
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+saveWorkbook(wb, file, overwrite = FALSE, returnValue = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A Workbook object to write to file</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A character string naming an xlsx file</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>If <code>TRUE</code>, overwrite any existing file.</p>
+</td></tr>
+<tr valign="top"><td><code>returnValue</code></td>
+<td>
+<p>If <code>TRUE</code>, returns  <code>TRUE</code> in case of a success, else <code>FALSE</code>.
+If flag is <code>FALSE</code>, then no return value is returned.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker, Philipp Schauberger
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="createWorkbook.html">createWorkbook()</a></code>
+</p>
+<p><code><a href="addWorksheet.html">addWorksheet()</a></code>
+</p>
+<p><code><a href="loadWorkbook.html">loadWorkbook()</a></code>
+</p>
+<p><code><a href="writeData.html">writeData()</a></code>
+</p>
+<p><code><a href="writeDataTable.html">writeDataTable()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook and add a worksheet
+wb &lt;- createWorkbook("Creator of workbook")
+addWorksheet(wb, sheetName = "My first worksheet")
+
+## Save workbook to working directory
+## Not run: 
+saveWorkbook(wb, file = "saveWorkbookExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

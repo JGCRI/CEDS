@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Manage test reporting</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Reporter {testthat}"><tr><td>Reporter {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Manage test reporting</h2>
+
+<h3>Description</h3>
+
+<p>The job of a reporter is to aggregate the results from files, tests, and
+expectations and display them in an informative way. Every testtthat function
+that runs multiple tests provides a <code>reporter</code> argument which you can
+use to override the default (which is selected by <code><a href="default_reporter.html">default_reporter()</a></code>).
+</p>
+
+
+<h3>Details</h3>
+
+<p>You only need to use this <code>Reporter</code> object directly if you are creating
+a new reporter. Currently, creating new Reporters is undocumented,
+so if you want to create your own, you'll need to make sure that you're
+familiar with <a href="https://adv-r.hadley.nz/R6.html">R6</a> and then need read the
+source code for a few.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other reporters: 
+<code><a href="CheckReporter.html">CheckReporter</a></code>,
+<code><a href="DebugReporter.html">DebugReporter</a></code>,
+<code><a href="FailReporter.html">FailReporter</a></code>,
+<code><a href="JunitReporter.html">JunitReporter</a></code>,
+<code><a href="ListReporter.html">ListReporter</a></code>,
+<code><a href="LocationReporter.html">LocationReporter</a></code>,
+<code><a href="MinimalReporter.html">MinimalReporter</a></code>,
+<code><a href="MultiReporter.html">MultiReporter</a></code>,
+<code><a href="ProgressReporter.html">ProgressReporter</a></code>,
+<code><a href="RStudioReporter.html">RStudioReporter</a></code>,
+<code><a href="SilentReporter.html">SilentReporter</a></code>,
+<code><a href="StopReporter.html">StopReporter</a></code>,
+<code><a href="SummaryReporter.html">SummaryReporter</a></code>,
+<code><a href="TapReporter.html">TapReporter</a></code>,
+<code><a href="TeamcityReporter.html">TeamcityReporter</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+path &lt;- testthat_example("success")
+
+test_file(path)
+# Override the default by supplying the name of a reporter
+test_file(path, reporter = "minimal")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

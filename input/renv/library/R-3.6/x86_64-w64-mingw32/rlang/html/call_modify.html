@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Modify the arguments of a call</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for call_modify {rlang}"><tr><td>call_modify {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Modify the arguments of a call</h2>
+
+<h3>Description</h3>
+
+<p>If you are working with a user-supplied call, make sure the
+arguments are standardised with <code><a href="call_match.html">call_match()</a></code> before
+modifying the call.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+call_modify(
+  .call,
+  ...,
+  .homonyms = c("keep", "first", "last", "error"),
+  .standardise = NULL,
+  .env = caller_env()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.call</code></td>
+<td>
+<p>Can be a call, a formula quoting a call in the
+right-hand side, or a frame object from which to extract the call
+expression.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="dyn-dots.html">dynamic</a>&gt; Named or unnamed expressions
+(constants, names or calls) used to modify the call. Use <code><a href="zap.html">zap()</a></code>
+to remove arguments. Empty arguments are preserved.</p>
+</td></tr>
+<tr valign="top"><td><code>.homonyms</code></td>
+<td>
+<p>How to treat arguments with the same name. The
+default, <code>"keep"</code>, preserves these arguments. Set <code>.homonyms</code> to
+<code>"first"</code> to only keep the first occurrences, to <code>"last"</code> to keep
+the last occurrences, and to <code>"error"</code> to raise an informative
+error and indicate what arguments have duplicated names.</p>
+</td></tr>
+<tr valign="top"><td><code>.standardise, .env</code></td>
+<td>
+<p>Deprecated as of rlang 0.3.0. Please
+call <code><a href="call_match.html">call_match()</a></code> manually.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A quosure if <code>.call</code> is a quosure, a call otherwise.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+call &lt;- quote(mean(x, na.rm = TRUE))
+
+# Modify an existing argument
+call_modify(call, na.rm = FALSE)
+call_modify(call, x = quote(y))
+
+# Remove an argument
+call_modify(call, na.rm = zap())
+
+# Add a new argument
+call_modify(call, trim = 0.1)
+
+# Add an explicit missing argument:
+call_modify(call, na.rm = )
+
+# Supply a list of new arguments with `!!!`
+newargs &lt;- list(na.rm = NULL, trim = 0.1)
+call &lt;- call_modify(call, !!!newargs)
+call
+
+# Remove multiple arguments by splicing zaps:
+newargs &lt;- rep_named(c("na.rm", "trim"), list(zap()))
+call &lt;- call_modify(call, !!!newargs)
+call
+
+
+# Modify the `...` arguments as if it were a named argument:
+call &lt;- call_modify(call, ... = )
+call
+
+call &lt;- call_modify(call, ... = zap())
+call
+
+
+# When you're working with a user-supplied call, standardise it
+# beforehand in case it includes unmatched arguments:
+user_call &lt;- quote(matrix(x, nc = 3))
+call_modify(user_call, ncol = 1)
+
+# `call_match()` applies R's argument matching rules. Matching
+# ensures you're modifying the intended argument.
+user_call &lt;- call_match(user_call, matrix)
+user_call
+call_modify(user_call, ncol = 1)
+
+
+# By default, arguments with the same name are kept. This has
+# subtle implications, for instance you can move an argument to
+# last position by removing it and remapping it:
+call &lt;- quote(foo(bar = , baz))
+call_modify(call, bar = NULL, bar = missing_arg())
+
+# You can also choose to keep only the first or last homonym
+# arguments:
+args &lt;-  list(bar = NULL, bar = missing_arg())
+call_modify(call, !!!args, .homonyms = "first")
+call_modify(call, !!!args, .homonyms = "last")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

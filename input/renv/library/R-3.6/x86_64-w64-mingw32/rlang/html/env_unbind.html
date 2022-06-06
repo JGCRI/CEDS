@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Remove bindings from an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_unbind {rlang}"><tr><td>env_unbind {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Remove bindings from an environment</h2>
+
+<h3>Description</h3>
+
+<p><code>env_unbind()</code> is the complement of <code><a href="env_bind.html">env_bind()</a></code>. Like <code>env_has()</code>,
+it ignores the parent environments of <code>env</code> by default. Set
+<code>inherit</code> to <code>TRUE</code> to track down bindings in parent environments.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_unbind(env = caller_env(), nms, inherit = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>nms</code></td>
+<td>
+<p>A character vector of binding names to remove.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>Whether to look for bindings in the parent
+environments.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input object <code>env</code> with its associated environment
+modified in place, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+env &lt;- env(foo = 1, bar = 2)
+env_has(env, c("foo", "bar"))
+
+# Remove bindings with `env_unbind()`
+env_unbind(env, c("foo", "bar"))
+env_has(env, c("foo", "bar"))
+
+# With inherit = TRUE, it removes bindings in parent environments
+# as well:
+parent &lt;- env(empty_env(), foo = 1, bar = 2)
+env &lt;- env(parent, foo = "b")
+
+env_unbind(env, "foo", inherit = TRUE)
+env_has(env, c("foo", "bar"))
+env_has(env, c("foo", "bar"), inherit = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

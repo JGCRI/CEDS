@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Draw a banner-like box in the console</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for list_border_styles {cli}"><tr><td>list_border_styles {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Draw a banner-like box in the console</h2>
+
+<h3>Description</h3>
+
+<p>Draw a banner-like box in the console
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+list_border_styles()
+
+boxx(
+  label,
+  header = "",
+  footer = "",
+  border_style = "single",
+  padding = 1,
+  margin = 0,
+  float = c("left", "center", "right"),
+  col = NULL,
+  background_col = NULL,
+  border_col = col,
+  align = c("left", "center", "right"),
+  width = console_width()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Label to show, a character vector. Each element will be
+in a new line. You can color it using the <code style="white-space: pre;">col_*</code>, <code style="white-space: pre;">bg_*</code> and
+<code style="white-space: pre;">style_*</code> functions, see <a href="ansi-styles.html">ANSI styles</a> and the examples
+below.</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>Text to show on top border of the box. If too long,
+it will be cut.</p>
+</td></tr>
+<tr valign="top"><td><code>footer</code></td>
+<td>
+<p>Text to show on the bottom border of the box. If too long,
+it will be cut.</p>
+</td></tr>
+<tr valign="top"><td><code>border_style</code></td>
+<td>
+<p>String that specifies the border style.
+<code>list_border_styles</code> lists all current styles.</p>
+</td></tr>
+<tr valign="top"><td><code>padding</code></td>
+<td>
+<p>Padding within the box. Either an integer vector of
+four numbers (bottom, left, top, right), or a single number <code>x</code>, which
+is interpreted as <code>c(x, 3*x, x, 3*x)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>margin</code></td>
+<td>
+<p>Margin around the box. Either an integer vector of four
+numbers (bottom, left, top, right), or a single number <code>x</code>, which is
+interpreted as <code>c(x, 3*x, x, 3*x)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>float</code></td>
+<td>
+<p>Whether to display the box on the <code>"left"</code>, <code>"center"</code>, or
+the <code>"right"</code> of the screen.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>Color of text, and default border color. Either a style
+function (see <a href="ansi-styles.html">ANSI styles</a>) or a color name that is
+passed to <code><a href="make_ansi_style.html">make_ansi_style()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>background_col</code></td>
+<td>
+<p>Background color of the inside of the box.
+Either a style function (see <a href="ansi-styles.html">ANSI styles</a>), or a color
+name which will be used in <code><a href="make_ansi_style.html">make_ansi_style()</a></code> to create a
+<em>background</em> style (i.e. <code>bg = TRUE</code> is used).</p>
+</td></tr>
+<tr valign="top"><td><code>border_col</code></td>
+<td>
+<p>Color of the border. Either a style function
+(see <a href="ansi-styles.html">ANSI styles</a>) or a color name that is passed to
+<code><a href="make_ansi_style.html">make_ansi_style()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>align</code></td>
+<td>
+<p>Alignment of the label within the box: <code>"left"</code>,
+<code>"center"</code>, or <code>"right"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of the screen, defaults to <code><a href="console_width.html">console_width()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Defaults</h4>
+
+<div class="sourceCode r"><pre>boxx("Hello there!")
+</pre></div>
+<p><img src="../help/figures/box-default.svg" alt="box-default.svg" />
+</p>
+
+
+
+<h4>Change border style</h4>
+
+<div class="sourceCode r"><pre>boxx("Hello there!", border_style = "double")
+</pre></div>
+<p><img src="../help/figures/box-border.svg" alt="box-border.svg" />
+</p>
+
+
+
+<h4>Multiple lines</h4>
+
+<div class="sourceCode r"><pre>boxx(c("Hello", "there!"), padding = 1)
+</pre></div>
+<p><img src="../help/figures/box-lines.svg" alt="box-lines.svg" />
+</p>
+
+
+
+<h4>Padding</h4>
+
+<div class="sourceCode r"><pre>boxx("Hello there!", padding = 1)
+boxx("Hello there!", padding = c(1, 5, 1, 5))
+</pre></div>
+<p><img src="../help/figures/box-padding.svg" alt="box-padding.svg" />
+</p>
+
+
+
+<h4>Floating</h4>
+
+<div class="sourceCode r"><pre>boxx("Hello there!", padding = 1, float = "center")
+boxx("Hello there!", padding = 1, float = "right")
+</pre></div>
+<p><img src="../help/figures/box-float.svg" alt="box-float.svg" />
+</p>
+
+
+
+<h4>Text color</h4>
+
+<div class="sourceCode r"><pre>boxx(col_cyan("Hello there!"), padding = 1, float = "center")
+</pre></div>
+<p><img src="../help/figures/box-text-color.svg" alt="box-text-color.svg" />
+</p>
+
+
+
+<h4>Background color</h4>
+
+<div class="sourceCode r"><pre>boxx("Hello there!", padding = 1, background_col = "brown")
+boxx("Hello there!", padding = 1, background_col = bg_red)
+</pre></div>
+<p><img src="../help/figures/box-bg-color.svg" alt="box-bg-color.svg" />
+</p>
+
+
+
+<h4>Border color</h4>
+
+<div class="sourceCode r"><pre>boxx("Hello there!", padding = 1, border_col = "green")
+boxx("Hello there!", padding = 1, border_col = col_red)
+</pre></div>
+<p><img src="../help/figures/box-border-color.svg" alt="box-border-color.svg" />
+</p>
+
+
+
+<h4>Label alignment</h4>
+
+<div class="sourceCode r"><pre>boxx(c("Hi", "there", "you!"), padding = 1, align = "left")
+boxx(c("Hi", "there", "you!"), padding = 1, align = "center")
+boxx(c("Hi", "there", "you!"), padding = 1, align = "right")
+</pre></div>
+<p><img src="../help/figures/box-label-align.svg" alt="box-label-align.svg" />
+</p>
+
+
+
+<h4>A very customized box</h4>
+
+<div class="sourceCode r"><pre>star &lt;- symbol$star
+label &lt;- c(paste(star, "Hello", star), "  there!")
+boxx(
+  col_white(label),
+  border_style="round",
+  padding = 1,
+  float = "center",
+  border_col = "tomato3",
+  background_col="darkolivegreen"
+)
+</pre></div>
+<p><img src="../help/figures/box-custom.svg" alt="box-custom.svg" />
+</p>
+
+
+
+<h3>About fonts and terminal settings</h3>
+
+<p>The boxes might or might not look great in your terminal, depending
+on the box style you use and the font the terminal uses. We found that
+the Menlo font looks nice in most terminals an also in Emacs.
+</p>
+<p>RStudio currently has a line height greater than one for console output,
+which makes the boxes ugly.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

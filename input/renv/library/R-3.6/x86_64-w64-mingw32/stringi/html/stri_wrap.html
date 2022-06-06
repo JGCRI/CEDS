@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Word Wrap Text to Format Paragraphs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_wrap {stringi}"><tr><td>stri_wrap {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Word Wrap Text to Format Paragraphs</h2>
+
+<h3>Description</h3>
+
+<p>This function breaks text paragraphs into lines,
+of total width (if it is possible) at most given <code>width</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_wrap(
+  str,
+  width = floor(0.9 * getOption("width")),
+  cost_exponent = 2,
+  simplify = TRUE,
+  normalize = TRUE,
+  normalise = normalize,
+  indent = 0,
+  exdent = 0,
+  prefix = "",
+  initial = prefix,
+  whitespace_only = FALSE,
+  use_length = FALSE,
+  locale = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector of strings to reformat</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>single integer giving the suggested
+maximal total width/number of code points per line</p>
+</td></tr>
+<tr valign="top"><td><code>cost_exponent</code></td>
+<td>
+<p>single numeric value, values not greater than zero
+will select a greedy word-wrapping algorithm; otherwise
+this value denotes the exponent in the cost function
+of a (more aesthetic) dynamic programming-based algorithm
+(values in [2, 3] are recommended)</p>
+</td></tr>
+<tr valign="top"><td><code>simplify</code></td>
+<td>
+<p>single logical value, see Value</p>
+</td></tr>
+<tr valign="top"><td><code>normalize</code></td>
+<td>
+<p>single logical value, see Details</p>
+</td></tr>
+<tr valign="top"><td><code>normalise</code></td>
+<td>
+<p>alias of <code>normalize</code></p>
+</td></tr>
+<tr valign="top"><td><code>indent</code></td>
+<td>
+<p>single non-negative integer; gives the indentation of the
+first line in each paragraph</p>
+</td></tr>
+<tr valign="top"><td><code>exdent</code></td>
+<td>
+<p>single non-negative integer; specifies the indentation
+of subsequent lines in paragraphs</p>
+</td></tr>
+<tr valign="top"><td><code>prefix, initial</code></td>
+<td>
+<p>single strings; <code>prefix</code> is used as prefix for each
+line except the first, for which <code>initial</code> is utilized</p>
+</td></tr>
+<tr valign="top"><td><code>whitespace_only</code></td>
+<td>
+<p>single logical value; allow breaks only at white-spaces?
+if <code>FALSE</code>, <span class="pkg">ICU</span>'s line break iterator is used to split text
+into words, which is suitable for natural language processing</p>
+</td></tr>
+<tr valign="top"><td><code>use_length</code></td>
+<td>
+<p>single logical value; should the number of code
+points be used instead of the total code point width (see <code><a href="stri_width.html">stri_width</a></code>)?</p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for text boundary analysis following
+the conventions of the default locale, or a single string with
+locale identifier, see <a href="about_locale.html">stringi-locale</a></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>.
+</p>
+<p>If <code>whitespace_only</code> is <code>FALSE</code>,
+then <span class="pkg">ICU</span>'s line-<code>BreakIterator</code> is used to determine
+text boundaries where a line break is possible.
+This is a locale-dependent operation.
+Otherwise, the breaks are only at white-spaces.
+</p>
+<p>Note that Unicode code points may have various widths when
+printed on the console and that this function, by default, takes that
+into account. By changing the state of the <code>use_length</code>
+argument, this function starts to act as if each code point
+was of width 1.
+</p>
+<p>If <code>normalize</code> is <code>FALSE</code>,
+then multiple white spaces between the word boundaries are
+preserved within each wrapped line.
+In such a case, none of the strings can contain <code>\r</code>, <code>\n</code>,
+or other new line characters, otherwise you will get an error.
+You should split the input text into lines
+or, for example, substitute line breaks with spaces
+before applying this function.
+</p>
+<p>If <code>normalize</code> is <code>TRUE</code>, then
+all consecutive white space (ASCII space, horizontal TAB, CR, LF)
+sequences are replaced with single ASCII spaces
+before actual string wrapping. Moreover, <code><a href="stri_split_lines.html">stri_split_lines</a></code>
+and <code><a href="stri_trans_nf.html">stri_trans_nfc</a></code> is called on the input character vector.
+This is for compatibility with <code><a href="../../base/html/strwrap.html">strwrap</a></code>.
+</p>
+<p>The greedy algorithm (for <code>cost_exponent</code> being non-positive)
+provides a very simple way for word wrapping.
+It always puts as many words in each line as possible.
+This method &ndash; contrary to the dynamic algorithm &ndash; does not minimize
+the number of space left at the end of every line.
+The dynamic algorithm (a.k.a. Knuth's word wrapping algorithm)
+is more complex, but it returns text wrapped
+in a more aesthetic way. This method minimizes the squared
+(by default, see <code>cost_exponent</code>) number of spaces  (raggedness)
+at the end of each line, so the text is mode arranged evenly.
+Note that the cost of printing the last line is always zero.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>simplify</code> is <code>TRUE</code>, then a character vector is returned.
+Otherwise, you will get a list of <code>length(str)</code> character vectors.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p>D.E. Knuth, M.F. Plass,
+Breaking paragraphs into lines, <em>Software: Practice and Experience</em> 11(11),
+1981, pp. 1119&ndash;1184.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>
+</p>
+<p>Other text_boundaries: 
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_split_lines.html">stri_split_lines</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+s &lt;- stri_paste(
+   'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Proin ',
+   'nibh augue, suscipit a, scelerisque sed, lacinia in, mi. Cras vel ',
+   'lorem. Etiam pellentesque aliquet tellus.')
+cat(stri_wrap(s, 20, 0.0), sep='\n') # greedy
+cat(stri_wrap(s, 20, 2.0), sep='\n') # dynamic
+cat(stri_pad(stri_wrap(s), side='both'), sep='\n')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

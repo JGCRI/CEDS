@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Check that arguments are mutually exclusive</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for check_exclusive {rlang}"><tr><td>check_exclusive {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Check that arguments are mutually exclusive</h2>
+
+<h3>Description</h3>
+
+<p><code>check_exclusive()</code> checks that only one argument is supplied out of
+a set of mutually exclusive arguments. An informative error is
+thrown if multiple arguments are supplied.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+check_exclusive(
+  ...,
+  .require = TRUE,
+  .frame = caller_env(),
+  .error_call = .frame
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Function arguments.</p>
+</td></tr>
+<tr valign="top"><td><code>.require</code></td>
+<td>
+<p>Whether at least one argument must be supplied.</p>
+</td></tr>
+<tr valign="top"><td><code>.frame</code></td>
+<td>
+<p>Environment where the arguments in <code>...</code> are defined.</p>
+</td></tr>
+<tr valign="top"><td><code>.error_call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The supplied argument name as a string. If <code>.require</code> is
+<code>FALSE</code> and no argument is supplied, the empty string <code>""</code> is
+returned.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- function(x, y) {
+  switch(
+    check_exclusive(x, y),
+    x = message("`x` was supplied."),
+    y = message("`y` was supplied.")
+  )
+}
+
+# Supplying zero or multiple arguments is forbidden
+try(f())
+try(f(NULL, NULL))
+
+# The user must supply one of the mutually exclusive arguments
+f(NULL)
+f(y = NULL)
+
+
+# With `.require` you can allow zero arguments
+f &lt;- function(x, y) {
+  switch(
+    check_exclusive(x, y, .require = FALSE),
+    x = message("`x` was supplied."),
+    y = message("`y` was supplied."),
+    message("No arguments were supplied")
+  )
+}
+f()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

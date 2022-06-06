@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: UTF-8 Character Encoding</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_utf8 {utf8}"><tr><td>as_utf8 {utf8}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>UTF-8 Character Encoding</h2>
+
+<h3>Description</h3>
+
+<p>UTF-8 text encoding and validation.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_utf8(x, normalize = FALSE)
+
+utf8_valid(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character object.</p>
+</td></tr>
+<tr valign="top"><td><code>normalize</code></td>
+<td>
+<p>a logical value indicating whether to convert to
+Unicode composed normal form (NFC).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>as_utf8</code> converts a character object from its declared encoding
+to a valid UTF-8 character object, or throws an error if no conversion
+is possible. If <code>normalize = TRUE</code>, then the text gets
+transformed to Unicode composed normal form (NFC) after conversion
+to UTF-8.
+</p>
+<p><code>utf8_valid</code> tests whether the elements of a character object
+can be translated to valid UTF-8 strings.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>as_utf8</code>, the result is a character object with the same
+attributes as <code>x</code> but with <code>Encoding</code> set to <code>"UTF-8"</code>.
+</p>
+<p>For <code>utf8_valid</code> a logical object with the same <code>names</code>,
+<code>dim</code>, and <code>dimnames</code> as <code>x</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="utf8_normalize.html">utf8_normalize</a></code>, <code><a href="../../base/html/iconv.html">iconv</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# the second element is encoded in latin-1, but declared as UTF-8
+x &lt;- c("fa\u00E7ile", "fa\xE7ile", "fa\xC3\xA7ile")
+Encoding(x) &lt;- c("UTF-8", "UTF-8", "bytes")
+
+# attempt to convert to UTF-8 (fails)
+## Not run: as_utf8(x)
+
+y &lt;- x
+Encoding(y[2]) &lt;- "latin1" # mark the correct encoding
+as_utf8(y) # succeeds
+
+# test for valid UTF-8
+utf8_valid(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>utf8</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

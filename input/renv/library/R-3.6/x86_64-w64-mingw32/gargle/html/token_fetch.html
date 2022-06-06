@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Fetch a token for the given scopes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for token_fetch {gargle}"><tr><td>token_fetch {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Fetch a token for the given scopes</h2>
+
+<h3>Description</h3>
+
+<p>This is a rather magical function that calls a series of concrete
+credential-fetching functions, each wrapped in a <code>tryCatch()</code>.
+<code>token_fetch()</code> keeps trying until it succeeds or there are no more functions
+to try. Use <code><a href="cred_funs.html">cred_funs_list()</a></code> to see the current registry, in order. See the
+vignette <a href="https://gargle.r-lib.org/articles/how-gargle-gets-tokens.html">How gargle gets tokens</a> for a
+full description of <code>token_fetch()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+token_fetch(scopes = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>scopes</code></td>
+<td>
+<p>A character vector of scopes to request. Pick from those listed
+at <a href="https://developers.google.com/identity/protocols/oauth2/scopes">https://developers.google.com/identity/protocols/oauth2/scopes</a>.
+</p>
+<p>For certain token flows, the
+<code>"https://www.googleapis.com/auth/userinfo.email"</code> scope is unconditionally
+included. This grants permission to retrieve the email address associated
+with a token; gargle uses this to index cached OAuth tokens. This grants no
+permission to view or send email and is generally considered a low-value
+scope.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to all credential functions.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code><a href="../../httr/html/Token-class.html">httr::Token</a></code> or <code>NULL</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other credential functions: 
+<code><a href="credentials_app_default.html">credentials_app_default</a>()</code>,
+<code><a href="credentials_byo_oauth2.html">credentials_byo_oauth2</a>()</code>,
+<code><a href="credentials_external_account.html">credentials_external_account</a>()</code>,
+<code><a href="credentials_gce.html">credentials_gce</a>()</code>,
+<code><a href="credentials_service_account.html">credentials_service_account</a>()</code>,
+<code><a href="credentials_user_oauth2.html">credentials_user_oauth2</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+token_fetch(scopes = "https://www.googleapis.com/auth/userinfo.email")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Validate XML schema</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_validate {xml2}"><tr><td>xml_validate {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Validate XML schema</h2>
+
+<h3>Description</h3>
+
+<p>Validate an XML document against an XML 1.0 schema.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_validate(x, schema)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>schema</code></td>
+<td>
+<p>an XML document containing the schema</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>TRUE or FALSE
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Example from https://msdn.microsoft.com/en-us/library/ms256129(v=vs.110).aspx
+doc &lt;- read_xml(system.file("extdata/order-doc.xml", package = "xml2"))
+schema &lt;- read_xml(system.file("extdata/order-schema.xml", package = "xml2"))
+xml_validate(doc, schema)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

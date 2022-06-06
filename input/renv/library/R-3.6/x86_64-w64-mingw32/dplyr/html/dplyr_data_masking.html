@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Argument type: data-masking</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dplyr_data_masking {dplyr}"><tr><td>dplyr_data_masking {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Argument type: data-masking</h2>
+
+<h3>Description</h3>
+
+<p>This page describes the <code style="white-space: pre;">&lt;data-masking&gt;</code> argument modifier which
+indicates that the argument uses tidy evaluation with <strong>data masking</strong>.
+If you've never heard of tidy evaluation before, start with
+<code>vignette("programming")</code>.
+</p>
+
+
+<h3>Key terms</h3>
+
+<p>The primary motivation for tidy evaluation in dplyr is that it provides
+<strong>data masking</strong>, which blurs the distinction between two types of variables:
+</p>
+
+<ul>
+<li> <p><strong>env-variables</strong> are &quot;programming&quot; variables and live in an environment.
+They are usually created with <code style="white-space: pre;">&lt;-</code>. Env-variables can be any type of R
+object.
+</p>
+</li>
+<li> <p><strong>data-variables</strong> are &quot;statistical&quot; variables and live in a data frame.
+They usually come from data files (e.g. <code>.csv</code>, <code>.xls</code>), or are created by
+manipulating existing variables. Data-variables live inside data frames,
+so must be vectors.
+</p>
+</li></ul>
+
+
+
+<h3>General usage</h3>
+
+<p>Data masking allows you to refer to variables in the &quot;current&quot; data frame
+(usually supplied in the <code>.data</code> argument), without any other prefix.
+It's what allows you to type (e.g.) <code>filter(diamonds, x == 0 &amp; y == 0 &amp; z == 0)</code>
+instead of <code>diamonds[diamonds$x == 0 &amp; diamonds$y == 0 &amp; diamonds$z == 0, ]</code>.
+</p>
+
+
+<h3>Indirection</h3>
+
+<p>The main challenge of data masking arises when you introduce some
+indirection, i.e. instead of directly typing the name of a variable you
+want to supply it in a function argument or character vector.
+</p>
+<p>There are two main cases:
+</p>
+
+<ul>
+<li><p> If you want the user to supply the variable (or function of variables)
+in a function argument, embrace the argument, e.g. <code>filter(df, {{ var }})</code>.</p>
+<pre>dist_summary &lt;- function(df, var) {
+  df %&gt;%
+    summarise(n = n(), min = min({{ var }}), max = max({{ var }}))
+}
+mtcars %&gt;% dist_summary(mpg)
+mtcars %&gt;% group_by(cyl) %&gt;% dist_summary(mpg)
+</pre>
+</li>
+<li><p> If you have the column name as a character vector, use the <code>.data</code>
+pronoun, e.g. <code>summarise(df, mean = mean(.data[[var]]))</code>.</p>
+<pre>for (var in names(mtcars)) {
+  mtcars %&gt;% count(.data[[var]]) %&gt;% print()
+}
+
+lapply(names(mtcars), function(var) mtcars %&gt;% count(.data[[var]]))
+</pre>
+</li></ul>
+
+
+
+<h3>Dot-dot-dot (...)</h3>
+
+<p>When this modifier is applied to <code>...</code>, there is one other useful technique
+which solves the problem of creating a new variable with a name supplied by
+the user. Use the interpolation syntax from the glue package: <code>"{var}" := expression</code>. (Note the use of <code style="white-space: pre;">:=</code> instead of <code>=</code> to enable this syntax).</p>
+<pre>var_name &lt;- "l100km"
+mtcars %&gt;% mutate("{var_name}" := 235 / mpg)
+</pre>
+<p>Note that <code>...</code> automatically provides indirection, so you can use it as is
+(i.e. without embracing) inside a function:</p>
+<pre>grouped_mean &lt;- function(df, var, ...) {
+  df %&gt;%
+    group_by(...) %&gt;%
+    summarise(mean = mean({{ var }}))
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

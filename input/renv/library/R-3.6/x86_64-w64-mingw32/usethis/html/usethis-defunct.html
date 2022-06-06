@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defunct and deprecated functions in usethis</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for usethis-defunct {usethis}"><tr><td>usethis-defunct {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defunct and deprecated functions in usethis</h2>
+
+<h3>Description</h3>
+
+<p>These functions have either been deprecated or removed from usethis.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pr_pull_upstream()
+
+pr_sync()
+
+browse_github_token(...)
+
+browse_github_pat(...)
+
+github_token()
+
+git_branch_default()
+
+use_tidy_labels()
+
+use_tidy_ci(...)
+
+use_github_action_check_full(
+  save_as = "R-CMD-check.yaml",
+  ignore = TRUE,
+  open = FALSE,
+  repo_spec = NULL
+)
+</pre>
+
+
+<h3><code>pr_pull_upstream()</code></h3>
+
+<p>This function has been replaced by <code><a href="pull-requests.html">pr_merge_main()</a></code>.
+</p>
+
+
+<h3><code>pr_sync()</code></h3>
+
+<p>Bundling these operations together did not seem justified, in terms of how
+rarely this comes up and, when it does, how likely merge conflicts are.
+Users of <code>pr_sync()</code> should implement these steps &quot;by hand&quot;:
+</p>
+
+<ul>
+<li><p> (Check you are on a PR branch)
+</p>
+</li>
+<li> <p><code>pr_pull()</code>
+</p>
+</li>
+<li> <p><code>pr_merge_main()</code>, deal with any merge conflicts, if any
+</p>
+</li>
+<li> <p><code>pr_push()</code>
+</p>
+</li></ul>
+
+
+
+<h3><code>browse_github_token()</code>, <code>browse_github_pat()</code></h3>
+
+<p>These functions have been replaced by <code><a href="github-token.html">create_github_token()</a></code>.
+</p>
+
+
+<h3><code>github_token()</code></h3>
+
+<p>All implicit and explicit token discovery routes through <code><a href="../../gh/html/gh_token.html">gh::gh_token()</a></code>
+now.
+</p>
+
+
+<h3><code>git_branch_default()</code></h3>
+
+<p>Please call <code><a href="git-default-branch.html">git_default_branch()</a></code> instead. In hindsight, that is a better
+name for this function.
+</p>
+
+
+<h3><code>use_tidy_labels()</code></h3>
+
+<p>Please call <code><a href="use_github_labels.html">use_tidy_github_labels()</a></code> instead. In hindsight, that is a
+better name for this function.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

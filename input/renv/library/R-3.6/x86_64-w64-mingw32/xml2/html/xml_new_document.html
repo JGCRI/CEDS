@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new document, possibly with a root node</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xml_new_document {xml2}"><tr><td>xml_new_document {xml2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new document, possibly with a root node</h2>
+
+<h3>Description</h3>
+
+<p><code>xml_new_document</code> creates only a new document without a root node. In
+most cases you should instead use <code>xml_new_root</code>, which creates a new
+document and assigns the root node in one step.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xml_new_document(version = "1.0", encoding = "UTF-8")
+
+xml_new_root(
+  .value,
+  ...,
+  .copy = inherits(.value, "xml_node"),
+  .version = "1.0",
+  .encoding = "UTF-8"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>The version number of the document.</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>The character encoding to use in the document. The default
+encoding is &lsquo;UTF-8&rsquo;. Available encodings are specified at
+<a href="http://xmlsoft.org/html/libxml-encoding.html#xmlCharEncoding">http://xmlsoft.org/html/libxml-encoding.html#xmlCharEncoding</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>.value</code></td>
+<td>
+<p>node to insert.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>If named attributes or namespaces to set on the node, if unnamed
+text to assign to the node.</p>
+</td></tr>
+<tr valign="top"><td><code>.copy</code></td>
+<td>
+<p>whether to copy the <code>.value</code> before replacing. If this is <code>FALSE</code>
+then the node will be moved from it's current location.</p>
+</td></tr>
+<tr valign="top"><td><code>.version</code></td>
+<td>
+<p>The version number of the document, passed to <code>xml_new_document(version)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.encoding</code></td>
+<td>
+<p>The encoding of the document, passed to <code>xml_new_document(encoding)</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>xml_document</code> object.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xml2</em> version 1.3.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

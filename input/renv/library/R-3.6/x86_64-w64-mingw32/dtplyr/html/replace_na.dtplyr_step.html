@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Replace NAs with specified values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for replace_na.dtplyr_step {dtplyr}"><tr><td>replace_na.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Replace NAs with specified values</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the tidyr <code>replace_na()</code> generic. It is translated to
+<code><a href="../../data.table/html/coalesce.html">data.table::fcoalesce()</a></code>.
+</p>
+<p>Note that unlike <code>tidyr::replace_na()</code>, <code>data.table::fcoalesce()</code> cannot
+replace <code>NULL</code> values in lists.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+replace_na(data, replace = list())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>replace</code></td>
+<td>
+<p>If <code>data</code> is a data frame, <code>replace</code> takes a list of values,
+with one value for each column that has <code>NA</code> values to be replaced.
+</p>
+<p>If <code>data</code> is a vector, <code>replace</code> takes a single value. This single value
+replaces all of the <code>NA</code> values in the vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(tidyr)
+
+# Replace NAs in a data frame
+dt &lt;- lazy_dt(tibble(x = c(1, 2, NA), y = c("a", NA, "b")))
+dt %&gt;% replace_na(list(x = 0, y = "unknown"))
+
+# Replace NAs using `dplyr::mutate()`
+dt %&gt;% dplyr::mutate(x = replace_na(x, 0))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

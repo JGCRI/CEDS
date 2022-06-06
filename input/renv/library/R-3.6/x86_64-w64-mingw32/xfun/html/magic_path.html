@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find a file or directory under a root directory</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for magic_path {xfun}"><tr><td>magic_path {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find a file or directory under a root directory</h2>
+
+<h3>Description</h3>
+
+<p>Given a path, try to find it recursively under a root directory. The input
+path can be an incomplete path, e.g., it can be a base filename, and
+<code>magic_path()</code> will try to find this file under subdirectories.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+magic_path(
+  ...,
+  root = proj_root(),
+  relative = TRUE,
+  error = TRUE,
+  message = getOption("xfun.magic_path.message", TRUE),
+  n_dirs = getOption("xfun.magic_path.n_dirs", 10000)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>A character vector of path components.</p>
+</td></tr>
+<tr valign="top"><td><code>root</code></td>
+<td>
+<p>The root directory under which to search for the path. If
+<code>NULL</code>, the current working directory is used.</p>
+</td></tr>
+<tr valign="top"><td><code>relative</code></td>
+<td>
+<p>Whether to return a relative path.</p>
+</td></tr>
+<tr valign="top"><td><code>error</code></td>
+<td>
+<p>Whether to signal an error if the path is not found, or multiple
+paths are found.</p>
+</td></tr>
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>Whether to emit a message when multiple paths are found and
+<code>error = FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>n_dirs</code></td>
+<td>
+<p>The number of subdirectories to recursively search. The
+recursive search may be time-consuming when there are a large number of
+subdirectories under the root directory. If you really want to search for
+all subdirectories, you may try <code>n_dirs = Inf</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The path found under the root directory, or an error when <code>error
+  = TRUE</code> and the path is not found (or multiple paths are found).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+xfun::magic_path("mtcars.csv")  # find any file that has the base name mtcars.csv
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

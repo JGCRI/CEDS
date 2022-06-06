@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Simulate Color Vision Deficiency</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for simulate_cvd {colorspace}"><tr><td>simulate_cvd {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Simulate Color Vision Deficiency</h2>
+
+<h3>Description</h3>
+
+<p>Transformation of R colors by simulating color vision deficiencies,
+based on a CVD transform matrix.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+simulate_cvd(col, cvd_transform)
+
+deutan(col, severity = 1)
+
+protan(col, severity = 1)
+
+tritan(col, severity = 1)
+
+interpolate_cvd_transform(cvd, severity = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>character. A color or vector of colors, e.g., <code>"#FFA801"</code> or <code>"blue"</code>.
+Input <code>col</code> can also be a matrix with three rows containing R/G/B (0-255) values, see details.</p>
+</td></tr>
+<tr valign="top"><td><code>cvd_transform</code></td>
+<td>
+<p>numeric 3x3 matrix, specifying the color vision deficiency transform matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>severity</code></td>
+<td>
+<p>numeric. Severity of the color vision defect, a number between 0 and 1.</p>
+</td></tr>
+<tr valign="top"><td><code>cvd</code></td>
+<td>
+<p>list of cvd transformation matrices. See <code><a href="cvd.html">cvd</a></code> for available options.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Using the physiologically-based model for simulating color vision deficiency (CVD)
+of Machado et al. (2009), different kinds of limitations can be
+emulated: deuteranope (green cone cells defective), protanope (red cone cells defective),
+and tritanope (blue cone cells defective).
+The workhorse function to do so is <code>simulate_cvd</code> which can take any vector
+of valid R colors and transform them according to a certain CVD transformation
+matrix (see <code><a href="cvd.html">cvd</a></code>) and transformation equation.
+</p>
+<p>The functions <code>deutan</code>, <code>protan</code>, and <code>tritan</code> are the high-level functions for
+simulating the corresponding kind of colorblindness with a given severity.
+Internally, they all call <code>simulate_cvd</code> along with a (possibly interpolated)
+version of the matrices from <code><a href="cvd.html">cvd</a></code>. Matrix interpolation can be carried out with
+the function <code>interpolate_cvd_transform</code> (see Examples).
+</p>
+<p>If input <code>col</code> is a matrix with three rows named <code>R</code>, <code>G</code>, and
+<code>B</code> (top down) they are interpreted as Red-Green-Blue values within the
+range <code>[0-255]</code>. Instead of an (s)RGB color vector a matrix of the same size as the
+input <code>col</code> with the corresponding simulated Red-Green-Blue values will be returned.
+This can be handy to avoid too many conversions.
+</p>
+
+
+<h3>References</h3>
+
+<p>Machado GM, Oliveira MM, Fernandes LAF (2009).
+A Physiologically-Based Model for Simulation of Color Vision Deficiency.
+<em>IEEE Transactions on Visualization and Computer Graphics</em>. <b>15</b>(6), 1291&ndash;1298.
+doi: <a href="https://doi.org/10.1109/TVCG.2009.113">10.1109/TVCG.2009.113</a>
+Online version with supplements at
+<a href="http://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html">http://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html</a>.
+</p>
+<p>Zeileis A, Fisher JC, Hornik K, Ihaka R, McWhite CD, Murrell P, Stauffer R, Wilke CO (2020).
+&ldquo;colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes.&rdquo;
+<em>Journal of Statistical Software</em>, <b>96</b>(1), 1&ndash;49. doi: <a href="https://doi.org/10.18637/jss.v096.i01">10.18637/jss.v096.i01</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="cvd.html">cvd</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# simulate color-vision deficiency by calling `simulate_cvd` with specified matrix
+simulate_cvd(c("#005000", "blue", "#00BB00"), tritanomaly_cvd["6"][[1]])
+
+# simulate color-vision deficiency by calling the shortcut high-level function
+tritan(c("#005000", "blue", "#00BB00"), severity = 0.6)
+
+# simulate color-vision deficiency by calling `simulate_cvd` with interpolated cvd matrix
+simulate_cvd(c("#005000", "blue", "#00BB00"),
+             interpolate_cvd_transform(tritanomaly_cvd, severity = 0.6))
+
+# apply CVD directly on RGB matrix
+RGB &lt;- t(hex2RGB(rainbow(3))@coords*255)
+deutan(RGB)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

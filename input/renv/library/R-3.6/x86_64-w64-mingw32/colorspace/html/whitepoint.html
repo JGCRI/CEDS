@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Access or Modify the Whitepoint</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for whitepoint {colorspace}"><tr><td>whitepoint {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Access or Modify the Whitepoint</h2>
+
+<h3>Description</h3>
+
+<p>This function can be used to control the single global whitepoint
+that affects all color conversions within the package (that require
+a whitepoint, i.e., go through XYZ).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+whitepoint(white, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>white, ...</code></td>
+<td>
+<p>Either missing (to query the whitepoint) or
+<code>NULL</code> or a specification of the XYZ coordinates of the whitepoint
+(to set the whitepoint, see examples). <code>NULL</code> corresponds to
+CIE D65 with XYZ coordinates 95.047, 100.000, 108.883.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>whitepoint</code> returns an XYZ color object for the whitepoint
+(invisibly in case a new whitepoint was set).
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="XYZ.html">XYZ</a></code> and <a href="color-class.html">color-class</a>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# query current whitepoint (D65 by default)
+whitepoint()
+
+# Illuminant E 
+whitepoint(XYZ(100, 100, 100))
+
+# equivalently
+whitepoint(100, 100, 100)
+whitepoint(c(100, 100, 100))
+whitepoint(cbind(100, 100, 100))
+
+whitepoint()
+
+## reset
+whitepoint(NULL)
+whitepoint()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

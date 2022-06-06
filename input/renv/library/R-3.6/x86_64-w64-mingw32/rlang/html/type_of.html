@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Base type of an object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for type_of {rlang}"><tr><td>type_of {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Base type of an object</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#soft-deprecated"><img src="../help/figures/lifecycle-soft-deprecated.svg" alt='[Soft-deprecated]' /></a>
+<a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>This is equivalent to <code><a href="../../base/html/typeof.html">base::typeof()</a></code> with a few differences that
+make dispatching easier:
+</p>
+
+<ul>
+<li><p> The type of one-sided formulas is &quot;quote&quot;.
+</p>
+</li>
+<li><p> The type of character vectors of length 1 is &quot;string&quot;.
+</p>
+</li>
+<li><p> The type of special and builtin functions is &quot;primitive&quot;.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+type_of(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An R object.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+type_of(10L)
+
+# Quosures are treated as a new base type but not formulas:
+type_of(quo(10L))
+type_of(~10L)
+
+# Compare to base::typeof():
+typeof(quo(10L))
+
+# Strings are treated as a new base type:
+type_of(letters)
+type_of(letters[[1]])
+
+# This is a bit inconsistent with the core language tenet that data
+# types are vectors. However, treating strings as a different
+# scalar type is quite helpful for switching on function inputs
+# since so many arguments expect strings:
+switch_type("foo", character = abort("vector!"), string = "result")
+
+# Special and builtin primitives are both treated as primitives.
+# That's because it is often irrelevant which type of primitive an
+# input is:
+typeof(list)
+typeof(`$`)
+type_of(list)
+type_of(`$`)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract Data Between Text Boundaries</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_extract_all_boundaries {stringi}"><tr><td>stri_extract_all_boundaries {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract Data Between Text Boundaries</h2>
+
+<h3>Description</h3>
+
+<p>These functions extract data between text boundaries.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_extract_all_boundaries(
+  str,
+  simplify = FALSE,
+  omit_no_match = FALSE,
+  ...,
+  opts_brkiter = NULL
+)
+
+stri_extract_last_boundaries(str, ..., opts_brkiter = NULL)
+
+stri_extract_first_boundaries(str, ..., opts_brkiter = NULL)
+
+stri_extract_all_words(
+  str,
+  simplify = FALSE,
+  omit_no_match = FALSE,
+  locale = NULL
+)
+
+stri_extract_first_words(str, locale = NULL)
+
+stri_extract_last_words(str, locale = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector or an object coercible to</p>
+</td></tr>
+<tr valign="top"><td><code>simplify</code></td>
+<td>
+<p>single logical value;
+if <code>TRUE</code> or <code>NA</code>, then a character matrix is returned;
+otherwise (the default), a list of character vectors is given, see Value</p>
+</td></tr>
+<tr valign="top"><td><code>omit_no_match</code></td>
+<td>
+<p>single logical value; if <code>FALSE</code>,
+then a missing value will indicate that there are no words</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional settings for <code>opts_brkiter</code></p>
+</td></tr>
+<tr valign="top"><td><code>opts_brkiter</code></td>
+<td>
+<p>a named list with <span class="pkg">ICU</span> BreakIterator's settings,
+see <code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a></code>;
+<code>NULL</code> for the default break iterator, i.e., <code>line_break</code></p>
+</td></tr>
+<tr valign="top"><td><code>locale</code></td>
+<td>
+<p><code>NULL</code> or <code>''</code> for text boundary analysis following
+the conventions of the default locale, or a single string with
+locale identifier, see <a href="about_locale.html">stringi-locale</a></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>.
+</p>
+<p>For more information on text boundary analysis
+performed by <span class="pkg">ICU</span>'s <code>BreakIterator</code>, see
+<a href="about_search_boundaries.html">stringi-search-boundaries</a>.
+</p>
+<p>In case of <code>stri_extract_*_words</code>,
+just like in <code><a href="stri_count_boundaries.html">stri_count_words</a></code>,
+<span class="pkg">ICU</span>'s word <code>BreakIterator</code> iterator is used
+to locate the word boundaries, and all non-word characters
+(<code>UBRK_WORD_NONE</code> rule status) are ignored.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>stri_extract_all_*</code>,
+if <code>simplify=FALSE</code> (the default), then a
+list of character vectors is returned. Each string consists of
+a separate word. In case of <code>omit_no_match=FALSE</code> and
+if there are no words or if a string is missing,
+a single <code>NA</code> is provided on output.
+</p>
+<p>Otherwise, <code><a href="stri_list2matrix.html">stri_list2matrix</a></code> with <code>byrow=TRUE</code> argument
+is called on the resulting object.
+In such a case, a character matrix with <code>length(str)</code> rows
+is returned. Note that <code><a href="stri_list2matrix.html">stri_list2matrix</a></code>'s <code>fill</code> argument
+is set to an empty string and <code>NA</code>,
+for <code>simplify</code> <code>TRUE</code> and <code>NA</code>, respectively.
+</p>
+<p>For <code>stri_extract_first_*</code> and <code>stri_extract_last_*</code>,
+a character vector is returned.
+A <code>NA</code> element indicates a no-match.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_extract: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_extract.html">stri_extract_all</a>()</code>,
+<code><a href="stri_match.html">stri_match_all</a>()</code>
+</p>
+<p>Other locale_sensitive: 
+<code><a href="operator_compare.html">%s&lt;%</a>()</code>,
+<code><a href="about_locale.html">about_locale</a></code>,
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search_coll.html">about_search_coll</a></code>,
+<code><a href="stri_compare.html">stri_compare</a>()</code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_duplicated.html">stri_duplicated</a>()</code>,
+<code><a href="stri_enc_detect2.html">stri_enc_detect2</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_collator.html">stri_opts_collator</a>()</code>,
+<code><a href="stri_order.html">stri_order</a>()</code>,
+<code><a href="stri_rank.html">stri_rank</a>()</code>,
+<code><a href="stri_sort_key.html">stri_sort_key</a>()</code>,
+<code><a href="stri_sort.html">stri_sort</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_unique.html">stri_unique</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+<p>Other text_boundaries: 
+<code><a href="about_search_boundaries.html">about_search_boundaries</a></code>,
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>,
+<code><a href="stri_locate_boundaries.html">stri_locate_all_boundaries</a>()</code>,
+<code><a href="stri_opts_brkiter.html">stri_opts_brkiter</a>()</code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_split_lines.html">stri_split_lines</a>()</code>,
+<code><a href="stri_trans_casemap.html">stri_trans_tolower</a>()</code>,
+<code><a href="stri_wrap.html">stri_wrap</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_extract_all_words('stringi: THE string processing package 123.48...')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

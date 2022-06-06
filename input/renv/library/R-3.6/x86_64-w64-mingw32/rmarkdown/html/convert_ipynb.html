@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert a Jupyter/IPython notebook to an R Markdown document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for convert_ipynb {rmarkdown}"><tr><td>convert_ipynb {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert a Jupyter/IPython notebook to an R Markdown document</h2>
+
+<h3>Description</h3>
+
+<p>Read a Jupyter/IPython notebook file (&lsquo;<span class="file">.ipynb</span>&rsquo;) via
+<code>jsonlite::fromJSON()</code>, convert its code cells to R Markdown code
+chunks, preserve Markdown cells, and write out the results to an Rmd file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+convert_ipynb(input, output = xfun::with_ext(input, "Rmd"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>Path to the input &lsquo;<span class="file">.ipynb</span>&rsquo; file.</p>
+</td></tr>
+<tr valign="top"><td><code>output</code></td>
+<td>
+<p>The output file path.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This simple converter may have some rough edges, depending on how many
+IPython-specific features are used in a notebook. For example, line magics
+are not automatically converted (warnings will be issued if line magics are
+detected), but you may consider using or writing R functions to replace them
+in R Markdown (e.g., the <code>%load</code> magic may be replaced by
+<code>reticulate::source_python()</code>). Cell magics will be converted to code
+chunks with the (<span class="pkg">knitr</span>) language engine names being the magic names.
+For example, the cell magic <code>%%js</code> is converted to <code style="white-space: pre;">```{js}</code>
+in R Markdown. This does not always work because not all IPython cell magics
+have their counterparts in <span class="pkg">knitr</span>'s language engines, but common cell
+magics like <code>%%bash</code>, <code>%%sh</code>, <code>%%js</code>,
+<code>%%perl</code>, <code>%%python</code>, and <code>%%ruby</code> should work.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The output file path (invisibly).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# this is not a real ipynb file, but illustrates what convert_ipynb() does
+nb_data &lt;- list(
+  cells = list(
+    list(cell_type = 'markdown', source = 'Hi **Markdown**!'),
+    list(cell_type = 'code', source = 'print("Hi R Markdown!")')
+  ),
+  metadata = list(
+    kernelspec = list(language = 'python')
+  )
+)
+nb_file = tempfile(fileext = '.ipynb')
+jsonlite::write_json(nb_data, nb_file, auto_unbox = TRUE, pretty = TRUE)
+xfun::file_string(nb_file)  # show file content
+
+# convert to R Markdown
+nb_rmd = rmarkdown:::convert_ipynb(nb_file)
+xfun::file_string(nb_rmd)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

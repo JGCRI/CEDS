@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Default Arg Helper Funs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dflt_term_cap {fansi}"><tr><td>dflt_term_cap {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Default Arg Helper Funs</h2>
+
+<h3>Description</h3>
+
+<p>Terminal capabilities are assumed to include bright and 256 color SGR codes.
+24 bit color support is detected based on the <code>COLORTERM</code> environment
+variable.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dflt_term_cap()
+
+dflt_css()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>Default CSS may exceed or fail to cover the interline distance when two lines
+have background colors.  To ensure lines are exactly touching use
+inline-block, although that has its own issues.  Otherwise specify your own
+CSS.
+</p>
+
+
+<h3>Value</h3>
+
+<p>character to use as default value for <code>fansi</code> parameter.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="term_cap_test.html">term_cap_test</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

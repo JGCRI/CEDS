@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert 'strptime'-Style Format Strings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_datetime_fstr {stringi}"><tr><td>stri_datetime_fstr {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert <code>strptime</code>-Style Format Strings</h2>
+
+<h3>Description</h3>
+
+<p>This function converts <code><a href="../../base/html/strptime.html">strptime</a></code> or
+<code><a href="../../base/html/strftime.html">strftime</a></code>-style
+format strings to <span class="pkg">ICU</span> format strings that may be used
+in <code><a href="stri_datetime_format.html">stri_datetime_parse</a></code> and <code><a href="stri_datetime_format.html">stri_datetime_format</a></code>
+functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_datetime_fstr(x, ignore_special = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector of date/time format strings</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_special</code></td>
+<td>
+<p>if <code>FALSE</code>, special identifiers like
+<code>"datetime_full"</code> or <code>date_relative_short</code>
+(see <code><a href="stri_datetime_format.html">stri_datetime_format</a></code>) are left as-is</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>For more details on conversion specifiers please refer to
+the manual page of <code><a href="../../base/html/strptime.html">strptime</a></code>. Most of the formatters
+of the form <code>%x</code>, where <code>x</code> is a letter, are supported.
+Moreover, each <code>%%</code> is replaced with <code>%</code>.
+</p>
+<p>Warnings are given in the case of <code>%x</code>, <code>%X</code>, <code>%u</code>,
+<code>%w</code>, <code>%g</code>, <code>%G</code>, <code>%c</code>, <code>%U</code>, and <code>%W</code>
+as in such circumstances either <span class="pkg">ICU</span> does not
+support the functionality requested using the string format API
+or there are some inconsistencies between base R and <span class="pkg">ICU</span>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other datetime: 
+<code><a href="stri_datetime_add.html">stri_datetime_add</a>()</code>,
+<code><a href="stri_datetime_create.html">stri_datetime_create</a>()</code>,
+<code><a href="stri_datetime_fields.html">stri_datetime_fields</a>()</code>,
+<code><a href="stri_datetime_format.html">stri_datetime_format</a>()</code>,
+<code><a href="stri_datetime_now.html">stri_datetime_now</a>()</code>,
+<code><a href="stri_datetime_symbols.html">stri_datetime_symbols</a>()</code>,
+<code><a href="stri_timezone_set.html">stri_timezone_get</a>()</code>,
+<code><a href="stri_timezone_info.html">stri_timezone_info</a>()</code>,
+<code><a href="stri_timezone_list.html">stri_timezone_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_datetime_fstr('%Y-%m-%d %H:%M:%S')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

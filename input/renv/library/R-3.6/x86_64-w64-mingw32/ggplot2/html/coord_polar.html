@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Polar coordinates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coord_polar {ggplot2}"><tr><td>coord_polar {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Polar coordinates</h2>
+
+<h3>Description</h3>
+
+<p>The polar coordinate system is most commonly used for pie charts, which
+are a stacked bar chart in polar coordinates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coord_polar(theta = "x", start = 0, direction = 1, clip = "on")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>theta</code></td>
+<td>
+<p>variable to map angle to (<code>x</code> or <code>y</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>Offset of starting point from 12 o'clock in radians. Offset
+is applied clockwise or anticlockwise depending on value of <code>direction</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>direction</code></td>
+<td>
+<p>1, clockwise; -1, anticlockwise</p>
+</td></tr>
+<tr valign="top"><td><code>clip</code></td>
+<td>
+<p>Should drawing be clipped to the extent of the plot panel? A
+setting of <code>"on"</code> (the default) means yes, and a setting of <code>"off"</code>
+means no. For details, please see <code><a href="coord_cartesian.html">coord_cartesian()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# NOTE: Use these plots with caution - polar coordinates has
+# major perceptual problems.  The main point of these examples is
+# to demonstrate how these common plots can be described in the
+# grammar.  Use with EXTREME caution.
+
+#' # A pie chart = stacked bar chart + polar coordinates
+pie &lt;- ggplot(mtcars, aes(x = factor(1), fill = factor(cyl))) +
+ geom_bar(width = 1)
+pie + coord_polar(theta = "y")
+
+
+
+# A coxcomb plot = bar chart + polar coordinates
+cxc &lt;- ggplot(mtcars, aes(x = factor(cyl))) +
+  geom_bar(width = 1, colour = "black")
+cxc + coord_polar()
+# A new type of plot?
+cxc + coord_polar(theta = "y")
+
+# The bullseye chart
+pie + coord_polar()
+
+# Hadley's favourite pie chart
+df &lt;- data.frame(
+  variable = c("does not resemble", "resembles"),
+  value = c(20, 80)
+)
+ggplot(df, aes(x = "", y = value, fill = variable)) +
+  geom_col(width = 1) +
+  scale_fill_manual(values = c("red", "yellow")) +
+  coord_polar("y", start = pi / 3) +
+  labs(title = "Pac man")
+
+# Windrose + doughnut plot
+if (require("ggplot2movies")) {
+movies$rrating &lt;- cut_interval(movies$rating, length = 1)
+movies$budgetq &lt;- cut_number(movies$budget, 4)
+
+doh &lt;- ggplot(movies, aes(x = rrating, fill = budgetq))
+
+# Wind rose
+doh + geom_bar(width = 1) + coord_polar()
+# Race track plot
+doh + geom_bar(width = 0.9, position = "fill") + coord_polar(theta = "y")
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

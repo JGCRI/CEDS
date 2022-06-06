@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidying methods for lists / returned values that are not S3...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for list_tidiers {broom}"><tr><td>list_tidiers {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidying methods for lists / returned values that are not S3 objects</h2>
+
+<h3>Description</h3>
+
+<p>Broom tidies a number of lists that are effectively S3 objects without
+a class attribute. For example, <code><a href="../../stats/html/optim.html">stats::optim()</a></code>, <code><a href="../../base/html/svd.html">base::svd()</a></code> and
+<code><a href="../../akima/html/interp.html">akima::interp()</a></code> produce consistent output, but because they do not
+have a class attribute, they cannot be handled by S3 dispatch.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'list'
+tidy(x, ...)
+
+## S3 method for class 'list'
+glance(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A list, potentially representing an object that can be tidied.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additionally, arguments passed to the tidying function.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions look at the elements of a list and determine if there is
+an appropriate tidying method to apply to the list. Those tidiers are
+themselves are implemented as functions of the form <code style="white-space: pre;">tidy_&lt;function&gt;</code>
+or <code style="white-space: pre;">glance_&lt;function&gt;</code> and are not exported (but they are documented!).
+</p>
+<p>If no appropriate tidying method is found, throws an error.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other list tidiers: 
+<code><a href="glance_optim.html">glance_optim</a>()</code>,
+<code><a href="tidy_irlba.html">tidy_irlba</a>()</code>,
+<code><a href="tidy_optim.html">tidy_optim</a>()</code>,
+<code><a href="tidy_svd.html">tidy_svd</a>()</code>,
+<code><a href="tidy_xyz.html">tidy_xyz</a>()</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

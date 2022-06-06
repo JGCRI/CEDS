@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Time zone</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_timezone {withr}"><tr><td>with_timezone {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Time zone</h2>
+
+<h3>Description</h3>
+
+<p>Change the time zone, and restore it afterwards.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_timezone(tz, code)
+
+local_timezone(tz, .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code> a valid time zone specification, note that
+time zone names might be platform dependent.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p>The environment to apply the change to.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>with_time_zone()</code> runs the code with the specified time zone and
+resets it afterwards.
+</p>
+<p><code>local_time_zone()</code> changes the time zone for the caller
+execution environment.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+<p><code><a href="../../base/html/timezones.html">Sys.timezone()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+Sys.time()
+with_timezone("Europe/Paris", print(Sys.time()))
+with_timezone("US/Pacific", print(Sys.time()))
+
+fun1 &lt;- function() {
+  local_timezone("CET")
+  print(Sys.time())
+}
+
+fun2 &lt;- function() {
+  local_timezone("US/Pacific")
+  print(Sys.time())
+}
+Sys.time()
+fun1()
+fun2()
+Sys.time()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

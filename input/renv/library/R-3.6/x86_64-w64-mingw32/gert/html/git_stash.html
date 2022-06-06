@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Stashing changes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_stash {gert}"><tr><td>git_stash {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Stashing changes</h2>
+
+<h3>Description</h3>
+
+<p>Temporary stash away changed from the working directory.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_stash_save(
+  message = "",
+  keep_index = FALSE,
+  include_untracked = FALSE,
+  include_ignored = FALSE,
+  repo = "."
+)
+
+git_stash_pop(index = 0, repo = ".")
+
+git_stash_drop(index = 0, repo = ".")
+
+git_stash_list(repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>message</code></td>
+<td>
+<p>optional message to store the stash</p>
+</td></tr>
+<tr valign="top"><td><code>keep_index</code></td>
+<td>
+<p>changes already added to the index are left intact in
+the working directory</p>
+</td></tr>
+<tr valign="top"><td><code>include_untracked</code></td>
+<td>
+<p>untracked files are also stashed and then
+cleaned up from the working directory</p>
+</td></tr>
+<tr valign="top"><td><code>include_ignored</code></td>
+<td>
+<p>ignored files are also stashed and then cleaned
+up from the working directory</p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p>The position within the stash list. 0 points to the
+most recent stashed state.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

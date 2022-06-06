@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: X509 certificates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cert_verify {openssl}"><tr><td>cert_verify {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>X509 certificates</h2>
+
+<h3>Description</h3>
+
+<p>Read, download, analyze and verify X.509 certificates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cert_verify(cert, root = ca_bundle())
+
+download_ssl_cert(host = "localhost", port = 443, ipv4_only = FALSE)
+
+ca_bundle()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cert</code></td>
+<td>
+<p>certificate (or certificate-chain) to be verified. Must be cert or list or path.</p>
+</td></tr>
+<tr valign="top"><td><code>root</code></td>
+<td>
+<p>trusted pubkey or certificate(s) e.g. CA bundle.</p>
+</td></tr>
+<tr valign="top"><td><code>host</code></td>
+<td>
+<p>string: hostname of the server to connect to</p>
+</td></tr>
+<tr valign="top"><td><code>port</code></td>
+<td>
+<p>string or integer: port or protocol to use, e.g: <code>443</code> or <code>"https"</code></p>
+</td></tr>
+<tr valign="top"><td><code>ipv4_only</code></td>
+<td>
+<p>do not use IPv6 connections</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="read_key.html">read_cert</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Verify the r-project HTTPS cert
+chain &lt;- download_ssl_cert("cran.r-project.org", 443)
+print(chain)
+cert_data &lt;- as.list(chain[[1]])
+print(cert_data$pubkey)
+print(cert_data$alt_names)
+cert_verify(chain, ca_bundle())
+
+# Write cert in PEM format
+cat(write_pem(chain[[1]]))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

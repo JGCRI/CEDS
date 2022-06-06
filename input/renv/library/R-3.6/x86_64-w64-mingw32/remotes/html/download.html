@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Download a file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for download {remotes}"><tr><td>download {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Download a file</h2>
+
+<h3>Description</h3>
+
+<p>Uses either the curl package for R versions older than 3.2.0,
+otherwise a wrapper around <code><a href="../../utils/html/download.file.html">download.file()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+download(
+  path,
+  url,
+  auth_token = NULL,
+  basic_auth = NULL,
+  quiet = TRUE,
+  headers = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to download to. <code>dirname(path)</code> must exist.</p>
+</td></tr>
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>URL.</p>
+</td></tr>
+<tr valign="top"><td><code>auth_token</code></td>
+<td>
+<p>Token for token-based authentication or <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>basic_auth</code></td>
+<td>
+<p>List with <code>user</code> and <code>password</code> for basic HTTP
+authentication, or <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>Passed to <code><a href="../../utils/html/download.file.html">download.file()</a></code> or <code><a href="../../curl/html/curl_download.html">curl::curl_download()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>headers</code></td>
+<td>
+<p>Named character vector of HTTP headers to use.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>We respect the <code>download.file.method</code> setting of the user. If it is
+not set, then see <code>download_method()</code> for choosing a method.
+</p>
+<p>Authentication can be supplied three ways:
+</p>
+
+<ul>
+<li><p> By setting <code>auth_token</code>. This will append an HTTP <code>Authorization</code>
+header: <code style="white-space: pre;">Authorization: token {auth_token}</code>.
+</p>
+</li>
+<li><p> By setting <code>basic_auth</code> to a list with elements <code>user</code> and <code>password</code>.
+This will append a proper <code style="white-space: pre;">Authorization: Basic {encoded_password}</code>
+HTTP header.
+</p>
+</li>
+<li><p> By specifying the proper <code>headers</code> directly.
+</p>
+</li></ul>
+
+<p>If both <code>auth_token</code> and <code>basic_auth</code> are specified, that's an error.
+<code>auth_token</code> and <code>basic_auth</code> are <em>appended</em> to <code>headers</code>, so they
+take precedence over an <code>Authorization</code> header that is specified
+directly in <code>headers</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>path</code>, if the download was successful.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

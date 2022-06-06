@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get or set Git configuration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_config {gert}"><tr><td>git_config {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get or set Git configuration</h2>
+
+<h3>Description</h3>
+
+<p>Get or set Git options, as <code style="white-space: pre;">git config</code> does on the command line. <strong>Global</strong>
+settings affect all of a user's Git operations (<code style="white-space: pre;">git config --global</code>),
+whereas <strong>local</strong> settings are scoped to a specific repository (<code style="white-space: pre;">git config --local</code>). When both exist, local options always win. Four functions address
+the four possible combinations of getting vs setting and global vs. local.</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+    </td><td style="text-align: left;"> <strong>local</strong> </td><td style="text-align: left;"> <strong>global</strong> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   get </td><td style="text-align: left;"> <code>git_config()</code> </td><td style="text-align: left;"> <code>git_config_global()</code> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+   set </td><td style="text-align: left;"> <code>git_config_set()</code> </td><td style="text-align: left;"> <code>git_config_global_set()</code> </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+</td>
+</tr>
+
+</table>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+git_config(repo = ".")
+
+git_config_global()
+
+git_config_set(name, value, repo = ".")
+
+git_config_global_set(name, value)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of the option to set</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>Value to set. Must be a string, logical, number or <code>NULL</code> (to
+unset).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+
+<ul>
+<li> <p><code>git_config()</code>: a <code>data.frame</code> of the Git options &quot;in force&quot; in the context
+of <code>repo</code>, one row per option. The <code>level</code> column reveals whether the
+option is determined from global or local config.
+</p>
+</li>
+<li> <p><code>git_config_global()</code>: a <code>data.frame</code>, as for <code>git_config()</code>, except only
+for global Git options.
+</p>
+</li>
+<li> <p><code>git_config_set()</code>, <code>git_config_global_set()</code>: The previous value of
+<code>name</code> in local or global config, respectively. If this option was
+previously unset, returns <code>NULL</code>. Returns invisibly.
+</p>
+</li></ul>
+
+
+
+<h3>Note</h3>
+
+<p>All entries in the <code>name</code> column are automatically normalised to
+lowercase (see
+<a href="https://libgit2.org/libgit2/#HEAD/type/git_config_entry">https://libgit2.org/libgit2/#HEAD/type/git_config_entry</a> for details).
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_fetch.html">git_fetch</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Set and inspect a local, custom Git option
+r &lt;- file.path(tempdir(), "gert-demo")
+git_init(r)
+
+previous &lt;- git_config_set("aaa.bbb", "ccc", repo = r)
+previous
+cfg &lt;- git_config(repo = r)
+subset(cfg, level == "local")
+cfg$value[cfg$name == "aaa.bbb"]
+
+previous &lt;- git_config_set("aaa.bbb", NULL, repo = r)
+previous
+cfg &lt;- git_config(repo = r)
+subset(cfg, level == "local")
+cfg$value[cfg$name == "aaa.bbb"]
+
+unlink(r, recursive = TRUE)
+
+## Not run: 
+# Set global Git options
+git_config_global_set("user.name", "Your Name")
+git_config_global_set("user.email", "your@email.com")
+git_config_global()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

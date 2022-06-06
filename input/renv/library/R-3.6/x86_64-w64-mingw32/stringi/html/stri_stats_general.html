@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: General Statistics for a Character Vector</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_stats_general {stringi}"><tr><td>stri_stats_general {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>General Statistics for a Character Vector</h2>
+
+<h3>Description</h3>
+
+<p>This function gives general statistics for a character vector,
+e.g., obtained by loading a text file with the
+<code><a href="../../base/html/readLines.html">readLines</a></code> or <code><a href="stri_read_lines.html">stri_read_lines</a></code> function,
+where each text line' is represented by a separate string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_stats_general(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector to be aggregated</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>None of the strings may contain <code>\r</code> or <code>\n</code> characters,
+otherwise you will get at error.
+</p>
+<p>Below by 'white space' we mean the Unicode binary property
+<code>WHITE_SPACE</code>, see <code>stringi-search-charclass</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns an integer vector with the following named elements:
+</p>
+
+<ol>
+<li> <p><code>Lines</code> - number of lines (number of
+non-missing strings in the vector);
+</p>
+</li>
+<li> <p><code>LinesNEmpty</code> - number of lines with at least
+one non-<code>WHITE_SPACE</code> character;
+</p>
+</li>
+<li> <p><code>Chars</code> - total number of Unicode code points detected;
+</p>
+</li>
+<li> <p><code>CharsNWhite</code> - number of Unicode code points
+that are not <code>WHITE_SPACE</code>s;
+</p>
+</li>
+<li><p> ... (Other stuff that may appear in future releases of <span class="pkg">stringi</span>).
+</p>
+</li></ol>
+
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other stats: 
+<code><a href="stri_stats_latex.html">stri_stats_latex</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+s &lt;- c('Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+       'nibh augue, suscipit a, scelerisque sed, lacinia in, mi.',
+       'Cras vel lorem. Etiam pellentesque aliquet tellus.',
+       '')
+stri_stats_general(s)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

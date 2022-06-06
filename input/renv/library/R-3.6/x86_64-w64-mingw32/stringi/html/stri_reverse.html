@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Reverse Each String</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_reverse {stringi}"><tr><td>stri_reverse {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Reverse Each String</h2>
+
+<h3>Description</h3>
+
+<p>Reverses the order of the code points in every string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_reverse(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that this operation may result in non-Unicode-normalized
+strings and may give peculiar outputs for bidirectional strings.
+</p>
+<p>See also <code><a href="stri_rand_shuffle.html">stri_rand_shuffle</a></code> for a random permutation
+of code points.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_reverse(c('123', 'abc d e f'))
+stri_reverse('ZXY (\u0105\u0104123$^).')
+stri_reverse(stri_trans_nfd('\u0105')) == stri_trans_nfd('\u0105') # A, ogonek -&gt; agonek, A
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

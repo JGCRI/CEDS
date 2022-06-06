@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: SQL quoting</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for SQL {DBI}"><tr><td>SQL {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>SQL quoting</h2>
+
+<h3>Description</h3>
+
+<p>This set of classes and generics make it possible to flexibly deal with SQL
+escaping needs. By default, any user supplied input to a query should be
+escaped using either <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code> or <code><a href="dbQuoteString.html">dbQuoteString()</a></code>
+depending on whether it refers to a table or variable name, or is a literal
+string.
+These functions may return an object of the <code>SQL</code> class,
+which tells DBI functions that a character string does not need to be escaped
+anymore, to prevent double escaping.
+The <code>SQL</code> class has associated the <code>SQL()</code> constructor function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+SQL(x, ..., names = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector to label as being escaped SQL.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to methods. Not otherwise used.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>Names for the returned object, must have the same length as <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code>SQL</code>.
+</p>
+
+
+<h3>Implementation notes</h3>
+
+<p>DBI provides default generics for SQL-92 compatible quoting. If the database
+uses a different convention, you will need to provide your own methods.
+Note that because of the way that S4 dispatch finds methods and because
+SQL inherits from character, if you implement (e.g.) a method for
+<code>dbQuoteString(MyConnection, character)</code>, you will also need to
+implement <code>dbQuoteString(MyConnection, SQL)</code> - this should simply
+return <code>x</code> unchanged.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+dbQuoteIdentifier(ANSI(), "SELECT")
+dbQuoteString(ANSI(), "SELECT")
+
+# SQL vectors are always passed through as is
+var_name &lt;- SQL("SELECT")
+var_name
+
+dbQuoteIdentifier(ANSI(), var_name)
+dbQuoteString(ANSI(), var_name)
+
+# This mechanism is used to prevent double escaping
+dbQuoteString(ANSI(), dbQuoteString(ANSI(), "SELECT"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

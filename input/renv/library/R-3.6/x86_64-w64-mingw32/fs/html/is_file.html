@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Functions to test for file types</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_file {fs}"><tr><td>is_file {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Functions to test for file types</h2>
+
+<h3>Description</h3>
+
+<p>Functions to test for file types
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_file(path, follow = TRUE)
+
+is_dir(path, follow = TRUE)
+
+is_link(path)
+
+is_file_empty(path, follow = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>follow</code></td>
+<td>
+<p>If <code>TRUE</code>, symbolic links will be followed (recursively) and
+the results will be that of the final file rather than the link.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A named logical vector, where the names give the paths. If the given
+object does not exist, <code>NA</code> is returned.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="file_access.html">file_exists()</a></code>, <code><a href="file_access.html">dir_exists()</a></code> and <code><a href="file_access.html">link_exists()</a></code> if you want
+to ensure that the path also exists.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+dir_create("d")
+
+file_create("d/file.txt")
+dir_create("d/dir")
+link_create(path(path_abs("d"), "file.txt"), "d/link")
+
+paths &lt;- dir_ls("d")
+is_file(paths)
+is_dir(paths)
+is_link(paths)
+
+# Cleanup
+dir_delete("d")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Export key or certificate</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write_pem {openssl}"><tr><td>write_pem {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Export key or certificate</h2>
+
+<h3>Description</h3>
+
+<p>The <code>write_pem</code> functions exports a key or certificate to the standard
+base64 PEM format. For private keys it is possible to set a password.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+write_pem(x, path = NULL, password = NULL)
+
+write_der(x, path = NULL)
+
+write_pkcs1(x, path = NULL, password = NULL)
+
+write_ssh(pubkey, path = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a public/private key or certificate object</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>file to write to. If <code>NULL</code> it returns the output as a string.</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>string or callback function to set password (only applicable for
+private keys).</p>
+</td></tr>
+<tr valign="top"><td><code>pubkey</code></td>
+<td>
+<p>a public key</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The pkcs1 format is a legacy format which only supports RSA keys and should
+not be used anymore. It is only provided for compatibility with some old SSH
+clients. Simply use <code>write_pem</code> to export keys and certs to the recommended
+format.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate RSA keypair
+key &lt;- rsa_keygen()
+pubkey &lt;- key$pubkey
+
+# Write to output formats
+write_ssh(pubkey)
+write_pem(pubkey)
+write_pem(key, password = "super secret")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

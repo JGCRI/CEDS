@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Initialize tzdb for usage in other packages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tzdb_initialize {tzdb}"><tr><td>tzdb_initialize {tzdb}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Initialize tzdb for usage in other packages</h2>
+
+<h3>Description</h3>
+
+<p><code>tzdb_initialize()</code> is intended to be called from a client package's
+<code>.onLoad()</code> as <code>tzdb::tzdb_initialize()</code> to ensure that the tzdb package
+has been loaded.
+</p>
+<p>The function itself doesn't do anything. It is instead called for the
+side-effect of loading the tzdb package. This does two things:
+</p>
+
+<ul>
+<li><p> The tzdb <code>.onLoad()</code> hook is run, which sets the path to the time zone
+database.
+</p>
+</li>
+<li><p> The callables in tzdb are registered, which allows them to be called from
+other packages.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+tzdb_initialize()
+</pre>
+
+
+<h3>Details</h3>
+
+<p>There are alternative ways to ensure that tzdb is loaded. A client package
+can alternatively import a function from tzdb into its package with the
+<code style="white-space: pre;">@importFrom</code> tag, or can call <code>requireNamespace("tzdb", quiet = TRUE)</code> from
+its <code>.onLoad()</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>NULL</code>, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+tzdb_initialize()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tzdb</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

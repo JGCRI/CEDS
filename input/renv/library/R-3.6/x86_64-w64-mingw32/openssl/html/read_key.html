@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parsing keys and certificates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read_key {openssl}"><tr><td>read_key {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parsing keys and certificates</h2>
+
+<h3>Description</h3>
+
+<p>The <code>read_key</code> function (private keys) and <code>read_pubkey</code> (public keys)
+support both SSH pubkey format and OpenSSL PEM format (base64 data with a <code>--BEGIN</code>
+and <code>---END</code> header), and automatically convert where necessary. The functions assume
+a single key per file except for <code>read_cert_bundle</code> which supports PEM files
+with multiple certificates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_key(file, password = askpass, der = is.raw(file))
+
+read_pubkey(file, der = is.raw(file))
+
+read_cert(file, der = is.raw(file))
+
+read_cert_bundle(file)
+
+read_pem(file)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Either a path to a file, a connection, or literal data (a string for
+pem/ssh format, or a raw vector in der format)</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>A string or callback function to read protected keys</p>
+</td></tr>
+<tr valign="top"><td><code>der</code></td>
+<td>
+<p>set to <code>TRUE</code> if <code>file</code> is in binary DER format</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Most versions of OpenSSL support at least RSA, DSA and ECDSA keys. Certificates must
+conform to the X509 standard.
+</p>
+<p>The <code>password</code> argument is needed when reading keys that are protected with a
+passphrase. It can either be a string containing the passphrase, or a custom callback
+function that will be called by OpenSSL to read the passphrase. The function should
+take one argument (a string with a message) and return a string. The default is to
+use <code>readline</code> which will prompt the user in an interactive R session.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code>cert</code>, <code>key</code> or <code>pubkey</code> which holds the data
+in binary DER format and can be decomposed using <code>as.list</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="certificates.html">download_ssl_cert</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: # Read private key
+key &lt;- read_key("~/.ssh/id_rsa")
+str(key)
+
+# Read public key
+pubkey &lt;- read_pubkey("~/.ssh/id_rsa.pub")
+str(pubkey)
+
+# Read certificates
+txt &lt;- readLines("https://curl.haxx.se/ca/cacert.pem")
+bundle &lt;- read_cert_bundle(txt)
+print(bundle)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Run Rdiff Directly on R Objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Rdiff_chr {diffobj}"><tr><td>Rdiff_chr {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Run Rdiff Directly on R Objects</h2>
+
+<h3>Description</h3>
+
+<p>These functions are here for reference and testing purposes.  They are
+wrappers to <code>tools::Rdiff</code> and rely on an existing system diff utility.
+You should be using <code><a href="ses.html">ses</a></code> or <code><a href="diffChr.html">diffChr</a></code> instead of
+<code>Rdiff_chr</code> and <code><a href="diffPrint.html">diffPrint</a></code> instead of <code>Rdiff_obj</code>.
+See limitations in note.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Rdiff_chr(from, to, silent = FALSE, minimal = FALSE, nullPointers = TRUE)
+
+Rdiff_obj(from, to, silent = FALSE, minimal = FALSE, nullPointers = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>character or object coercible to character for <code>Rdiff_chr</code>,
+any R object with <code>Rdiff_obj</code>, or a file pointing to an RDS object</p>
+</td></tr>
+<tr valign="top"><td><code>to</code></td>
+<td>
+<p>character same as <code>from</code></p>
+</td></tr>
+<tr valign="top"><td><code>silent</code></td>
+<td>
+<p>TRUE or FALSE, whether to display output to screen</p>
+</td></tr>
+<tr valign="top"><td><code>minimal</code></td>
+<td>
+<p>TRUE or FALSE, whether to exclude the lines that show the
+actual differences or only the actual edit script commands</p>
+</td></tr>
+<tr valign="top"><td><code>nullPointers</code></td>
+<td>
+<p>passed to <code>tools::Rdiff</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>Rdiff_chr</code> runs diffs on character vectors or objects coerced to
+character vectors, where each value in the vectors is treated as a line in a
+file.  <code>Rdiff_chr</code> always runs with the <code>useDiff</code> and <code>Log</code>
+parameters set to <code>TRUE</code>.
+</p>
+<p><code>Rdiff_obj</code> runs diffs on the <code>print</code>ed representation of
+the provided objects.  For each of <code>from</code>, <code>to</code>, will check if they
+are 1 length character vectors referencing an RDS file, and will use the
+contents of that RDS file as the object to compare.
+</p>
+
+
+<h3>Value</h3>
+
+<p>the Rdiff output, invisibly if <code>silent</code> is FALSE
+Rdiff_chr(letters[1:5], LETTERS[1:5])
+Rdiff_obj(letters[1:5], LETTERS[1:5])
+</p>
+
+
+<h3>Note</h3>
+
+<p>These functions will try to use the system <code>diff</code> utility. This
+will fail in systems that do not have that utility available (e.g. windows
+installation without Rtools).
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="ses.html">ses</a></code>, <code><a href="diffPrint.html">diff*</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

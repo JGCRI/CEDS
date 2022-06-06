@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use Python</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_python {renv}"><tr><td>use_python {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use Python</h2>
+
+<h3>Description</h3>
+
+<p>Associate a version of Python with your project.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_python(
+  python = NULL,
+  ...,
+  type = c("auto", "virtualenv", "conda", "system"),
+  name = NULL,
+  project = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>python</code></td>
+<td>
+<p>The path to a Python binary. This can be the path to a Python
+binary on the system, or the path to a Python binary within an
+already-existing Python environment. If <code>NULL</code>, the <code>RETICULATE_PYTHON</code>
+environment variable is checked; if that is not set, then the default
+version of <code>python</code> on the <code>PATH</code> is used instead. As a special case,
+<code>use_python(FALSE)</code> can be used to deactivate Python integration with
+a project.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments; currently unused.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>The type of Python environment to use. When <code>"auto"</code> (the
+default), a project-local environment (virtual environments on Linux /
+macOS; conda environments on Windows) will be created. Ignored if the
+requested version of <code>python</code> lives within a pre-existing Python
+environment.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>The name or path that should be used for the associated Python
+environment. If <code>NULL</code> and <code>python</code> points to a Python executable living
+within a pre-existing virtual environment, that environment will be used.
+Otherwise, a project-local environment will be created instead.</p>
+</td></tr>
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>When Python integration is active, <code>renv</code> will:
+</p>
+
+<ul>
+<li><p> Save metadata about the requested version of Python in <code>renv.lock</code> &ndash; in
+particular, the Python version, and the Python type (&quot;virtualenv&quot;, &quot;conda&quot;,
+&quot;system&quot;),
+</p>
+</li>
+<li><p> On load, set the <code>RETICULATE_PYTHON</code> environment variable, so that the
+<code>reticulate</code> package can automatically use the requested copy of Python
+as appropriate,
+</p>
+</li>
+<li><p> Capture the set of installed Python packages during <code>renv::snapshot()</code>,
+</p>
+</li>
+<li><p> Reinstall the set of recorded Python packages during <code>renv::restore()</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p><code>TRUE</code>, indicating that the requested version of Python has been
+successfully activated. Note that this function is normally called for
+its side effects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# use python with a project
+renv::use_python()
+
+# use virtualenv python with a project
+renv::use_python(type = "virtualenv")
+
+# use conda python with a project
+renv::use_python(type = "conda")
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

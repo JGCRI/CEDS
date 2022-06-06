@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is x a length of time?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is.timespan {lubridate}"><tr><td>is.timespan {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is x a length of time?</h2>
+
+<h3>Description</h3>
+
+<p>Is x a length of time?
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is.timespan(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an R object</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>TRUE if x is a period, interval, duration, or difftime object, FALSE otherwise.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="is.instant.html">is.instant()</a></code>, <code><a href="duration.html">is.duration()</a></code>, <code><a href="is.difftime.html">is.difftime()</a></code>, <code><a href="period.html">is.period()</a></code>, <code><a href="interval.html">is.interval()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+is.timespan(as.Date("2009-08-03")) # FALSE
+is.timespan(duration(second = 1)) # TRUE
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

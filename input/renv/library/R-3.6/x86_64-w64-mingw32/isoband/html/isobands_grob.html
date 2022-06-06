@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render isobands</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for isobands_grob {isoband}"><tr><td>isobands_grob {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render isobands</h2>
+
+<h3>Description</h3>
+
+<p>This function generates a grid grob that represents isobands.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+isobands_grob(bands, gp = gpar(), units = "npc")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bands</code></td>
+<td>
+<p>Isobands, as produced by the <code><a href="isobands.html">isobands()</a></code> function.</p>
+</td></tr>
+<tr valign="top"><td><code>gp</code></td>
+<td>
+<p>Grid graphical parameters. Parameters are recycled among
+the total number of bands drawn.</p>
+</td></tr>
+<tr valign="top"><td><code>units</code></td>
+<td>
+<p>A character string specifying the units in which to
+interpret the isobands coordinates. Defaults to <code>"npc"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>See <code><a href="isolines_grob.html">isolines_grob()</a></code> for drawing of isolines.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(grid)
+
+viridis_pal &lt;- colorRampPalette(
+  c("#440154", "#414487", "#2A788E", "#22A884", "#7AD151", "#FDE725"),
+  space = "Lab"
+)
+
+x &lt;- (1:ncol(volcano))/(ncol(volcano)+1)
+y &lt;- (nrow(volcano):1)/(nrow(volcano)+1)
+bands &lt;- isobands(x, y, volcano, 5*(18:38), 5*(19:39))
+
+b &lt;- isobands_grob(
+  bands,
+  gp = gpar(col = "black", fill = viridis_pal(21), alpha = 0.5)
+)
+
+grid.newpage()
+grid.draw(b)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

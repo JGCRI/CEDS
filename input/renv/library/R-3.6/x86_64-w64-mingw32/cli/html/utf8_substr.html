@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Substring of an UTF-8 string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for utf8_substr {cli}"><tr><td>utf8_substr {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Substring of an UTF-8 string</h2>
+
+<h3>Description</h3>
+
+<p>This function uses grapheme clusters instead of Unicode code points in
+UTF-8 strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+utf8_substr(x, start, stop)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>start</code></td>
+<td>
+<p>Starting index or indices, recycled to match the length
+of <code>x</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>stop</code></td>
+<td>
+<p>Ending index or indices, recycled to match the length of
+<code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of the same length as <code>x</code>, containing
+the requested substrings.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other UTF-8 string manipulation: 
+<code><a href="utf8_graphemes.html">utf8_graphemes</a>()</code>,
+<code><a href="utf8_nchar.html">utf8_nchar</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Five grapheme clusters, select the middle three
+str &lt;- paste0(
+  "\U0001f477\U0001f3ff\u200d\u2640\ufe0f",
+  "\U0001f477\U0001f3ff",
+  "\U0001f477\u200d\u2640\ufe0f",
+  "\U0001f477\U0001f3fb",
+  "\U0001f477\U0001f3ff")
+cat(str)
+str24 &lt;- utf8_substr(str, 2, 4)
+cat(str24)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

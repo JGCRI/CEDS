@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cumulativate versions of any, all, and mean</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cumall {dplyr}"><tr><td>cumall {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cumulativate versions of any, all, and mean</h2>
+
+<h3>Description</h3>
+
+<p>dplyr provides <code>cumall()</code>, <code>cumany()</code>, and <code>cummean()</code> to complete R's set
+of cumulative functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cumall(x)
+
+cumany(x)
+
+cummean(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For <code>cumall()</code> and <code>cumany()</code>, a logical vector; for
+<code>cummean()</code> an integer or numeric vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A vector the same length as <code>x</code>.
+</p>
+
+
+<h3>Cumulative logical functions</h3>
+
+<p>These are particularly useful in conjunction with <code>filter()</code>:
+</p>
+
+<ul>
+<li> <p><code>cumall(x)</code>: all cases until the first <code>FALSE</code>.
+</p>
+</li>
+<li> <p><code>cumall(!x)</code>: all cases until the first <code>TRUE</code>.
+</p>
+</li>
+<li> <p><code>cumany(x)</code>: all cases after the first <code>TRUE</code>.
+</p>
+</li>
+<li> <p><code>cumany(!x)</code>: all cases after the first <code>FALSE</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# `cummean()` returns a numeric/integer vector of the same length
+# as the input vector.
+x &lt;- c(1, 3, 5, 2, 2)
+cummean(x)
+cumsum(x) / seq_along(x)
+
+# `cumall()` and `cumany()` return logicals
+cumall(x &lt; 5)
+cumany(x == 3)
+
+# `cumall()` vs. `cumany()`
+df &lt;- data.frame(
+  date = as.Date("2020-01-01") + 0:6,
+  balance = c(100, 50, 25, -25, -50, 30, 120)
+)
+# all rows after first overdraft
+df %&gt;% filter(cumany(balance &lt; 0))
+# all rows until first overdraft
+df %&gt;% filter(cumall(!(balance &lt; 0)))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Credential function registry</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cred_funs {gargle}"><tr><td>cred_funs {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Credential function registry</h2>
+
+<h3>Description</h3>
+
+<p>Functions to query or manipulate the registry of credential functions
+consulted by <code><a href="token_fetch.html">token_fetch()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cred_funs_list()
+
+cred_funs_add(...)
+
+cred_funs_set(ls)
+
+cred_funs_clear()
+
+cred_funs_set_default()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>One or more functions with the right signature: its first argument
+is named <code>scopes</code>, and it includes <code>...</code> as an argument.</p>
+</td></tr>
+<tr valign="top"><td><code>ls</code></td>
+<td>
+<p>A list of credential functions.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of credential functions or <code>NULL</code>.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<ul>
+<li> <p><code>cred_funs_list</code>: Get the list of registered credential functions.
+</p>
+</li>
+<li> <p><code>cred_funs_add</code>: Register one or more new credential fetching functions.
+Function(s) are added to the <em>front</em> of the list. So:</p>
+<pre>* "First registered, last tried."
+* "Last registered, first tried."
+</pre>
+</li>
+<li> <p><code>cred_funs_set</code>: Register a list of credential fetching functions.
+</p>
+</li>
+<li> <p><code>cred_funs_clear</code>: Clear the credential function registry.
+</p>
+</li>
+<li> <p><code>cred_funs_set_default</code>: Reset the registry to the gargle default.
+</p>
+</li></ul>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="token_fetch.html">token_fetch()</a></code>, which is where the registry is actually used.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+names(cred_funs_list())
+
+creds_one &lt;- function(scopes, ...) {}
+cred_funs_add(creds_one)
+cred_funs_add(one = creds_one)
+cred_funs_add(one = creds_one, two = creds_one)
+cred_funs_add(one = creds_one, creds_one)
+
+# undo all of the above and return to default
+cred_funs_set_default()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

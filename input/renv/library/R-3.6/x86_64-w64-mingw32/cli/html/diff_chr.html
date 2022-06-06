@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compare two character vectors elementwise</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for diff_chr {cli}"><tr><td>diff_chr {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compare two character vectors elementwise</h2>
+
+<h3>Description</h3>
+
+<p>Its printed output is similar to calling <code>diff -u</code> at the command
+line.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+diff_chr(old, new, max_dist = Inf)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>old</code></td>
+<td>
+<p>First character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p>Second character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>max_dist</code></td>
+<td>
+<p>Maximum distance to consider, or <code>Inf</code> for no limit.
+If the LCS edit distance is larger than this, then the function
+throws an error with class <code>"cli_diff_max_dist"</code>. (If you specify
+<code>Inf</code> the real limit is <code>.Machine$integer.max</code> but to reach this the
+function would have to run a very long time.)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list that is a <code>cli_diff_chr</code> object, with a <code>format()</code> and a
+<code>print()</code> method. You can also access its members:
+</p>
+
+<ul>
+<li> <p><code>old</code> and <code>new</code> are the original inputs,
+</p>
+</li>
+<li> <p><code>lcs</code> is a data frame of LCS edit that transform <code>old</code> into <code>new</code>.
+</p>
+</li></ul>
+
+<p>The <code>lcs</code> data frame has the following columns:
+</p>
+
+<ul>
+<li> <p><code>operation</code>: one of <code>"match"</code>, <code>"delete"</code> or <code>"insert"</code>.
+</p>
+</li>
+<li> <p><code>offset</code>: offset in <code>old</code> for matches and deletions, offset in <code>new</code>
+for insertions.
+</p>
+</li>
+<li> <p><code>length</code>: length of the operation, i.e. number of matching, deleted
+or inserted elements.
+</p>
+</li>
+<li> <p><code>old_offset</code>: offset in <code>old</code> <em>after</em> the operation.
+</p>
+</li>
+<li> <p><code>new_offset</code>: offset in <code>new</code> <em>after</em> the operation.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>The diffobj package for a much more comprehensive set of
+<code>diff</code>-like tools.
+</p>
+<p>Other diff functions in cli: 
+<code><a href="diff_str.html">diff_str</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+letters2 &lt;- c("P", "R", "E", letters, "P", "O", "S", "T")
+letters2[11:16] &lt;- c("M", "I", "D", "D", "L", "E")
+diff_chr(letters, letters2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

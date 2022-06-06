@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Vectorised if</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for if_else {dplyr}"><tr><td>if_else {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Vectorised if</h2>
+
+<h3>Description</h3>
+
+<p>Compared to the base <code><a href="../../base/html/ifelse.html">ifelse()</a></code>, this function is more strict.
+It checks that <code>true</code> and <code>false</code> are the same type. This
+strictness makes the output type more predictable, and makes it somewhat
+faster.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+if_else(condition, true, false, missing = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>condition</code></td>
+<td>
+<p>Logical vector</p>
+</td></tr>
+<tr valign="top"><td><code>true, false</code></td>
+<td>
+<p>Values to use for <code>TRUE</code> and <code>FALSE</code> values of
+<code>condition</code>. They must be either the same length as <code>condition</code>,
+or length 1. They must also be the same type: <code>if_else()</code> checks that
+they have the same type and same class. All other attributes are
+taken from <code>true</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>missing</code></td>
+<td>
+<p>If not <code>NULL</code>, will be used to replace missing
+values.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Where <code>condition</code> is <code>TRUE</code>, the matching value from
+<code>true</code>, where it's <code>FALSE</code>, the matching value from <code>false</code>,
+otherwise <code>NA</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- c(-5:5, NA)
+if_else(x &lt; 0, NA_integer_, x)
+if_else(x &lt; 0, "negative", "positive", "missing")
+
+# Unlike ifelse, if_else preserves types
+x &lt;- factor(sample(letters[1:5], 10, replace = TRUE))
+ifelse(x %in% c("a", "b", "c"), x, factor(NA))
+if_else(x %in% c("a", "b", "c"), x, factor(NA))
+# Attributes are taken from the `true` vector,
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

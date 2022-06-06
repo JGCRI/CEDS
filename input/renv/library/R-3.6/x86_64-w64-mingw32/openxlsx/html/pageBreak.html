@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: add a page break to a worksheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pageBreak {openxlsx}"><tr><td>pageBreak {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>add a page break to a worksheet</h2>
+
+<h3>Description</h3>
+
+<p>insert page breaks into a worksheet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pageBreak(wb, sheet, i, type = "row")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>row or column number to insert page break.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>One of &quot;row&quot; or &quot;column&quot; for a row break or column break.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="addWorksheet.html">addWorksheet()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+writeData(wb, sheet = 1, x = iris)
+
+pageBreak(wb, sheet = 1, i = 10, type = "row")
+pageBreak(wb, sheet = 1, i = 20, type = "row")
+pageBreak(wb, sheet = 1, i = 2, type = "column")
+## Not run: 
+saveWorkbook(wb, "pageBreakExample.xlsx", TRUE)
+
+## End(Not run)
+## In Excel: View tab -&gt; Page Break Preview
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

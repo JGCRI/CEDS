@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get named regions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getNamedRegions {openxlsx}"><tr><td>getNamedRegions {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get named regions</h2>
+
+<h3>Description</h3>
+
+<p>Return a vector of named regions in a xlsx file or
+Workbook object
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getNamedRegions(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An xlsx file or Workbook object</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="NamedRegion.html">createNamedRegion()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## create named regions
+wb &lt;- createWorkbook()
+addWorksheet(wb, "Sheet 1")
+
+## specify region
+writeData(wb, sheet = 1, x = iris, startCol = 1, startRow = 1)
+createNamedRegion(
+  wb = wb,
+  sheet = 1,
+  name = "iris",
+  rows = 1:(nrow(iris) + 1),
+  cols = 1:ncol(iris)
+)
+
+
+## using writeData 'name' argument to create a named region
+writeData(wb, sheet = 1, x = iris, name = "iris2", startCol = 10)
+## Not run: 
+out_file &lt;- tempfile(fileext = ".xlsx")
+saveWorkbook(wb, out_file, overwrite = TRUE)
+
+## see named regions
+getNamedRegions(wb) ## From Workbook object
+getNamedRegions(out_file) ## From xlsx file
+
+## read named regions
+df &lt;- read.xlsx(wb, namedRegion = "iris")
+head(df)
+
+df &lt;- read.xlsx(out_file, namedRegion = "iris2")
+head(df)
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

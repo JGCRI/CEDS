@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Coerce an object to a base type</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vector-coercion {rlang}"><tr><td>vector-coercion {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Coerce an object to a base type</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#soft-deprecated"><img src="../help/figures/lifecycle-soft-deprecated.svg" alt='[Soft-deprecated]' /></a>
+</p>
+<p>These are equivalent to the base functions (e.g. <code><a href="../../base/html/logical.html">as.logical()</a></code>,
+<code><a href="../../base/html/list.html">as.list()</a></code>, etc), but perform coercion rather than conversion.
+This means they are not generic and will not call S3 conversion
+methods. They only attempt to coerce the base type of their
+input. In addition, they have stricter implicit coercion rules and
+will never attempt any kind of parsing. E.g. they will not try to
+figure out if a character vector represents integers or booleans.
+Finally, they treat attributes consistently, unlike the base R
+functions: all attributes except names are removed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_logical(x)
+
+as_integer(x)
+
+as_double(x)
+
+as_complex(x)
+
+as_character(x, encoding = NULL)
+
+as_list(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object to coerce to a base type.</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>If non-null, set an encoding mark. This is only
+declarative, no encoding conversion is performed.</p>
+</td></tr>
+</table>
+
+
+<h3>Lifecycle</h3>
+
+<p>These functions are deprecated in favour of <code>vctrs::vec_cast()</code>.
+</p>
+
+
+<h3>Coercion to logical and numeric atomic vectors</h3>
+
+
+<ul>
+<li><p> To logical vectors: Integer and integerish double vectors. See
+<code><a href="is_integerish.html">is_integerish()</a></code>.
+</p>
+</li>
+<li><p> To integer vectors: Logical and integerish double vectors.
+</p>
+</li>
+<li><p> To double vectors: Logical and integer vectors.
+</p>
+</li>
+<li><p> To complex vectors: Logical, integer and double vectors.
+</p>
+</li></ul>
+
+
+
+<h3>Coercion to character vectors</h3>
+
+<p><code>as_character()</code> and <code>as_string()</code> have an optional <code>encoding</code>
+argument to specify the encoding. R uses this information for
+internal handling of strings and character vectors. Note that this
+is only declarative, no encoding conversion is attempted.
+</p>
+<p>Note that only <code>as_string()</code> can coerce symbols to a scalar
+character vector. This makes the code more explicit and adds an
+extra type check.
+</p>
+
+
+<h3>Coercion to lists</h3>
+
+<p><code>as_list()</code> only coerces vector and dictionary types (environments
+are an example of dictionary type). Unlike <code><a href="../../base/html/list.html">base::as.list()</a></code>,
+<code>as_list()</code> removes all attributes except names.
+</p>
+
+
+<h3>Effects of removing attributes</h3>
+
+<p>A technical side-effect of removing the attributes of the input is
+that the underlying objects has to be copied. This has no
+performance implications in the case of lists because this is a
+shallow copy: only the list structure is copied, not the contents
+(see <code><a href="duplicate.html">duplicate()</a></code>). However, be aware that atomic vectors
+containing large amounts of data will have to be copied.
+</p>
+<p>In general, any attribute modification creates a copy, which is why
+it is better to avoid using attributes with heavy atomic vectors.
+Uncopyable objects like environments and symbols are an exception
+to this rule: in this case, attributes modification happens in
+place and has side-effects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Coercing atomic vectors removes attributes with both base R and rlang:
+x &lt;- structure(TRUE, class = "foo", bar = "baz")
+as.logical(x)
+
+# But coercing lists preserves attributes in base R but not rlang:
+l &lt;- structure(list(TRUE), class = "foo", bar = "baz")
+as.list(l)
+as_list(l)
+
+# Implicit conversions are performed in base R but not rlang:
+as.logical(l)
+## Not run: 
+as_logical(l)
+
+## End(Not run)
+
+# Conversion methods are bypassed, making the result of the
+# coercion more predictable:
+as.list.foo &lt;- function(x) "wrong"
+as.list(l)
+as_list(l)
+
+# The input is never parsed. E.g. character vectors of numbers are
+# not converted to numeric types:
+as.integer("33")
+## Not run: 
+as_integer("33")
+
+## End(Not run)
+
+
+# With base R tools there is no way to convert an environment to a
+# list without either triggering method dispatch, or changing the
+# original environment. as_list() makes it easy:
+x &lt;- structure(as_environment(mtcars[1:2]), class = "foobar")
+as.list.foobar &lt;- function(x) abort("dont call me")
+as_list(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

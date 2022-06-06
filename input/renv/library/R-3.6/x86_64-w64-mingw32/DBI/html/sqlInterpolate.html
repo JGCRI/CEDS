@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Safely interpolate values into an SQL string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sqlInterpolate {DBI}"><tr><td>sqlInterpolate {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Safely interpolate values into an SQL string</h2>
+
+<h3>Description</h3>
+
+<p>Accepts a query string with placeholders for values, and returns a string
+with the values embedded.
+The function is careful to quote all of its inputs with <code><a href="dbQuoteLiteral.html">dbQuoteLiteral()</a></code>
+to protect against SQL injection attacks.
+</p>
+<p>Placeholders can be specified with one of two syntaxes:
+</p>
+
+<ul>
+<li> <p><code style="white-space: pre;">?</code>: each occurrence of a standalone <code style="white-space: pre;">?</code> is replaced with a value
+</p>
+</li>
+<li> <p><code>?name1</code>, <code>?name2</code>, ...: values are given as named arguments or a
+named list, the names are used to match the values
+</p>
+</li></ul>
+
+<p>Mixing <code style="white-space: pre;">?</code> and <code>?name</code> syntaxes is an error.
+The number and names of values supplied must correspond to the placeholders
+used in the query.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sqlInterpolate(conn, sql, ..., .dots = list())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>A <a href="DBIConnection-class.html">DBIConnection</a> object, as returned by
+<code><a href="dbConnect.html">dbConnect()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sql</code></td>
+<td>
+<p>A SQL string containing variables to interpolate.
+Variables must start with a question mark and can be any valid R
+identifier, i.e. it must start with a letter or <code>.</code>, and be followed
+by a letter, digit, <code>.</code> or <code style="white-space: pre;">_</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>..., .dots</code></td>
+<td>
+<p>Values (for <code>...</code>) or a list (for <code>.dots</code>)
+to interpolate into a string.
+Names are required if  <code>sql</code> uses the <code>?name</code> syntax for placeholders.
+All values will be first escaped with <code><a href="dbQuoteLiteral.html">dbQuoteLiteral()</a></code> prior
+to interpolation to protect against SQL injection attacks.
+Arguments created by <code><a href="SQL.html">SQL()</a></code> or <code><a href="dbQuoteIdentifier.html">dbQuoteIdentifier()</a></code> remain unchanged.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The <code>sql</code> query with the values from <code>...</code> and <code>.dots</code> safely
+embedded.
+</p>
+
+
+<h3>Backend authors</h3>
+
+<p>If you are implementing an SQL backend with non-ANSI quoting rules, you'll
+need to implement a method for <code><a href="sqlParseVariables.html">sqlParseVariables()</a></code>. Failure to
+do so does not expose you to SQL injection attacks, but will (rarely) result
+in errors matching supplied and interpolated variables.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+sql &lt;- "SELECT * FROM X WHERE name = ?name"
+sqlInterpolate(ANSI(), sql, name = "Hadley")
+
+# This is safe because the single quote has been double escaped
+sqlInterpolate(ANSI(), sql, name = "H'); DROP TABLE--;")
+
+# Using paste0() could lead to dangerous SQL with carefully crafted inputs
+# (SQL injection)
+name &lt;- "H'); DROP TABLE--;"
+paste0("SELECT * FROM X WHERE name = '", name, "'")
+
+# Use SQL() or dbQuoteIdentifier() to avoid escaping
+sql2 &lt;- "SELECT * FROM ?table WHERE name in ?names"
+sqlInterpolate(ANSI(), sql2,
+  table = dbQuoteIdentifier(ANSI(), "X"),
+  names = SQL("('a', 'b')")
+)
+
+# Don't use SQL() to escape identifiers to avoid SQL injection
+sqlInterpolate(ANSI(), sql2,
+  table = SQL("X; DELETE FROM X; SELECT * FROM X"),
+  names = SQL("('a', 'b')")
+)
+
+# Use dbGetQuery() or dbExecute() to process these queries:
+if (requireNamespace("RSQLite", quietly = TRUE)) {
+  con &lt;- dbConnect(RSQLite::SQLite())
+  sql &lt;- "SELECT ?value AS value"
+  query &lt;- sqlInterpolate(con, sql, value = 3)
+  print(dbGetQuery(con, query))
+  dbDisconnect(con)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

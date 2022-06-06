@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse periods with *h*our, *m*inute, and *s*econd components</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ms {lubridate}"><tr><td>ms {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse periods with <strong>h</strong>our, <strong>m</strong>inute, and <strong>s</strong>econd components</h2>
+
+<h3>Description</h3>
+
+<p>Transforms a character or numeric vector into a period object with the
+specified number of hours, minutes, and seconds. <code>hms()</code> recognizes all
+non-numeric characters except '-' as separators ('-' is used for negative
+<code>durations</code>). After hours, minutes and seconds have been parsed, the
+remaining input is ignored.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ms(..., quiet = FALSE, roll = FALSE)
+
+hm(..., quiet = FALSE, roll = FALSE)
+
+hms(..., quiet = FALSE, roll = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>a character vector of hour minute second triples</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, function evaluates without displaying
+customary messages.</p>
+</td></tr>
+<tr valign="top"><td><code>roll</code></td>
+<td>
+<p>logical. If <code>TRUE</code>, smaller units are rolled over to higher units
+if they exceed the conventional limit. For example,
+<code>hms("01:59:120", roll = TRUE)</code> produces period &quot;2H 1M 0S&quot;.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a vector of period objects
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="hms.html">hm()</a></code>, <code><a href="hms.html">ms()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ms(c("09:10", "09:02", "1:10"))
+ms("7 6")
+ms("6,5")
+hm(c("09:10", "09:02", "1:10"))
+hm("7 6")
+hm("6,5")
+
+x &lt;- c("09:10:01", "09:10:02", "09:10:03")
+hms(x)
+
+hms("7 6 5", "3:23:::2", "2 : 23 : 33", "Finished in 9 hours, 20 min and 4 seconds")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

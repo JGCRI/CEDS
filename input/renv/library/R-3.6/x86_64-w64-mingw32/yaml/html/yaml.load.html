@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert a YAML string into R objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for yaml.load {yaml}"><tr><td>yaml.load {yaml}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Convert a YAML string into R objects </h2>
+
+<h3>Description</h3>
+
+<p>Parse a YAML string and return R objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+  yaml.load(string, as.named.list = TRUE, handlers = NULL, error.label = NULL,
+            eval.expr = getOption("yaml.eval.expr", TRUE),
+            merge.precedence = c("order", "override"), merge.warning = FALSE)
+  yaml.load_file(input, error.label, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>string</code></td>
+<td>
+<p> the YAML string to be parsed </p>
+</td></tr>
+<tr valign="top"><td><code>as.named.list</code></td>
+<td>
+<p> whether or not to return a named list for maps (TRUE by default) </p>
+</td></tr>
+<tr valign="top"><td><code>handlers</code></td>
+<td>
+<p> named list of custom handler functions for YAML types (see Details) </p>
+</td></tr>
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p> a filename or connection; if <code>input</code> is a filename, that file must be encoded in UTF-8 </p>
+</td></tr>
+<tr valign="top"><td><code>error.label</code></td>
+<td>
+<p> a label to prepend to error messages (see Details) </p>
+</td></tr>
+<tr valign="top"><td><code>eval.expr</code></td>
+<td>
+<p> whether or not to evaluate expressions found in the YAML document (see Details) </p>
+</td></tr>
+<tr valign="top"><td><code>merge.precedence</code></td>
+<td>
+<p> behavior of precedence during map merges (see Details) </p>
+</td></tr>
+<tr valign="top"><td><code>merge.warning</code></td>
+<td>
+<p> whether or not to warn about ignored key/value pairs during map merges </p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> arguments to pass to yaml.load </p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Use <code>yaml.load</code> to load a YAML string.  For files and connections, use
+<code>yaml.load_file</code>, which calls <code>yaml.load</code> with the contents of the specified
+file or connection.
+</p>
+<p>Sequences of uniform data (e.g. a sequence of integers) are converted into vectors.  If
+the sequence is not uniform, it's returned as a list. Maps are converted into named lists
+by default, and all the keys in the map are converted to strings.  If you don't want the
+keys to be coerced into strings, set <code>as.named.list</code> to FALSE.  When it's FALSE, a
+list will be returned with an additional attribute named 'keys', which is a list of the
+un-coerced keys in the map (in the same order as the main list).
+</p>
+<p>You can specify custom handler functions via the <code>handlers</code> argument.  This argument
+must be a named list of functions, where the names are the YAML types (i.e., 'int', 'float',
+'seq', etc).  The functions you provide will be passed one argument.  Custom
+handler functions for string types (all types except sequence and map) will receive a
+character vector of length 1.  Custom sequence functions will be passed a list of objects.
+Custom map functions will be passed the object that the internal map handler creates, which
+is either a named list or a list with a 'keys' attribute (depending on <code>as.named.list</code>).
+ALL functions you provide must return an object.  See the examples for custom handler use.
+</p>
+<p>You can specify a label to be prepended to error messages via the
+<code>error.label</code> argument.  When using <code>yaml.load_file</code>, you can
+either set the <code>error.label</code> argument explicitly or leave it missing.
+If missing, <code>yaml.load_file</code> will make an educated guess for the value
+of <code>error.label</code> by either using the specified filename (when
+<code>input</code> is a character vector) or using the description of the supplied
+connection object (via the <code>summary</code> function).  You can explicity set
+<code>error.label</code> to <code>NULL</code> if you don't want to use this functionality.
+</p>
+<p>There is a built-in handler that will evaluate expressions that are tagged
+with the &lsquo;!expr&rsquo; tag.  Currently this handler is enabled by default,
+but the handler is being disabled by default in an upcoming version for
+safety and security reasons.  If you do not explicity set the
+<code>eval.expr</code> argument to <code>TRUE</code>, you will get a warning if an
+expression is evaluated.  Alternately, you can set the option named
+&lsquo;yaml.eval.expr&rsquo; via the <code>options</code> function to turn off the
+warning.
+</p>
+<p>The <code>merge.precedence</code> parameter controls how merge keys are handled.
+The YAML merge key specification is not specific about how key/value
+conflicts are resolved during map merges.  As a result, various YAML library
+implementations vary in merge key behavior (notably Python and Ruby).  This
+package's default behavior (when <code>merge.precedence</code> is &lsquo;order&rsquo;)
+is to give precedence to key/value pairs that appear first.  If you set
+<code>merge.precedence</code> to &lsquo;override&rsquo;, natural map key/value pairs
+will override any duplicate keys found in merged maps, regardless of order.
+This is the default behavior in Python's YAML library.
+</p>
+<p>This function uses the YAML parser provided by libyaml, which conforms to the YAML 1.1
+specification.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If the root YAML object is a map, a named list or list with an attribute of 'keys' is
+returned.  If the root object is a sequence, a list or vector is returned, depending
+on the contents of the sequence.  A vector of length 1 is returned for single objects.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p> Jeremy Stephens &lt;jeremy.f.stephens@vumc.org&gt; </p>
+
+
+<h3>References</h3>
+
+<p>YAML: http://yaml.org
+</p>
+<p>libyaml: https://pyyaml.org/wiki/LibYAML
+</p>
+<p>YAML merge specification: http://yaml.org/type/merge.html
+</p>
+
+
+<h3>See Also</h3>
+
+ <p><code><a href="as.yaml.html">as.yaml</a></code> </p>
+
+
+<h3>Examples</h3>
+
+<pre>
+  yaml.load("- hey\n- hi\n- hello")
+  yaml.load("foo: 123\nbar: 456")
+  yaml.load("- foo\n- bar\n- 3.14")
+  yaml.load("foo: bar\n123: 456", as.named.list = FALSE)
+
+## Not run: 
+  # reading from a file (uses readLines internally)
+  filename &lt;- tempfile()
+  cat("foo: 123", file=filename, sep="\n")
+  yaml.load_file(filename)
+
+## End(Not run)
+
+  # custom scalar handler
+  my.float.handler &lt;- function(x) { as.numeric(x) + 123 }
+  yaml.load("123.456", handlers=list("float#fix"=my.float.handler))
+
+  # custom sequence handler
+  yaml.load("- 1\n- 2\n- 3", handlers=list(seq=function(x) { as.integer(x) + 3 }))
+
+  # custom map handler
+  yaml.load("foo: 123", handlers=list(map=function(x) { x$foo &lt;- x$foo + 123; x }))
+
+  # handling custom types
+  yaml.load("!sqrt 555", handlers=list(sqrt=function(x) { sqrt(as.integer(x)) }))
+  yaml.load("!foo\n- 1\n- 2", handlers=list(foo=function(x) { as.integer(x) + 1 }))
+  yaml.load("!bar\none: 1\ntwo: 2", handlers=list(foo=function(x) { x$one &lt;- "one"; x }))
+
+  # loading R expressions
+  # NOTE: this will not be done by default in the near future
+  doc &lt;- yaml.load("inc: !expr function(x) x + 1")
+  doc$inc(1)
+
+  # adding a label to error messages
+  try(yaml.load("*", error.label = "foo"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>yaml</em> version 2.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

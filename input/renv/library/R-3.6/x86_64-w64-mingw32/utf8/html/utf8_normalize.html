@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Text Normalization</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for utf8_normalize {utf8}"><tr><td>utf8_normalize {utf8}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Text Normalization</h2>
+
+<h3>Description</h3>
+
+<p>Transform text to normalized form, optionally mapping to lowercase
+and applying compatibility maps.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+utf8_normalize(x, map_case = FALSE, map_compat = FALSE,
+               map_quote = FALSE, remove_ignorable = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character object.</p>
+</td></tr>
+<tr valign="top"><td><code>map_case</code></td>
+<td>
+<p>a logical value indicating whether to apply Unicode
+case mapping to the text. For most languages, this transformation
+changes uppercase characters to their lowercase equivalents.</p>
+</td></tr>
+<tr valign="top"><td><code>map_compat</code></td>
+<td>
+<p>a logical value indicating whether to apply
+Unicode compatibility mappings to the characters, those required
+for NFKC and NFKD normal forms.</p>
+</td></tr>
+<tr valign="top"><td><code>map_quote</code></td>
+<td>
+<p>a logical value indicating whether to replace curly
+single quotes and Unicode apostrophe characters with ASCII
+apostrophe (U+0027).</p>
+</td></tr>
+<tr valign="top"><td><code>remove_ignorable</code></td>
+<td>
+<p>a logical value indicating whether to remove
+Unicode &quot;default ignorable&quot; characters like zero-width spaces
+and soft hyphens.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>utf8_normalize</code> converts the elements of a character object to
+Unicode normalized composed form (NFC) while applying the character
+maps specified by the <code>map_case</code>, <code>map_compat</code>,
+<code>map_quote</code>, and <code>remove_ignorable</code> arguments.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The result is a character object with the same attributes as <code>x</code>
+but with <code>Encoding</code> set to <code>"UTF-8"</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="as_utf8.html">as_utf8</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+angstrom &lt;- c("\u00c5", "\u0041\u030a", "\u212b")
+utf8_normalize(angstrom) == "\u00c5"
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>utf8</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cartesian coordinates with x and y flipped</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coord_flip {ggplot2}"><tr><td>coord_flip {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cartesian coordinates with x and y flipped</h2>
+
+<h3>Description</h3>
+
+<p>Flip cartesian coordinates so that horizontal becomes vertical, and
+vertical, horizontal. This is primarily useful for converting geoms and
+statistics which display y conditional on x, to x conditional on y.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coord_flip(xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>xlim</code></td>
+<td>
+<p>Limits for the x and y axes.</p>
+</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+<p>Limits for the x and y axes.</p>
+</td></tr>
+<tr valign="top"><td><code>expand</code></td>
+<td>
+<p>If <code>TRUE</code>, the default, adds a small expansion factor to
+the limits to ensure that data and axes don't overlap. If <code>FALSE</code>,
+limits are taken exactly from the data or <code>xlim</code>/<code>ylim</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>clip</code></td>
+<td>
+<p>Should drawing be clipped to the extent of the plot panel? A
+setting of <code>"on"</code> (the default) means yes, and a setting of <code>"off"</code>
+means no. In most cases, the default of <code>"on"</code> should not be changed,
+as setting <code>clip = "off"</code> can cause unexpected results. It allows
+drawing of data points anywhere on the plot, including in the plot margins. If
+limits are set via <code>xlim</code> and <code>ylim</code> and some data points fall outside those
+limits, then those data points may show up in places such as the axes, the
+legend, the plot title, or the plot margins.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Very useful for creating boxplots, and other interval
+# geoms in the horizontal instead of vertical position.
+
+ggplot(diamonds, aes(cut, price)) +
+  geom_boxplot() +
+  coord_flip()
+
+h &lt;- ggplot(diamonds, aes(carat)) +
+  geom_histogram()
+h
+h + coord_flip()
+h + coord_flip() + scale_x_reverse()
+
+# You can also use it to flip line and area plots:
+df &lt;- data.frame(x = 1:5, y = (1:5) ^ 2)
+ggplot(df, aes(x, y)) +
+  geom_area()
+last_plot() + coord_flip()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

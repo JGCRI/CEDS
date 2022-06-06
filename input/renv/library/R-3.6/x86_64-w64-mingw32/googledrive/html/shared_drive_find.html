@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find shared drives</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for shared_drive_find {googledrive}"><tr><td>shared_drive_find {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find shared drives</h2>
+
+<h3>Description</h3>
+
+<p>This is the closest googledrive function to what you get from
+visiting <a href="https://drive.google.com">https://drive.google.com</a> and clicking &quot;Shared drives&quot;.
+</p>
+<p>A shared drive supports files owned by an organization rather than an
+individual user. Shared drives follow different sharing and ownership models
+from a specific user's &quot;My Drive&quot;. Shared drives are the successors to the
+earlier concept of Team Drives. Learn more about <a href="shared_drives.html">shared drives</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+shared_drive_find(pattern = NULL, n_max = Inf, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>Character. If provided, only the items whose names match this
+regular expression are returned. This is implemented locally on the results
+returned by the API.</p>
+</td></tr>
+<tr valign="top"><td><code>n_max</code></td>
+<td>
+<p>Integer. An upper bound on the number of items to return. This
+applies to the results requested from the API, which may be further
+filtered locally, via the <code>pattern</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters to pass along in the request, such as <code>pageSize</code>
+or <code>useDomainAdminAccess</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per shared drive.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Wraps the <code>drives.list</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/drives/list">https://developers.google.com/drive/api/v3/reference/drives/list</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+shared_drive_find()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

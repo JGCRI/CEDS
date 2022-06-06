@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rename columns using their names</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rename.dtplyr_step {dtplyr}"><tr><td>rename.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rename columns using their names</h2>
+
+<h3>Description</h3>
+
+<p>These are methods for the dplyr generics <code><a href="../../dplyr/html/rename.html">rename()</a></code> and <code><a href="../../dplyr/html/rename.html">rename_with()</a></code>.
+They are both translated to <code><a href="../../data.table/html/setattr.html">data.table::setnames()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+rename(.data, ...)
+
+## S3 method for class 'dtplyr_step'
+rename_with(.data, .fn, .cols = everything(), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>rename()</code>: &lt;<code><a href="../../dplyr/html/dplyr_tidy_select.html">tidy-select</a></code>&gt; Use
+<code>new_name = old_name</code> to rename selected variables.
+</p>
+<p>For <code>rename_with()</code>: additional arguments passed onto <code>.fn</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.fn</code></td>
+<td>
+<p>A function used to transform the selected <code>.cols</code>. Should
+return a character vector the same length as the input.</p>
+</td></tr>
+<tr valign="top"><td><code>.cols</code></td>
+<td>
+<p>&lt;<code><a href="../../dplyr/html/dplyr_tidy_select.html">tidy-select</a></code>&gt; Columns to rename;
+defaults to all columns.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+dt &lt;- lazy_dt(data.frame(x = 1, y = 2, z = 3))
+dt %&gt;% rename(new_x = x, new_y = y)
+dt %&gt;% rename_with(toupper)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

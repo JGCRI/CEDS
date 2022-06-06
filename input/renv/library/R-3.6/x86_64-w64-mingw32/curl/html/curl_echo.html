@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Echo Service</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for curl_echo {curl}"><tr><td>curl_echo {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Echo Service</h2>
+
+<h3>Description</h3>
+
+<p>This function is only for testing purposes. It starts a local httpuv server to
+echo the request body and content type in the response.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+curl_echo(handle, port = 9359, progress = interactive(), file = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>handle</code></td>
+<td>
+<p>a curl handle object</p>
+</td></tr>
+<tr valign="top"><td><code>port</code></td>
+<td>
+<p>the port number on which to run httpuv server</p>
+</td></tr>
+<tr valign="top"><td><code>progress</code></td>
+<td>
+<p>show progress meter during http transfer</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>path or connection to write body. Default returns body as raw vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if(require('httpuv')){
+h &lt;- new_handle(url = 'https://httpbin.org/post')
+handle_setform(h, foo = "blabla", bar = charToRaw("test"),
+  myfile = form_file(system.file("DESCRIPTION"), "text/description"))
+
+# Echo the POST request data
+formdata &lt;- curl_echo(h)
+
+# Show the multipart body
+cat(rawToChar(formdata$body))
+
+# Parse multipart
+webutils::parse_http(formdata$body, formdata$content_type)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

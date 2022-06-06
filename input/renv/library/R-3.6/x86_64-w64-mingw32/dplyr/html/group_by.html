@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Group by one or more variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group_by {dplyr}"><tr><td>group_by {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Group by one or more variables</h2>
+
+<h3>Description</h3>
+
+<p>Most data operations are done on groups defined by variables.
+<code>group_by()</code> takes an existing tbl and converts it into a grouped tbl
+where operations are performed &quot;by group&quot;. <code>ungroup()</code> removes grouping.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+group_by(.data, ..., .add = FALSE, .drop = group_by_drop_default(.data))
+
+ungroup(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>In <code>group_by()</code>, variables or computations to group by.
+In <code>ungroup()</code>, variables to remove from the grouping.</p>
+</td></tr>
+<tr valign="top"><td><code>.add</code></td>
+<td>
+<p>When <code>FALSE</code>, the default, <code>group_by()</code> will
+override existing groups. To add to the existing groups, use
+<code>.add = TRUE</code>.
+</p>
+<p>This argument was previously called <code>add</code>, but that prevented
+creating a new grouping variable called <code>add</code>, and conflicts with
+our naming conventions.</p>
+</td></tr>
+<tr valign="top"><td><code>.drop</code></td>
+<td>
+<p>Drop groups formed by factor levels that don't appear in the
+data? The default is <code>TRUE</code> except when <code>.data</code> has been previously
+grouped with <code>.drop = FALSE</code>. See <code><a href="group_by_drop_default.html">group_by_drop_default()</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code><a href="tbl.html">tbl()</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A grouped data frame with class <code><a href="grouped_df.html">grouped_df</a></code>,
+unless the combination of <code>...</code> and <code>add</code> yields a empty set of
+grouping columns, in which case a tibble will be returned.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>These function are <strong>generic</strong>s, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>Methods available in currently loaded packages:
+</p>
+
+<ul>
+<li> <p><code>group_by()</code>: no methods found.
+</p>
+</li>
+<li> <p><code>ungroup()</code>: no methods found.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other grouping functions: 
+<code><a href="group_map.html">group_map</a>()</code>,
+<code><a href="group_nest.html">group_nest</a>()</code>,
+<code><a href="group_split.html">group_split</a>()</code>,
+<code><a href="group_trim.html">group_trim</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+by_cyl &lt;- mtcars %&gt;% group_by(cyl)
+
+# grouping doesn't change how the data looks (apart from listing
+# how it's grouped):
+by_cyl
+
+# It changes how it acts with the other dplyr verbs:
+by_cyl %&gt;% summarise(
+  disp = mean(disp),
+  hp = mean(hp)
+)
+by_cyl %&gt;% filter(disp == max(disp))
+
+# Each call to summarise() removes a layer of grouping
+by_vs_am &lt;- mtcars %&gt;% group_by(vs, am)
+by_vs &lt;- by_vs_am %&gt;% summarise(n = n())
+by_vs
+by_vs %&gt;% summarise(n = sum(n))
+
+# To removing grouping, use ungroup
+by_vs %&gt;%
+  ungroup() %&gt;%
+  summarise(n = sum(n))
+
+# You can group by expressions: this is just short-hand for
+# a mutate() followed by a group_by()
+mtcars %&gt;% group_by(vsam = vs + am)
+
+# By default, group_by() overrides existing grouping
+by_cyl %&gt;%
+  group_by(vs, am) %&gt;%
+  group_vars()
+
+# Use add = TRUE to instead append
+by_cyl %&gt;%
+  group_by(vs, am, .add = TRUE) %&gt;%
+  group_vars()
+
+
+# when factors are involved and .drop = FALSE, groups can be empty
+tbl &lt;- tibble(
+  x = 1:10,
+  y = factor(rep(c("a", "c"), each  = 5), levels = c("a", "b", "c"))
+)
+tbl %&gt;%
+  group_by(y, .drop = FALSE) %&gt;%
+  group_rows()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

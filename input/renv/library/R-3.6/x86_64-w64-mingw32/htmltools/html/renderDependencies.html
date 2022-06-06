@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create HTML for dependencies</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for renderDependencies {htmltools}"><tr><td>renderDependencies {htmltools}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create HTML for dependencies</h2>
+
+<h3>Description</h3>
+
+<p>Create the appropriate HTML markup for including dependencies in an HTML
+document.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+renderDependencies(
+  dependencies,
+  srcType = c("href", "file"),
+  encodeFunc = urlEncodePath,
+  hrefFilter = identity
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>A list of <code>htmlDependency</code> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>srcType</code></td>
+<td>
+<p>The type of src paths to use; valid values are <code>file</code> or
+<code>href</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>encodeFunc</code></td>
+<td>
+<p>The function to use to encode the path part of a URL. The
+default should generally be used.</p>
+</td></tr>
+<tr valign="top"><td><code>hrefFilter</code></td>
+<td>
+<p>A function used to transform the final, encoded URLs of
+script and stylesheet files. The default should generally be used.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code><a href="HTML.html">HTML()</a></code> object suitable for inclusion in the head of an
+HTML document.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>htmltools</em> version 0.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

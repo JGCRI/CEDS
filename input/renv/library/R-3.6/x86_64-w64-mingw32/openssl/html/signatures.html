@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Signatures</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for signature_create {openssl}"><tr><td>signature_create {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Signatures</h2>
+
+<h3>Description</h3>
+
+<p>Sign and verify a message digest. RSA supports both MD5 and SHA signatures
+whereas DSA and EC keys only support SHA. ED25591 can sign any payload so you can
+set 'hash' to 'NULL' to sign the raw input data.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+signature_create(data, hash = sha1, key = my_key(), password = askpass)
+
+signature_verify(data, sig, hash = sha1, pubkey = my_pubkey())
+
+ecdsa_parse(sig)
+
+ecdsa_write(r, s)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>raw data vector or file path for message to be signed.
+If <code>hash == NULL</code> then <code>data</code> must be a hash string or raw vector.</p>
+</td></tr>
+<tr valign="top"><td><code>hash</code></td>
+<td>
+<p>the digest function to use. Must be one of <code><a href="hash.html">md5</a></code>,
+<code><a href="hash.html">sha1</a></code>, <code><a href="hash.html">sha256</a></code>, <code><a href="hash.html">sha512</a></code> or <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>private key or file path. See <code><a href="read_key.html">read_key</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>string or a function to read protected keys. See <code><a href="read_key.html">read_key</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sig</code></td>
+<td>
+<p>raw vector or file path for the signature data.</p>
+</td></tr>
+<tr valign="top"><td><code>pubkey</code></td>
+<td>
+<p>public key or file path. See <code><a href="read_key.html">read_pubkey</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>r</code></td>
+<td>
+<p>bignum value for r parameter</p>
+</td></tr>
+<tr valign="top"><td><code>s</code></td>
+<td>
+<p>bignum value for s parameter</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>ecdsa_parse</code> and <code>ecdsa_write</code> functions convert (EC)DSA signatures
+between the conventional DER format and the raw <code>(r,s)</code> bignum pair. Most
+users won't need this, it is mostly here to support the JWT format (which does not
+use DER).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Generate a keypair
+key &lt;- rsa_keygen()
+pubkey &lt;- key$pubkey
+
+# Sign a file
+data &lt;- system.file("DESCRIPTION")
+sig &lt;- signature_create(data, key = key)
+stopifnot(signature_verify(data, sig, pubkey = pubkey))
+
+# Sign raw data
+data &lt;- serialize(iris, NULL)
+sig &lt;- signature_create(data, sha256, key = key)
+stopifnot(signature_verify(data, sig, sha256, pubkey = pubkey))
+
+# Sign a hash
+md &lt;- md5(data)
+sig &lt;- signature_create(md, hash = NULL, key = key)
+stopifnot(signature_verify(md, sig, hash = NULL, pubkey = pubkey))
+#
+# ECDSA example
+data &lt;- serialize(iris, NULL)
+key &lt;- ec_keygen()
+pubkey &lt;- key$pubkey
+sig &lt;- signature_create(data, sha256, key = key)
+stopifnot(signature_verify(data, sig, sha256, pubkey = pubkey))
+
+# Convert signature to (r, s) parameters and then back
+params &lt;- ecdsa_parse(sig)
+out &lt;- ecdsa_write(params$r, params$s)
+identical(sig, out)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

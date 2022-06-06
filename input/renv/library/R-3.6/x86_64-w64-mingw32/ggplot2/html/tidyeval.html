@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tidy eval helpers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tidyeval {ggplot2}"><tr><td>tidyeval {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tidy eval helpers</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code><a href="../../rlang/html/sym.html">sym</a>()</code> creates a symbol from a string and
+<code><a href="../../rlang/html/sym.html">syms</a>()</code> creates a list of symbols from a
+character vector.
+</p>
+</li>
+<li> <p><code><a href="../../rlang/html/nse-defuse.html">enquo</a>()</code> and
+<code><a href="../../rlang/html/nse-defuse.html">enquos</a>()</code> delay the execution of one or
+several function arguments. <code>enquo()</code> returns a single quoted
+expression, which is like a blueprint for the delayed computation.
+<code>enquos()</code> returns a list of such quoted expressions.
+</p>
+</li>
+<li> <p><code><a href="../../rlang/html/nse-defuse.html">expr</a>()</code> quotes a new expression <em>locally</em>. It
+is mostly useful to build new expressions around arguments
+captured with <code><a href="tidyeval.html">enquo()</a></code> or <code><a href="tidyeval.html">enquos()</a></code>:
+<code>expr(mean(!!enquo(arg), na.rm = TRUE))</code>.
+</p>
+</li>
+<li> <p><code><a href="../../rlang/html/as_name.html">as_name</a>()</code> transforms a quoted variable name
+into a string. Supplying something else than a quoted variable
+name is an error.
+</p>
+<p>That's unlike <code><a href="../../rlang/html/as_label.html">as_label</a>()</code> which also returns
+a single string but supports any kind of R object as input,
+including quoted function calls and vectors. Its purpose is to
+summarise that object into a single label. That label is often
+suitable as a default name.
+</p>
+<p>If you don't know what a quoted expression contains (for instance
+expressions captured with <code>enquo()</code> could be a variable
+name, a call to a function, or an unquoted constant), then use
+<code>as_label()</code>. If you know you have quoted a simple variable
+name, or would like to enforce this, use <code>as_name()</code>.
+</p>
+</li></ul>
+
+<p>To learn more about tidy eval and how to use these tools, visit
+<a href="https://tidyeval.tidyverse.org">https://tidyeval.tidyverse.org</a> and the
+<a href="https://adv-r.hadley.nz/metaprogramming.html">Metaprogramming
+section</a> of <a href="https://adv-r.hadley.nz">Advanced R</a>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

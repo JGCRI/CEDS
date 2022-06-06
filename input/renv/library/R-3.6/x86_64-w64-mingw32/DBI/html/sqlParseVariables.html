@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse interpolated variables from SQL.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sqlCommentSpec {DBI}"><tr><td>sqlCommentSpec {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse interpolated variables from SQL.</h2>
+
+<h3>Description</h3>
+
+<p>If you're implementing a backend that uses non-ANSI quoting or commenting
+rules, you'll need to implement a method for <code>sqlParseVariables</code> that
+calls <code>sqlParseVariablesImpl</code> with the appropriate quote and
+comment specifications.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sqlCommentSpec(start, end, endRequired)
+
+sqlQuoteSpec(start, end, escape = "", doubleEscape = TRUE)
+
+sqlParseVariablesImpl(sql, quotes, comments)
+
+sqlParseVariables(conn, sql, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>start, end</code></td>
+<td>
+<p>Start and end characters for quotes and comments</p>
+</td></tr>
+<tr valign="top"><td><code>endRequired</code></td>
+<td>
+<p>Is the ending character of a comment required?</p>
+</td></tr>
+<tr valign="top"><td><code>escape</code></td>
+<td>
+<p>What character can be used to escape quoting characters?
+Defaults to <code>""</code>, i.e. nothing.</p>
+</td></tr>
+<tr valign="top"><td><code>doubleEscape</code></td>
+<td>
+<p>Can quoting characters be escaped by doubling them?
+Defaults to <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sql</code></td>
+<td>
+<p>SQL to parse (a character string)</p>
+</td></tr>
+<tr valign="top"><td><code>quotes</code></td>
+<td>
+<p>A list of <code>QuoteSpec</code> calls defining the quoting
+specification.</p>
+</td></tr>
+<tr valign="top"><td><code>comments</code></td>
+<td>
+<p>A list of <code>CommentSpec</code> calls defining the commenting
+specification.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Use [] for quoting and no comments
+sqlParseVariablesImpl("[?a]",
+  list(sqlQuoteSpec("[", "]", "\\", FALSE)),
+  list()
+)
+
+# Standard quotes, use # for commenting
+sqlParseVariablesImpl("# ?a\n?b",
+  list(sqlQuoteSpec("'", "'"), sqlQuoteSpec('"', '"')),
+  list(sqlCommentSpec("#", "\n", FALSE))
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

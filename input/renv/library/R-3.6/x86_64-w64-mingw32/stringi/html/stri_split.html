@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Split a String By Pattern Matches</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_split {stringi}"><tr><td>stri_split {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Split a String By Pattern Matches</h2>
+
+<h3>Description</h3>
+
+<p>These functions split each element in <code>str</code> into substrings.
+<code>pattern</code> defines the delimiters that separate the inputs into tokens.
+The input data between the matches become the fields themselves.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_split(str, ..., regex, fixed, coll, charclass)
+
+stri_split_fixed(
+  str,
+  pattern,
+  n = -1L,
+  omit_empty = FALSE,
+  tokens_only = FALSE,
+  simplify = FALSE,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_split_regex(
+  str,
+  pattern,
+  n = -1L,
+  omit_empty = FALSE,
+  tokens_only = FALSE,
+  simplify = FALSE,
+  ...,
+  opts_regex = NULL
+)
+
+stri_split_coll(
+  str,
+  pattern,
+  n = -1L,
+  omit_empty = FALSE,
+  tokens_only = FALSE,
+  simplify = FALSE,
+  ...,
+  opts_collator = NULL
+)
+
+stri_split_charclass(
+  str,
+  pattern,
+  n = -1L,
+  omit_empty = FALSE,
+  tokens_only = FALSE,
+  simplify = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>, <code>opts_regex</code>,
+<code>opts_fixed</code>, and so on</p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex, fixed, coll, charclass</code></td>
+<td>
+<p>character vector;
+search patterns; for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>integer vector, maximal number of strings to return,
+and, at the same time, maximal number of text boundaries to look for</p>
+</td></tr>
+<tr valign="top"><td><code>omit_empty</code></td>
+<td>
+<p>logical vector; determines whether empty
+tokens should be removed from the result (<code>TRUE</code> or <code>FALSE</code>)
+or replaced with <code>NA</code>s (<code>NA</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>tokens_only</code></td>
+<td>
+<p>single logical value;
+may affect the result if <code>n</code> is positive, see Details</p>
+</td></tr>
+<tr valign="top"><td><code>simplify</code></td>
+<td>
+<p>single logical value;
+if <code>TRUE</code> or <code>NA</code>, then a character matrix is returned;
+otherwise (the default), a list of character vectors is given, see Value</p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed, opts_regex</code></td>
+<td>
+<p>a named list used to tune up
+the search engine's settings; see
+<code><a href="stri_opts_collator.html">stri_opts_collator</a></code>, <code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>,
+and <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>, respectively; <code>NULL</code>
+for the defaults</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code>, <code>pattern</code>, <code>n</code>, and <code>omit_empty</code>
+(with recycling of the elements in the shorter vector if necessary).
+</p>
+<p>If <code>n</code> is negative, then all pieces are extracted.
+Otherwise, if <code>tokens_only</code> is <code>FALSE</code> (which is the default),
+then <code>n-1</code> tokens are extracted (if possible) and the <code>n</code>-th string
+gives the remainder (see Examples).
+On the other hand, if <code>tokens_only</code> is <code>TRUE</code>,
+then only full tokens (up to <code>n</code> pieces) are extracted.
+</p>
+<p><code>omit_empty</code> is applied during the split process: if it is set to
+<code>TRUE</code>, then tokens of zero length are ignored. Thus, empty strings
+will never appear in the resulting vector. On the other hand, if
+<code>omit_empty</code> is <code>NA</code>, then empty tokens are substituted with
+missing strings.
+</p>
+<p>Empty search patterns are not supported. If you wish to split a
+string into individual characters, use, e.g.,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>(str, type='character')</code> for THE Unicode way.
+</p>
+<p><code>stri_split</code> is a convenience function. It calls either
+<code>stri_split_regex</code>, <code>stri_split_fixed</code>, <code>stri_split_coll</code>,
+or <code>stri_split_charclass</code>, depending on the argument used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>simplify=FALSE</code> (the default),
+then the functions return a list of character vectors.
+</p>
+<p>Otherwise, <code><a href="stri_list2matrix.html">stri_list2matrix</a></code> with <code>byrow=TRUE</code>
+and <code>n_min=n</code> arguments is called on the resulting object.
+In such a case, a character matrix with an appropriate number of rows
+(according to the length of <code>str</code>, <code>pattern</code>, etc.)
+is returned. Note that <code><a href="stri_list2matrix.html">stri_list2matrix</a></code>'s <code>fill</code> argument
+is set to an empty string and <code>NA</code>, for <code>simplify</code> equal to
+<code>TRUE</code> and <code>NA</code>, respectively.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_split: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_split_boundaries.html">stri_split_boundaries</a>()</code>,
+<code><a href="stri_split_lines.html">stri_split_lines</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_split_fixed('a_b_c_d', '_')
+stri_split_fixed('a_b_c__d', '_')
+stri_split_fixed('a_b_c__d', '_', omit_empty=TRUE)
+stri_split_fixed('a_b_c__d', '_', n=2, tokens_only=FALSE) # 'a' &amp; remainder
+stri_split_fixed('a_b_c__d', '_', n=2, tokens_only=TRUE) # 'a' &amp; 'b' only
+stri_split_fixed('a_b_c__d', '_', n=4, omit_empty=TRUE, tokens_only=TRUE)
+stri_split_fixed('a_b_c__d', '_', n=4, omit_empty=FALSE, tokens_only=TRUE)
+stri_split_fixed('a_b_c__d', '_', omit_empty=NA)
+stri_split_fixed(c('ab_c', 'd_ef_g', 'h', ''), '_', n=1, tokens_only=TRUE, omit_empty=TRUE)
+stri_split_fixed(c('ab_c', 'd_ef_g', 'h', ''), '_', n=2, tokens_only=TRUE, omit_empty=TRUE)
+stri_split_fixed(c('ab_c', 'd_ef_g', 'h', ''), '_', n=3, tokens_only=TRUE, omit_empty=TRUE)
+
+stri_list2matrix(stri_split_fixed(c('ab,c', 'd,ef,g', ',h', ''), ',', omit_empty=TRUE))
+stri_split_fixed(c('ab,c', 'd,ef,g', ',h', ''), ',', omit_empty=FALSE, simplify=TRUE)
+stri_split_fixed(c('ab,c', 'd,ef,g', ',h', ''), ',', omit_empty=NA, simplify=TRUE)
+stri_split_fixed(c('ab,c', 'd,ef,g', ',h', ''), ',', omit_empty=TRUE, simplify=TRUE)
+stri_split_fixed(c('ab,c', 'd,ef,g', ',h', ''), ',', omit_empty=NA, simplify=NA)
+
+stri_split_regex(c('ab,c', 'd,ef  ,  g', ',  h', ''),
+   '\\p{WHITE_SPACE}*,\\p{WHITE_SPACE}*', omit_empty=NA, simplify=TRUE)
+
+stri_split_charclass('Lorem ipsum dolor sit amet', '\\p{WHITE_SPACE}')
+stri_split_charclass(' Lorem  ipsum dolor', '\\p{WHITE_SPACE}', n=3,
+   omit_empty=c(FALSE, TRUE))
+
+stri_split_regex('Lorem ipsum dolor sit amet',
+   '\\p{Z}+') # see also stri_split_charclass
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

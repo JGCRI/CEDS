@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code return a number greater/less than the expected...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for comparison-expectations {testthat}"><tr><td>comparison-expectations {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code return a number greater/less than the expected value?</h2>
+
+<h3>Description</h3>
+
+<p>Does code return a number greater/less than the expected value?
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_lt(object, expected, label = NULL, expected.label = NULL)
+
+expect_lte(object, expected, label = NULL, expected.label = NULL)
+
+expect_gt(object, expected, label = NULL, expected.label = NULL)
+
+expect_gte(object, expected, label = NULL, expected.label = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Computation and value to compare it to.
+</p>
+<p>Both arguments supports limited unquoting to make it easier to generate
+readable failures within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>expected</code></td>
+<td>
+<p>Single numeric value to compare.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert
+use only.</p>
+</td></tr>
+<tr valign="top"><td><code>expected.label</code></td>
+<td>
+<p>Used to customise failure messages. For expert
+use only.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+a &lt;- 9
+expect_lt(a, 10)
+
+## Not run: 
+expect_lt(11, 10)
+
+## End(Not run)
+
+a &lt;- 11
+expect_gt(a, 10)
+## Not run: 
+expect_gt(9, 10)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

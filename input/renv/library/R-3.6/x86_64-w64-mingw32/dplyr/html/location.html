@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Print the location in memory of a data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for location {dplyr}"><tr><td>location {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Print the location in memory of a data frame</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p>This is useful for understand how and when dplyr makes copies of data
+frames
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+location(df)
+
+changes(x, y)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>a data frame</p>
+</td></tr>
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>two data frames to compare</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+location(mtcars)
+# -&gt;
+lobstr::ref(mtcars)
+
+mtcars2 &lt;- mutate(mtcars, cyl2 = cyl * 2)
+# -&gt;
+lobstr::ref(mtcars2)
+
+changes(mtcars, mtcars2)
+# -&gt;
+lobstr::ref(mtcars, mtcars2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

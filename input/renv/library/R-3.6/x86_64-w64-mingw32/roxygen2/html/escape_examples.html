@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Escape examples</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for escape_examples {roxygen2}"><tr><td>escape_examples {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Escape examples</h2>
+
+<h3>Description</h3>
+
+<p>This documentation topic is used primarily for testing and to record
+our understanding of the <code style="white-space: pre;">\example{}</code> escaping rules.
+See <a href="https://developer.r-project.org/parseRd.pdf">https://developer.r-project.org/parseRd.pdf</a> for the details provided
+by R core.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+escape_examples(x)
+</pre>
+
+
+<h3>Examples</h3>
+
+<pre>
+# In examples we automatically escape Rd comments (%):
+100 %% 30
+# even if they are in strings
+"50%"
+
+# and \ and \v inside of strings and symbols
+"\v" # vertical tab
+"\\"
+# but not comments: \l \v
+
+# other string escapes are left as is
+"\""
+"\n"
+
+# Otherwise, backslashes and parentheses are left as is. This
+# means that you need to escape unbalanced parentheses, which typically only
+# occur in \dontshow{}:
+
+print("Hello")
+
+
+# You also need to escape backslashes in infix operators and comments
+# (this is generally rare)
+`%\\%` &lt;- function(x, y) x + y
+10 %\% 20
+# \\ (renders as two backslashes)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

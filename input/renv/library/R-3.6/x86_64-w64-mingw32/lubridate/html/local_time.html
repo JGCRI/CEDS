@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get local time from a date-time vector.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for local_time {lubridate}"><tr><td>local_time {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get local time from a date-time vector.</h2>
+
+<h3>Description</h3>
+
+<p><code>local_time</code> retrieves day clock time in specified time zones. Computation is
+vectorized over both <code>dt</code> and <code>tz</code> arguments, the shortest is recycled in
+accordance with standard R rules.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+local_time(dt, tz = NULL, units = "secs")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dt</code></td>
+<td>
+<p>a date-time object.</p>
+</td></tr>
+<tr valign="top"><td><code>tz</code></td>
+<td>
+<p>a character vector of timezones for which to compute the local time.</p>
+</td></tr>
+<tr valign="top"><td><code>units</code></td>
+<td>
+<p>passed directly to <code><a href="../../base/html/difftime.html">as.difftime()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+x &lt;- ymd_hms(c("2009-08-07 01:02:03", "2009-08-07 10:20:30"))
+local_time(x, units = "secs")
+local_time(x, units = "hours")
+local_time(x, "Europe/Amsterdam")
+local_time(x, "Europe/Amsterdam") == local_time(with_tz(x, "Europe/Amsterdam"))
+
+x &lt;- ymd_hms("2009-08-07 01:02:03")
+local_time(x, c("America/New_York", "Europe/Amsterdam", "Asia/Shanghai"), unit = "hours")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

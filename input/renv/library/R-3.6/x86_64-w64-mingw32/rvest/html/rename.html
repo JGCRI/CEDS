@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Functions renamed in rvest 1.0.0</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rename {rvest}"><tr><td>rename {rvest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Functions renamed in rvest 1.0.0</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p>rvest 1.0.0 renamed a number of functions to ensure that every function
+has a common prefix, matching tidyverse conventions that emerged since
+rvest was first created.
+</p>
+
+<ul>
+<li> <p><code>set_values()</code> -&gt; <code>html_form_set()</code>
+</p>
+</li>
+<li> <p><code>submit_form()</code> -&gt; <code>session_submit()</code>
+</p>
+</li>
+<li> <p><code>xml_tag()</code> -&gt; <code>html_name()</code>
+</p>
+</li>
+<li> <p><code>xml_node()</code> &amp; <code>html_node()</code> -&gt; <code>html_element()</code>
+</p>
+</li>
+<li> <p><code>xml_nodes()</code> &amp; <code>html_nodes()</code> -&gt; <code>html_elements()</code>
+</p>
+</li></ul>
+
+<p>(<code>html_node()</code> and <code>html_nodes()</code> are only superseded because they're
+so widely used.)
+</p>
+<p>Additionally all session related functions gained a common prefix:
+</p>
+
+<ul>
+<li> <p><code>html_session()</code> -&gt; <code>session()</code>
+</p>
+</li>
+<li> <p><code>forward()</code> -&gt; <code>session_forward()</code>
+</p>
+</li>
+<li> <p><code>back()</code> -&gt; <code>session_back()</code>
+</p>
+</li>
+<li> <p><code>jump_to()</code> -&gt; <code>session_jump_to()</code>
+</p>
+</li>
+<li> <p><code>follow_link()</code> -&gt; <code>session_follow_link()</code>
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+set_values(form, ...)
+
+submit_form(session, form, submit = NULL, ...)
+
+xml_tag(x)
+
+xml_node(...)
+
+xml_nodes(...)
+
+html_nodes(...)
+
+html_node(...)
+
+back(x)
+
+forward(x)
+
+jump_to(x, url, ...)
+
+follow_link(x, ...)
+
+html_session(url, ...)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rvest</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

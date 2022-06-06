@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build ggplot for rendering.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ggplot_build {ggplot2}"><tr><td>ggplot_build {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build ggplot for rendering.</h2>
+
+<h3>Description</h3>
+
+<p><code>ggplot_build()</code> takes the plot object, and performs all steps necessary
+to produce an object that can be rendered.  This function outputs two pieces:
+a list of data frames (one for each layer), and a panel object, which
+contain all information about axis limits, breaks etc.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ggplot_build(plot)
+
+layer_data(plot, i = 1L)
+
+layer_scales(plot, i = 1L, j = 1L)
+
+layer_grob(plot, i = 1L)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>plot</code></td>
+<td>
+<p>ggplot object</p>
+</td></tr>
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>An integer. In <code>layer_data()</code>, the data to return (in the order added to the
+plot). In <code>layer_grob()</code>, the grob to return (in the order added to the
+plot). In <code>layer_scales()</code>, the row of a facet to return scales for.</p>
+</td></tr>
+<tr valign="top"><td><code>j</code></td>
+<td>
+<p>An integer. In <code>layer_scales()</code>, the column of a facet to return
+scales for.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>layer_data()</code>, <code>layer_grob()</code>, and <code>layer_scales()</code> are helper
+functions that return the data, grob, or scales associated with a given
+layer. These are useful for tests.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="print.ggplot.html">print.ggplot()</a></code> and <code><a href="benchplot.html">benchplot()</a></code> for
+functions that contain the complete set of steps for generating
+a ggplot2 plot.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

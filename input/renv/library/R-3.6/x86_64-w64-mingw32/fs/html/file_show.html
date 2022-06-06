@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Open files or directories</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file_show {fs}"><tr><td>file_show {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Open files or directories</h2>
+
+<h3>Description</h3>
+
+<p>Open files or directories
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_show(path = ".", browser = getOption("browser"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>browser</code></td>
+<td>
+<p>a non-empty character string giving the name of the
+program to be used as the HTML browser.  It should be in the PATH,
+or a full path specified.  Alternatively, an <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> function to be
+called to invoke the browser.
+</p>
+<p>Under Windows <code>NULL</code> is also allowed (and is the default), and
+implies that the file association mechanism will be used.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The directories that were opened (invisibly).
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

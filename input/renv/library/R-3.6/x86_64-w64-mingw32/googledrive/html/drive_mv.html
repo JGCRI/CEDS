@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Move a Drive file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_mv {googledrive}"><tr><td>drive_mv {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Move a Drive file</h2>
+
+<h3>Description</h3>
+
+<p>Move a Drive file to a different folder, give it a different name, or both.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_mv(
+  file,
+  path = NULL,
+  name = NULL,
+  overwrite = NA,
+  verbose = deprecated()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file of interest on your Google
+Drive. Can be a name or path, a file id or URL marked with <code><a href="as_id.html">as_id()</a></code>, or a
+<code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Specifies target destination for the file on Google
+Drive. Can be an actual path (character), a file id marked with
+<code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.
+</p>
+<p>If <code>path</code> is a shortcut to a folder, it is automatically resolved to its
+target folder.
+</p>
+<p>If <code>path</code> is given as a path (as opposed to a <code>dribble</code> or an id), it is
+best to explicitly indicate if it's a folder by including a trailing
+slash, since it cannot always be worked out from the context of the call.
+By default, the file stays in its current folder.</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Character, new file name if not specified as part of
+<code>path</code>. This will force <code>path</code> to be interpreted as a folder, even if it
+is character and lacks a trailing slash. By default, the file keeps its current name.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Logical, indicating whether to check for a pre-existing file
+at the targetted &quot;filepath&quot;. The quotes around &quot;filepath&quot; refer to the fact
+that Drive does not impose a 1-to-1 relationship between filepaths and files,
+like a typical file system; read more about that in <code><a href="drive_get.html">drive_get()</a></code>.
+</p>
+
+<ul>
+<li> <p><code>NA</code> (default): Just do the operation, even if it results in multiple
+files with the same filepath.
+</p>
+</li>
+<li> <p><code>TRUE</code>: Check for a pre-existing file at the filepath. If there is
+zero or one, move a pre-existing file to the trash, then carry on. Note
+that the new file does not inherit any properties from the old one, such
+as sharing or publishing settings. It will have a new file ID. An error is
+thrown if two or more pre-existing files are found.
+</p>
+</li>
+<li> <p><code>FALSE</code>: Error if there is any pre-existing file at the filepath.
+</p>
+</li></ul>
+
+<p>Note that existence checks, based on filepath, are expensive operations, i.e.
+they require additional API calls.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes a metadata-only request to the <code>files.update</code> endpoint:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/files/update">https://developers.google.com/drive/api/v3/reference/files/update</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# create a file to move
+file &lt;- drive_example_remote("chicken.txt") %&gt;%
+  drive_cp("chicken-mv.txt")
+
+# rename it, but leave in current folder (root folder, in this case)
+file &lt;- drive_mv(file, "chicken-mv-renamed.txt")
+
+# create a folder to move the file into
+folder &lt;- drive_mkdir("mv-folder")
+
+# move the file and rename it again,
+# specify destination as a dribble
+file &lt;- drive_mv(file, path = folder, name = "chicken-mv-re-renamed.txt")
+
+# verify renamed file is now in the folder
+drive_ls(folder)
+
+# move the file back to root folder
+file &lt;- drive_mv(file, "~/")
+
+# move it again
+# specify destination as path with trailing slash
+# to ensure we get a move vs. renaming it to "mv-folder"
+file &lt;- drive_mv(file, "mv-folder/")
+
+# `overwrite = FALSE` errors if something already exists at target filepath
+# THIS WILL ERROR!
+drive_create("name-squatter", path = "~/")
+drive_mv(file, path = "~/", name = "name-squatter", overwrite = FALSE)
+
+# `overwrite = TRUE` moves the existing item to trash, then proceeds
+drive_mv(file, path = "~/", name = "name-squatter", overwrite = TRUE)
+
+# Clean up
+drive_rm(file, folder)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

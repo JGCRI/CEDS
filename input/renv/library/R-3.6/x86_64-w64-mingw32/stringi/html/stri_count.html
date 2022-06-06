@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count the Number of Pattern Occurrences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_count {stringi}"><tr><td>stri_count {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count the Number of Pattern Occurrences</h2>
+
+<h3>Description</h3>
+
+<p>These functions count the number of occurrences
+of a pattern in a string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_count(str, ..., regex, fixed, coll, charclass)
+
+stri_count_charclass(str, pattern)
+
+stri_count_coll(str, pattern, ..., opts_collator = NULL)
+
+stri_count_fixed(str, pattern, ..., opts_fixed = NULL)
+
+stri_count_regex(str, pattern, ..., opts_regex = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>, <code>opts_regex</code>,
+<code>opts_fixed</code>, and so on</p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex, fixed, coll, charclass</code></td>
+<td>
+<p>character vector;
+search patterns; for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed, opts_regex</code></td>
+<td>
+<p>a named list used to tune up
+the search engine's settings; see
+<code><a href="stri_opts_collator.html">stri_opts_collator</a></code>, <code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>,
+and <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>, respectively; <code>NULL</code>
+for the defaults</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and <code>pattern</code> (with recycling
+of the elements in the shorter vector if necessary). This allows to,
+for instance, search for one pattern in each given string,
+search for each pattern in one given string,
+and search for the i-th pattern within the i-th string.
+</p>
+<p>If <code>pattern</code> is empty, then the result is <code>NA</code>
+and a warning is generated.
+</p>
+<p><code>stri_count</code> is a convenience function.
+It calls either <code>stri_count_regex</code>,
+<code>stri_count_fixed</code>, <code>stri_count_coll</code>,
+or <code>stri_count_charclass</code>, depending on the argument used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>All the functions return an integer vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_count: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_count_boundaries.html">stri_count_boundaries</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+s &lt;- 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'
+stri_count(s, fixed='dolor')
+stri_count(s, regex='\\p{L}+')
+
+stri_count_fixed(s, ' ')
+stri_count_fixed(s, 'o')
+stri_count_fixed(s, 'it')
+stri_count_fixed(s, letters)
+stri_count_fixed('babab', 'b')
+stri_count_fixed(c('stringi', '123'), 'string')
+
+stri_count_charclass(c('stRRRingi', 'STrrrINGI', '123'),
+   c('\\p{Ll}', '\\p{Lu}', '\\p{Zs}'))
+stri_count_charclass(' \t\n', '\\p{WHITE_SPACE}') # white space - binary property
+stri_count_charclass(' \t\n', '\\p{Z}') # white-space - general category (note the difference)
+
+stri_count_regex(s, '(s|el)it')
+stri_count_regex(s, 'i.i')
+stri_count_regex(s, '.it')
+stri_count_regex('bab baab baaab', c('b.*?b', 'b.b'))
+stri_count_regex(c('stringi', '123'), '^(s|1)')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

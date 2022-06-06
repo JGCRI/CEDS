@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Build an error message from parts</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cnd_message {rlang}"><tr><td>cnd_message {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Build an error message from parts</h2>
+
+<h3>Description</h3>
+
+<p><code>cnd_message()</code> assembles an error message from three generics:
+</p>
+
+<ul>
+<li> <p><code>cnd_header()</code>
+</p>
+</li>
+<li> <p><code>cnd_body()</code>
+</p>
+</li>
+<li> <p><code>cnd_footer()</code>
+</p>
+</li></ul>
+
+<p>Methods for these generics must return a character vector. The
+elements are combined into a single string with a newline
+separator. Bullets syntax is supported, either through rlang (see
+<code><a href="format_error_bullets.html">format_error_bullets()</a></code>), or through cli if the condition has
+<code>use_cli_format</code> set to <code>TRUE</code>.
+</p>
+<p>The default method for the error header returns the <code>message</code> field
+of the condition object. The default methods for the body and
+footer return the the <code>body</code> and <code>footer</code> fields if any, or empty
+character vectors otherwise.
+</p>
+<p><code>cnd_message()</code> is automatically called by the <code>conditionMessage()</code>
+for rlang errors, warnings, and messages. Error classes created
+with <code><a href="abort.html">abort()</a></code> only need to implement header, body or footer
+methods. This provides a lot of flexibility for hierarchies of
+error classes, for instance you could inherit the body of an error
+message from a parent class while overriding the header and footer.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cnd_message(cnd, ..., inherit = TRUE, prefix = FALSE)
+
+cnd_header(cnd, ...)
+
+cnd_body(cnd, ...)
+
+cnd_footer(cnd, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cnd</code></td>
+<td>
+<p>A condition object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments passed to methods.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>Wether to include parent messages. Parent messages
+are printed with a &quot;Caused by error:&quot; prefix, even if <code>prefix</code> is
+<code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>prefix</code></td>
+<td>
+<p>Whether to print the full message, including the
+condition prefix (<code style="white-space: pre;">Error:</code>, <code style="white-space: pre;">Warning:</code>, <code style="white-space: pre;">Message:</code>, or
+<code style="white-space: pre;">Condition:</code>). The prefix mentions the <code>call</code> field if present,
+and the <code>srcref</code> info if present. If <code>cnd</code> has a <code>parent</code> field
+(i.e. the condition is chained), the parent messages are included
+in the message with a <code style="white-space: pre;">Caused by</code> prefix.</p>
+</td></tr>
+</table>
+
+
+<h3>Overriding header, body, and footer methods</h3>
+
+<p>Sometimes the contents of an error message depends on the state of
+your checking routine. In that case, it can be tricky to lazily
+generate error messages with <code>cnd_header()</code>, <code>cnd_body()</code>, and
+<code>cnd_footer()</code>: you have the choice between overspecifying your
+error class hierarchies with one class per state, or replicating
+the type-checking control flow within the <code>cnd_body()</code> method. None
+of these options are ideal.
+</p>
+<p>A better option is to define <code>header</code>, <code>body</code>, or <code>footer</code> fields
+in your condition object. These can be a static string, a
+<a href="as_function.html">lambda-formula</a>, or a function with the same
+signature as <code>cnd_header()</code>, <code>cnd_body()</code>, or <code>cnd_footer()</code>. These
+fields override the message generics and make it easy to generate
+an error message tailored to the state in which the error was
+constructed.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

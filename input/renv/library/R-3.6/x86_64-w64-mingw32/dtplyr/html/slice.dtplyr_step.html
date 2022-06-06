@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset rows using their positions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for slice.dtplyr_step {dtplyr}"><tr><td>slice.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset rows using their positions</h2>
+
+<h3>Description</h3>
+
+<p>These are methods for the dplyr <code><a href="../../dplyr/html/slice.html">slice()</a></code>, <code>slice_head()</code>, <code>slice_tail()</code>,
+<code>slice_min()</code>, <code>slice_max()</code> and <code>slice_sample()</code> generics. They are
+translated to the <code>i</code> argument of <code style="white-space: pre;">[.data.table</code>.
+</p>
+<p>Unlike dplyr, <code>slice()</code> (and <code>slice()</code> alone) returns the same number of
+rows per group, regardless of whether or not the indices appear in each
+group.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+slice(.data, ...)
+
+## S3 method for class 'dtplyr_step'
+slice_head(.data, ..., n, prop)
+
+## S3 method for class 'dtplyr_step'
+slice_tail(.data, ..., n, prop)
+
+## S3 method for class 'dtplyr_step'
+slice_min(.data, order_by, ..., n, prop, with_ties = TRUE)
+
+## S3 method for class 'dtplyr_step'
+slice_max(.data, order_by, ..., n, prop, with_ties = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Positive integers giving rows to select, or negative
+integers giving rows to drop.</p>
+</td></tr>
+<tr valign="top"><td><code>n, prop</code></td>
+<td>
+<p>Provide either <code>n</code>, the number of rows, or <code>prop</code>, the
+proportion of rows to select. If neither are supplied, <code>n = 1</code> will be
+used.
+</p>
+<p>If a negative value of <code>n</code> or <code>prop</code> is provided, the specified number or
+proportion of rows will be removed.
+</p>
+<p>If <code>n</code> is greater than the number of rows in the group (or <code>prop &gt; 1</code>),
+the result will be silently truncated to the group size. If the
+<code>prop</code>ortion of a group size does not yield an integer number of rows, the
+absolute value of <code>prop*n()</code> is rounded down.</p>
+</td></tr>
+<tr valign="top"><td><code>order_by</code></td>
+<td>
+<p>Variable or function of variables to order by.</p>
+</td></tr>
+<tr valign="top"><td><code>with_ties</code></td>
+<td>
+<p>Should ties be kept together? The default, <code>TRUE</code>,
+may return more rows than you request. Use <code>FALSE</code> to ignore ties,
+and return the first <code>n</code> rows.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+dt &lt;- lazy_dt(mtcars)
+dt %&gt;% slice(1, 5, 10)
+dt %&gt;% slice(-(1:4))
+
+# First and last rows based on existing order
+dt %&gt;% slice_head(n = 5)
+dt %&gt;% slice_tail(n = 5)
+
+# Rows with minimum and maximum values of a variable
+dt %&gt;% slice_min(mpg, n = 5)
+dt %&gt;% slice_max(mpg, n = 5)
+
+# slice_min() and slice_max() may return more rows than requested
+# in the presence of ties. Use with_ties = FALSE to suppress
+dt %&gt;% slice_min(cyl, n = 1)
+dt %&gt;% slice_min(cyl, n = 1, with_ties = FALSE)
+
+# slice_sample() allows you to random select with or without replacement
+dt %&gt;% slice_sample(n = 5)
+dt %&gt;% slice_sample(n = 5, replace = TRUE)
+
+# you can optionally weight by a variable - this code weights by the
+# physical weight of the cars, so heavy cars are more likely to get
+# selected
+dt %&gt;% slice_sample(weight_by = wt, n = 5)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

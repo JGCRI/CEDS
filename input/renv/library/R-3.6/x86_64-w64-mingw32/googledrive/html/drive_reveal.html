@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add a new column of Drive file information</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_reveal {googledrive}"><tr><td>drive_reveal {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add a new column of Drive file information</h2>
+
+<h3>Description</h3>
+
+<p><code>drive_reveal()</code> adds extra information about your Drive files that is not
+readily available in the default <code><a href="dribble.html">dribble</a></code> produced by googledrive. Why is
+this info not always included in the default <code>dribble</code>?
+</p>
+
+<ul>
+<li><p> You don't always care about it. There is a lot of esoteric information in
+the <code>drive_resource</code> that has little value for most users.
+</p>
+</li>
+<li><p> It might be &quot;expensive&quot; to get this information and put it into a usable
+form. For example, revealing a file's <code>"path"</code>, <code>"permissions"</code>, or
+<code>"published"</code> status all require additional API calls.
+</p>
+</li></ul>
+
+<p><code>drive_reveal()</code> can also <strong>hoist</strong> any property out of the <code>drive_resource</code>
+list-column, when the property's name is passed as the <code>what</code> argument. The
+resulting new column is simplified if it is easy to do so, e.g., if the
+individual elements are all string or logical. If <code>what</code> extracts a
+date-time, we return <code><a href="../../base/html/DateTimeClasses.html">POSIXct</a></code>. Otherwise, you'll get a
+list-column. If this makes you sad, consider using <code>tidyr::hoist()</code> instead.
+It is more powerful due to a richer &quot;plucking specification&quot; and its <code>ptype</code>
+and <code>transform</code> arguments. Another useful function is
+<code>tidyr::unnest_wider()</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_reveal(file, what = c("path", "permissions", "published", "parent"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file(s) of interest on your Google
+Drive. Can be a character vector of names/paths, a character vector of file
+ids or URLs marked with <code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>what</code></td>
+<td>
+<p>Character, describing the type of info you want to add. These
+values get special handling (more details below):
+</p>
+
+<ul>
+<li> <p><code>path</code>
+</p>
+</li>
+<li> <p><code>permissions</code>
+</p>
+</li>
+<li> <p><code>published</code>
+</p>
+</li>
+<li> <p><code>parent</code>
+</p>
+</li></ul>
+
+<p>You can also request any property in the <code>drive_resource</code> column by name.
+The request can be in <code>camelCase</code> or <code>snake_case</code>, but the new column name
+will always be <code>snake_case</code>. Some examples of <code>what</code>:
+</p>
+
+<ul>
+<li> <p><code>mime_type</code> (or <code>mimeType</code>)
+</p>
+</li>
+<li> <p><code>trashed</code>
+</p>
+</li>
+<li> <p><code>starred</code>
+</p>
+</li>
+<li> <p><code>description</code>
+</p>
+</li>
+<li> <p><code>version</code>
+</p>
+</li>
+<li> <p><code>web_view_link</code> (or <code>webViewLink</code>)
+</p>
+</li>
+<li> <p><code>modified_time</code> (or <code>modifiedTime</code>)
+</p>
+</li>
+<li> <p><code>created_time</code> (or <code>createdTime</code>)
+</p>
+</li>
+<li> <p><code>owned_by_me</code> (or <code>ownedByMe</code>)
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li>
+<li> <p><code>quota_bytes_used</code> (or <code>quotaBytesUsed</code>)
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+The additional info requested via <code>what</code>
+appears in one (or more) extra columns.
+</p>
+
+
+<h3>File path</h3>
+
+<p>When <code>what = "path"</code> the <code><a href="dribble.html">dribble</a></code> gains a character
+column holding each file's path. This can be <em>very slow</em>, so use with
+caution.
+</p>
+<p>The example path <code style="white-space: pre;">~/a/b/</code> illustrates two conventions used in googledrive:
+</p>
+
+<ul>
+<li><p> The leading <code style="white-space: pre;">~/</code> means that the folder <code>a</code> is located in the current
+user's &quot;My Drive&quot; root folder.
+</p>
+</li>
+<li><p> The trailing <code>/</code> means that <code>b</code>, located in <code>a</code>, is <em>a folder or a folder
+shortcut</em>.
+</p>
+</li></ul>
+
+
+
+<h3>Permissions</h3>
+
+<p>When <code>what = "permissions"</code> the <code><a href="dribble.html">dribble</a></code> gains a logical column <code>shared</code>
+that indicates whether a file is shared and a new list-column
+<code>permissions_resource</code> containing lists of
+<a href="https://developers.google.com/drive/api/v3/reference/permissions">Permissions resources</a>.
+</p>
+
+
+<h3>Publishing</h3>
+
+<p>When <code>what = "published"</code> the <code><a href="dribble.html">dribble</a></code> gains a logical column
+<code>published</code> that indicates whether a file is published and a new list-column
+<code>revision_resource</code> containing lists of
+<a href="https://developers.google.com/drive/api/v3/reference/revisions">Revisions resources</a>.
+</p>
+
+
+<h3>Parent</h3>
+
+<p>When <code>what = "parent"</code> the <code><a href="dribble.html">dribble</a></code> gains a character column <code>id_parent</code>
+that is the file id of this item's parent folder. This information is
+available in the <code>drive_resource</code>, but can't just be hoisted out:
+</p>
+
+<ul>
+<li><p> Google Drive used to allow files to have multiple parents, but this is no
+longer supported and googledrive now assumes this is impossible. However,
+we have seen (very old) files that still have &gt;1 parent folder. If we see
+this we message about it and drop all but the first parent.
+</p>
+</li>
+<li><p> The <code>parents</code> property in <code>drive_resource</code> has an &quot;extra&quot; layer of nesting
+and needs to be flattened.
+</p>
+</li></ul>
+
+<p>If you really want the raw <code>parents</code> property, call <code>drive_reveal(what = "parents")</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>To learn more about the properties present in the metadata of a
+Drive file (which is what's in the <code>drive_resource</code> list-column of a
+<code><a href="dribble.html">dribble</a></code>), see the API docs:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/drive/api/v3/reference/files#resource-representations">https://developers.google.com/drive/api/v3/reference/files#resource-representations</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Get a few of your files
+files &lt;- drive_find(n_max = 10, trashed = NA)
+
+# the "special" cases that require additional API calls and can be slow
+drive_reveal(files, "path")
+drive_reveal(files, "permissions")
+drive_reveal(files, "published")
+
+# a "special" case of digging info out of `drive_resource`, then processing
+# a bit
+drive_reveal(files, "parent")
+
+# the "simple" cases of digging info out of `drive_resource`
+drive_reveal(files, "trashed")
+drive_reveal(files, "mime_type")
+drive_reveal(files, "starred")
+drive_reveal(files, "description")
+drive_reveal(files, "version")
+drive_reveal(files, "web_view_link")
+drive_reveal(files, "modified_time")
+drive_reveal(files, "created_time")
+drive_reveal(files, "owned_by_me")
+drive_reveal(files, "size")
+drive_reveal(files, "quota_bytes_used")
+
+# 'root' is a special file id that represents your My Drive root folder
+drive_get(id = "root") %&gt;%
+  drive_reveal("path")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

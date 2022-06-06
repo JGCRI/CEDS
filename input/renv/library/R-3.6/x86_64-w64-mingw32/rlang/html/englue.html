@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defuse function arguments with glue</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for englue {rlang}"><tr><td>englue {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defuse function arguments with glue</h2>
+
+<h3>Description</h3>
+
+<p><code>englue()</code> creates a string with the <a href="glue-operators.html">glue operators</a> <code style="white-space: pre;">{</code> and <code style="white-space: pre;">{{</code>. These operators are
+normally used to inject names within <a href="dyn-dots.html">dynamic dots</a>.
+<code>englue()</code> makes them available anywhere within a function.
+</p>
+<p><code>englue()</code> must be used inside a function. <code>englue("{{ var }}")</code>
+<a href="topic-defuse.html">defuses</a> the argument <code>var</code> and transforms it to a
+string using the default name operation.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+englue(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A string to interpolate with glue operators.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>englue("{{ var }}")</code> is equivalent to <code>as_label(enquo(var))</code>. It
+<a href="topic-defuse.html">defuses</a> <code>arg</code> and transforms the expression to a
+string with <code><a href="as_label.html">as_label()</a></code>.
+</p>
+<p>In dynamic dots, using only <code style="white-space: pre;">{</code> is allowed. In <code>englue()</code> you must
+use <code style="white-space: pre;">{{</code> at least once. Use <code>glue::glue()</code> for simple
+interpolation.
+</p>
+<p>Before using <code>englue()</code> in a package, first ensure that glue is
+installed by adding it to your <code style="white-space: pre;">Imports:</code> section.<div class="sourceCode r"></p>
+<pre>usethis::use_package("glue", "Imports")
+</pre></div>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-inject.html">Injecting with !!, !!!, and glue syntax</a>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+g &lt;- function(var) englue("{{ var }}")
+g(cyl)
+g(1 + 1)
+g(!!letters)
+
+# These are equivalent to
+as_label(quote(cyl))
+as_label(quote(1 + 1))
+as_label(letters)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

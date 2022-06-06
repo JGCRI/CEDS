@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: dribble object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dribble {googledrive}"><tr><td>dribble {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>dribble object</h2>
+
+<h3>Description</h3>
+
+<p>googledrive stores the metadata for one or more Drive files or
+shared drives as a <code>dribble</code>. It is a &quot;Drive
+<a href="../../tibble/html/tibble-package.html">tibble</a>&quot; with one row per file or shared drive
+and, at a minimum, these columns:
+</p>
+
+<ul>
+<li> <p><code>name</code>: a character column containing file or shared drive names
+</p>
+</li>
+<li> <p><code>id</code>: a character column of file or shared drive ids
+</p>
+</li>
+<li> <p><code>drive_resource</code>: a list-column, each element of which is either a
+<a href="https://developers.google.com/drive/api/v3/reference/files#resource-representations">Files resource</a>
+or a <a href="https://developers.google.com/drive/api/v3/reference/drives#resource-representations">Drives resource</a>
+object. Note there is no guarantee that all documented fields are always
+present. We do check if the <code>kind</code> field is present and equal to one of
+<code>drive#file</code> or <code>drive#drive</code>.
+</p>
+</li></ul>
+
+<p>The <code>dribble</code> format is handy because it exposes the file name,
+which is good for humans, but keeps it bundled with the file's unique id
+and other metadata, which are needed for API calls.
+</p>
+<p>In general, the <code>dribble</code> class will be retained even after
+manipulation, as long as the required variables are present and of the
+correct type. This works best for manipulations via the dplyr and vctrs
+packages.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="as_dribble.html">as_dribble()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

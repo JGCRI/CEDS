@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read/write JSON</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read_json {jsonlite}"><tr><td>read_json {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read/write JSON</h2>
+
+<h3>Description</h3>
+
+<p>These functions are similar to <code><a href="fromJSON.html">toJSON()</a></code> and <code><a href="fromJSON.html">fromJSON()</a></code> except they
+explicitly distinguish between path and literal input, and do not simplify
+by default.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+read_json(path, simplifyVector = FALSE, ...)
+
+parse_json(json, simplifyVector = FALSE, ...)
+
+write_json(x, path, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>file on disk</p>
+</td></tr>
+<tr valign="top"><td><code>simplifyVector</code></td>
+<td>
+<p>simplifies nested lists into vectors and data frames. See <code><a href="fromJSON.html">fromJSON()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional conversion arguments, see also <code><a href="fromJSON.html">toJSON()</a></code> or <code><a href="fromJSON.html">fromJSON()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>json</code></td>
+<td>
+<p>string with literal json or connection object to read from</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an object to be serialized to JSON</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="fromJSON.html">fromJSON()</a></code>, <code><a href="stream_in.html">stream_in()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+tmp &lt;- tempfile()
+write_json(iris, tmp)
+
+# Nested lists
+read_json(tmp)
+
+# A data frame
+read_json(tmp, simplifyVector = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

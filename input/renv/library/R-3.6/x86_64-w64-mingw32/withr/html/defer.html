@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defer Evaluation of an Expression</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for defer {withr}"><tr><td>defer {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defer Evaluation of an Expression</h2>
+
+<h3>Description</h3>
+
+<p>Similar to <code><a href="../../base/html/on.exit.html">on.exit()</a></code>, but allows one to attach
+an expression to be evaluated when exiting any frame currently
+on the stack. This provides a nice mechanism for scoping side
+effects for the duration of a function's execution.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+defer(expr, envir = parent.frame(), priority = c("first", "last"))
+
+defer_parent(expr, priority = c("first", "last"))
+
+deferred_run(envir = parent.frame())
+
+deferred_clear(envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p><code style="white-space: pre;">[expression]</code><br /> An expression to be evaluated.</p>
+</td></tr>
+<tr valign="top"><td><code>envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> Attach exit handlers to this environment.
+Typically, this should be either the current environment or
+a parent frame (accessed through <code><a href="../../base/html/sys.parent.html">parent.frame()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>priority</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> Specify whether this handler should
+be executed <code>"first"</code> or <code>"last"</code>, relative to any other
+registered handlers on this environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>defer()</code> works by attaching handlers to the requested environment (as an
+attribute called <code>"handlers"</code>), and registering an exit handler that
+executes the registered handler when the function associated with the
+requested environment finishes execution.
+</p>
+<p>Deferred events can be set on the global environment, primarily to facilitate
+the interactive development of code that is intended to be executed inside a
+function or test. A message alerts the user to the fact that an explicit
+<code>deferred_run()</code> is the only way to trigger these deferred events. Use
+<code>deferred_clear()</code> to clear them without evaluation. The global environment
+scenario is the main motivation for these functions.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# define a 'local' function that creates a file, and
+# removes it when the parent function has finished executing
+local_file &lt;- function(path) {
+  file.create(path)
+  defer_parent(unlink(path))
+}
+
+# create tempfile path
+path &lt;- tempfile()
+
+# use 'local_file' in a function
+local({
+  local_file(path)
+  stopifnot(file.exists(path))
+})
+
+# file is deleted as we leave 'local' local
+stopifnot(!file.exists(path))
+
+# investigate how 'defer' modifies the
+# executing function's environment
+local({
+  local_file(path)
+  print(attributes(environment()))
+})
+
+# defer and trigger events on the global environment
+defer(print("one"))
+defer(print("two"))
+deferred_run()
+
+defer(print("three"))
+deferred_clear()
+deferred_run()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

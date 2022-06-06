@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the full paths of Lua filters in an R package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pkg_file_lua {rmarkdown}"><tr><td>pkg_file_lua {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the full paths of Lua filters in an R package</h2>
+
+<h3>Description</h3>
+
+<p>Lua filters stored in a source package in the &lsquo;<span class="file">inst/rmarkdown/lua</span>&rsquo;
+directory will be installed to the &lsquo;<span class="file">rmarkdown/lua</span>&rsquo; directory in the
+package path. This function finds the full paths of the Lua filters in the
+installed packages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pkg_file_lua(filters = NULL, package = "rmarkdown")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filters</code></td>
+<td>
+<p>A character vector of filenames for Lua filters to be
+retrieved in &lsquo;<span class="file">rmarkdown/lua</span>&rsquo; folder of the package. By default
+(<code>NULL</code>), if none is provided, it returns all filters in that folder.</p>
+</td></tr>
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>The name of the package in which to look for the filters.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector of absolute file paths for the Lua filter from the
+package. The returned paths have been processed by
+<code><a href="pandoc_path_arg.html">pandoc_path_arg</a>()</code>, so they are ready to be used by Pandoc.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# list all Lua filters stored in the rmarkdown package
+pkg_file_lua()
+# get a specific filter
+pkg_file_lua(c("pagebreak.lua", "latex_div.lua"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Nest by one or more variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nest_by {dplyr}"><tr><td>nest_by {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Nest by one or more variables</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p><code>nest_by()</code> is closely related to <code><a href="group_by.html">group_by()</a></code>. However, instead of storing
+the group structure in the metadata, it is made explicit in the data,
+giving each group key a single row along with a list-column of data frames
+that contain all the other data.
+</p>
+<p><code>nest_by()</code> returns a <a href="rowwise.html">rowwise</a> data frame, which makes operations on the
+grouped data particularly elegant. See <code>vignette("rowwise")</code> for more
+details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nest_by(.data, ..., .key = "data", .keep = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>In <code>group_by()</code>, variables or computations to group by.
+In <code>ungroup()</code>, variables to remove from the grouping.</p>
+</td></tr>
+<tr valign="top"><td><code>.key</code></td>
+<td>
+<p>Name of the list column</p>
+</td></tr>
+<tr valign="top"><td><code>.keep</code></td>
+<td>
+<p>Should the grouping columns be kept in the list column.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that <code>df %&gt;% nest_by(x, y)</code> is roughly equivalent to</p>
+<pre>df %&gt;%
+  group_by(x, y) %&gt;%
+  summarise(data = list(cur_data())) %&gt;%
+  rowwise()
+</pre>
+<p>If you want to unnest a nested data frame, you can either use
+<code>tidyr::unnest()</code> or take advantage of <code>summarise()</code>s multi-row behaviour:</p>
+<pre>nested %&gt;%
+  summarise(data)
+</pre>
+
+
+<h3>Value</h3>
+
+<p>A <a href="rowwise.html">rowwise</a> data frame. The output has the following properties:
+</p>
+
+<ul>
+<li><p> The rows come from the underlying <code><a href="group_data.html">group_keys()</a></code>.
+</p>
+</li>
+<li><p> The columns are the grouping keys plus one list-column of data frames.
+</p>
+</li>
+<li><p> Data frame attributes are <strong>not</strong> preserved, because <code>nest_by()</code>
+fundamentally creates a new data frame.
+</p>
+</li></ul>
+
+<p>A tbl with one row per unique combination of the grouping variables.
+The first columns are the grouping variables, followed by a list column of tibbles
+with matching rows of the remaining columns.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# After nesting, you get one row per group
+iris %&gt;% nest_by(Species)
+starwars %&gt;% nest_by(species)
+
+# The output is grouped by row, which makes modelling particularly easy
+models &lt;- mtcars %&gt;%
+  nest_by(cyl) %&gt;%
+  mutate(model = list(lm(mpg ~ wt, data = data)))
+models
+
+models %&gt;% summarise(rsq = summary(model)$r.squared)
+# This is particularly elegant with the broom functions
+if (requireNamespace("broom", quietly = TRUE)) {
+  models %&gt;% summarise(broom::glance(model))
+  models %&gt;% summarise(broom::tidy(model))
+}
+
+# Note that you can also summarise to unnest the data
+models %&gt;% summarise(data)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

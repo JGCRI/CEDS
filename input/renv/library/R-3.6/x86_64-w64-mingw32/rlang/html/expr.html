@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defuse an R expression</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expr {rlang}"><tr><td>expr {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defuse an R expression</h2>
+
+<h3>Description</h3>
+
+<p><code>expr()</code> <a href="topic-defuse.html">defuses</a> an R expression with
+<a href="injection-operator.html">injection</a> support.
+</p>
+<p>It is equivalent to <code><a href="../../base/html/bquote.html">base::bquote()</a></code>.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An expression to defuse.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+
+<ul>
+<li> <p><a href="topic-defuse.html">Defusing R expressions</a> for an overview.
+</p>
+</li>
+<li> <p><code><a href="enquo.html">enquo()</a></code> to defuse non-local expressions from function
+arguments.
+</p>
+</li>
+<li> <p><a href="defusing-advanced.html">Advanced defusal operators</a>.
+</p>
+</li>
+<li> <p><code><a href="sym.html">sym()</a></code> and <code><a href="call2.html">call2()</a></code> for building expressions (symbols and calls
+respectively) programmatically.
+</p>
+</li>
+<li> <p><code><a href="../../base/html/eval.html">base::eval()</a></code> and <code><a href="eval_bare.html">eval_bare()</a></code> for resuming evaluation
+of a defused expression.
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+# R normally returns the result of an expression
+1 + 1
+
+# `expr()` defuses the expression that you have supplied and
+# returns it instead of its value
+expr(1 + 1)
+
+expr(toupper(letters))
+
+# It supports _injection_ with `!!` and `!!!`. This is a convenient
+# way of modifying part of an expression by injecting other
+# objects.
+var &lt;- "cyl"
+expr(with(mtcars, mean(!!sym(var))))
+
+vars &lt;- c("cyl", "am")
+expr(with(mtcars, c(!!!syms(vars))))
+
+# Compare to the normal way of building expressions
+call("with", call("mean", sym(var)))
+
+call("with", call2("c", !!!syms(vars)))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

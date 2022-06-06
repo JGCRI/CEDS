@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delete cells</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for range_delete {googlesheets4}"><tr><td>range_delete {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delete cells</h2>
+
+<h3>Description</h3>
+
+<p>Deletes a range of cells and shifts other cells into the deleted area. There
+are several related tasks that are implemented by other functions:
+</p>
+
+<ul>
+<li><p> To clear cells of their value and/or format, use <code><a href="range_flood.html">range_clear()</a></code>.
+</p>
+</li>
+<li><p> To delete an entire (work)sheet, use <code><a href="sheet_delete.html">sheet_delete()</a></code>.
+</p>
+</li>
+<li><p> To change the dimensions of a (work)sheet, use <code><a href="sheet_resize.html">sheet_resize()</a></code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+range_delete(ss, sheet = NULL, range, shift = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to delete, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. Ignored if the sheet is specified via <code>range</code>. If neither argument specifies the sheet, defaults to the first visible sheet.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>Cells to delete. There are a couple differences between <code>range</code>
+here and how it works in other functions (e.g. <code><a href="range_read.html">range_read()</a></code>):
+</p>
+
+<ul>
+<li> <p><code>range</code> must be specified.
+</p>
+</li>
+<li> <p><code>range</code> must not be a named range.
+</p>
+</li>
+<li> <p><code>range</code> must not be the name of a (work) sheet. Instead, use
+<code><a href="sheet_delete.html">sheet_delete()</a></code> to delete an entire sheet.
+Row-only and column-only ranges are especially relevant, such as &quot;2:6&quot; or
+&quot;D&quot;. Remember you can also use the helpers in <code><a href="cell-specification.html">cell-specification</a></code>,
+such as <code>cell_cols(4:6)</code>, or <code>cell_rows(5)</code>.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>shift</code></td>
+<td>
+<p>Must be one of &quot;up&quot; or &quot;left&quot;, if specified. Required if <code>range</code>
+is NOT a rows-only or column-only range (in which case, we can figure it
+out for you). Determines whether the deleted area is filled by shifting
+surrounding cells up or to the left.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes a <code>DeleteRangeRequest</code>:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#DeleteRangeRequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#DeleteRangeRequest</a>
+</p>
+</li></ul>
+
+<p>Other write functions: 
+<code><a href="gs4_create.html">gs4_create</a>()</code>,
+<code><a href="gs4_formula.html">gs4_formula</a>()</code>,
+<code><a href="range_flood.html">range_flood</a>()</code>,
+<code><a href="range_write.html">range_write</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  # create a data frame to use as initial data
+  df &lt;- gs4_fodder(10)
+
+  # create Sheet
+  ss &lt;- gs4_create("range-delete-example", sheets = list(df))
+
+  # delete some rows
+  range_delete(ss, range = "2:4")
+
+  # delete a column
+  range_delete(ss, range = "C")
+
+  # delete a rectangle and specify how to shift remaining cells
+  range_delete(ss, range = "B3:F4", shift = "left")
+
+  # clean up
+  gs4_find("range-delete-example") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

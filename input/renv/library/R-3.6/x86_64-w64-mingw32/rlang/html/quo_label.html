@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format quosures for printing or labelling</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for quo_label {rlang}"><tr><td>quo_label {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format quosures for printing or labelling</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p><strong>Note:</strong> You should now use <code><a href="as_label.html">as_label()</a></code> or <code><a href="as_name.html">as_name()</a></code> instead
+of <code>quo_name()</code>. See life cycle section below.
+</p>
+<p>These functions take an arbitrary R object, typically an
+<a href="is_expression.html">expression</a>, and represent it as a string.
+</p>
+
+<ul>
+<li> <p><code>quo_name()</code> returns an abbreviated representation of the object
+as a single line string. It is suitable for default names.
+</p>
+</li>
+<li> <p><code>quo_text()</code> returns a multiline string. For instance block
+expressions like <code>{ foo; bar }</code> are represented on 4 lines (one
+for each symbol, and the curly braces on their own lines).
+</p>
+</li></ul>
+
+<p>These deparsers are only suitable for creating default names or
+printing output at the console. The behaviour of your functions
+should not depend on deparsed objects. If you are looking for a way
+of transforming symbols to strings, use <code><a href="as_string.html">as_string()</a></code> instead of
+<code>quo_name()</code>. Unlike deparsing, the transformation between symbols
+and strings is non-lossy and well defined.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+quo_label(quo)
+
+quo_text(quo, width = 60L, nlines = Inf)
+
+quo_name(quo)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>quo</code></td>
+<td>
+<p>A quosure or expression.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of each line.</p>
+</td></tr>
+<tr valign="top"><td><code>nlines</code></td>
+<td>
+<p>Maximum number of lines to extract.</p>
+</td></tr>
+</table>
+
+
+<h3>Life cycle</h3>
+
+<p>These functions are in the questioning life cycle stage.
+</p>
+
+<ul>
+<li> <p><code><a href="as_label.html">as_label()</a></code> and <code><a href="as_name.html">as_name()</a></code> should be used instead of
+<code>quo_name()</code>. <code>as_label()</code> transforms any R object to a string
+but should only be used to create a default name. Labelisation is
+not a well defined operation and no assumption should be made
+about the label. On the other hand, <code>as_name()</code> only works with
+(possibly quosured) symbols, but is a well defined and
+deterministic operation.
+</p>
+</li>
+<li><p> We don't have a good replacement for <code>quo_text()</code> yet. See
+<a href="https://github.com/r-lib/rlang/issues/636">https://github.com/r-lib/rlang/issues/636</a> to follow discussions
+about a new deparsing API.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="expr_label.html">expr_label()</a></code>, <code><a href="f_text.html">f_label()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Quosures can contain nested quosures:
+quo &lt;- quo(foo(!! quo(bar)))
+quo
+
+# quo_squash() unwraps all quosures and returns a raw expression:
+quo_squash(quo)
+
+# This is used by quo_text() and quo_label():
+quo_text(quo)
+
+# Compare to the unwrapped expression:
+expr_text(quo)
+
+# quo_name() is helpful when you need really short labels:
+quo_name(quo(sym))
+quo_name(quo(!! sym))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

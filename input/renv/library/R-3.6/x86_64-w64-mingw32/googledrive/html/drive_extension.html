@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Lookup extension from MIME type</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_extension {googledrive}"><tr><td>drive_extension {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Lookup extension from MIME type</h2>
+
+<h3>Description</h3>
+
+<p>This is a helper to determinine which extension should be used
+for a file. Two types of input are acceptable:
+</p>
+
+<ul>
+<li><p> MIME types accepted by Google Drive.
+</p>
+</li>
+<li><p> File extensions, such as &quot;pdf&quot;, &quot;csv&quot;, etc. (these are simply passed through).
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_extension(type = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Character. MIME type or file extension.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character. File extension.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## get the extension for mime type image/jpeg
+drive_extension("image/jpeg")
+
+## it's vectorized
+drive_extension(c("text/plain", "pdf", "image/gif"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

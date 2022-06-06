@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert Colors to Hexadecimal Strings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hex {colorspace}"><tr><td>hex {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert Colors to Hexadecimal Strings</h2>
+
+<h3>Description</h3>
+
+<p>This functions converts <code><a href="color-class.html">color-class</a></code> objects into hexadecimal strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hex(from, gamma = NULL, fixup = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>The color object to be converted.</p>
+</td></tr>
+<tr valign="top"><td><code>gamma</code></td>
+<td>
+<p>Deprecated.</p>
+</td></tr>
+<tr valign="top"><td><code>fixup</code></td>
+<td>
+<p>Should the color be corrected to a valid RGB value before
+correction.  The default is to convert out-of-gamut colors to the string
+<code>"NA"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The color objects are first converted to sRGB color objects.  They are then
+multiplied by 255 and rounded to obtain an integer value.  These values are
+then converted to hexadecimal strings of the form <code>"#RRGGBB"</code> and
+suitable for use as color descriptions for R graphics.  Out of gamut values
+are either corrected to valid RGB values by translating the the individual
+primary values so that they lie between 0 and 255.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A vector of character strings.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="hex2RGB.html">hex2RGB</a></code>, <code><a href="RGB.html">RGB</a></code>, <code><a href="sRGB.html">sRGB</a></code>,
+<code><a href="HSV.html">HSV</a></code>, <code><a href="XYZ.html">XYZ</a></code>, <code><a href="LAB.html">LAB</a></code>,
+<code><a href="polarLAB.html">polarLAB</a></code>, <code><a href="LUV.html">LUV</a></code>, <code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+hsv &lt;- HSV(seq(0, 360, length.out = 7)[-7], 1, 1)
+hsv
+hex(hsv)
+barplot(rep(1,6), col = hex(hsv))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

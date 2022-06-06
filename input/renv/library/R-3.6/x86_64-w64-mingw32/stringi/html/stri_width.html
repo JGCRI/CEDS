@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine the Width of Code Points</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_width {stringi}"><tr><td>stri_width {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine the Width of Code Points</h2>
+
+<h3>Description</h3>
+
+<p>Approximates the number of text columns the 'cat()' function
+might use to print a string using a mono-spaced font.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_width(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector or an object coercible to</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The Unicode standard does not formalize the notion of a character
+width. Roughly based on <a href="https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c">https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c</a>,
+<a href="https://github.com/nodejs/node/blob/master/src/node_i18n.cc">https://github.com/nodejs/node/blob/master/src/node_i18n.cc</a>,
+and UAX #11 we proceed as follows.
+The following code points are of width 0:
+</p>
+
+<ul>
+<li><p> code points with general category (see <a href="about_search_charclass.html">stringi-search-charclass</a>)
+<code>Me</code>, <code>Mn</code>, and <code>Cf</code>),
+</p>
+</li>
+<li> <p><code>C0</code> and <code>C1</code> control codes (general category <code>Cc</code>)
+- for compatibility with the <code><a href="../../base/html/nchar.html">nchar</a></code> function,
+</p>
+</li>
+<li><p> Hangul Jamo medial vowels and final consonants
+(code points with enumerable property <code>UCHAR_HANGUL_SYLLABLE_TYPE</code>
+equal to <code>U_HST_VOWEL_JAMO</code> or <code>U_HST_TRAILING_JAMO</code>;
+note that applying the NFC normalization with <code><a href="stri_trans_nf.html">stri_trans_nfc</a></code>
+is encouraged),
+</p>
+</li>
+<li><p> ZERO WIDTH SPACE (U+200B),
+</p>
+</li></ul>
+
+<p>Characters with the <code>UCHAR_EAST_ASIAN_WIDTH</code> enumerable property
+equal to <code>U_EA_FULLWIDTH</code> or <code>U_EA_WIDE</code> are
+of width 2.
+</p>
+<p>Most emojis and characters with general category So (other symbols)
+are of width 2.
+</p>
+<p>SOFT HYPHEN (U+00AD) (for compatibility with <code><a href="../../base/html/nchar.html">nchar</a></code>)
+as well as any other characters have width 1.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns an integer vector of the same length as <code>str</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><em>East Asian Width</em> &ndash; Unicode Standard Annex #11,
+<a href="https://www.unicode.org/reports/tr11/">https://www.unicode.org/reports/tr11/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other length: 
+<code><a href="operator_dollar.html">%s$%</a>()</code>,
+<code><a href="stri_isempty.html">stri_isempty</a>()</code>,
+<code><a href="stri_length.html">stri_length</a>()</code>,
+<code><a href="stri_numbytes.html">stri_numbytes</a>()</code>,
+<code><a href="stri_pad.html">stri_pad_both</a>()</code>,
+<code><a href="stri_sprintf.html">stri_sprintf</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_width(LETTERS[1:5])
+stri_width(stri_trans_nfkd('\u0105'))
+stri_width(stri_trans_nfkd('\U0001F606'))
+stri_width( # Full-width equivalents of ASCII characters:
+   stri_enc_fromutf32(as.list(c(0x3000, 0xFF01:0xFF5E)))
+)
+stri_width(stri_trans_nfkd('\ubc1f')) # includes Hangul Jamo medial vowels and final consonants
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

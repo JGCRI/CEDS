@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class &quot;color&quot;</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for color-class {colorspace}"><tr><td>color-class {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class &quot;color&quot;</h2>
+
+<h3>Description</h3>
+
+<p>Objects from the class <em>color</em> represent colors in a number of color
+spaces.  In particular, there are subclasses of color which correspond to
+RGB, HSV, HLS, CIEXYZ, CIELUV, CIELAB and polar versions of the last two
+spaces.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created by calls to the
+functions <code>RGB</code>, <code>sRGB</code>, <code>HSV</code>, <code>HLS</code>, <code>XYZ</code>,
+<code>LUV</code>, <code>LAB</code>, <code>polarLUV</code>, and <code>polarLAB</code>.  These are all
+subclasses of the virtual class <em>color</em>.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>coords</code>:</dt><dd><p>An object of class <code>"matrix"</code>.</p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>[</dt><dd><p><code>signature(x = "color")</code>: This method makes it possible to
+take subsets of a vector of colors.</p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "RGB")</code>: convert
+a color vector to RGB.</p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "sRGB")</code>: convert
+a color vector to sRGB.</p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "XYZ")</code>: convert
+a color vector to XYZ.</p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "LAB")</code>: convert
+a color vector to LAB. </p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "polarLAB")</code>: convert
+a color vector to polarLAB. </p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "HSV")</code>: convert
+a color vector to HSV. </p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "HLS")</code>: convert
+a color vector to HLS. </p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "LUV")</code>: convert
+a color vector to LUV. </p>
+</dd>
+<dt>coerce</dt><dd><p><code>signature(from = "color", to = "polarLUV")</code>: convert
+a color vector to polarLUV. </p>
+</dd>
+<dt>coords</dt><dd><p><code>signature(color = "color")</code>: extract the color
+coordinates from a color vector.</p>
+</dd>
+<dt>plot</dt><dd><p><code>signature(x = "color")</code>: plot a color vector </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "color")</code>: show a color vector. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="RGB.html">RGB</a></code>, <code><a href="XYZ.html">XYZ</a></code>, <code><a href="HSV.html">HSV</a></code>,
+<code><a href="HLS.html">HLS</a></code>, <code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>,
+<code><a href="LUV.html">LUV</a></code>, <code><a href="polarLUV.html">polarLUV</a></code>, <code><a href="mixcolor.html">mixcolor</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- RGB(runif(1000), runif(1000), runif(1000))
+plot(as(x, "LUV"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

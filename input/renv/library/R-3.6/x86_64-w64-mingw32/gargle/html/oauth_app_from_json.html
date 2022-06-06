@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create an OAuth app from JSON</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for oauth_app_from_json {gargle}"><tr><td>oauth_app_from_json {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create an OAuth app from JSON</h2>
+
+<h3>Description</h3>
+
+<p>Essentially a wrapper around <code><a href="../../httr/html/oauth_app.html">httr::oauth_app()</a></code> that extracts the necessary
+info from JSON obtained from <a href="https://console.cloud.google.com">Google Cloud Platform Console</a>. If no <code>appname</code> is given,
+the <code>"project_id"</code> from the JSON is used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+oauth_app_from_json(path, appname = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>JSON downloaded from Google Cloud Platform Console, containing a
+client id (aka key) and secret, in one of the forms supported for the <code>txt</code>
+argument of <code><a href="../../jsonlite/html/fromJSON.html">jsonlite::fromJSON()</a></code> (typically, a file path or JSON string).</p>
+</td></tr>
+<tr valign="top"><td><code>appname</code></td>
+<td>
+<p>name of the application.  This is not used for OAuth, but is
+used to make it easier to identify different applications.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+oauth_app(
+  path = "/path/to/the/JSON/you/downloaded/from/gcp/console.json"
+)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

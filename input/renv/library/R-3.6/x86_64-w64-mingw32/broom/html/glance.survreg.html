@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Glance at a(n) survreg object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glance.survreg {broom}"><tr><td>glance.survreg {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Glance at a(n) survreg object</h2>
+
+<h3>Description</h3>
+
+<p>Glance accepts a model object and returns a <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code>
+with exactly one row of model summaries. The summaries are typically
+goodness of fit measures, p-values for hypothesis tests on residuals,
+or model convergence information.
+</p>
+<p>Glance never returns information from the original call to the modeling
+function. This includes the name of the modeling function or any
+arguments passed to the modeling function.
+</p>
+<p>Glance does not calculate summary measures. Rather, it farms out these
+computations to appropriate methods and gathers the results together.
+Sometimes a goodness of fit measure will be undefined. In these cases
+the measure will be reported as <code>NA</code>.
+</p>
+<p>Glance returns the same number of columns regardless of whether the
+model matrix is rank-deficient or not. If so, entries in columns
+that no longer have a well-defined value are filled in with an <code>NA</code>
+of the appropriate type.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'survreg'
+glance(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An <code>survreg</code> object returned from <code><a href="../../survival/html/survreg.html">survival::survreg()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with exactly one row and columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>AIC</code></td>
+<td>
+<p>Akaike's Information Criterion for the model.</p>
+</td></tr>
+<tr valign="top"><td><code>BIC</code></td>
+<td>
+<p>Bayesian Information Criterion for the model.</p>
+</td></tr>
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>Degrees of freedom used by the model.</p>
+</td></tr>
+<tr valign="top"><td><code>df.residual</code></td>
+<td>
+<p>Residual degrees of freedom.</p>
+</td></tr>
+<tr valign="top"><td><code>iter</code></td>
+<td>
+<p>Iterations of algorithm/fitting procedure completed.</p>
+</td></tr>
+<tr valign="top"><td><code>logLik</code></td>
+<td>
+<p>The log-likelihood of the model. [stats::logLik()] may be a useful reference.</p>
+</td></tr>
+<tr valign="top"><td><code>nobs</code></td>
+<td>
+<p>Number of observations used.</p>
+</td></tr>
+<tr valign="top"><td><code>p.value</code></td>
+<td>
+<p>P-value corresponding to the test statistic.</p>
+</td></tr>
+<tr valign="top"><td><code>statistic</code></td>
+<td>
+<p>Chi-squared statistic.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reexports.html">glance()</a></code>, <code><a href="../../survival/html/survreg.html">survival::survreg()</a></code>
+</p>
+<p>Other survreg tidiers: 
+<code><a href="augment.survreg.html">augment.survreg</a>()</code>,
+<code><a href="tidy.survreg.html">tidy.survreg</a>()</code>
+</p>
+<p>Other survival tidiers: 
+<code><a href="augment.coxph.html">augment.coxph</a>()</code>,
+<code><a href="augment.survreg.html">augment.survreg</a>()</code>,
+<code><a href="glance.aareg.html">glance.aareg</a>()</code>,
+<code><a href="glance.cch.html">glance.cch</a>()</code>,
+<code><a href="glance.coxph.html">glance.coxph</a>()</code>,
+<code><a href="glance.pyears.html">glance.pyears</a>()</code>,
+<code><a href="glance.survdiff.html">glance.survdiff</a>()</code>,
+<code><a href="glance.survexp.html">glance.survexp</a>()</code>,
+<code><a href="glance.survfit.html">glance.survfit</a>()</code>,
+<code><a href="tidy.aareg.html">tidy.aareg</a>()</code>,
+<code><a href="tidy.cch.html">tidy.cch</a>()</code>,
+<code><a href="tidy.coxph.html">tidy.coxph</a>()</code>,
+<code><a href="tidy.pyears.html">tidy.pyears</a>()</code>,
+<code><a href="tidy.survdiff.html">tidy.survdiff</a>()</code>,
+<code><a href="tidy.survexp.html">tidy.survexp</a>()</code>,
+<code><a href="tidy.survfit.html">tidy.survfit</a>()</code>,
+<code><a href="tidy.survreg.html">tidy.survreg</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+if (requireNamespace("survival", quietly = TRUE)) {
+
+library(survival)
+
+sr &lt;- survreg(
+  Surv(futime, fustat) ~ ecog.ps + rx,
+  ovarian,
+  dist = "exponential"
+)
+
+tidy(sr)
+augment(sr, ovarian)
+glance(sr)
+
+# coefficient plot
+td &lt;- tidy(sr, conf.int = TRUE)
+library(ggplot2)
+ggplot(td, aes(estimate, term)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0) +
+  geom_vline(xintercept = 0)
+  
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

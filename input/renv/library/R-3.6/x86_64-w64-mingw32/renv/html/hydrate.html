@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Hydrate a Project</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hydrate {renv}"><tr><td>hydrate {renv}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Hydrate a Project</h2>
+
+<h3>Description</h3>
+
+<p>Discover the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages used within a project, and then install those
+packages into the active library. This effectively allows you to clone the
+state of your system R libraries for use within a project library.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+hydrate(packages = NULL, ..., library = NULL, project = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>packages</code></td>
+<td>
+<p>The set of <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages to install. When <code>NULL</code>, the
+set of packages as reported by <code><a href="dependencies.html">dependencies()</a></code> is used.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional arguments; reserved for future expansion.</p>
+</td></tr>
+<tr valign="top"><td><code>library</code></td>
+<td>
+<p>The <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> library to be hydrated. When <code>NULL</code>, the active
+library as reported by <code>.libPaths()</code> is used.</p>
+</td></tr>
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>The project directory. If <code>NULL</code>, then the active project will
+be used. If no project is currently active, then the current working
+directory is used instead.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>hydrate()</code> attempts to re-use packages already installed on your system,
+to avoid unnecessary attempts to download and install packages from remote
+sources. <code>hydrate()</code> will attempt to discover <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages from the
+following sources (in order):
+</p>
+
+<ul>
+<li><p> The user library,
+</p>
+</li>
+<li><p> The site library,
+</p>
+</li>
+<li><p> The system library,
+</p>
+</li>
+<li><p> The <code>renv</code> cache.
+</p>
+</li></ul>
+
+<p>If package is discovered in one of these locations, <code>renv</code> will attempt to
+copy or link that package into the requested library as appropriate.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A named <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> list, giving the packages that were used for hydration
+as well as the set of packages which were not found.
+</p>
+
+
+<h3>Missing Packages</h3>
+
+<p>If <code>renv</code> discovers that your project depends on <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> packages not currently
+installed in your user library, then it will attempt to install those
+packages from the active R repositories.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# hydrate the active library
+renv::hydrate()
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>renv</em> version 0.9.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

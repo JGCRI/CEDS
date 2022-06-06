@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format Strings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_sprintf {stringi}"><tr><td>stri_sprintf {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format Strings</h2>
+
+<h3>Description</h3>
+
+<p><code>stri_sprintf</code> (synonym: <code>stri_string_format</code>)
+is a Unicode-aware replacement for and enhancement of
+the built-in <code><a href="../../base/html/sprintf.html">sprintf</a></code> function.
+Moreover, <code>stri_printf</code> prints formatted strings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_sprintf(
+  format,
+  ...,
+  na_string = NA_character_,
+  inf_string = "Inf",
+  nan_string = "NaN",
+  use_length = FALSE
+)
+
+stri_string_format(
+  format,
+  ...,
+  na_string = NA_character_,
+  inf_string = "Inf",
+  nan_string = "NaN",
+  use_length = FALSE
+)
+
+stri_printf(
+  format,
+  ...,
+  file = "",
+  sep = "\n",
+  append = FALSE,
+  na_string = "NA",
+  inf_string = "Inf",
+  nan_string = "NaN",
+  use_length = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>character vector of format strings</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>vectors (coercible to integer, real, or character)</p>
+</td></tr>
+<tr valign="top"><td><code>na_string</code></td>
+<td>
+<p>single string to represent missing values;
+if <code>NA</code>, missing values in <code>...</code>
+result in the corresponding outputs be missing too;
+use <code>"NA"</code> for compatibility with base R</p>
+</td></tr>
+<tr valign="top"><td><code>inf_string</code></td>
+<td>
+<p>single string to represent the (unsigned) infinity (<code>NA</code> allowed)</p>
+</td></tr>
+<tr valign="top"><td><code>nan_string</code></td>
+<td>
+<p>single string to represent the not-a-number (<code>NA</code> allowed)</p>
+</td></tr>
+<tr valign="top"><td><code>use_length</code></td>
+<td>
+<p>single logical value; should the number of code
+points be used when applying modifiers such as <code>%20s</code>
+instead of the total code point width?</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>see <code><a href="../../base/html/cat.html">cat</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>see <code><a href="../../base/html/cat.html">cat</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>append</code></td>
+<td>
+<p>see <code><a href="../../base/html/cat.html">cat</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>format</code> and all vectors passed via <code>...</code>.
+</p>
+<p>Unicode code points may have various widths when
+printed on the console (compare <code><a href="stri_width.html">stri_width</a></code>).
+These functions, by default (see the <code>use_length</code> argument), take this
+into account.
+</p>
+<p>These functions are not locale sensitive. For instance, numbers are
+always formatted in the &quot;POSIX&quot; style, e.g., <code>-123456.789</code>
+(no thousands separator, dot as a fractional separator).
+Such a feature might be added at a later date, though.
+</p>
+<p>All arguments passed via <code>...</code> are evaluated. If some of them
+are unused, a warning is generated. Too few arguments result in an error.
+</p>
+<p>Note that <code>stri_printf</code> treats missing values in <code>...</code>
+as <code>"NA"</code> strings by default.
+</p>
+<p>All format specifiers supported <code><a href="../../base/html/sprintf.html">sprintf</a></code> are
+also available here. For the formatting of integers and floating-point
+values, currently the system <code>std::snprintf()</code> is called, but
+this may change in the future. Format specifiers are normalized
+and necessary sanity checks are performed.
+</p>
+<p>Supported conversion specifiers: <code>dioxX</code> (integers)
+<code>feEgGaA</code> (floats) and <code>s</code> (character strings).
+Supported flags: <code>-</code> (left-align),
+<code>+</code> (force output sign or blank when <code>NaN</code> or <code>NA</code>; numeric only),
+<code>&lt;space&gt;</code> (output minus or space for a sign; numeric only)
+<code>0</code> (pad with 0s; numeric only),
+<code>#</code> (alternative output of some numerics).
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>stri_printf</code> is used for its side effect, which is printing
+text on the standard output or other connection/file. Hence, it returns
+<code>invisible(NULL)</code>.
+</p>
+<p>The other functions return a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>References</h3>
+
+<p><code>printf</code> in <code>glibc</code>,
+<a href="https://man.archlinux.org/man/printf.3">https://man.archlinux.org/man/printf.3</a>
+</p>
+<p><code>printf</code> format strings &ndash; Wikipedia,
+<a href="https://en.wikipedia.org/wiki/Printf_format_string">https://en.wikipedia.org/wiki/Printf_format_string</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other length: 
+<code><a href="operator_dollar.html">%s$%</a>()</code>,
+<code><a href="stri_isempty.html">stri_isempty</a>()</code>,
+<code><a href="stri_length.html">stri_length</a>()</code>,
+<code><a href="stri_numbytes.html">stri_numbytes</a>()</code>,
+<code><a href="stri_pad.html">stri_pad_both</a>()</code>,
+<code><a href="stri_width.html">stri_width</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_printf("%4s=%.3f", c("e", "e\u00b2", "\u03c0", "\u03c0\u00b2"),
+    c(exp(1), exp(2), pi, pi^2))
+
+x &lt;- c(
+  "xxabcd",
+  "xx\u0105\u0106\u0107\u0108",
+  stri_paste(
+    "\u200b\u200b\u200b\u200b",
+    "\U0001F3F4\U000E0067\U000E0062\U000E0073\U000E0063\U000E0074\U000E007F",
+    "abcd"
+  ))
+stri_printf("[%10s]", x)  # minimum width = 10
+stri_printf("[%-10.3s]", x)  # output of max width = 3, but pad to width of 10
+stri_printf("[%10s]", x, use_length=TRUE)  # minimum number of Unicode code points = 10
+
+# vectorization wrt all arguments:
+p &lt;- runif(10)
+stri_sprintf(ifelse(p &gt; 0.5, "P(Y=1)=%1$.2f", "P(Y=0)=%2$.2f"), p, 1-p)
+
+# using a "preformatted" logical vector:
+x &lt;- c(TRUE, FALSE, FALSE, NA, TRUE, FALSE)
+stri_sprintf("%s) %s", letters[seq_along(x)], c("\u2718", "\u2713")[x+1])
+
+# custom NA/Inf/NaN strings:
+stri_printf("%+10.3f", c(-Inf, -0, 0, Inf, NaN, NA_real_),
+    na_string="&lt;NA&gt;", nan_string="\U0001F4A9", inf_string="\u221E")
+
+stri_sprintf("UNIX time %1$f is %1$s.", Sys.time())
+
+# the following do not work in sprintf()
+stri_sprintf("%1$#- *2$.*3$f", 1.23456, 10, 3)  # two asterisks
+stri_sprintf(c("%s", "%f"), pi)  # re-coercion needed
+stri_sprintf("%1$s is %1$f UNIX time.", Sys.time())  # re-coercion needed
+stri_sprintf(c("%d", "%s"), factor(11:12))  # re-coercion needed
+stri_sprintf(c("%s", "%d"), factor(11:12))  # re-coercion needed
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

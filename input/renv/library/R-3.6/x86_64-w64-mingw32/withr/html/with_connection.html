@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Connections which close themselves</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_connection {withr}"><tr><td>with_connection {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Connections which close themselves</h2>
+
+<h3>Description</h3>
+
+<p>R file connections which are automatically closed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_connection(con, code)
+
+local_connection(con, .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>con</code></td>
+<td>
+<p>For <code>with_connection()</code> a named list with the connection(s) to
+create. For <code>local_connection()</code> the code to create a single connection,
+which is then returned.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+with_connection(list(con = file("foo", "w")), {
+  writeLines(c("foo", "bar"), con)
+})
+
+read_foo &lt;- function() {
+  readLines(local_connection(file("foo", "r")))
+}
+read_foo()
+
+unlink("foo")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

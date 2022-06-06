@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List Files in a 'zip' Archive</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for zip_list {zip}"><tr><td>zip_list {zip}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List Files in a 'zip' Archive</h2>
+
+<h3>Description</h3>
+
+<p>List Files in a 'zip' Archive
+</p>
+<link rel="stylesheet" type="text/css" href="../doc/assets/extra.css">
+<script src="../doc/assets/rd.js"></script>
+
+
+<h3>Usage</h3>
+
+<pre>
+zip_list(zipfile)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>zipfile</code></td>
+<td>
+<p>Path to an existing ZIP file.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that <code>crc32</code> is formatted using <code>as.hexmode()</code>. <code>offset</code> refers
+to the start of the local zip header for each entry. Following the approach
+of <code>seek()</code> it is stored as a <code>numeric</code> rather than an <code>integer</code> vector and
+can therefore represent values up to <code>2^53-1</code> (9 PB).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A data frame with columns: <code>filename</code>, <code>compressed_size</code>,
+<code>uncompressed_size</code>, <code>timestamp</code>, <code>permissions</code>, <code>crc32</code> and <code>offset</code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>zip</em> version 2.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

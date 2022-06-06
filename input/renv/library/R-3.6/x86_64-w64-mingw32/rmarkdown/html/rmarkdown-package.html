@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: R Markdown Document Conversion</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rmarkdown-package {rmarkdown}"><tr><td>rmarkdown-package {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>R Markdown Document Conversion</h2>
+
+<h3>Description</h3>
+
+<p>Convert R Markdown documents into a variety of formats including HTML,
+MS Word, PDF, and Beamer.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The <span class="pkg">rmarkdown</span> package includes high level functions for
+converting to a variety of formats. For example:
+</p>
+<pre>
+render("input.Rmd", html_document())
+render("input.Rmd", pdf_document())
+</pre>
+<p>You can also specify a plain markdown file in which case knitting will be
+bypassed:
+</p>
+<pre>render("input.md", html_document())</pre>
+<p>Additional options can be specified along with the output format:
+</p>
+<pre>render("input.Rmd", html_document(toc = TRUE))
+render("input.Rmd", pdf_document(latex_engine = "lualatex"))
+render("input.Rmd", beamer_presentation(incremental = TRUE))
+</pre>
+<p>You can also include arbitrary pandoc command line arguments along with the
+other options:
+</p>
+<pre>
+render("input.Rmd", pdf_document(toc = TRUE, pandoc_args = "--listings"))
+</pre>
+
+
+<h3>See Also</h3>
+
+<p><a href="render.html">render</a>, <a href="html_document.html">html_document</a>, <a href="pdf_document.html">pdf_document</a>,
+<a href="word_document.html">word_document</a>, <a href="beamer_presentation.html">beamer_presentation</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

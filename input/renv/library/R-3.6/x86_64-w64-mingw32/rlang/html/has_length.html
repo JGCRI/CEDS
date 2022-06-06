@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: How long is an object?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for has_length {rlang}"><tr><td>has_length {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>How long is an object?</h2>
+
+<h3>Description</h3>
+
+<p>This is a function for the common task of testing the length of an
+object. It checks the length of an object in a non-generic way:
+<code><a href="../../base/html/length.html">base::length()</a></code> methods are ignored.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+has_length(x, n = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A R object.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>A specific length to test <code>x</code> with. If <code>NULL</code>,
+<code>has_length()</code> returns <code>TRUE</code> if <code>x</code> has length greater than
+zero, and <code>FALSE</code> otherwise.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+has_length(list())
+has_length(list(), 0)
+
+has_length(letters)
+has_length(letters, 20)
+has_length(letters, 26)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

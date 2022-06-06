@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Collation Order</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_collate {withr}"><tr><td>with_collate {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Collation Order</h2>
+
+<h3>Description</h3>
+
+<p>Temporarily change collation order by changing the value of the
+<code>LC_COLLATE</code> locale.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_collate(new, code)
+
+local_collate(new = list(), .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> New collation order</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Modify collation order:
+x &lt;- c("bernard", "bérénice", "béatrice", "boris")
+with_collate("fr_FR", sort(x))
+with_collate("C", sort(x))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

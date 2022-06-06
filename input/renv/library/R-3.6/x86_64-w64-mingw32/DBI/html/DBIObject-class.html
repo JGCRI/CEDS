@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: DBIObject class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for DBIObject-class {DBI}"><tr><td>DBIObject-class {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>DBIObject class</h2>
+
+<h3>Description</h3>
+
+<p>Base class for all other DBI classes (e.g., drivers, connections). This
+is a virtual Class: No objects may be created from it.
+</p>
+
+
+<h3>Details</h3>
+
+<p>More generally, the DBI defines a very small set of classes and generics that
+allows users and applications access DBMS with a common interface.  The
+virtual classes are <code>DBIDriver</code> that individual drivers extend,
+<code>DBIConnection</code> that represent instances of DBMS connections, and
+<code>DBIResult</code> that represent the result of a DBMS statement.  These three
+classes extend the basic class of <code>DBIObject</code>, which serves as the root
+or parent of the class hierarchy.
+</p>
+
+
+<h3>Implementation notes</h3>
+
+<p>An implementation MUST provide methods for the following generics:
+</p>
+
+<ul>
+<li> <p><code><a href="dbGetInfo.html">dbGetInfo()</a></code>.
+</p>
+</li></ul>
+
+<p>It MAY also provide methods for:
+</p>
+
+<ul>
+<li> <p><code><a href="../../base/html/summary.html">summary()</a></code>. Print a concise description of the
+object. The default method invokes <code>dbGetInfo(dbObj)</code> and prints
+the name-value pairs one per line.  Individual implementations may
+tailor this appropriately.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p>Other DBI classes: 
+<code><a href="DBIConnection-class.html">DBIConnection-class</a></code>,
+<code><a href="DBIConnector-class.html">DBIConnector-class</a></code>,
+<code><a href="DBIDriver-class.html">DBIDriver-class</a></code>,
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+drv &lt;- RSQLite::SQLite()
+con &lt;- dbConnect(drv)
+
+rs &lt;- dbSendQuery(con, "SELECT 1")
+is(drv, "DBIObject")   ## True
+is(con, "DBIObject")   ## True
+is(rs, "DBIObject")
+
+dbClearResult(rs)
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a weak reference</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_weakref {rlang}"><tr><td>new_weakref {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a weak reference</h2>
+
+<h3>Description</h3>
+
+<p>A weak reference is a special R object which makes it possible to keep a
+reference to an object without preventing garbage collection of that object.
+It can also be used to keep data about an object without preventing GC of the
+object, similar to WeakMaps in JavaScript.
+</p>
+<p>Objects in R are considered <em>reachable</em> if they can be accessed by following
+a chain of references, starting from a <em>root node</em>; root nodes are
+specially-designated R objects, and include the global environment and base
+environment. As long as the key is reachable, the value will not be garbage
+collected. This is true even if the weak reference object becomes
+unreachable. The key effectively prevents the weak reference and its value
+from being collected, according to the following chain of ownership:
+<code>weakref &lt;- key -&gt; value</code>.
+</p>
+<p>When the key becomes unreachable, the key and value in the weak reference
+object are replaced by <code>NULL</code>, and the finalizer is scheduled to execute.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_weakref(key, value = NULL, finalizer = NULL, on_quit = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>key</code></td>
+<td>
+<p>The key for the weak reference. Must be a reference object &ndash; that
+is, an environment or external pointer.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The value for the weak reference. This can be <code>NULL</code>, if you
+want to use the weak reference like a weak pointer.</p>
+</td></tr>
+<tr valign="top"><td><code>finalizer</code></td>
+<td>
+<p>A function that is run after the key becomes unreachable.</p>
+</td></tr>
+<tr valign="top"><td><code>on_quit</code></td>
+<td>
+<p>Should the finalizer be run when R exits?</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="is_weakref.html">is_weakref()</a></code>, <code><a href="wref_key.html">wref_key()</a></code> and <code><a href="wref_key.html">wref_value()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+e &lt;- env()
+
+# Create a weak reference to e
+w &lt;- new_weakref(e, finalizer = function(e) message("finalized"))
+
+# Get the key object from the weak reference
+identical(wref_key(w), e)
+
+# When the regular reference (the `e` binding) is removed and a GC occurs,
+# the weak reference will not keep the object alive.
+rm(e)
+gc()
+identical(wref_key(w), NULL)
+
+
+# A weak reference with a key and value. The value contains data about the
+# key.
+k &lt;- env()
+v &lt;- list(1, 2, 3)
+w &lt;- new_weakref(k, v)
+
+identical(wref_key(w), k)
+identical(wref_value(w), v)
+
+# When v is removed, the weak ref keeps it alive because k is still reachable.
+rm(v)
+gc()
+identical(wref_value(w), list(1, 2, 3))
+
+# When k is removed, the weak ref does not keep k or v alive.
+rm(k)
+gc()
+identical(wref_key(w), NULL)
+identical(wref_value(w), NULL)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

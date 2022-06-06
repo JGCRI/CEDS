@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Exposition pipe</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for %$% {magrittr}"><tr><td>%$% {magrittr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Exposition pipe</h2>
+
+<h3>Description</h3>
+
+<p>Expose the names in <code>lhs</code> to the <code>rhs</code> expression. This is useful when functions
+do not have a built-in data argument.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+lhs %$% rhs
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs</code></td>
+<td>
+<p>A list, environment, or a data.frame.</p>
+</td></tr>
+<tr valign="top"><td><code>rhs</code></td>
+<td>
+<p>An expression where the names in lhs is available.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Some functions, e.g. <code>lm</code> and <code>aggregate</code>, have a
+data argument, which allows the direct use of names inside the data as part
+of the call. This operator exposes the contents of the left-hand side object
+to the expression on the right to give a similar benefit, see the examples.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pipe.html">%&gt;%</a></code>, <code><a href="compound.html">%&lt;&gt;%</a></code>, <code><a href="tee.html">%T&gt;%</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+iris %&gt;%
+  subset(Sepal.Length &gt; mean(Sepal.Length)) %$%
+  cor(Sepal.Length, Sepal.Width)
+  
+data.frame(z = rnorm(100)) %$% 
+  ts.plot(z)
+  
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>magrittr</em> version 2.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

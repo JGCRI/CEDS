@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Name injection with '&quot;{&quot;' and '&quot;{{&quot;'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for glue-operators {rlang}"><tr><td>glue-operators {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Name injection with <code>"{"</code> and <code>"{{"</code></h2>
+
+<h3>Description</h3>
+
+<p><a href="dyn-dots.html">Dynamic dots</a> (and <a href="topic-data-mask.html">data-masked</a> dots which are dynamic by default) have built-in support for names interpolation with the <a href="https://glue.tidyverse.org/">glue package</a>.<div class="sourceCode r"></p>
+<pre>tibble::tibble(foo = 1)
+#&gt; # A tibble: 1 x 1
+#&gt;     foo
+#&gt;   &lt;dbl&gt;
+#&gt; 1     1
+
+foo &lt;- "name"
+tibble::tibble("{foo}" := 1)
+#&gt; # A tibble: 1 x 1
+#&gt;    name
+#&gt;   &lt;dbl&gt;
+#&gt; 1     1
+</pre></div>
+<p>Inside functions, embracing an argument with <code><a href="embrace-operator.html">{{</a></code> inserts the expression supplied as argument in the string. This gives an indication on the variable or computation supplied as argument:<div class="sourceCode r"></p>
+<pre>tib &lt;- function(x) {
+  tibble::tibble("var: {{ x }}" := x)
+}
+
+tib(1 + 1)
+#&gt; # A tibble: 1 x 1
+#&gt;   `var: 1 + 1`
+#&gt;          &lt;dbl&gt;
+#&gt; 1            2
+</pre></div>
+<p>See also <code><a href="englue.html">englue()</a></code> to string-embrace outside of dynamic dots.<div class="sourceCode r"></p>
+<pre>g &lt;- function(x) {
+  englue("var: {{ x }}")
+}
+
+g(1 + 1)
+#&gt; [1] "var: 1 + 1"
+</pre></div>
+<p>Technically, <code style="white-space: pre;">"{{"</code> <a href="topic-defuse.html">defuses</a> a function argument, calls <code><a href="as_label.html">as_label()</a></code> on the expression supplied as argument, and inserts the result in the string.
+</p>
+
+
+<h4><code style="white-space: pre;">"{"</code> and <code style="white-space: pre;">"{{"</code></h4>
+
+<p>While <code>glue::glue()</code> only supports <code style="white-space: pre;">"{"</code>, dynamic dots support both <code style="white-space: pre;">"{"</code> and <code style="white-space: pre;">"{{"</code>. The double brace variant is similar to the embrace operator <code><a href="embrace-operator.html">{{</a></code> available in <a href="topic-data-mask.html">data-masked</a> arguments.
+</p>
+<p>In the following example, the embrace operator is used in a glue string to name the result with a default name that represents the expression supplied as argument:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  data %&gt;% dplyr::summarise("{{ var }}" := mean({{ var }}))
+}
+
+mtcars %&gt;% my_mean(cyl)
+#&gt; # A tibble: 1 x 1
+#&gt;     cyl
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+
+mtcars %&gt;% my_mean(cyl * am)
+#&gt; # A tibble: 1 x 1
+#&gt;   `cyl * am`
+#&gt;        &lt;dbl&gt;
+#&gt; 1       2.06
+</pre></div>
+<p><code style="white-space: pre;">"{{"</code> is only meant for inserting an expression supplied as argument to a function. The result of the expression is not inspected or used. To interpolate a string stored in a variable, use the regular glue operator <code style="white-space: pre;">"{"</code> instead:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var, name = "mean") {
+  data %&gt;% dplyr::summarise("{name}" := mean({{ var }}))
+}
+
+mtcars %&gt;% my_mean(cyl)
+#&gt; # A tibble: 1 x 1
+#&gt;    mean
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+
+mtcars %&gt;% my_mean(cyl, name = "cyl")
+#&gt; # A tibble: 1 x 1
+#&gt;     cyl
+#&gt;   &lt;dbl&gt;
+#&gt; 1  6.19
+</pre></div>
+<p>Using the wrong operator causes unexpected results:<div class="sourceCode r"></p>
+<pre>x &lt;- "name"
+
+list2("{{ x }}" := 1)
+#&gt; $`"name"`
+#&gt; [1] 1
+
+list2("{x}" := 1)
+#&gt; $name
+#&gt; [1] 1
+</pre></div>
+<p>Ideally, using <code style="white-space: pre;">{{</code> on regular objects would be an error. However for technical reasons it is not possible to make a distinction between function arguments and ordinary variables. See <a href="topic-embrace-non-args.html">Does {{ work on regular objects?</a> for more information about this limitation.
+</p>
+
+
+
+<h4>Allow overriding default names</h4>
+
+<p>The implementation of <code>my_mean()</code> in the previous section forces a default name onto the result. But what if the caller wants to give it a different name? In functions that take dots, it is possible to just supply a named expression to override the default. In a function like <code>my_mean()</code> that takes a named argument we need a different approach.
+</p>
+<p>This is where <code><a href="englue.html">englue()</a></code> becomes useful. We can pull out the default name creation in another user-facing argument like this:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var, name = englue("{{ var }}")) {
+  data %&gt;% dplyr::summarise("{name}" := mean({{ var }}))
+}
+</pre></div>
+<p>Now the user may supply their own name if needed:<div class="sourceCode r"></p>
+<pre>mtcars %&gt;% my_mean(cyl * am)
+#&gt; # A tibble: 1 x 1
+#&gt;   `cyl * am`
+#&gt;        &lt;dbl&gt;
+#&gt; 1       2.06
+
+mtcars %&gt;% my_mean(cyl * am, name = "mean_cyl_am")
+#&gt; # A tibble: 1 x 1
+#&gt;   mean_cyl_am
+#&gt;         &lt;dbl&gt;
+#&gt; 1        2.06
+</pre></div>
+
+
+
+<h4>What's the deal with <code style="white-space: pre;">:=</code>?</h4>
+
+<p>Name injection in dynamic dots was originally implemented with <code style="white-space: pre;">:=</code> instead of <code>=</code> to allow complex expressions on the LHS:<div class="sourceCode r"></p>
+<pre>x &lt;- "name"
+list2(!!x := 1)
+#&gt; $name
+#&gt; [1] 1
+</pre></div>
+<p>Name-injection with glue operations was an extension of this existing feature and so inherited the same interface. However, there is no technical barrier to using glue strings on the LHS of <code>=</code>.
+</p>
+<p>As we are now moving away from <code><a href="injection-operator.html">!!</a></code> for common tasks, we are considering enabling glue strings with <code>=</code> and superseding <code style="white-space: pre;">:=</code> usage. Track the progress of this change in <a href="https://github.com/r-lib/rlang/issues/1296">issue 1296</a>.
+</p>
+
+
+
+<h4>Using glue syntax in packages</h4>
+
+<p>Since rlang does not depend directly on glue, you will have to ensure that glue is installed by adding it to your <code style="white-space: pre;">Imports:</code> section.<div class="sourceCode r"></p>
+<pre>usethis::use_package("glue", "Imports")
+</pre></div>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

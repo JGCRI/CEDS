@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Pivot data from long to wide</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pivot_wider.dtplyr_step {dtplyr}"><tr><td>pivot_wider.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Pivot data from long to wide</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the tidyr <code>pivot_wider()</code> generic. It is translated to
+<code><a href="../../data.table/html/dcast.data.table.html">data.table::dcast()</a></code>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+pivot_wider(
+  data,
+  id_cols = NULL,
+  names_from = name,
+  names_prefix = "",
+  names_sep = "_",
+  names_glue = NULL,
+  names_sort = FALSE,
+  names_repair = "check_unique",
+  values_from = value,
+  values_fill = NULL,
+  values_fn = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>id_cols</code></td>
+<td>
+<p>&lt;<code><a href="../../tidyr/html/tidyr_tidy_select.html">tidy-select</a></code>&gt; A set of columns that
+uniquely identifies each observation. Defaults to all columns in <code>data</code>
+except for the columns specified in <code>names_from</code> and <code>values_from</code>.
+Typically used when you have redundant variables, i.e. variables whose
+values are perfectly correlated with existing variables.</p>
+</td></tr>
+<tr valign="top"><td><code>names_from</code></td>
+<td>
+<p>&lt;<code><a href="../../tidyr/html/tidyr_tidy_select.html">tidy-select</a></code>&gt; A pair of
+arguments describing which column (or columns) to get the name of the
+output column (<code>names_from</code>), and which column (or columns) to get the
+cell values from (<code>values_from</code>).
+</p>
+<p>If <code>values_from</code> contains multiple values, the value will be added to the
+front of the output column.</p>
+</td></tr>
+<tr valign="top"><td><code>names_prefix</code></td>
+<td>
+<p>String added to the start of every variable name. This is
+particularly useful if <code>names_from</code> is a numeric vector and you want to
+create syntactic variable names.</p>
+</td></tr>
+<tr valign="top"><td><code>names_sep</code></td>
+<td>
+<p>If <code>names_from</code> or <code>values_from</code> contains multiple
+variables, this will be used to join their values together into a single
+string to use as a column name.</p>
+</td></tr>
+<tr valign="top"><td><code>names_glue</code></td>
+<td>
+<p>Instead of <code>names_sep</code> and <code>names_prefix</code>, you can supply
+a glue specification that uses the <code>names_from</code> columns (and special
+<code>.value</code>) to create custom column names.</p>
+</td></tr>
+<tr valign="top"><td><code>names_sort</code></td>
+<td>
+<p>Should the column names be sorted? If <code>FALSE</code>, the default,
+column names are ordered by first appearance.</p>
+</td></tr>
+<tr valign="top"><td><code>names_repair</code></td>
+<td>
+<p>What happens if the output has invalid column names?
+The default, <code>"check_unique"</code> is to error if the columns are duplicated.
+Use <code>"minimal"</code> to allow duplicates in the output, or <code>"unique"</code> to
+de-duplicated by adding numeric suffixes. See <code><a href="../../vctrs/html/vec_as_names.html">vctrs::vec_as_names()</a></code>
+for more options.</p>
+</td></tr>
+<tr valign="top"><td><code>values_from</code></td>
+<td>
+<p>&lt;<code><a href="../../tidyr/html/tidyr_tidy_select.html">tidy-select</a></code>&gt; A pair of
+arguments describing which column (or columns) to get the name of the
+output column (<code>names_from</code>), and which column (or columns) to get the
+cell values from (<code>values_from</code>).
+</p>
+<p>If <code>values_from</code> contains multiple values, the value will be added to the
+front of the output column.</p>
+</td></tr>
+<tr valign="top"><td><code>values_fill</code></td>
+<td>
+<p>Optionally, a (scalar) value that specifies what each
+<code>value</code> should be filled in with when missing.
+</p>
+<p>This can be a named list if you want to apply different aggregations
+to different value columns.</p>
+</td></tr>
+<tr valign="top"><td><code>values_fn</code></td>
+<td>
+<p>A function, the default is <code>length()</code>. Note this is different
+behavior than <code>tidyr::pivot_wider()</code>, which returns a list column by default.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed on to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(tidyr)
+
+fish_encounters_dt &lt;- lazy_dt(fish_encounters)
+fish_encounters_dt
+fish_encounters_dt %&gt;%
+  pivot_wider(names_from = station, values_from = seen)
+# Fill in missing values
+fish_encounters_dt %&gt;%
+  pivot_wider(names_from = station, values_from = seen, values_fill = 0)
+
+# Generate column names from multiple variables
+us_rent_income_dt &lt;- lazy_dt(us_rent_income)
+us_rent_income_dt
+us_rent_income_dt %&gt;%
+  pivot_wider(names_from = variable, values_from = c(estimate, moe))
+
+# When there are multiple `names_from` or `values_from`, you can use
+# use `names_sep` or `names_glue` to control the output variable names
+us_rent_income_dt %&gt;%
+  pivot_wider(
+    names_from = variable,
+    names_sep = ".",
+    values_from = c(estimate, moe)
+  )
+
+# Can perform aggregation with values_fn
+warpbreaks_dt &lt;- lazy_dt(as_tibble(warpbreaks[c("wool", "tension", "breaks")]))
+warpbreaks_dt
+warpbreaks_dt %&gt;%
+  pivot_wider(
+    names_from = wool,
+    values_from = breaks,
+    values_fn = mean
+  )
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

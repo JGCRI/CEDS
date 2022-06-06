@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compile Rcpp Attributes for a Package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for compileAttributes {Rcpp}"><tr><td>compileAttributes {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Compile Rcpp Attributes for a Package
+</h2>
+
+<h3>Description</h3>
+
+<p>Scan the source files within a package for attributes and generate code as required. Generates the bindings required to call C++ functions from R for functions adorned with the <code>Rcpp::export</code> attribute.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+compileAttributes(pkgdir = ".", verbose = getOption("verbose"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pkgdir</code></td>
+<td>
+
+<p>Directory containing the package to compile attributes for (defaults to the current working directory).
+</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+
+<p><code>TRUE</code> to print detailed information about generated code to the console.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The source files in the package directory given by <code>pkgdir</code> are scanned for attributes and code is generated as required based on the attributes. 
+</p>
+<p>For C++ functions adorned with the <code>Rcpp::export</code> attribute, the C++ and R source code required to bind to the function from R is generated and added (respectively) to <code>src/RcppExports.cpp</code> or <code>R/RcppExports.R</code>. Both of these files are automatically generated from <em>scratch</em> each time <code>compiledAttributes</code> is run.
+</p>
+<p>In order to access the declarations for custom <code>Rcpp::as</code> and <code>Rcpp::wrap</code> handlers the <code>compileAttributes</code> function will also call any <a href="../../inline/html/plugins.html">inline plugins</a> available for packages listed in the <code>LinkingTo</code> field of the <code>DESCRIPTION</code> file.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns (invisibly) a character vector with the paths to any files that were updated as a result of the call.
+</p>
+
+
+<h3>Note</h3>
+
+<p>The <code>compileAttributes</code> function deals only with exporting C++ functions to R. If you want the functions to additionally be publicly available from your package's namespace another step may be required. Specifically, if your package <code>NAMESPACE</code> file does not use a pattern to export functions then you should add an explicit entry to <code>NAMESPACE</code> for each R function you want publicly available.
+</p>
+<p>In addition to exporting R bindings for C++ functions, the <code>compileAttributes</code> function can also generate a direct C++ interface to the functions using the <code><a href="interfacesAttribute.html">Rcpp::interfaces</a></code> attribute.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="exportAttribute.html">Rcpp::export</a></code>, <code><a href="interfacesAttribute.html">Rcpp::interfaces</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+
+# Compile attributes for package in the current working dir
+compileAttributes()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

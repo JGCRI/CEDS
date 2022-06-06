@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tufte handout format (PDF)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tufte_handout {rmarkdown}"><tr><td>tufte_handout {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tufte handout format (PDF)</h2>
+
+<h3>Description</h3>
+
+<p>This function has been moved to the <span class="pkg">tufte</span> package. Please use
+<code>tufte::tufte_handout</code> instead. See the
+<a href="https://bookdown.org/yihui/rmarkdown/tufte-handouts.html">online
+documentation</a> for additional details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tufte_handout(
+  fig_width = 4,
+  fig_height = 2.5,
+  fig_crop = TRUE,
+  dev = "pdf",
+  highlight = "default",
+  keep_tex = FALSE,
+  citation_package = c("default", "natbib", "biblatex"),
+  includes = NULL,
+  md_extensions = NULL,
+  pandoc_args = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fig_width</code></td>
+<td>
+<p>Default width (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_height</code></td>
+<td>
+<p>Default height (in inches) for figures</p>
+</td></tr>
+<tr valign="top"><td><code>fig_crop</code></td>
+<td>
+<p>Whether to crop PDF figures with the command
+<code>pdfcrop</code>. This requires the tools <code>pdfcrop</code> and
+<code>ghostscript</code> to be installed. By default, <code>fig_crop = TRUE</code>
+if these two tools are available.</p>
+</td></tr>
+<tr valign="top"><td><code>dev</code></td>
+<td>
+<p>Graphics device to use for figure output (defaults to pdf)</p>
+</td></tr>
+<tr valign="top"><td><code>highlight</code></td>
+<td>
+<p>Syntax highlighting style. Supported styles include
+&quot;default&quot;, &quot;tango&quot;, &quot;pygments&quot;, &quot;kate&quot;, &quot;monochrome&quot;, &quot;espresso&quot;,
+&quot;zenburn&quot;, and &quot;haddock&quot;. Pass <code>NULL</code> to prevent syntax highlighting.</p>
+</td></tr>
+<tr valign="top"><td><code>keep_tex</code></td>
+<td>
+<p>Keep the intermediate tex file used in the conversion to PDF</p>
+</td></tr>
+<tr valign="top"><td><code>citation_package</code></td>
+<td>
+<p>The LaTeX package to process citations, <code>natbib</code>
+or <code>biblatex</code>. Use <code>default</code> if neither package is to be used,
+which means citations will be processed via the command
+<code>pandoc-citeproc</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>includes</code></td>
+<td>
+<p>Named list of additional content to include within the
+document (typically created using the <code><a href="includes.html">includes</a></code> function).</p>
+</td></tr>
+<tr valign="top"><td><code>md_extensions</code></td>
+<td>
+<p>Markdown extensions to be added or removed from the
+default definition or R Markdown. See the <code><a href="rmarkdown_format.html">rmarkdown_format</a></code> for
+additional details.</p>
+</td></tr>
+<tr valign="top"><td><code>pandoc_args</code></td>
+<td>
+<p>Additional command line options to pass to pandoc</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

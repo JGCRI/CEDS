@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Encode and decode base64</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for base64_encode {openssl}"><tr><td>base64_encode {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Encode and decode base64</h2>
+
+<h3>Description</h3>
+
+<p>Encode and decode binary data into a base64 string. Character vectors are
+automatically collapsed into a single string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+base64_encode(bin, linebreaks = FALSE)
+
+base64_decode(text)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bin</code></td>
+<td>
+<p>raw or character vector with data to encode into base64</p>
+</td></tr>
+<tr valign="top"><td><code>linebreaks</code></td>
+<td>
+<p>insert linebreaks in the base64 message to make it more readable</p>
+</td></tr>
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>string with base64 data to decode</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+input &lt;- charToRaw("foo = bar + 5")
+message &lt;- base64_encode(input)
+output &lt;- base64_decode(message)
+identical(output, input)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

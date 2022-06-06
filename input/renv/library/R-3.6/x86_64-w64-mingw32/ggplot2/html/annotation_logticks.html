@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Annotation: log tick marks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for annotation_logticks {ggplot2}"><tr><td>annotation_logticks {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Annotation: log tick marks</h2>
+
+<h3>Description</h3>
+
+<p>This annotation adds log tick marks with diminishing spacing.
+These tick marks probably make sense only for base 10.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+annotation_logticks(
+  base = 10,
+  sides = "bl",
+  outside = FALSE,
+  scaled = TRUE,
+  short = unit(0.1, "cm"),
+  mid = unit(0.2, "cm"),
+  long = unit(0.3, "cm"),
+  colour = "black",
+  size = 0.5,
+  linetype = 1,
+  alpha = 1,
+  color = NULL,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>base</code></td>
+<td>
+<p>the base of the log (default 10)</p>
+</td></tr>
+<tr valign="top"><td><code>sides</code></td>
+<td>
+<p>a string that controls which sides of the plot the log ticks appear on.
+It can be set to a string containing any of <code>"trbl"</code>, for top, right,
+bottom, and left.</p>
+</td></tr>
+<tr valign="top"><td><code>outside</code></td>
+<td>
+<p>logical that controls whether to move the log ticks outside
+of the plot area. Default is off (<code>FALSE</code>). You will also need to use
+<code>coord_cartesian(clip = "off")</code>. See examples.</p>
+</td></tr>
+<tr valign="top"><td><code>scaled</code></td>
+<td>
+<p>is the data already log-scaled? This should be <code>TRUE</code>
+(default) when the data is already transformed with <code>log10()</code> or when
+using <code>scale_y_log10()</code>. It should be <code>FALSE</code> when using
+<code>coord_trans(y = "log10")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>short</code></td>
+<td>
+<p>a <code><a href="../../grid/html/unit.html">grid::unit()</a></code> object specifying the length of the
+short tick marks</p>
+</td></tr>
+<tr valign="top"><td><code>mid</code></td>
+<td>
+<p>a <code><a href="../../grid/html/unit.html">grid::unit()</a></code> object specifying the length of the
+middle tick marks. In base 10, these are the &quot;5&quot; ticks.</p>
+</td></tr>
+<tr valign="top"><td><code>long</code></td>
+<td>
+<p>a <code><a href="../../grid/html/unit.html">grid::unit()</a></code> object specifying the length of the
+long tick marks. In base 10, these are the &quot;1&quot; (or &quot;10&quot;) ticks.</p>
+</td></tr>
+<tr valign="top"><td><code>colour</code></td>
+<td>
+<p>Colour of the tick marks.</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>Thickness of tick marks, in mm.</p>
+</td></tr>
+<tr valign="top"><td><code>linetype</code></td>
+<td>
+<p>Linetype of tick marks (<code>solid</code>, <code>dashed</code>, etc.)</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>The transparency of the tick marks.</p>
+</td></tr>
+<tr valign="top"><td><code>color</code></td>
+<td>
+<p>An alias for <code>colour</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other parameters passed on to the layer</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="scale_continuous.html">scale_y_continuous()</a></code>, <code><a href="scale_continuous.html">scale_y_log10()</a></code> for log scale
+transformations.
+</p>
+<p><code><a href="coord_trans.html">coord_trans()</a></code> for log coordinate transformations.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Make a log-log plot (without log ticks)
+a &lt;- ggplot(msleep, aes(bodywt, brainwt)) +
+ geom_point(na.rm = TRUE) +
+ scale_x_log10(
+   breaks = scales::trans_breaks("log10", function(x) 10^x),
+   labels = scales::trans_format("log10", scales::math_format(10^.x))
+ ) +
+ scale_y_log10(
+   breaks = scales::trans_breaks("log10", function(x) 10^x),
+   labels = scales::trans_format("log10", scales::math_format(10^.x))
+ ) +
+ theme_bw()
+
+a + annotation_logticks()                # Default: log ticks on bottom and left
+a + annotation_logticks(sides = "lr")    # Log ticks for y, on left and right
+a + annotation_logticks(sides = "trbl")  # All four sides
+
+a + annotation_logticks(sides = "lr", outside = TRUE) +
+ coord_cartesian(clip = "off")  # Ticks outside plot
+
+# Hide the minor grid lines because they don't align with the ticks
+a + annotation_logticks(sides = "trbl") + theme(panel.grid.minor = element_blank())
+
+# Another way to get the same results as 'a' above: log-transform the data before
+# plotting it. Also hide the minor grid lines.
+b &lt;- ggplot(msleep, aes(log10(bodywt), log10(brainwt))) +
+ geom_point(na.rm = TRUE) +
+ scale_x_continuous(name = "body", labels = scales::math_format(10^.x)) +
+ scale_y_continuous(name = "brain", labels = scales::math_format(10^.x)) +
+ theme_bw() + theme(panel.grid.minor = element_blank())
+
+b + annotation_logticks()
+
+# Using a coordinate transform requires scaled = FALSE
+t &lt;- ggplot(msleep, aes(bodywt, brainwt)) +
+  geom_point() +
+  coord_trans(x = "log10", y = "log10") +
+  theme_bw()
+t + annotation_logticks(scaled = FALSE)
+
+# Change the length of the ticks
+a + annotation_logticks(
+  short = unit(.5,"mm"),
+  mid = unit(3,"mm"),
+  long = unit(4,"mm")
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

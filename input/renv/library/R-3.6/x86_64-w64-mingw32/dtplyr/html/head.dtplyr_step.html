@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset first or last rows</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for head.dtplyr_step {dtplyr}"><tr><td>head.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset first or last rows</h2>
+
+<h3>Description</h3>
+
+<p>These are methods for the base generics <code><a href="../../utils/html/head.html">head()</a></code> and <code><a href="../../utils/html/head.html">tail()</a></code>. They
+are not translated.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+head(x, n = 6L, ...)
+
+## S3 method for class 'dtplyr_step'
+tail(x, n = 6L, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Number of rows to select. Can use a negative number to instead
+drop rows from the other end.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed on to <code><a href="../../utils/html/head.html">head()</a></code>/<code><a href="../../utils/html/head.html">tail()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+dt &lt;- lazy_dt(data.frame(x = 1:10))
+
+# first three rows
+head(dt, 3)
+# last three rows
+tail(dt, 3)
+
+# drop first three rows
+tail(dt, -3)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

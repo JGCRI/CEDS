@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Determine if a function is an S3 generic or S3 method.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_s3_generic {roxygen2}"><tr><td>is_s3_generic {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Determine if a function is an S3 generic or S3 method.</h2>
+
+<h3>Description</h3>
+
+<p><code>is_s3_generic</code> compares name to <code>.knownS3Generics</code> and
+<code>.S3PrimitiveGenerics</code>, then looks at the function body to see if it
+calls <code><a href="../../base/html/UseMethod.html">UseMethod()</a></code>.
+</p>
+<p><code>is_s3_method</code> builds names of all possible generics for that function
+and then checks if any of them actually is a generic.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+is_s3_generic(name, env = parent.frame())
+
+is_s3_method(name, env = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>Name of function.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Base environment in which to look for function definition.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

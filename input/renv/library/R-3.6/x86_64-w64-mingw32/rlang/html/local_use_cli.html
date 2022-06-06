@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Use cli to format error messages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for local_use_cli {rlang}"><tr><td>local_use_cli {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Use cli to format error messages</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p><code>local_use_cli()</code> marks a package namespace or the environment of a
+running function with a special flag that instructs <code><a href="abort.html">abort()</a></code> to
+use cli to format error messages. This formatting happens lazily,
+at print-time, in various places:
+</p>
+
+<ul>
+<li><p> When an unexpected error is displayed to the user.
+</p>
+</li>
+<li><p> When a captured error is printed in the console, for instance via
+<code><a href="last_error.html">last_error()</a></code>.
+</p>
+</li>
+<li><p> When <code><a href="../../base/html/conditions.html">conditionMessage()</a></code> is called.
+</p>
+</li></ul>
+
+<p>cli formats messages and bullets with indentation and
+width-wrapping to produce a polished display of messages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+local_use_cli(..., format = TRUE, inline = FALSE, frame = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots are for future extensions and must be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>format</code></td>
+<td>
+<p>Whether to use cli at print-time to format messages
+and bullets.</p>
+</td></tr>
+<tr valign="top"><td><code>inline</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a> Whether to use
+cli at throw-time to format the inline parts of a message. This
+makes it possible to use cli interpolation and formatting with
+<code>abort()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>frame</code></td>
+<td>
+<p>A package namespace or an environment of a running
+function.</p>
+</td></tr>
+</table>
+
+
+<h3>Usage</h3>
+
+<p>To use cli formatting automatically in your package:
+</p>
+
+<ol>
+<li><p> Make sure <code><a href="on_load.html">run_on_load()</a></code> is called from your <code>.onLoad()</code> hook.
+</p>
+</li>
+<li><p> Call <code>on_load(local_use_cli())</code> at the top level of your namespace.
+</p>
+</li></ol>
+
+<p>It is also possible to call <code>local_use_cli()</code> inside a running
+function, in which case the flag only applies within that function.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

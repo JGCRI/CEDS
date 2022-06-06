@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Objects exported from other packages</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reexports {ggplot2}"><tr><td>reexports {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Objects exported from other packages</h2>
+
+<h3>Description</h3>
+
+<p>These objects are imported from other packages. Follow the links
+below to see their documentation.
+</p>
+
+<dl>
+<dt>grid</dt><dd><p><code><a href="../../grid/html/arrow.html">arrow</a></code>, <code><a href="../../grid/html/unit.html">unit</a></code></p>
+</dd>
+<dt>scales</dt><dd><p><code><a href="../../scales/html/alpha.html">alpha</a></code></p>
+</dd>
+</dl>
+
+
+<h3>Examples</h3>
+
+<pre>
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(alpha = 0.5, colour = "blue")
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(colour = alpha("blue", 0.5))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

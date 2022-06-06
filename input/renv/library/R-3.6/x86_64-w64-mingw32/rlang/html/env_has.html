@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does an environment have or see bindings?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_has {rlang}"><tr><td>env_has {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does an environment have or see bindings?</h2>
+
+<h3>Description</h3>
+
+<p><code>env_has()</code> is a vectorised predicate that queries whether an
+environment owns bindings personally (with <code>inherit</code> set to
+<code>FALSE</code>, the default), or sees them in its own environment or in
+any of its parents (with <code>inherit = TRUE</code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_has(env = caller_env(), nms, inherit = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+<tr valign="top"><td><code>nms</code></td>
+<td>
+<p>A character vector of binding names for which to check
+existence.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit</code></td>
+<td>
+<p>Whether to look for bindings in the parent
+environments.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A named logical vector as long as <code>nms</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+parent &lt;- child_env(NULL, foo = "foo")
+env &lt;- child_env(parent, bar = "bar")
+
+# env does not own `foo` but sees it in its parent environment:
+env_has(env, "foo")
+env_has(env, "foo", inherit = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: List contents of a folder or shared drive</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_ls {googledrive}"><tr><td>drive_ls {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>List contents of a folder or shared drive</h2>
+
+<h3>Description</h3>
+
+<p>List the contents of a folder or shared drive, recursively or not. This is a
+thin wrapper around <code><a href="drive_find.html">drive_find()</a></code>, that simply adds one constraint: the
+search is limited to direct or indirect children of <code>path</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_ls(path = NULL, ..., recursive = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Specifies a single folder on Google Drive whose contents you want
+to list. Can be an actual path (character), a file id or URL marked with
+<code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>. If it is a shared drive or is a folder on a
+shared drive, it must be passed as a <code><a href="dribble.html">dribble</a></code>. If <code>path</code> is a shortcut
+to a folder, it is automatically resolved to its target folder.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Any parameters that are valid for <code><a href="drive_find.html">drive_find()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>recursive</code></td>
+<td>
+<p>Logical, indicating if you want only direct children of
+<code>path</code> (<code>recursive = FALSE</code>, the default) or all children, including
+indirect (<code>recursive = TRUE</code>).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# get contents of the folder 'abc' (non-recursive)
+drive_ls("abc")
+
+# get contents of folder 'abc' whose names contain the letters 'def'
+drive_ls(path = "abc", pattern = "def")
+
+# get all Google spreadsheets in folder 'abc'
+# whose names contain the letters 'def'
+drive_ls(path = "abc", pattern = "def", type = "spreadsheet")
+
+# get all the files below 'abc', recursively, that are starred
+drive_ls(path = "abc", q = "starred = true", recursive = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

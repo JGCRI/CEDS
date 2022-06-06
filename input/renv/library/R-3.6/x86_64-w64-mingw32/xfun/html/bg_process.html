@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Start a background process</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bg_process {xfun}"><tr><td>bg_process {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Start a background process</h2>
+
+<h3>Description</h3>
+
+<p>Start a background process using the PowerShell cmdlet <code>Start-Process
+-PassThru</code> on Windows or the ampersand <code>&amp;</code> on Unix, and return the
+process ID.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bg_process(
+  command,
+  args = character(),
+  verbose = getOption("xfun.bg_process.verbose", FALSE)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>command, args</code></td>
+<td>
+<p>The system command and its arguments. They do not need to
+be quoted, since they will be quoted via <code><a href="../../base/html/shQuote.html">shQuote</a>()</code>
+internally.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>If <code>FALSE</code>, suppress the output from <code style="white-space: pre;">stdout</code> (and
+also <code style="white-space: pre;">stderr</code> on Windows). The default value of this argument can be
+set via a global option, e.g., <code>options(xfun.bg_process.verbose =
+TRUE)</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The process ID as a character string.
+</p>
+
+
+<h3>Note</h3>
+
+<p>On Windows, if PowerShell is not available, try to use
+<code><a href="../../base/html/system2.html">system2</a>(wait = FALSE)</code> to start the background process
+instead. The process ID will be identified from the output of the command
+<code>tasklist</code>. This method of looking for the process ID may not be
+reliable. If the search is not successful in 30 seconds, it will throw an
+error (timeout). If a longer time is needed, you may set
+<code>options(xfun.bg_process.timeout)</code> to a larger value, but it should be
+very rare that a process cannot be started in 30 seconds. When you reach
+the timeout, it is more likely that the command actually failed.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="proc_kill.html">proc_kill</a>()</code> to kill a process.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

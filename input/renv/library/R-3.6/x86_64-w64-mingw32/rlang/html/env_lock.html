@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Lock an environment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for env_lock {rlang}"><tr><td>env_lock {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Lock an environment</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>Locked environments cannot be modified. An important example is
+namespace environments which are locked by R when loaded in a
+session. Once an environment is locked it normally cannot be
+unlocked.
+</p>
+<p>Note that only the environment as a container is locked, not the
+individual bindings. You can't remove or add a binding but you can
+still modify the values of existing bindings. See
+<code><a href="env_binding_lock.html">env_binding_lock()</a></code> for locking individual bindings.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+env_lock(env)
+
+env_is_locked(env)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The old value of <code>env_is_locked()</code> invisibly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="env_binding_lock.html">env_binding_lock()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# New environments are unlocked by default:
+env &lt;- env(a = 1)
+env_is_locked(env)
+
+# Use env_lock() to lock them:
+env_lock(env)
+env_is_locked(env)
+
+# Now that `env` is locked, it is no longer possible to remove or
+# add bindings. If run, the following would fail:
+# env_unbind(env, "a")
+# env_bind(env, b = 2)
+
+# Note that even though the environment as a container is locked,
+# the individual bindings are still unlocked and can be modified:
+env$a &lt;- 10
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

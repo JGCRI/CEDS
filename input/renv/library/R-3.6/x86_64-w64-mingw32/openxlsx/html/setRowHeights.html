@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Set worksheet row heights</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for setRowHeights {openxlsx}"><tr><td>setRowHeights {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Set worksheet row heights</h2>
+
+<h3>Description</h3>
+
+<p>Set worksheet row heights
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+setRowHeights(wb, sheet, rows, heights)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>A name or index of a worksheet</p>
+</td></tr>
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>Indices of rows to set height</p>
+</td></tr>
+<tr valign="top"><td><code>heights</code></td>
+<td>
+<p>Heights to set rows to specified in Excel column height units.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="removeRowHeights.html">removeRowHeights()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook()
+
+## Add a worksheet
+addWorksheet(wb, "Sheet 1")
+
+## set row heights
+setRowHeights(wb, 1, rows = c(1, 4, 22, 2, 19), heights = c(24, 28, 32, 42, 33))
+
+## overwrite row 1 height
+setRowHeights(wb, 1, rows = 1, heights = 40)
+
+## Save workbook
+## Not run: 
+saveWorkbook(wb, "setRowHeightsExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

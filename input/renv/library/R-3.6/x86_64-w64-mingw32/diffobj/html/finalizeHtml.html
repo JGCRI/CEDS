@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Finalizing Methods for HTML Output</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for finalizeHtml {diffobj}"><tr><td>finalizeHtml {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Finalizing Methods for HTML Output</h2>
+
+<h3>Description</h3>
+
+<p>Used as the <code>finalizer</code> slot to <code><a href="Style.html">StyleHtml</a></code> objects to wrap
+character output prior to output to device.  Used primarily by styles that
+output to HTML to properly configure HTML page structure, including injecting
+JS, CSS, etc..
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+finalizeHtml(x, ...)
+
+## S4 method for signature 'ANY'
+finalizeHtml(x, x.chr, js, ...)
+
+## S4 method for signature 'Diff'
+finalizeHtml(x, x.chr, ...)
+
+## S4 method for signature 'DiffSummary'
+finalizeHtml(x, x.chr, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>object to finalize</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments to pass on to methods</p>
+</td></tr>
+<tr valign="top"><td><code>x.chr</code></td>
+<td>
+<p>character text representation of <code>x</code>, typically generated
+with the <code>as.character</code> method for <code>x</code></p>
+</td></tr>
+<tr valign="top"><td><code>js</code></td>
+<td>
+<p>character javascript code to append to HTML representation</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

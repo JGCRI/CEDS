@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The current day and time</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for now {lubridate}"><tr><td>now {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The current day and time</h2>
+
+<h3>Description</h3>
+
+<p>The current day and time
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+now(tzone = "")
+
+today(tzone = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>tzone</code></td>
+<td>
+<p>a character vector specifying which time zone you would like the
+current time in. tzone defaults to your computer's system timezone. You can
+retrieve the current time in the Universal Coordinated Time (UTC) with
+now(&quot;UTC&quot;).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>now</code> - the current datetime as a <code>POSIXct</code> object
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+now()
+now("GMT")
+now("")
+now() == now() # would be TRUE if computer processed both at the same instant
+now() &lt; now() # TRUE
+now() &gt; now() # FALSE
+today()
+today("GMT")
+today() == today("GMT") # not always true
+today() &lt; as.Date("2999-01-01") # TRUE  (so far)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

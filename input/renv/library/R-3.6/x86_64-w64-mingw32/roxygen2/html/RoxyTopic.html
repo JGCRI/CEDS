@@ -1,0 +1,473 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A 'RoxyTopic' is an ordered collection of unique rd_sections</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for RoxyTopic {roxygen2}"><tr><td>RoxyTopic {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A <code>RoxyTopic</code> is an ordered collection of unique rd_sections</h2>
+
+<h3>Description</h3>
+
+<p>A <code>RoxyTopic</code> object corresponds to a generated <code>.Rd</code> file.
+</p>
+
+
+<h3>Public fields</h3>
+
+<div class="r6-fields">
+
+<dl>
+<dt><code>sections</code></dt><dd><p>Named list of sections. Each item must be an
+<code><a href="rd_section.html">rd_section()</a></code> object.</p>
+</dd>
+<dt><code>filename</code></dt><dd><p>Path to the <code>.Rd</code> file to generate.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<h3>Methods</h3>
+
+
+
+<h4>Public methods</h4>
+
+
+<ul>
+<li> <p><a href="#method-format"><code>RoxyTopic$format()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-is_valid"><code>RoxyTopic$is_valid()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-has_section"><code>RoxyTopic$has_section()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-get_section"><code>RoxyTopic$get_section()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-get_value"><code>RoxyTopic$get_value()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-get_rd"><code>RoxyTopic$get_rd()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-get_name"><code>RoxyTopic$get_name()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-inherits_from"><code>RoxyTopic$inherits_from()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-inherits_section_from"><code>RoxyTopic$inherits_section_from()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-add"><code>RoxyTopic$add()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-add_section"><code>RoxyTopic$add_section()</code></a>
+</p>
+</li>
+<li> <p><a href="#method-clone"><code>RoxyTopic$clone()</code></a>
+</p>
+</li></ul>
+
+
+<hr>
+<a id="method-format"></a>
+
+
+
+<h4>Method <code>format()</code></h4>
+
+<p>Format the <code>.Rd</code> file. It considers the sections in
+particular order, even though Rd tools will reorder them again.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$format(...)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>...</code></dt><dd><p>Passed to the <code>format()</code> methods of the <code><a href="rd_section.html">rd_section()</a></code>
+objects, the sections.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>Character string.
+</p>
+
+
+<hr>
+<a id="method-is_valid"></a>
+
+
+
+<h4>Method <code>is_valid()</code></h4>
+
+<p>Check if an <code>.Rd</code> file is valid
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$is_valid()</pre></div>
+
+
+
+<h5>Returns</h5>
+
+<p>Logical flag, <code>TRUE</code> for valid <code>.Rd</code> files
+</p>
+
+
+<hr>
+<a id="method-has_section"></a>
+
+
+
+<h4>Method <code>has_section()</code></h4>
+
+<p>Check if an <code>.Rd</code> file has a certain section.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$has_section(type)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>type</code></dt><dd><p>Section type, a character scalar.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>Logical flag.
+</p>
+
+
+<hr>
+<a id="method-get_section"></a>
+
+
+
+<h4>Method <code>get_section()</code></h4>
+
+<p>Query a section.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$get_section(type)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>type</code></dt><dd><p>Section type, a character scalar.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>The <a href="rd_section.html">rd_section</a> object representing the section, or <code>NULL</code>
+if the topic has no such section.
+</p>
+
+
+<hr>
+<a id="method-get_value"></a>
+
+
+
+<h4>Method <code>get_value()</code></h4>
+
+<p>Query the value of a section. This is the value of
+the <a href="rd_section.html">rd_section</a> object.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$get_value(type)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>type</code></dt><dd><p>Section type, a character scalar.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>Value.
+</p>
+
+
+<hr>
+<a id="method-get_rd"></a>
+
+
+
+<h4>Method <code>get_rd()</code></h4>
+
+<p>Get the Rd code of a section.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$get_rd(type)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>type</code></dt><dd><p>Section type, a character scalar.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>Character vector, one element per line.
+</p>
+
+
+<hr>
+<a id="method-get_name"></a>
+
+
+
+<h4>Method <code>get_name()</code></h4>
+
+<p>Get the value of the <code>name</code> section. This is the name
+of the Rd topic.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$get_name()</pre></div>
+
+
+
+<h5>Returns</h5>
+
+<p>Character scalar.
+</p>
+
+
+<hr>
+<a id="method-inherits_from"></a>
+
+
+
+<h4>Method <code>inherits_from()</code></h4>
+
+<p>Query the topics this topic inherits <code>type</code> from.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$inherits_from(type)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>type</code></dt><dd><p>Section type, a character scalar.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Returns</h5>
+
+<p>A character vector of topic names.
+</p>
+
+
+<hr>
+<a id="method-inherits_section_from"></a>
+
+
+
+<h4>Method <code>inherits_section_from()</code></h4>
+
+<p>Query the topics this topic inherits sections from.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$inherits_section_from()</pre></div>
+
+
+
+<h5>Returns</h5>
+
+<p>A character vector of topic names.
+</p>
+
+
+<hr>
+<a id="method-add"></a>
+
+
+
+<h4>Method <code>add()</code></h4>
+
+<p>Add one or more sections to the topic.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$add(x, overwrite = FALSE)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>x</code></dt><dd><p>Section(s) to add. It may be
+another <code>RoxyTopic</code> object, all of its sections will be added;
+or an <a href="rd_section.html">rd_section</a> object;
+or a list of <a href="rd_section.html">rd_section</a> objects to add.</p>
+</dd>
+<dt><code>overwrite</code></dt><dd><p>Whether to overwrite an existing section. If <code>FALSE</code>
+then the two sections will be merged.</p>
+</dd>
+</dl>
+
+</div>
+
+
+<hr>
+<a id="method-add_section"></a>
+
+
+
+<h4>Method <code>add_section()</code></h4>
+
+<p>Add a section.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$add_section(section, overwrite = FALSE)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>section</code></dt><dd><p><a href="rd_section.html">rd_section</a> object to add.</p>
+</dd>
+<dt><code>overwrite</code></dt><dd><p>Whether to overwrite an existing section. If <code>FALSE</code>
+then the two sections will be merged.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<h5>Details</h5>
+
+<p>Ensures that each type of name (as given by its name), only appears
+once in <code>self$sections</code>. This method if for internal use only.
+</p>
+
+
+<hr>
+<a id="method-clone"></a>
+
+
+
+<h4>Method <code>clone()</code></h4>
+
+<p>The objects of this class are cloneable with this method.
+</p>
+
+
+<h5>Usage</h5>
+
+<div class="r"><pre>RoxyTopic$clone(deep = FALSE)</pre></div>
+
+
+
+<h5>Arguments</h5>
+
+<div class="arguments">
+
+<dl>
+<dt><code>deep</code></dt><dd><p>Whether to make a deep clone.</p>
+</dd>
+</dl>
+
+</div>
+
+
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

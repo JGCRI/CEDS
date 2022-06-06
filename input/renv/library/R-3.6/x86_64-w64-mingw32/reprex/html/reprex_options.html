@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: reprex options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reprex_options {reprex}"><tr><td>reprex_options {reprex}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>reprex options</h2>
+
+<h3>Description</h3>
+
+<p>Some <code><a href="reprex.html">reprex()</a></code> behaviour can be controlled via an option, providing a way
+for the user to set personal defaults. The pattern for such option names is
+<code style="white-space: pre;">reprex.&lt;arg&gt;</code>, where <code style="white-space: pre;">&lt;arg&gt;</code> is an argument of <code><a href="reprex.html">reprex()</a></code>. Here are the main
+ones:
+</p>
+
+<ul>
+<li> <p><code>reprex.advertise</code>
+</p>
+</li>
+<li> <p><code>reprex.session_info</code> (previously, <code>reprex.si</code>)
+</p>
+</li>
+<li> <p><code>reprex.style</code>
+</p>
+</li>
+<li> <p><code>reprex.html_preview</code> (previously, <code>reprex.show</code>)
+</p>
+</li>
+<li> <p><code>reprex.comment</code>
+</p>
+</li>
+<li> <p><code>reprex.tidyverse_quiet</code>
+</p>
+</li>
+<li> <p><code>reprex.std_out_err</code>
+</p>
+</li></ul>
+
+<p>A few more options exist, but are only relevant to specific situations:
+</p>
+
+<ul>
+<li> <p><code>reprex.venue</code>: Can be used to control the <code>venue</code> used by the
+<code><a href="reprex_addin.html">reprex_selection()</a></code> addin.
+</p>
+</li>
+<li> <p><code>reprex.current_venue</code>: Read-only option that is set during
+<code><a href="reprex_render.html">reprex_render()</a></code>. Other packages that want to generate reprex-compatible
+output can consult it via <code>getOption("reprex.current_venue")</code>, if they want
+to tailor their output to the <code>venue</code>.
+</p>
+</li>
+<li> <p><code>reprex.clipboard</code>: When <code>FALSE</code>, reprex makes no attempt to access the
+user's clipboard, ever. This exists mostly for internal use, i.e. we set it
+to <code>FALSE</code> when we detect use from RStudio Server. But a user could set
+this to <code>FALSE</code> to explicitly opt-out of clipboard functionality. A Linux
+user with no intention of installing <code>xclip</code> or <code>xsel</code> might also do this.
+</p>
+</li>
+<li> <p><code>reprex.highlight.hl_style</code>: Only relevant to <code style="white-space: pre;">venue = "rtf</code>. Details are
+in the article
+<a href="https://reprex.tidyverse.org/articles/articles/rtf.html">reprex venue RTF</a>.
+</p>
+</li>
+<li> <p><code>reprex.highlight.font</code>: See above.
+</p>
+</li>
+<li> <p><code>reprex.highlight.font_size</code>: See above.
+</p>
+</li>
+<li> <p><code>reprex.highlight.other</code>: See above.
+</p>
+</li></ul>
+
+<p>Here's code you could put in <code>.Rprofile</code> to set reprex options. It would be
+rare to want non-default behaviour for all of these! We only do so here for
+the sake of exposition:</p>
+<pre>options(
+  reprex.advertise       = FALSE,
+  reprex.session_info    = TRUE,
+  reprex.style           = TRUE,
+  reprex.html_preview    = FALSE,
+  reprex.comment         = "#;-)",
+  reprex.tidyverse_quiet = FALSE,
+  reprex.std_out_err     = TRUE,
+  reprex.venue           = "html", # NOTE: only affects reprex_selection()!
+  reprex.highlight.hl_style  = "acid", # NOTE: only affects RTF venue
+  reprex.highlight.font      = "Andale Mono Regular",
+  reprex.highlight.font_size = 35,
+  reprex.highlight.other     = "--line-numbers"
+)
+</pre>
+<p>The function <code>usethis::edit_r_profile()</code> is handy for creating and/or opening
+your <code>.Rprofile</code>.
+</p>
+
+
+<h3>Explaining the <code>opt()</code> helper</h3>
+
+<p>Arguments that appear like so in <code><a href="reprex.html">reprex()</a></code>:</p>
+<pre>reprex(..., arg = opt(DEFAULT), ...)
+</pre>
+<p>get their value according to this logic:</p>
+<pre>user-specified value or, if not given,
+  getOption("reprex.arg") or, if does not exist,
+    DEFAULT
+</pre>
+<p>It's shorthand for:</p>
+<pre>f(..., arg = getOption("reprex.arg", DEFAULT), ...)
+</pre>
+<p>This is not an exported function and should not be called directly.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>reprex</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

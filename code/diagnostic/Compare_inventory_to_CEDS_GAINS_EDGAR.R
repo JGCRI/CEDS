@@ -3,7 +3,7 @@
 # Author: Andrea Mott
 # Date Last Updated: April 26, 2021
 # Program Purpose: Generate comparisons between inventory country totals and
-#               CEDS, GAINS, EDGAR, and REAS.
+#               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS.
 # Input Files: [em]_total_CEDS_emissions.csv
 #              'E.', em,'_',inv,'_inventory_country_total'
 #              Master_Country_List.csv, emf-30_ctry_map.csv,
@@ -14,11 +14,14 @@
 
 # TODO: 1. eventually add in BC, OC, and GHGs
 # ---------------------------------------------------------------------------
-
+setwd('C:/users/such559/Documents/CEDS-Dev')
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
 PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
+
+#read in mapping file to organize countries
+mapping <- read.csv('input/mappings/Master_Country_List.csv')
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -31,7 +34,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "NH3"
 
 # ---------------------------------------------------------------------------
 # 1. Run for relevant inventory emissions
@@ -405,7 +408,46 @@ if (em %in% em_list) {
     REAS_long$REAS_32 <- as.numeric(REAS_long$REAS_32)
 
 # ---------------------------------------------------------------------------
-# 7. Prepare inventories for plotting
+# 7. EDGAR-HTAPv3
+
+    #Read in the EDGAR_HTAP files
+    emission_file <- paste0("EDGAR_HTAP_", em)
+    inventory_data_file <- "../emissions-inventories"
+    Edgar_HTAP <- readData(domain = "EM_INV",
+                           domain_extension = "EDGAR_HTAP/",
+                           file_name = emission_file,
+                           extension = ".csv")
+    Edgar_HTAP %>% group_by(Year,Country) %>% summarize_if(is.numeric,sum,na.rm = TRUE) -> EDGAR_HTAP_long
+
+
+    #Get rid of unnecessary columns, rearrange and rename the remaining columns,
+    #and convert country names to lowercase
+   # EDGAR_HTAP_long <- subset(Edgar_HTAP, select = -c(Data_provider))
+    EDGAR_HTAP_long %>% select(Country,Year,Cumulative_emissions)
+    colnames(EDGAR_HTAP_long) <- c("year","iso","EDGAR_HTAPv3")
+    EDGAR_HTAP_long$iso <- tolower(EDGAR_HTAP_long$iso)
+    EDGAR_HTAP_long$EDGAR_HTAPv3 <- as.numeric(as.character(EDGAR_HTAP_long$EDGAR_HTAPv3)) / 1000
+
+    #consolidate the data for the western european countries into one iso
+    EDGAR_HTAP_West_Europe <- filter(EDGAR_HTAP_long, iso == "aut" | iso == "bel" |iso == "bmu" | iso == "che" | iso == "cyp" | iso == "deu" | iso == "dnk" | iso == "esp" | iso == "fin" | iso == "fra" |iso == "gbr" | iso == "gib" | iso == "grc" | iso == "irl" | iso == "isl" | iso == "ita" | iso == "lux" | iso == "mlt" | iso == "nld" | iso == "nor" | iso == "prt" |  iso == "swe" | iso == "tur" )
+    EDGAR_HTAP_West_Europe_long <- aggregate(EDGAR_HTAP_West_Europe['EDGAR_HTAPv3'], by=EDGAR_HTAP_West_Europe['year'], sum)
+    EDGAR_HTAP_West_Europe_long$iso = 'Western Europe'
+    EDGAR_HTAP_West_Europe_long <- EDGAR_HTAP_West_Europe_long[,c("year","iso","EDGAR_HTAPv3")]
+    EDGAR_HTAP_West_Europe_long$EDGAR_HTAPv3 <- as.numeric(as.character(EDGAR_HTAP_West_Europe_long$EDGAR_HTAPv3))
+
+    #consolidate the data for the eastern european countries into one iso
+    EDGAR_HTAP_East_Europe <- filter(EDGAR_HTAP_long, iso == "alb" | iso == "bgr" |iso == "bih" | iso == "cze" | iso == "hrv" | iso == "hun" | iso == "mkd" | iso == "mne" | iso == "pol" | iso == "rou" |iso == "scg" | iso == "srb" | iso == "svk" | iso == "svn" )
+    EDGAR_HTAP_East_Europe_long <- aggregate(EDGAR_HTAP_East_Europe['EDGAR_HTAPv3'], by=EDGAR_HTAP_East_Europe['year'], sum)
+    EDGAR_HTAP_East_Europe_long$iso = 'Eastern Europe'
+    EDGAR_HTAP_East_Europe_long <- EDGAR_HTAP_East_Europe_long[,c("year","iso","EDGAR_HTAPv3")]
+    EDGAR_HTAP_East_Europe_long$EDGAR_HTAPv3 <- as.numeric(as.character(EDGAR_HTAP_East_Europe_long$EDGAR_HTAPv3))
+
+    #merge the european data into the entire dataframe
+    EDGAR_HTAP_long <- merge(EDGAR_HTAP_long, EDGAR_HTAP_West_Europe_long, all=TRUE)
+    EDGAR_HTAP_long <- merge(EDGAR_HTAP_long, EDGAR_HTAP_East_Europe_long, all=TRUE)
+
+# ---------------------------------------------------------------------------
+# 8. Prepare inventories for plotting
 
     # Combine all inventories into one data frame
     combined <- left_join(inventory_long, ceds_long, by = c("iso","year"))
@@ -414,9 +456,10 @@ if (em %in% em_list) {
     combined_w_GAINS <- left_join(combined_w_edgar, gains_long, by = c("iso","year"))
     combined_w_REAS <- left_join(combined_w_GAINS, REAS_long, by = c("iso","year"))
     combined_w_oldinv <- left_join(combined_w_REAS, old_inventory_long, by = c("iso", "year"))
+    combined_w_edgar_htap <- left_join(combined_w_oldinv, EDGAR_HTAP_long, by = c("iso","year"))
 
     # Make long
-    combined_long <- gather(combined_w_oldinv, Inventory, value, -c(iso,year))
+    combined_long <- gather(combined_w_edgar_htap, Inventory, value, -c(iso,year))
 
     # Add em column and rename value column to total emissions
     combined_long$em <- em
@@ -432,7 +475,7 @@ if (em %in% em_list) {
                    paste0("Compare_inventory_to_CEDS_", em ) )
 
 # -------------------------------------------------------------------
-# 8. plotting
+# 9. plotting
 
 # rename isos for cleaner graphs
     combined_long$iso <- gsub("aus", "Australia", combined_long$iso)
@@ -446,7 +489,8 @@ if (em %in% em_list) {
     combined_long$Inventory <- gsub("inventory", "Country_inventory", combined_long$Inventory)
 
 # Plot
-pdf(paste0('../diagnostic-output/country-inventory-compare/Compare_inventory_to_CEDS_',em,'.pdf'),width=9.5,height=9.5,paper='special', onefile=F)
+pdf(paste0('../diagnostic-output/country-inventory-compare/Compare_inventory_to_CEDS_',em,'.pdf'),width=11,height=9.5,paper='special', onefile=F)
+
 
 #original script
 plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Inventory, linetype = Inventory, shape = Inventory)) +
@@ -454,11 +498,12 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
     geom_point(data = subset(combined_long, Inventory == "Old_Inventory"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "CEDS"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_5.0"), size = 1) +
+    geom_line(data = subset(combined_long, Inventory == "EDGAR_HTAPv3"), size = 1) +
     geom_point(data = subset(combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1) +
     geom_line(data = subset(combined_long, Inventory =='REAS_32'), size = 1) +
     scale_y_continuous(limits=c(0,max(combined_long$total_emissions)), labels = scales::comma) +
     labs(x= "" , y= paste(em ,'Emissions [Gg/yr]') )+
-    facet_wrap(~iso, scales = "free") +
+    facet_wrap(~iso, scales = "free", nrow = 2) +
     ggtitle( paste(em)) +
     theme(panel.background=element_blank(),
           panel.grid.minor = element_line(colour="gray95"),
@@ -469,6 +514,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                                   'Old_Inventory'= "#0066ff",
                                   'CEDS'= "#f75f55",
                                   'EDGAR_5.0'= "#73e600",
+                                  'EDGAR_HTAPv3'='#000000',
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#00dee6",
                                   'REAS_32'= "#C77CFF")) +
     scale_linetype_manual(name= 'Inventory',
@@ -476,21 +522,21 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                                      'Old_Inventory' = 0,
                                      'CEDS' = 1,
                                      'EDGAR_5.0'= 1,
+                                     'EDGAR_HTAPv3'= 1,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
-                    values = c("CEDS" = 32,
-                               "Country_inventory" = 16,
-                               "EDGAR_5.0" = 32,
-                               "GAINS_(ECLIPSE_V6b_CLE)" = 16,
-                               "Old_Inventory" = 1,
-                               "REAS_32" = 32 ))
-
-
-
-
+                       values = c("CEDS" = 32,
+                                  "Country_inventory" = 16,
+                                  "EDGAR_5.0" = 32,
+                                  "EDGAR_HTAPv3" = 32,
+                                  "GAINS_(ECLIPSE_V6b_CLE)" = 16,
+                                  "Old_Inventory" = 1,
+                                  "REAS_32" = 32 ))+
+    theme(legend.position = "bottom")
 
 print(plot)
+plot(plot)
 dev.off()
 
 } else {printLog( paste0( em, ' is not in invenotry to CEDS comparison. ' ) )}

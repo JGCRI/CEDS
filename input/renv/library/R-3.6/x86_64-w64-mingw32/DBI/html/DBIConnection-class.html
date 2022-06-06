@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: DBIConnection class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for DBIConnection-class {DBI}"><tr><td>DBIConnection-class {DBI}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>DBIConnection class</h2>
+
+<h3>Description</h3>
+
+<p>This virtual class encapsulates the connection to a DBMS, and it provides
+access to dynamic queries, result sets, DBMS session management
+(transactions), etc.
+</p>
+
+
+<h3>Implementation note</h3>
+
+<p>Individual drivers are free to implement single or multiple simultaneous
+connections.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other DBI classes: 
+<code><a href="DBIConnector-class.html">DBIConnector-class</a></code>,
+<code><a href="DBIDriver-class.html">DBIDriver-class</a></code>,
+<code><a href="DBIObject-class.html">DBIObject-class</a></code>,
+<code><a href="DBIResult-class.html">DBIResult-class</a></code>
+</p>
+<p>Other DBIConnection generics: 
+<code><a href="dbAppendTable.html">dbAppendTable</a>()</code>,
+<code><a href="dbCreateTable.html">dbCreateTable</a>()</code>,
+<code><a href="dbDataType.html">dbDataType</a>()</code>,
+<code><a href="dbDisconnect.html">dbDisconnect</a>()</code>,
+<code><a href="dbExecute.html">dbExecute</a>()</code>,
+<code><a href="dbExistsTable.html">dbExistsTable</a>()</code>,
+<code><a href="dbGetException.html">dbGetException</a>()</code>,
+<code><a href="dbGetInfo.html">dbGetInfo</a>()</code>,
+<code><a href="dbGetQuery.html">dbGetQuery</a>()</code>,
+<code><a href="dbIsReadOnly.html">dbIsReadOnly</a>()</code>,
+<code><a href="dbIsValid.html">dbIsValid</a>()</code>,
+<code><a href="dbListFields.html">dbListFields</a>()</code>,
+<code><a href="dbListObjects.html">dbListObjects</a>()</code>,
+<code><a href="dbListResults.html">dbListResults</a>()</code>,
+<code><a href="dbListTables.html">dbListTables</a>()</code>,
+<code><a href="dbReadTable.html">dbReadTable</a>()</code>,
+<code><a href="dbRemoveTable.html">dbRemoveTable</a>()</code>,
+<code><a href="dbSendQuery.html">dbSendQuery</a>()</code>,
+<code><a href="dbSendStatement.html">dbSendStatement</a>()</code>,
+<code><a href="dbWriteTable.html">dbWriteTable</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+con
+dbDisconnect(con)
+## Not run: 
+con &lt;- dbConnect(RPostgreSQL::PostgreSQL(), "username", "passsword")
+con
+dbDisconnect(con)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>DBI</em> version 1.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

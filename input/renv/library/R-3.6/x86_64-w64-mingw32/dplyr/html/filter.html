@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset rows using column values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for filter {dplyr}"><tr><td>filter {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset rows using column values</h2>
+
+<h3>Description</h3>
+
+<p>The <code>filter()</code> function is used to subset a data frame,
+retaining all rows that satisfy your conditions.
+To be retained, the row must produce a value of <code>TRUE</code> for all conditions.
+Note that when a condition evaluates to <code>NA</code>
+the row will be dropped, unlike base subsetting with <code>[</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+filter(.data, ..., .preserve = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Expressions that return a
+logical value, and are defined in terms of the variables in <code>.data</code>.
+If multiple expressions are included, they are combined with the <code>&amp;</code> operator.
+Only rows for which all conditions evaluate to <code>TRUE</code> are kept.</p>
+</td></tr>
+<tr valign="top"><td><code>.preserve</code></td>
+<td>
+<p>Relevant when the <code>.data</code> input is grouped.
+If <code>.preserve = FALSE</code> (the default), the grouping structure
+is recalculated based on the resulting data, otherwise the grouping is kept as is.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>filter()</code> function is used to subset the rows of
+<code>.data</code>, applying the expressions in <code>...</code> to the column values to determine which
+rows should be retained. It can be applied to both grouped and ungrouped data (see <code><a href="group_by.html">group_by()</a></code> and
+<code><a href="group_by.html">ungroup()</a></code>). However, dplyr is not yet smart enough to optimise the filtering
+operation on grouped datasets that do not need grouped calculations. For this
+reason, filtering is often considerably faster on ungrouped data.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of the same type as <code>.data</code>. The output has the following properties:
+</p>
+
+<ul>
+<li><p> Rows are a subset of the input, but appear in the same order.
+</p>
+</li>
+<li><p> Columns are not modified.
+</p>
+</li>
+<li><p> The number of groups may be reduced (if <code>.preserve</code> is not <code>TRUE</code>).
+</p>
+</li>
+<li><p> Data frame attributes are preserved.
+</p>
+</li></ul>
+
+
+
+<h3>Useful filter functions</h3>
+
+<p>There are many functions and operators that are useful when constructing the
+expressions used to filter the data:
+</p>
+
+<ul>
+<li> <p><code><a href="../../base/html/Comparison.html">==</a></code>, <code><a href="../../base/html/Comparison.html">&gt;</a></code>, <code><a href="../../base/html/Comparison.html">&gt;=</a></code> etc
+</p>
+</li>
+<li> <p><code><a href="../../base/html/Logic.html">&amp;</a></code>, <code><a href="../../base/html/Logic.html">|</a></code>, <code><a href="../../base/html/Logic.html">!</a></code>, <code><a href="../../base/html/Logic.html">xor()</a></code>
+</p>
+</li>
+<li> <p><code><a href="../../base/html/NA.html">is.na()</a></code>
+</p>
+</li>
+<li> <p><code><a href="between.html">between()</a></code>, <code><a href="near.html">near()</a></code>
+</p>
+</li></ul>
+
+
+
+<h3>Grouped tibbles</h3>
+
+<p>Because filtering expressions are computed within groups, they may
+yield different results on grouped tibbles. This will be the case
+as soon as an aggregating, lagging, or ranking function is
+involved. Compare this ungrouped filtering:</p>
+<pre>starwars %&gt;% filter(mass &gt; mean(mass, na.rm = TRUE))
+</pre>
+<p>With the grouped equivalent:</p>
+<pre>starwars %&gt;% group_by(gender) %&gt;% filter(mass &gt; mean(mass, na.rm = TRUE))
+</pre>
+<p>In the ungrouped version, <code>filter()</code> compares the value of <code>mass</code> in each row to
+the global average (taken over the whole data set), keeping only the rows with
+<code>mass</code> greater than this global average. In contrast, the grouped version calculates
+the average mass separately for each <code>gender</code> group, and keeps rows with <code>mass</code> greater
+than the relevant within-gender average.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="arrange.html">arrange</a>()</code>,
+<code><a href="mutate.html">mutate</a>()</code>,
+<code><a href="rename.html">rename</a>()</code>,
+<code><a href="select.html">select</a>()</code>,
+<code><a href="slice.html">slice</a>()</code>,
+<code><a href="summarise.html">summarise</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Filtering by one criterion
+filter(starwars, species == "Human")
+filter(starwars, mass &gt; 1000)
+
+# Filtering by multiple criteria within a single logical expression
+filter(starwars, hair_color == "none" &amp; eye_color == "black")
+filter(starwars, hair_color == "none" | eye_color == "black")
+
+# When multiple expressions are used, they are combined using &amp;
+filter(starwars, hair_color == "none", eye_color == "black")
+
+
+# The filtering operation may yield different results on grouped
+# tibbles because the expressions are computed within groups.
+#
+# The following filters rows where `mass` is greater than the
+# global average:
+starwars %&gt;% filter(mass &gt; mean(mass, na.rm = TRUE))
+
+# Whereas this keeps rows with `mass` greater than the gender
+# average:
+starwars %&gt;% group_by(gender) %&gt;% filter(mass &gt; mean(mass, na.rm = TRUE))
+
+
+# To refer to column names that are stored as strings, use the `.data` pronoun:
+vars &lt;- c("mass", "height")
+cond &lt;- c(80, 150)
+starwars %&gt;%
+  filter(
+    .data[[vars[[1]]]] &gt; cond[[1]],
+    .data[[vars[[2]]]] &gt; cond[[2]]
+  )
+# Learn more in ?dplyr_data_masking
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

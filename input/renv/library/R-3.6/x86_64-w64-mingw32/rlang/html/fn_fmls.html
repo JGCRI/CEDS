@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract arguments from a function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fn_fmls {rlang}"><tr><td>fn_fmls {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract arguments from a function</h2>
+
+<h3>Description</h3>
+
+<p><code>fn_fmls()</code> returns a named list of formal arguments.
+<code>fn_fmls_names()</code> returns the names of the arguments.
+<code>fn_fmls_syms()</code> returns formals as a named list of symbols. This
+is especially useful for forwarding arguments in <a href="lang.html">constructed calls</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fn_fmls(fn = caller_fn())
+
+fn_fmls_names(fn = caller_fn())
+
+fn_fmls_syms(fn = caller_fn())
+
+fn_fmls(fn) &lt;- value
+
+fn_fmls_names(fn) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fn</code></td>
+<td>
+<p>A function. It is looked up in the calling frame if not
+supplied.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>New formals or formals names for <code>fn</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Unlike <code>formals()</code>, these helpers throw an error with primitive
+functions instead of returning <code>NULL</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="call_args.html">call_args()</a></code> and <code><a href="call_args.html">call_args_names()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Extract from current call:
+fn &lt;- function(a = 1, b = 2) fn_fmls()
+fn()
+
+# fn_fmls_syms() makes it easy to forward arguments:
+call2("apply", !!! fn_fmls_syms(lapply))
+
+# You can also change the formals:
+fn_fmls(fn) &lt;- list(A = 10, B = 20)
+fn()
+
+fn_fmls_names(fn) &lt;- c("foo", "bar")
+fn()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

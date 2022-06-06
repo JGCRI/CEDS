@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate a field mask</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for field_mask {gargle}"><tr><td>field_mask {gargle}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate a field mask</h2>
+
+<h3>Description</h3>
+
+<p>Many Google API requests take a field mask, via a <code>fields</code> parameter, in the
+URL and/or in the body. <code>field_mask()</code> generates such a field mask from an R
+list, typically a list that is destined to be part of the body of a request
+that writes or updates a resource. <code>field_mask()</code> is designed to help in the
+common case where the attributes you wish to modify are exactly the ones
+represented in the object. It is possible to use a &quot;larger&quot; field mask, that
+is either less specific or that explicitly includes other attributes, in
+which case the attributes covered by the mask but absent from the object are
+reset to default values. This is not exactly the use case <code>field_mask()</code> is
+designed for, but its output could still be useful as a first step in
+constructing such a mask.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+field_mask(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A named R list, where the requirement for names applies at all
+levels, i.e. recursively.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A Google API field mask, as a string.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The documentation for the <a href="https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#json-encoding-of-field-masks">JSON encoding of a Protocol Buffers FieldMask</a>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- list(sheetId = 1234, title = "my_favorite_worksheet")
+field_mask(x)
+
+x &lt;- list(
+  userEnteredFormat = list(
+    backgroundColor = list(
+      red = 159 / 255, green = 183 / 255, blue = 196 / 255
+    )
+  )
+)
+field_mask(x)
+
+x &lt;- list(
+  sheetId = 1234,
+  gridProperties = list(rowCount = 5, columnCount = 3)
+)
+field_mask(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gargle</em> version 1.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

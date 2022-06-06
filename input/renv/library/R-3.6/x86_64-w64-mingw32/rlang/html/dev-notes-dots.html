@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Development notes - 'dots.R'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dev-notes-dots {rlang}"><tr><td>dev-notes-dots {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Development notes - <code>dots.R</code></h2>
+
+<h3>Description</h3>
+
+<p>Development notes - <code>dots.R</code>
+</p>
+
+
+<h3><code>.__error_call__.</code> flag in dots collectors</h3>
+
+<p>Dots collectors like <code><a href="list2.html">dots_list()</a></code> are a little tricky because they
+may error out in different situations. Do we want to forward the
+context, i.e. set the call flag to the calling environment?
+Collectors throw errors in these cases:
+</p>
+
+<ol>
+<li><p> While checking their own parameters, in which case the relevant
+context is the collector itself and we don't forward.
+</p>
+</li>
+<li><p> While collecting the dots, during evaluation of the supplied
+arguments. In this case forwarding or not is irrelevant because
+expressions in <code>...</code> are evaluated in their own environment
+which is not connected to the collector's context.
+</p>
+</li>
+<li><p> While collecting the dots, during argument constraints checks
+such as determined by the <code>.homonyms</code> argument. In this case we
+want to forward the context because the caller of the dots
+collector is the one who determines the constraints for its
+users.
+</p>
+</li></ol>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

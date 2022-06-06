@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Visualize a single isoband</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot_iso {isoband}"><tr><td>plot_iso {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Visualize a single isoband</h2>
+
+<h3>Description</h3>
+
+<p>This function visualizes a single isoband calculated from a matrix. It is mainly useful
+for debugging and visualizing the isobanding algorithm. See <code><a href="isobands.html">isobands()</a></code> for more
+examples.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plot_iso(
+  m,
+  vlo,
+  vhi,
+  fill_lo = "gray95",
+  fill_mid = "gray50",
+  fill_hi = "black",
+  fill_band = "cornsilk",
+  col_lo = "black",
+  col_hi = "black",
+  newpage = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>m</code></td>
+<td>
+<p>input matrix</p>
+</td></tr>
+<tr valign="top"><td><code>vlo</code></td>
+<td>
+<p>lower cutoff for isobanding</p>
+</td></tr>
+<tr valign="top"><td><code>vhi</code></td>
+<td>
+<p>higher cutoff for isobanding</p>
+</td></tr>
+<tr valign="top"><td><code>fill_lo</code></td>
+<td>
+<p>fill color for points below the lower cutoff</p>
+</td></tr>
+<tr valign="top"><td><code>fill_mid</code></td>
+<td>
+<p>fill color for points between the two cutoffs</p>
+</td></tr>
+<tr valign="top"><td><code>fill_hi</code></td>
+<td>
+<p>fill color for points above the higher cutoff</p>
+</td></tr>
+<tr valign="top"><td><code>fill_band</code></td>
+<td>
+<p>fill color for the isoband</p>
+</td></tr>
+<tr valign="top"><td><code>col_lo</code></td>
+<td>
+<p>line color for lower cutoff</p>
+</td></tr>
+<tr valign="top"><td><code>col_hi</code></td>
+<td>
+<p>line color for higher cutoff</p>
+</td></tr>
+<tr valign="top"><td><code>newpage</code></td>
+<td>
+<p>boolean, indicating whether <code>grid.newpage()</code> should
+be called or not</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+m &lt;- matrix(c(0, 0, 0, 0, 0, 0,
+              0, 2, 2, 2, 2, 0,
+              0, 2, 0, 0, 2, 0,
+              0, 2, 0, 0, 2, 0,
+              0, 2, 2, 2, 2, 0,
+              0, 0, 0, 0, 0, 0), 6, 6, byrow = TRUE)
+
+plot_iso(m, 0.5, 1.5)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

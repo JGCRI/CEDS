@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A selection of summary functions from Hmisc</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for hmisc {ggplot2}"><tr><td>hmisc {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A selection of summary functions from Hmisc</h2>
+
+<h3>Description</h3>
+
+<p>These are wrappers around functions from <span class="pkg">Hmisc</span> designed to make them
+easier to use with <code><a href="stat_summary.html">stat_summary()</a></code>. See the Hmisc documentation
+for more details:
+</p>
+
+<ul>
+<li> <p><code><a href="../../Hmisc/html/smean.sd.html">Hmisc::smean.cl.boot()</a></code>
+</p>
+</li>
+<li> <p><code><a href="../../Hmisc/html/smean.sd.html">Hmisc::smean.cl.normal()</a></code>
+</p>
+</li>
+<li> <p><code><a href="../../Hmisc/html/smean.sd.html">Hmisc::smean.sdl()</a></code>
+</p>
+</li>
+<li> <p><code><a href="../../Hmisc/html/smean.sd.html">Hmisc::smedian.hilow()</a></code>
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+mean_cl_boot(x, ...)
+
+mean_cl_normal(x, ...)
+
+mean_sdl(x, ...)
+
+median_hilow(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a numeric vector</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other arguments passed on to the respective Hmisc function.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A data frame with columns <code>y</code>, <code>ymin</code>, and <code>ymax</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (requireNamespace("Hmisc", quietly = TRUE)) {
+x &lt;- rnorm(100)
+mean_cl_boot(x)
+mean_cl_normal(x)
+mean_sdl(x)
+median_hilow(x)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

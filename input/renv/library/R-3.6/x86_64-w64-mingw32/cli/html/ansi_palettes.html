@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: ANSI colors palettes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for truecolor {cli}"><tr><td>truecolor {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>ANSI colors palettes</h2>
+
+<h3>Description</h3>
+
+<p>If your platform supports at least 256 colors, then you can configure
+the colors that cli uses for the eight base and the eight bright colors.
+(I.e. the colors of <code><a href="ansi-styles.html">col_black()</a></code>, <code><a href="ansi-styles.html">col_red()</a></code>, and <code><a href="ansi-styles.html">col_br_black()</a></code>,
+<code><a href="ansi-styles.html">col_br_red()</a></code>, etc.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+truecolor
+
+ansi_palettes
+
+ansi_palette_show(palette = NULL, colors = num_ansi_colors(), rows = 4)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>palette</code></td>
+<td>
+<p>The palette to show, in the same format as for the
+<code>cli.palette</code> option, so it can be the name of a built-in palette,
+of a list of 16 colors.</p>
+</td></tr>
+<tr valign="top"><td><code>colors</code></td>
+<td>
+<p>Number of ANSI colors to use the show the palette. If the
+platform does not have sufficient support, the output might have
+a lower color resolution. Without color support it will have no color
+at all.</p>
+</td></tr>
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>The number of colored rows to print.</p>
+</td></tr>
+</table>
+
+
+<h3>Format</h3>
+
+<p><code>truecolor</code> is an integer scalar.
+</p>
+<p><code>ansi_palettes</code> is a data frame with one row for each palette,
+and one column for each base ANSI color. <code>attr(ansi_palettes, "info")</code>
+contains a list with information about each palette.
+</p>
+
+
+<h3>Details</h3>
+
+<p><code>truecolor</code> is an integer constant for the number of 24 bit ANSI colors.
+</p>
+<p>To customize the default palette, set the <code>cli.palette</code> option to the
+name of a built-in palette (see <code>ansi_palettes()</code>), or the list of
+16 colors. Colors can be specified with RGB colors strings:
+<code style="white-space: pre;">#rrggbb</code> or R color names (see the output of <code><a href="../../grDevices/html/colors.html">grDevices::colors()</a></code>).
+</p>
+<p>For example, you can put this in your R profile:<div class="sourceCode r"></p>
+<pre>options(cli.palette = "vscode")
+</pre></div>
+<p>It is currently not possible to configure the background colors
+separately, these will be always the same as the foreground colors.
+</p>
+<p>If your platform only has 256 colors, then the colors specified in the
+palette have to be interpolated. On true color platforms they RGB
+values are used as-is.
+</p>
+<p><code>ansi_palettes</code> is a data frame of the built-in palettes, each row
+is one palette.
+</p>
+<p><code>ansi_palette_show()</code> shows the colors of an ANSI palette on the screen.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>ansi_palette_show</code> returns a character vector, the rows that
+are printed to the screen, invisibly.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ansi_palettes
+ansi_palette_show("dichro", colors = truecolor)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get/set worksheet visible state</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheetVisibility {openxlsx}"><tr><td>sheetVisibility {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get/set worksheet visible state</h2>
+
+<h3>Description</h3>
+
+<p>Get and set worksheet visible state
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheetVisibility(wb)
+
+sheetVisibility(wb) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wb</code></td>
+<td>
+<p>A workbook object</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a logical/character vector the same length as sheetVisibility(wb)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of worksheet names.
+</p>
+<p>Vector of &quot;hidden&quot;, &quot;visible&quot;, &quot;veryHidden&quot;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+wb &lt;- createWorkbook()
+addWorksheet(wb, sheetName = "S1", visible = FALSE)
+addWorksheet(wb, sheetName = "S2", visible = TRUE)
+addWorksheet(wb, sheetName = "S3", visible = FALSE)
+
+sheetVisibility(wb)
+sheetVisibility(wb)[1] &lt;- TRUE ## show sheet 1
+sheetVisibility(wb)[2] &lt;- FALSE ## hide sheet 2
+sheetVisibility(wb)[3] &lt;- "hidden" ## hide sheet 3
+sheetVisibility(wb)[3] &lt;- "veryHidden" ## hide sheet 3 from UI
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

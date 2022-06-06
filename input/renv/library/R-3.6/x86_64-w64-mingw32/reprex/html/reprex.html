@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render a reprex</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reprex {reprex}"><tr><td>reprex {reprex}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render a reprex</h2>
+
+<h3>Description</h3>
+
+<p>Run a bit of R code using <code><a href="../../rmarkdown/html/render.html">rmarkdown::render()</a></code> and write the rendered result
+to user's clipboard. If the clipboard is unavailable, the file containing
+the rendered result is opened for manual copy. The goal is to make it easy to
+share a small reproducible example (&quot;reprex&quot;), e.g., in a GitHub issue.
+Reprex source can be
+</p>
+
+<ul>
+<li><p> read from clipboard
+</p>
+</li>
+<li><p> provided directly as expression, character vector, or string
+</p>
+</li>
+<li><p> read from file
+</p>
+</li>
+<li><p> read from current selection or active document in RStudio
+</p>
+</li></ul>
+
+<p>reprex can also be used for syntax highlighting (with or without rendering);
+see below for more.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+reprex(
+  x = NULL,
+  input = NULL,
+  wd = NULL,
+  venue = c("gh", "r", "rtf", "html", "slack", "so", "ds"),
+  render = TRUE,
+  advertise = NULL,
+  session_info = opt(FALSE),
+  style = opt(FALSE),
+  comment = opt("#&gt;"),
+  tidyverse_quiet = opt(TRUE),
+  std_out_err = opt(FALSE),
+  html_preview = opt(TRUE),
+  outfile = "DEPRECATED",
+  show = "DEPRECATED",
+  si = "DEPRECATED"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An expression. If not given, <code>reprex()</code> looks for code in
+<code>input</code>. If <code>input</code> is not provided, <code>reprex()</code> looks on the clipboard.
+</p>
+<p>When the clipboard is structurally unavailable, e.g., on RStudio Server or
+RStudio Cloud, <code>reprex()</code> consults the current selection instead of the
+clipboard.</p>
+</td></tr>
+<tr valign="top"><td><code>input</code></td>
+<td>
+<p>Character. If has length one and lacks a terminating newline,
+interpreted as the path to a file containing reprex code. Otherwise,
+assumed to hold reprex code as character vector. When <code>input</code> specifies a
+filepath, it also determines the reprex working directory and the location
+of all resulting files.</p>
+</td></tr>
+<tr valign="top"><td><code>wd</code></td>
+<td>
+<p>An optional filepath that is consulted when <code>input</code> is not a
+filepath. (By default, all work is done, quietly, in a subdirectory of the
+session temp directory.)
+</p>
+<p>The most common use of <code>wd</code> is to set <code>wd = "."</code>, which means &quot;reprex right
+HERE in the current working directory&quot;. Do this if you really must
+demonstrate something with local files.</p>
+</td></tr>
+<tr valign="top"><td><code>venue</code></td>
+<td>
+<p>Character. Must be one of the following (case insensitive):
+</p>
+
+<ul>
+<li><p> &quot;gh&quot; for <a href="https://github.github.com/gfm/">GitHub-Flavored Markdown</a>, the
+default
+</p>
+</li>
+<li><p> &quot;r&quot; for a runnable R script, with commented output interleaved. Also useful
+for <a href="https://slack.com/intl/en-ca/slack-tips/share-code-snippets">Slack code snippets</a>;
+select &quot;R&quot; from the &quot;Type&quot; drop-down menu to enjoy nice syntax
+highlighting.
+</p>
+</li>
+<li><p> &quot;rtf&quot; for
+<a href="https://en.wikipedia.org/wiki/Rich_Text_Format">Rich Text Format</a>
+(not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;html&quot; for an HTML fragment suitable for inclusion in a larger HTML
+document (not supported for un-reprexing)
+</p>
+</li>
+<li><p> &quot;slack&quot; for pasting into a Slack message. Works best if you opt out of
+Slack's WYSIWYG interface and, instead, go to <strong>Preferences &gt; Advanced</strong>
+and select &quot;Format messages with markup&quot;.
+</p>
+</li>
+<li><p> &quot;so&quot; for
+<a href="https://stackoverflow.com/editing-help#syntax-highlighting">Stack Overflow Markdown</a>.
+Note: this is just an alias for &quot;gh&quot;, since Stack Overflow started to
+support CommonMark-style fenced code blocks in January 2019.
+</p>
+</li>
+<li><p> &quot;ds&quot; for Discourse, e.g.,
+<a href="https://community.rstudio.com">community.rstudio.com</a>. Note: this is
+currently just an alias for &quot;gh&quot;.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>render</code></td>
+<td>
+<p>Logical. Whether to call <code><a href="../../rmarkdown/html/render.html">rmarkdown::render()</a></code> on the templated
+reprex, i.e. whether to actually run the code. Defaults to <code>TRUE</code>. Exists
+primarily for the sake of internal testing.</p>
+</td></tr>
+<tr valign="top"><td><code>advertise</code></td>
+<td>
+<p>Logical. Whether to include a footer that describes when and
+how the reprex was created. If unspecified, the option <code>reprex.advertise</code>
+is consulted and, if that is not defined, default is <code>TRUE</code> for venues
+<code>"gh"</code>, <code>"html"</code>, <code>"so"</code>, <code>"ds"</code> and <code>FALSE</code> for <code>"r"</code>, <code>"rtf"</code>, <code>"slack"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>session_info</code></td>
+<td>
+<p>Logical. Whether to include
+<code><a href="../../sessioninfo/html/session_info.html">sessioninfo::session_info()</a></code>, if available, or <code><a href="../../utils/html/sessionInfo.html">sessionInfo()</a></code> at the end
+of the reprex. When <code>venue</code> is &quot;gh&quot;, the session info is wrapped in a
+collapsible details tag. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>Logical. Whether to set the knitr chunk option <code>tidy = "styler"</code>, which re-styles code with the <a href="https://styler.r-lib.org">styler package</a>. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>Character. Prefix with which to comment out output, defaults
+to <code>"#&gt;"</code>. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>tidyverse_quiet</code></td>
+<td>
+<p>Logical. Sets the options <code>tidyverse.quiet</code> and
+<code>tidymodels.quiet</code>, which suppress (<code>TRUE</code>, the default) or include
+(<code>FALSE</code>) the startup messages for the tidyverse and tidymodels packages.
+Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>std_out_err</code></td>
+<td>
+<p>Logical. Whether to append a section for output sent to
+stdout and stderr by the reprex rendering process. This can be necessary to
+reveal output if the reprex spawns child processes or <code>system()</code> calls.
+Note this cannot be properly interleaved with output from the main R
+process, nor is there any guarantee that the lines from standard output and
+standard error are in correct chronological order. See <code><a href="../../callr/html/r.html">callr::r()</a></code> for
+more. Read more about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>html_preview</code></td>
+<td>
+<p>Logical. Whether to show rendered output in a viewer
+(RStudio or browser). Always <code>FALSE</code> in a noninteractive session. Read more
+about <code><a href="reprex_options.html">opt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>outfile</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> in favor of <code>wd</code> or
+providing a filepath to <code>input</code>. To reprex in current working directory,
+use <code>wd = "."</code> now, instead of <code>outfile = NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>show</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> in favor of <code>html_preview</code>,
+for greater consistency with other R Markdown output formats.</p>
+</td></tr>
+<tr valign="top"><td><code>si</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> in favor of <code>session_info</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Character vector of rendered reprex, invisibly.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The usual &quot;code + commented output&quot; is returned invisibly, written to file,
+and, whenever possible, put on the clipboard. An HTML preview displays in
+RStudio's Viewer pane, if available, or in the default browser, otherwise.
+Leading <code>"&gt; "</code> prompts, are stripped from the input code. Read more at
+<a href="https://reprex.tidyverse.org/">https://reprex.tidyverse.org/</a>.
+</p>
+<p>reprex sets specific <a href="https://yihui.org/knitr/options/">knitr options</a>:
+</p>
+
+<ul>
+<li><p> Chunk options default to <code>collapse = TRUE</code>, <code>comment = "#&gt;"</code>,
+<code>error = TRUE</code>. Note that <code>error = TRUE</code>, because a common use case is bug
+reporting.
+</p>
+</li>
+<li><p> reprex also sets knitr's <code>upload.fun</code>. It defaults to
+<code><a href="../../knitr/html/imgur_upload.html">knitr::imgur_upload()</a></code> so figures produced by the reprex appear properly
+on GitHub, Stack Overflow, Discourse, and Slack. Note that <code>imgur_upload()</code>
+requires the packages httr and xml2. When <code>venue = "r"</code>, <code>upload.fun</code> is
+set to <code>identity()</code>, so that figures remain local. In that case, you may
+also want to provide a filepath to <code>input</code> or set <code>wd</code>, to control where
+the reprex files are written.
+You can supplement or override these options with special comments in your
+code (see examples).
+</p>
+</li></ul>
+
+
+
+<h3>Syntax highlighting</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>A secondary use case for reprex is to produce syntax highlighted code
+snippets, with or without rendering, to paste into applications like
+Microsoft Word, PowerPoint, or Keynote. Use <code>venue = "rtf"</code> for this.
+</p>
+<p>This feature is experimental and requires the installation of the
+<a href="http://www.andre-simon.de/doku/highlight/en/highlight.php">highlight</a>
+command line tool. The <code>"rtf"</code> venue is documented in <a href="https://reprex.tidyverse.org/articles/articles/rtf.html">its own article</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+# put some code like this on the clipboard
+# (y &lt;- 1:4)
+# mean(y)
+reprex()
+
+# provide code as an expression
+reprex(rbinom(3, size = 10, prob = 0.5))
+reprex({y &lt;- 1:4; mean(y)})
+reprex({y &lt;- 1:4; mean(y)}, style = TRUE)
+
+# note that you can include newlines in those brackets
+# in fact, that is often a good idea
+reprex({
+  x &lt;- 1:4
+  y &lt;- 2:5
+  x + y
+})
+
+## provide code via character vector
+reprex(input = c("x &lt;- 1:4", "y &lt;- 2:5", "x + y"))
+
+## if just one line, terminate with '\n'
+reprex(input = "rnorm(3)\n")
+
+## customize the output comment prefix
+reprex(rbinom(3, size = 10, prob = 0.5), comment = "#;-)")
+
+# override a default chunk option
+reprex({
+  #+ setup, include = FALSE
+  knitr::opts_chunk$set(collapse = FALSE)
+
+  #+ actual-reprex-code
+  (y &lt;- 1:4)
+  median(y)
+})
+
+# add prose, use general markdown formatting
+reprex({
+  #' # A Big Heading
+  #'
+  #' Look at my cute example. I love the
+  #' [reprex](https://github.com/tidyverse/reprex#readme) package!
+  y &lt;- 1:4
+  mean(y)
+}, advertise = FALSE)
+
+# read reprex from file and write resulting files to that location
+tmp &lt;- file.path(tempdir(), "foofy.R")
+writeLines(c("x &lt;- 1:4", "mean(x)"), tmp)
+reprex(input = tmp)
+list.files(dirname(tmp), pattern = "foofy")
+
+# clean up
+file.remove(list.files(dirname(tmp), pattern = "foofy", full.names = TRUE))
+
+# write reprex to file AND keep figure local too, i.e. don't post to imgur
+tmp &lt;- file.path(tempdir(), "foofy")
+dir.create(tmp)
+reprex({
+  #+ setup, include = FALSE
+  knitr::opts_knit$set(upload.fun = identity)
+
+  #+ actual-reprex-code
+  #' Some prose
+  ## regular comment
+  (x &lt;- 1:4)
+  median(x)
+  plot(x)
+  }, wd = tmp)
+list.files(dirname(tmp), pattern = "foofy")
+
+# clean up
+unlink(tmp, recursive = TRUE)
+
+## target venue = R, also good for email or Slack snippets
+ret &lt;- reprex({
+  x &lt;- 1:4
+  y &lt;- 2:5
+  x + y
+}, venue = "R")
+ret
+
+## target venue = html
+ret &lt;- reprex({
+  x &lt;- 1:4
+  y &lt;- 2:5
+  x + y
+}, venue = "html")
+ret
+
+## include prompt and don't comment the output
+## use this when you want to make your code hard to execute :)
+reprex({
+  #+ setup, include = FALSE
+  knitr::opts_chunk$set(comment = NA, prompt = TRUE)
+
+  #+ actual-reprex-code
+  x &lt;- 1:4
+  y &lt;- 2:5
+  x + y
+})
+
+## leading prompts are stripped from source
+reprex(input = c("&gt; x &lt;- 1:3", "&gt; median(x)"))
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>reprex</em> version 2.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

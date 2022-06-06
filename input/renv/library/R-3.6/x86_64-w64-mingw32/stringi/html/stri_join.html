@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Concatenate Character Vectors</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_join {stringi}"><tr><td>stri_join {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Concatenate Character Vectors</h2>
+
+<h3>Description</h3>
+
+<p>These are the <span class="pkg">stringi</span>'s equivalents of the built-in
+<code><a href="../../base/html/paste.html">paste</a></code> function.
+<code>stri_c</code> and <code>stri_paste</code> are aliases for <code>stri_join</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_join(..., sep = "", collapse = NULL, ignore_null = FALSE)
+
+stri_c(..., sep = "", collapse = NULL, ignore_null = FALSE)
+
+stri_paste(..., sep = "", collapse = NULL, ignore_null = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>character vectors (or objects coercible to character vectors)
+whose corresponding elements are to be concatenated</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>a single string; separates terms</p>
+</td></tr>
+<tr valign="top"><td><code>collapse</code></td>
+<td>
+<p>a single string or <code>NULL</code>; an optional
+results separator</p>
+</td></tr>
+<tr valign="top"><td><code>ignore_null</code></td>
+<td>
+<p>a single logical value; if <code>TRUE</code>, then empty
+vectors provided via <code>...</code> are silently ignored</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over each atomic vector in '<code>...</code>'.
+</p>
+<p>Unless <code>collapse</code> is <code>NULL</code>, the result will be a single string.
+Otherwise, you get a character vector of length equal
+to the length of the longest argument.
+</p>
+<p>If any of the arguments in '<code>...</code>' is a vector of length 0
+(not to be confused with vectors of empty strings)
+and <code>ignore_null</code> is <code>FALSE</code>, then
+you will get a 0-length character vector in result.
+</p>
+<p>If <code>collapse</code> or <code>sep</code> has length greater than 1,
+then only the first string will be used.
+</p>
+<p>In case where there are missing values in any of the input vectors,
+<code>NA</code> is set to the corresponding element.
+Note that this behavior is different from <code><a href="../../base/html/paste.html">paste</a></code>,
+which treats missing values as ordinary strings like <code>'NA'</code>.
+Moreover, as usual in <span class="pkg">stringi</span>, the resulting strings are
+always in UTF-8.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other join: 
+<code><a href="operator_add.html">%s+%</a>()</code>,
+<code><a href="stri_dup.html">stri_dup</a>()</code>,
+<code><a href="stri_flatten.html">stri_flatten</a>()</code>,
+<code><a href="stri_join_list.html">stri_join_list</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_join(1:13, letters)
+stri_join(1:13, letters, sep=',')
+stri_join(1:13, letters, collapse='; ')
+stri_join(1:13, letters, sep=',', collapse='; ')
+stri_join(c('abc', '123', 'xyz'),'###', 1:6, sep=',')
+stri_join(c('abc', '123', 'xyz'),'###', 1:6, sep=',', collapse='; ')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

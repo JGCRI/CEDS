@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get element text</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_text {rvest}"><tr><td>html_text {rvest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get element text</h2>
+
+<h3>Description</h3>
+
+<p>There are two ways to retrieve text from a element: <code>html_text()</code> and
+<code>html_text2()</code>. <code>html_text()</code> is a thin wrapper around <code><a href="../../xml2/html/xml_text.html">xml2::xml_text()</a></code>
+which returns just the raw underlying text. <code>html_text2()</code> simulates how
+text looks in a browser, using an approach inspired by JavaScript's
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText">innerText()</a>.
+Roughly speaking, it converts <code style="white-space: pre;">&lt;br /&gt;</code> to <code>"\n"</code>, adds blank lines
+around <code style="white-space: pre;">&lt;p&gt;</code> tags, and lightly formats tabular data.
+</p>
+<p><code>html_text2()</code> is usually what you want, but it is much slower than
+<code>html_text()</code> so for simple applications where performance is important
+you may want to use <code>html_text()</code> instead.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_text(x, trim = FALSE)
+
+html_text2(x, preserve_nbsp = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document, node, or node set.</p>
+</td></tr>
+<tr valign="top"><td><code>trim</code></td>
+<td>
+<p>If <code>TRUE</code> will trim leading and trailing spaces.</p>
+</td></tr>
+<tr valign="top"><td><code>preserve_nbsp</code></td>
+<td>
+<p>Should non-breaking spaces be preserved? By default,
+<code>html_text2()</code> converts to ordinary spaces to ease further computation.
+When <code>preserve_nbsp</code> is <code>TRUE</code>, <code style="white-space: pre;">&amp;nbsp;</code> will appear in strings as
+<code>"\ua0"</code>. This often causes confusion because it prints the same way as
+<code>" "</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A character vector the same length as <code>x</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# To understand the difference between html_text() and html_text2()
+# take the following html:
+
+html &lt;- minimal_html(
+  "&lt;p&gt;This is a paragraph.
+    This another sentence.&lt;br&gt;This should start on a new line"
+)
+
+# html_text() returns the raw underlying text, which includes whitespace
+# that would be ignored by a browser, and ignores the &lt;br&gt;
+html %&gt;% html_element("p") %&gt;% html_text() %&gt;% writeLines()
+
+# html_text2() simulates what a browser would display. Non-significant
+# whitespace is collapsed, and &lt;br&gt; is turned into a line break
+html %&gt;% html_element("p") %&gt;% html_text2() %&gt;% writeLines()
+
+# By default, html_text2() also converts non-breaking spaces to regular
+# spaces:
+html &lt;- minimal_html("&lt;p&gt;x&amp;nbsp;y&lt;/p&gt;")
+x1 &lt;- html %&gt;% html_element("p") %&gt;% html_text()
+x2 &lt;- html %&gt;% html_element("p") %&gt;% html_text2()
+
+# When printed, non-breaking spaces look exactly like regular spaces
+x1
+x2
+# But aren't actually the same:
+x1 == x2
+# Which you can confirm by looking at their underlying binary
+# representaion:
+charToRaw(x1)
+charToRaw(x2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rvest</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

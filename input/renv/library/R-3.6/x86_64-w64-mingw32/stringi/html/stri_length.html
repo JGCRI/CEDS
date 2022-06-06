@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count the Number of Code Points</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_length {stringi}"><tr><td>stri_length {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count the Number of Code Points</h2>
+
+<h3>Description</h3>
+
+<p>This function returns the number of code points
+in each string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_length(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector or an object coercible to</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that the number of code points is
+not the same as the 'width' of the string when
+printed on the console.
+</p>
+<p>If a given string is in UTF-8 and has not been properly normalized
+(e.g., by <code><a href="stri_trans_nf.html">stri_trans_nfc</a></code>), the returned counts may sometimes be
+misleading. See <code><a href="stri_count_boundaries.html">stri_count_boundaries</a></code> for a method to count
+<em>Unicode characters</em>. Moreover, if an incorrect UTF-8 byte sequence
+is detected, then a warning is generated and the corresponding output element
+is set to <code>NA</code>, see also <code><a href="stri_enc_toutf8.html">stri_enc_toutf8</a></code> for a method
+to deal with such cases.
+</p>
+<p>Missing values are handled properly.
+For 'byte' encodings we get, as usual, an error.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns an integer vector of the same length as <code>str</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other length: 
+<code><a href="operator_dollar.html">%s$%</a>()</code>,
+<code><a href="stri_isempty.html">stri_isempty</a>()</code>,
+<code><a href="stri_numbytes.html">stri_numbytes</a>()</code>,
+<code><a href="stri_pad.html">stri_pad_both</a>()</code>,
+<code><a href="stri_sprintf.html">stri_sprintf</a>()</code>,
+<code><a href="stri_width.html">stri_width</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_length(LETTERS)
+stri_length(c('abc', '123', '\u0105\u0104'))
+stri_length('\u0105') # length is one, but...
+stri_numbytes('\u0105') # 2 bytes are used
+stri_numbytes(stri_trans_nfkd('\u0105')) # 3 bytes here but...
+stri_length(stri_trans_nfkd('\u0105')) # ...two code points (!)
+stri_count_boundaries(stri_trans_nfkd('\u0105'), type='character') # ...and one Unicode character
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

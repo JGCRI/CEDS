@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Summarise each group to fewer rows</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for summarise {dplyr}"><tr><td>summarise {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Summarise each group to fewer rows</h2>
+
+<h3>Description</h3>
+
+<p><code>summarise()</code> creates a new data frame. It will have one (or more) rows for
+each combination of grouping variables; if there are no grouping variables,
+the output will have a single row summarising all observations in the input.
+It will contain one column for each grouping variable and one column
+for each of the summary statistics that you have specified.
+</p>
+<p><code>summarise()</code> and <code>summarize()</code> are synonyms.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+summarise(.data, ..., .groups = NULL)
+
+summarize(.data, ..., .groups = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame, data frame extension (e.g. a tibble), or a
+lazy data frame (e.g. from dbplyr or dtplyr). See <em>Methods</em>, below, for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_data_masking.html">data-masking</a></code>&gt; Name-value pairs of summary
+functions. The name will be the name of the variable in the result.
+</p>
+<p>The value can be:
+</p>
+
+<ul>
+<li><p> A vector of length 1, e.g. <code>min(x)</code>, <code>n()</code>, or <code>sum(is.na(y))</code>.
+</p>
+</li>
+<li><p> A vector of length <code>n</code>, e.g. <code>quantile()</code>.
+</p>
+</li>
+<li><p> A data frame, to add multiple columns from a single expression.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>.groups</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a> Grouping structure of the result.
+</p>
+
+<ul>
+<li><p> &quot;drop_last&quot;: dropping the last level of grouping. This was the
+only supported option before version 1.0.0.
+</p>
+</li>
+<li><p> &quot;drop&quot;: All levels of grouping are dropped.
+</p>
+</li>
+<li><p> &quot;keep&quot;: Same grouping structure as <code>.data</code>.
+</p>
+</li>
+<li><p> &quot;rowwise&quot;: Each row is its own group.
+</p>
+</li></ul>
+
+<p>When <code>.groups</code> is not specified, it is chosen
+based on the number of rows of the results:
+</p>
+
+<ul>
+<li><p> If all the results have 1 row, you get &quot;drop_last&quot;.
+</p>
+</li>
+<li><p> If the number of rows varies, you get &quot;keep&quot;.
+</p>
+</li></ul>
+
+<p>In addition, a message informs you of that choice, unless the result is ungrouped,
+the option &quot;dplyr.summarise.inform&quot; is set to <code>FALSE</code>,
+or when <code>summarise()</code> is called from a function in a package.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object <em>usually</em> of the same type as <code>.data</code>.
+</p>
+
+<ul>
+<li><p> The rows come from the underlying <code><a href="group_data.html">group_keys()</a></code>.
+</p>
+</li>
+<li><p> The columns are a combination of the grouping keys and the summary
+expressions that you provide.
+</p>
+</li>
+<li><p> The grouping structure is controlled by the <code style="white-space: pre;">.groups=</code> argument, the
+output may be another <a href="grouped_df.html">grouped_df</a>, a <a href="reexports.html">tibble</a> or a <a href="rowwise.html">rowwise</a> data frame.
+</p>
+</li>
+<li><p> Data frame attributes are <strong>not</strong> preserved, because <code>summarise()</code>
+fundamentally creates a new data frame.
+</p>
+</li></ul>
+
+
+
+<h3>Useful functions</h3>
+
+
+<ul>
+<li><p> Center: <code><a href="../../base/html/mean.html">mean()</a></code>, <code><a href="../../stats/html/median.html">median()</a></code>
+</p>
+</li>
+<li><p> Spread: <code><a href="../../stats/html/sd.html">sd()</a></code>, <code><a href="../../stats/html/IQR.html">IQR()</a></code>, <code><a href="../../stats/html/mad.html">mad()</a></code>
+</p>
+</li>
+<li><p> Range: <code><a href="../../base/html/Extremes.html">min()</a></code>, <code><a href="../../base/html/Extremes.html">max()</a></code>, <code><a href="../../stats/html/quantile.html">quantile()</a></code>
+</p>
+</li>
+<li><p> Position: <code><a href="nth.html">first()</a></code>, <code><a href="nth.html">last()</a></code>, <code><a href="nth.html">nth()</a></code>,
+</p>
+</li>
+<li><p> Count: <code><a href="context.html">n()</a></code>, <code><a href="n_distinct.html">n_distinct()</a></code>
+</p>
+</li>
+<li><p> Logical: <code><a href="../../base/html/any.html">any()</a></code>, <code><a href="../../base/html/all.html">all()</a></code>
+</p>
+</li></ul>
+
+
+
+<h3>Backend variations</h3>
+
+<p>The data frame backend supports creating a variable and using it in the
+same summary. This means that previously created summary variables can be
+further transformed or combined within the summary, as in <code><a href="mutate.html">mutate()</a></code>.
+However, it also means that summary variables with the same names as previous
+variables overwrite them, making those variables unavailable to later summary
+variables.
+</p>
+<p>This behaviour may not be supported in other backends. To avoid unexpected
+results, consider using new names for your summary variables, especially when
+creating multiple summaries.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>This function is a <strong>generic</strong>, which means that packages can provide
+implementations (methods) for other classes. See the documentation of
+individual methods for extra arguments and differences in behaviour.
+</p>
+<p>The following methods are currently available in loaded packages:
+no methods found.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other single table verbs: 
+<code><a href="arrange.html">arrange</a>()</code>,
+<code><a href="filter.html">filter</a>()</code>,
+<code><a href="mutate.html">mutate</a>()</code>,
+<code><a href="rename.html">rename</a>()</code>,
+<code><a href="select.html">select</a>()</code>,
+<code><a href="slice.html">slice</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# A summary applied to ungrouped tbl returns a single row
+mtcars %&gt;%
+  summarise(mean = mean(disp), n = n())
+
+# Usually, you'll want to group first
+mtcars %&gt;%
+  group_by(cyl) %&gt;%
+  summarise(mean = mean(disp), n = n())
+
+# dplyr 1.0.0 allows to summarise to more than one value:
+mtcars %&gt;%
+   group_by(cyl) %&gt;%
+   summarise(qs = quantile(disp, c(0.25, 0.75)), prob = c(0.25, 0.75))
+
+# You use a data frame to create multiple columns so you can wrap
+# this up into a function:
+my_quantile &lt;- function(x, probs) {
+  tibble(x = quantile(x, probs), probs = probs)
+}
+mtcars %&gt;%
+  group_by(cyl) %&gt;%
+  summarise(my_quantile(disp, c(0.25, 0.75)))
+
+# Each summary call removes one grouping level (since that group
+# is now just a single row)
+mtcars %&gt;%
+  group_by(cyl, vs) %&gt;%
+  summarise(cyl_n = n()) %&gt;%
+  group_vars()
+
+# BEWARE: reusing variables may lead to unexpected results
+mtcars %&gt;%
+  group_by(cyl) %&gt;%
+  summarise(disp = mean(disp), sd = sd(disp))
+
+# Refer to column names stored as strings with the `.data` pronoun:
+var &lt;- "mass"
+summarise(starwars, avg = mean(.data[[var]], na.rm = TRUE))
+# Learn more in ?dplyr_data_masking
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

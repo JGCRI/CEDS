@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine values from multiple columns</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for c_across {dplyr}"><tr><td>c_across {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine values from multiple columns</h2>
+
+<h3>Description</h3>
+
+<p><code>c_across()</code> is designed to work with <code><a href="rowwise.html">rowwise()</a></code> to make it easy to
+perform row-wise aggregations. It has two differences from <code>c()</code>:
+</p>
+
+<ul>
+<li><p> It uses tidy select semantics so you can easily select multiple variables.
+See <code>vignette("rowwise")</code> for more details.
+</p>
+</li>
+<li><p> It uses <code><a href="../../vctrs/html/vec_c.html">vctrs::vec_c()</a></code> in order to give safer outputs.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+c_across(cols = everything())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>&lt;<code><a href="dplyr_tidy_select.html">tidy-select</a></code>&gt; Columns to transform.
+Because <code>across()</code> is used within functions like <code>summarise()</code> and
+<code>mutate()</code>, you can't select or compute upon grouping variables.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="across.html">across()</a></code> for a function that returns a tibble.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- tibble(id = 1:4, w = runif(4), x = runif(4), y = runif(4), z = runif(4))
+df %&gt;%
+  rowwise() %&gt;%
+  mutate(
+    sum = sum(c_across(w:z)),
+    sd = sd(c_across(w:z))
+ )
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

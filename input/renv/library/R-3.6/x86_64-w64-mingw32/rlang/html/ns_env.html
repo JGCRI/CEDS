@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the namespace of a package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ns_env {rlang}"><tr><td>ns_env {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the namespace of a package</h2>
+
+<h3>Description</h3>
+
+<p>Namespaces are the environment where all the functions of a package
+live. The parent environments of namespaces are the <code>imports</code>
+environments, which contain all the functions imported from other
+packages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ns_env(x = caller_env())
+
+ns_imports_env(x = caller_env())
+
+ns_env_name(x = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+
+<ul>
+<li><p> For <code>ns_env()</code>, the name of a package or an environment as a
+string.
+</p>
+
+<ul>
+<li><p> An environment (the current environment by default).
+</p>
+</li>
+<li><p> A function.
+</p>
+</li></ul>
+
+<p>In the latter two cases, the environment ancestry is searched for
+a namespace with <code><a href="../../base/html/ns-topenv.html">base::topenv()</a></code>. If the environment doesn't
+inherit from a namespace, this is an error.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>A namespace environment.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="search_envs.html">pkg_env()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

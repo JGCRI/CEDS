@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Evaluate dots with preliminary splicing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dots_values {rlang}"><tr><td>dots_values {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Evaluate dots with preliminary splicing</h2>
+
+<h3>Description</h3>
+
+<p>This is a tool for advanced users. It captures dots, processes
+unquoting and splicing operators, and evaluates them. Unlike
+<code><a href="list2.html">dots_list()</a></code>, it does not flatten spliced objects, instead they
+are attributed a <code>spliced</code> class (see <code><a href="splice.html">splice()</a></code>). You can process
+spliced objects manually, perhaps with a custom predicate (see
+<code><a href="flatten.html">flatten_if()</a></code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dots_values(
+  ...,
+  .ignore_empty = c("trailing", "none", "all"),
+  .preserve_empty = FALSE,
+  .homonyms = c("keep", "first", "last", "error"),
+  .check_assign = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments to evaluate and process splicing operators.</p>
+</td></tr>
+<tr valign="top"><td><code>.ignore_empty</code></td>
+<td>
+<p>Whether to ignore empty arguments. Can be one
+of <code>"trailing"</code>, <code>"none"</code>, <code>"all"</code>. If <code>"trailing"</code>, only the
+last argument is ignored if it is empty.</p>
+</td></tr>
+<tr valign="top"><td><code>.preserve_empty</code></td>
+<td>
+<p>Whether to preserve the empty arguments that
+were not ignored. If <code>TRUE</code>, empty arguments are stored with
+<code><a href="missing_arg.html">missing_arg()</a></code> values. If <code>FALSE</code> (the default) an error is
+thrown when an empty argument is detected.</p>
+</td></tr>
+<tr valign="top"><td><code>.homonyms</code></td>
+<td>
+<p>How to treat arguments with the same name. The
+default, <code>"keep"</code>, preserves these arguments. Set <code>.homonyms</code> to
+<code>"first"</code> to only keep the first occurrences, to <code>"last"</code> to keep
+the last occurrences, and to <code>"error"</code> to raise an informative
+error and indicate what arguments have duplicated names.</p>
+</td></tr>
+<tr valign="top"><td><code>.check_assign</code></td>
+<td>
+<p>Whether to check for <code style="white-space: pre;">&lt;-</code> calls. When <code>TRUE</code> a
+warning recommends users to use <code>=</code> if they meant to match a
+function parameter or wrap the <code style="white-space: pre;">&lt;-</code> call in curly braces otherwise.
+This ensures assignments are explicit.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+dots &lt;- dots_values(!!! list(1, 2), 3)
+dots
+
+# Flatten the objects marked as spliced:
+flatten_if(dots, is_spliced)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

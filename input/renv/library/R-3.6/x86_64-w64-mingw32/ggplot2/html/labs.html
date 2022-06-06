@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Modify axis, legend, and plot labels</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for labs {ggplot2}"><tr><td>labs {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Modify axis, legend, and plot labels</h2>
+
+<h3>Description</h3>
+
+<p>Good labels are critical for making your plots accessible to a wider
+audience. Always ensure the axis and legend labels display the full
+variable name. Use the plot <code>title</code> and <code>subtitle</code> to explain the
+main findings. It's common to use the <code>caption</code> to provide information
+about the data source. <code>tag</code> can be used for adding identification tags
+to differentiate between multiple plots.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+labs(
+  ...,
+  title = waiver(),
+  subtitle = waiver(),
+  caption = waiver(),
+  tag = waiver(),
+  alt = waiver(),
+  alt_insight = waiver()
+)
+
+xlab(label)
+
+ylab(label)
+
+ggtitle(label, subtitle = waiver())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>A list of new name-value pairs. The name should be an aesthetic.</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>The text for the title.</p>
+</td></tr>
+<tr valign="top"><td><code>subtitle</code></td>
+<td>
+<p>The text for the subtitle for the plot which will be
+displayed below the title.</p>
+</td></tr>
+<tr valign="top"><td><code>caption</code></td>
+<td>
+<p>The text for the caption which will be displayed in the
+bottom-right of the plot by default.</p>
+</td></tr>
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>The text for the tag label which will be displayed at the
+top-left of the plot by default.</p>
+</td></tr>
+<tr valign="top"><td><code>alt, alt_insight</code></td>
+<td>
+<p>Text used for the generation of alt-text for the plot.
+See <a href="get_alt_text.html">get_alt_text</a> for examples.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>The title of the respective axis (for <code>xlab()</code> or <code>ylab()</code>) or
+of the plot (for <code>ggtitle()</code>).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>You can also set axis and legend labels in the individual scales (using
+the first argument, the <code>name</code>). If you're changing other scale options, this
+is recommended.
+</p>
+<p>If a plot already has a title, subtitle, caption, etc., and you want to
+remove it, you can do so by setting the respective argument to <code>NULL</code>. For
+example, if plot <code>p</code> has a subtitle, then <code>p + labs(subtitle = NULL)</code> will
+remove the subtitle from the plot.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- ggplot(mtcars, aes(mpg, wt, colour = cyl)) + geom_point()
+p + labs(colour = "Cylinders")
+p + labs(x = "New x label")
+
+# The plot title appears at the top-left, with the subtitle
+# display in smaller text underneath it
+p + labs(title = "New plot title")
+p + labs(title = "New plot title", subtitle = "A subtitle")
+
+# The caption appears in the bottom-right, and is often used for
+# sources, notes or copyright
+p + labs(caption = "(based on data from ...)")
+
+# The plot tag appears at the top-left, and is typically used
+# for labelling a subplot with a letter.
+p + labs(title = "title", tag = "A")
+
+# If you want to remove a label, set it to NULL.
+p +
+ labs(title = "title") +
+ labs(title = NULL)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

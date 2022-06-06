@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render labeled isolines</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for isolines_grob {isoband}"><tr><td>isolines_grob {isoband}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render labeled isolines</h2>
+
+<h3>Description</h3>
+
+<p>This function generates a grid grob that represents labeled isolines.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+isolines_grob(
+  lines,
+  gp = gpar(),
+  breaks = NULL,
+  labels = NULL,
+  margin = unit(c(1, 1, 1, 1), "pt"),
+  label_col = NULL,
+  label_alpha = NULL,
+  label_placer = label_placer_minmax(),
+  units = "npc"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lines</code></td>
+<td>
+<p>Isolines, as produced by the <code><a href="isobands.html">isolines()</a></code> function.</p>
+</td></tr>
+<tr valign="top"><td><code>gp</code></td>
+<td>
+<p>Grid graphical parameters. Parameters applying to lines
+(such as <code>col</code>, <code>lwd</code>, <code>lty</code>, etc.) are recycled among the total
+number of lines drawn. Parameters applying only to labels (such
+as <code>fontfamily</code>, <code>fontsize</code>) are recycled among the specified
+breaks only. The two parameters <code>col</code> and <code>alpha</code> are also applied
+to labels, unless overridden (see <code>label_col</code> and <code>label_alpha</code>),
+but are matched to the corresponding lines.</p>
+</td></tr>
+<tr valign="top"><td><code>breaks</code></td>
+<td>
+<p>Character vector specifying the isolines that should be
+labeled. If <code>NULL</code>, labels all isolines.</p>
+</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
+<p>Character vector specifying the labels for each break.
+If <code>NULL</code>, uses the breaks as labels. The number of labels provided
+must match the number of breaks provided.</p>
+</td></tr>
+<tr valign="top"><td><code>margin</code></td>
+<td>
+<p>Unit object of length 4 specifying the top, right, bottom,
+and left margins around each text label. The same margins are applied
+to all labels.</p>
+</td></tr>
+<tr valign="top"><td><code>label_col</code></td>
+<td>
+<p>Color applied to labels. Can be used to override the
+color provided in <code>gp</code>, in case labels and lines should have different
+colors.</p>
+</td></tr>
+<tr valign="top"><td><code>label_alpha</code></td>
+<td>
+<p>Alpha applied to labels. Can be used to override the
+alpha value provided in <code>gp</code>, in case labels and lines should have
+different alpha values.</p>
+</td></tr>
+<tr valign="top"><td><code>label_placer</code></td>
+<td>
+<p>Function that controls how labels are placed along
+the isolines. Uses <code><a href="label_placer.html">label_placer_minmax()</a></code> by default.</p>
+</td></tr>
+<tr valign="top"><td><code>units</code></td>
+<td>
+<p>A character string specifying the units in which to
+interpret the isolines coordinates. Defaults to <code>"npc"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>See <code><a href="isobands_grob.html">isobands_grob()</a></code> for drawing of isobands. See <code><a href="label_placer.html">label_placer_minmax()</a></code> for
+label placement strategies.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(grid)
+
+viridis_pal &lt;- colorRampPalette(
+  c("#440154", "#414487", "#2A788E", "#22A884", "#7AD151", "#FDE725"),
+  space = "Lab"
+)
+
+x &lt;- (1:ncol(volcano))/(ncol(volcano)+1)
+y &lt;- (nrow(volcano):1)/(nrow(volcano)+1)
+lines &lt;- isolines(x, y, volcano, 5*(19:38))
+bands &lt;- isobands(x, y, volcano, 5*(18:38), 5*(19:39))
+
+b &lt;- isobands_grob(
+  bands,
+  gp = gpar(col = NA, fill = viridis_pal(21), alpha = 0.4)
+)
+l &lt;- isolines_grob(
+  lines, breaks = 20*(5:10),
+  gp = gpar(
+    lwd = c(.3, 1, .3, .3)
+  )
+)
+
+grid.newpage()
+grid.draw(b)
+grid.draw(l)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>isoband</em> version 0.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

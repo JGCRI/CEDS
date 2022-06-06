@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find the 'pandoc' executable</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for find_pandoc {rmarkdown}"><tr><td>find_pandoc {rmarkdown}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find the <code>pandoc</code> executable</h2>
+
+<h3>Description</h3>
+
+<p>Searches for the <code>pandoc</code> executable in a few places and use the
+highest version found, unless a specific version is requested.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+find_pandoc(cache = TRUE, dir = NULL, version = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cache</code></td>
+<td>
+<p>Whether to search for <code>pandoc</code> again if a Pandoc
+directory containing the <code>pandoc</code> executable of the expected
+version (if provided) has been found previously. Search again if
+<code>cache = FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>dir</code></td>
+<td>
+<p>A character vector of potential directory paths under which
+<code>pandoc</code> may be found. If not provided, this function searches for
+<code>pandoc</code> from the environment variable <var>RSTUDIO_PANDOC</var> (the
+RStudio IDE will set this variable to the directory of Pandoc bundled with
+the IDE), the environment variable <var>PATH</var>, and the directory
+&lsquo;<span class="file">~/opt/pandoc/</span>&rsquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>The version of Pandoc to look for (e.g., <code>"2.9.2.1"</code>). If
+not provided, this function searches for the highest version under the
+potential directories.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list containing the directory and version of Pandoc (if found).
+</p>
+
+
+<h3>Note</h3>
+
+<p>Usually you do not need to install Pandoc if you use the RStudio IDE,
+because the IDE has bundled a version of Pandoc. If you have installed a
+version of Pandoc by yourself and want to use this version instead, you may
+use the <code>dir</code> argument of this function.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+rmarkdown::find_pandoc()
+rmarkdown::find_pandoc(dir = '~/Downloads/Pandoc')
+rmarkdown::find_pandoc(version = '2.7.3')
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rmarkdown</em> version 2.11 <a href="00Index.html">Index</a>]</div>
+</body></html>

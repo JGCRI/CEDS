@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Randomly Shuffle Code Points in Each String</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_rand_shuffle {stringi}"><tr><td>stri_rand_shuffle {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Randomly Shuffle Code Points in Each String</h2>
+
+<h3>Description</h3>
+
+<p>Generates a (pseudo)random permutation of the code points
+in each string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_rand_shuffle(str)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This operation may result in non-Unicode-normalized
+strings and may give peculiar outputs in case of bidirectional strings.
+</p>
+<p>See also <code><a href="stri_reverse.html">stri_reverse</a></code> for reversing the order of code points.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other random: 
+<code><a href="stri_rand_lipsum.html">stri_rand_lipsum</a>()</code>,
+<code><a href="stri_rand_strings.html">stri_rand_strings</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_rand_shuffle(c('abcdefghi', '0123456789'))
+# you can do better than this with stri_rand_strings:
+stri_rand_shuffle(rep(stri_paste(letters, collapse=''), 10))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

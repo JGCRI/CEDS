@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Print UTF-8 Text</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for utf8_print {utf8}"><tr><td>utf8_print {utf8}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Print UTF-8 Text</h2>
+
+<h3>Description</h3>
+
+<p>Print a UTF-8 character object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+utf8_print(x, chars = NULL, quote = TRUE, na.print = NULL,
+           print.gap = NULL, right = FALSE, max = NULL,
+           names = NULL, rownames = NULL, escapes = NULL,
+           display = TRUE, style = TRUE, utf8 = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character object.</p>
+</td></tr>
+<tr valign="top"><td><code>chars</code></td>
+<td>
+<p>integer scalar indicating the maximum number of
+character units to display.  Wide characters like emoji take
+two character units; combining marks and default ignorables
+take none. Longer strings get truncated and suffixed or prefixed
+with an ellipsis (<code>"..."</code> in C locale, <code>"\u2026"</code> in
+others). Set to <code>NULL</code> to limit output to the line width
+as determined by <code>getOption("width")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>quote</code></td>
+<td>
+<p>logical scalar indicating whether to put surrounding
+double-quotes (<code>'"'</code>) around character strings and escape
+internal double-quotes.</p>
+</td></tr>
+<tr valign="top"><td><code>na.print</code></td>
+<td>
+<p>character string (or <code>NULL</code>) indicating
+the encoding for <code>NA</code> values. Ignored when
+<code>na.encode</code> is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>print.gap</code></td>
+<td>
+<p>non-negative integer (or <code>NULL</code>) giving the
+number of spaces in gaps between columns; set to <code>NULL</code>
+or <code>1</code> for a single space.</p>
+</td></tr>
+<tr valign="top"><td><code>right</code></td>
+<td>
+<p>logical scalar indicating whether to right-justify
+character strings.</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p>non-negative integer (or <code>NULL</code>) indicating the
+maximum number of elements to print; set to
+<code>getOption("max.print")</code> if argument is <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>names</code></td>
+<td>
+<p>a character string specifying the display style for
+the (column) names, as an ANSI SGR parameter string.</p>
+</td></tr>
+<tr valign="top"><td><code>rownames</code></td>
+<td>
+<p>a character string specifying the display style for
+the row names, as an ANSI SGR parameter string.</p>
+</td></tr>
+<tr valign="top"><td><code>escapes</code></td>
+<td>
+<p>a character string specifying the display style for
+the backslash escapes, as an ANSI SGR parameter string.</p>
+</td></tr>
+<tr valign="top"><td><code>display</code></td>
+<td>
+<p>logical scalar indicating whether to optimize the
+encoding for display, not byte-for-byte data transmission.</p>
+</td></tr>
+<tr valign="top"><td><code>style</code></td>
+<td>
+<p>logical scalar indicating whether to apply ANSI
+terminal escape codes to style the output.  Ignored when
+<code>output_ansi()</code> is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>utf8</code></td>
+<td>
+<p>logical scalar indicating whether to optimize results
+for a UTF-8 capable display, or <code>NULL</code> to set as the
+result of <code>output_utf8()</code>. Ignored when <code>output_utf8()</code>
+is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments passed from other methods. Ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>utf8_print</code> prints a character object after formatting it with
+<code>utf8_format</code>.
+</p>
+<p>For ANSI terminal output (when <code>output_ansi()</code> is <code>TRUE</code>),
+you can style the row and column names with the <code>rownames</code> and
+<code>names</code> parameters, specifying an ANSI SGR parameter string; see
+<a href="https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters">https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters</a>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The function returns <code>x</code> invisibly.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="utf8_format.html">utf8_format</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# printing (assumes that output is capable of displaying Unicode 10.0.0)
+print(intToUtf8(0x1F600 + 0:79)) # with default R print function
+utf8_print(intToUtf8(0x1F600 + 0:79)) # with utf8_print, truncates line
+utf8_print(intToUtf8(0x1F600 + 0:79), chars = 1000) # higher character limit
+
+# in C locale, output ASCII (same results on all platforms)
+oldlocale &lt;- Sys.getlocale("LC_CTYPE")
+invisible(Sys.setlocale("LC_CTYPE", "C")) # switch to C locale
+utf8_print(intToUtf8(0x1F600 + 0:79))
+invisible(Sys.setlocale("LC_CTYPE", oldlocale)) # switch back to old locale
+
+# Mac and Linux only: style the names
+# see https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
+utf8_print(matrix(as.character(1:20), 4, 5),
+           names = "1;4", rownames = "2;3")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>utf8</em> version 1.2.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

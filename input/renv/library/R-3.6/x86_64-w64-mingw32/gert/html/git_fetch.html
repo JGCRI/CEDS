@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Push and pull</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_fetch {gert}"><tr><td>git_fetch {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Push and pull</h2>
+
+<h3>Description</h3>
+
+<p>Functions to connect with a git server (remote) to fetch or push changes.
+The 'credentials' package is used to handle authentication, the
+<a href="https://docs.ropensci.org/credentials/articles/intro.html">credentials vignette</a>
+explains the various authentication methods for SSH and HTTPS remotes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_fetch(
+  remote = NULL,
+  refspec = NULL,
+  password = askpass,
+  ssh_key = NULL,
+  prune = FALSE,
+  verbose = interactive(),
+  repo = "."
+)
+
+git_remote_ls(
+  remote = NULL,
+  password = askpass,
+  ssh_key = NULL,
+  verbose = interactive(),
+  repo = "."
+)
+
+git_push(
+  remote = NULL,
+  refspec = NULL,
+  set_upstream = NULL,
+  password = askpass,
+  ssh_key = NULL,
+  mirror = FALSE,
+  force = FALSE,
+  verbose = interactive(),
+  repo = "."
+)
+
+git_clone(
+  url,
+  path = NULL,
+  branch = NULL,
+  password = askpass,
+  ssh_key = NULL,
+  bare = FALSE,
+  mirror = FALSE,
+  verbose = interactive()
+)
+
+git_pull(remote = NULL, rebase = FALSE, ..., repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>remote</code></td>
+<td>
+<p>Optional. Name of a remote listed in <code><a href="git_remote.html">git_remote_list()</a></code>. If
+unspecified and the current branch is already tracking branch a remote
+branch, that remote is honored. Otherwise, defaults to <code>origin</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>refspec</code></td>
+<td>
+<p>string with mapping between remote and local refs. Default
+uses the default refspec from the remote, which usually fetches all branches.</p>
+</td></tr>
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>a string or a callback function to get passwords for authentication
+or password protected ssh keys. Defaults to <a href="../../askpass/html/askpass.html">askpass</a> which
+checks <code>getOption('askpass')</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ssh_key</code></td>
+<td>
+<p>path or object containing your ssh private key. By default we
+look for keys in <code>ssh-agent</code> and <a href="../../credentials/html/ssh_credentials.html">credentials::ssh_key_info</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>prune</code></td>
+<td>
+<p>delete tracking branches that no longer exist on the remote, or
+are not in the refspec (such as pull requests).</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>display some progress info while downloading</p>
+</td></tr>
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>set_upstream</code></td>
+<td>
+<p>change the branch default upstream to <code>remote</code>.
+If <code>NULL</code>, this will set the branch upstream only if the push was
+successful and if the branch does not have an upstream set yet.</p>
+</td></tr>
+<tr valign="top"><td><code>mirror</code></td>
+<td>
+<p>use the <code>--mirror</code> flag</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>use the <code>--force</code> flag</p>
+</td></tr>
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>remote url. Typically starts with <code style="white-space: pre;">https://github.com/</code> for public
+repositories, and <code style="white-space: pre;">https://yourname@github.com/</code> or <code style="white-space: pre;">git@github.com/</code> for
+private repos. You will be prompted for a password or pat when needed.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Directory of the Git repository to create.</p>
+</td></tr>
+<tr valign="top"><td><code>branch</code></td>
+<td>
+<p>name of branch to check out locally</p>
+</td></tr>
+<tr valign="top"><td><code>bare</code></td>
+<td>
+<p>use the <code>--bare</code> flag</p>
+</td></tr>
+<tr valign="top"><td><code>rebase</code></td>
+<td>
+<p>if TRUE we try to rebase instead of merge local changes. This
+is not possible in case of conflicts (you will get an error).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments passed to <a href="git_fetch.html">git_fetch</a></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Use <code><a href="git_fetch.html">git_fetch()</a></code> and <code><a href="git_fetch.html">git_push()</a></code> to sync a local branch with a remote
+branch. Here <code><a href="git_fetch.html">git_pull()</a></code> is a wrapper for <code><a href="git_fetch.html">git_fetch()</a></code> which then tries to
+<a href="git_branch.html">fast-forward</a> the local branch after fetching.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other git: 
+<code><a href="git_archive.html">git_archive</a></code>,
+<code><a href="git_branch.html">git_branch</a>()</code>,
+<code><a href="git_commit.html">git_commit</a>()</code>,
+<code><a href="git_config.html">git_config</a>()</code>,
+<code><a href="git_diff.html">git_diff</a>()</code>,
+<code><a href="git_merge.html">git_merge</a>()</code>,
+<code><a href="git_rebase.html">git_rebase</a>()</code>,
+<code><a href="git_remote.html">git_remote</a></code>,
+<code><a href="git_repo.html">git_repo</a></code>,
+<code><a href="git_signature.html">git_signature</a>()</code>,
+<code><a href="git_stash.html">git_stash</a></code>,
+<code><a href="git_tag.html">git_tag</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+{# Clone a small repository
+git_dir &lt;- file.path(tempdir(), 'antiword')
+git_clone('https://github.com/ropensci/antiword', git_dir)
+
+# Change into the repo directory
+olddir &lt;- getwd()
+setwd(git_dir)
+
+# Show some stuff
+git_log()
+git_branch_list()
+git_remote_list()
+
+# Add a file
+write.csv(iris, 'iris.csv')
+git_add('iris.csv')
+
+# Commit the change
+jerry &lt;- git_signature("Jerry", "jerry@hotmail.com")
+git_commit('added the iris file', author = jerry)
+
+# Now in the log:
+git_log()
+
+# Cleanup
+setwd(olddir)
+unlink(git_dir, recursive = TRUE)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does a string match a regular expression?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_match {testthat}"><tr><td>expect_match {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does a string match a regular expression?</h2>
+
+<h3>Description</h3>
+
+<p>Does a string match a regular expression?
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_match(
+  object,
+  regexp,
+  perl = FALSE,
+  fixed = FALSE,
+  ...,
+  all = TRUE,
+  info = NULL,
+  label = NULL
+)
+
+expect_no_match(
+  object,
+  regexp,
+  perl = FALSE,
+  fixed = FALSE,
+  ...,
+  all = TRUE,
+  info = NULL,
+  label = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Object to test.
+</p>
+<p>Supports limited unquoting to make it easier to generate readable failures
+within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>regexp</code></td>
+<td>
+<p>Regular expression to test against.</p>
+</td></tr>
+<tr valign="top"><td><code>perl</code></td>
+<td>
+<p>logical.  Should Perl-compatible regexps be used?</p>
+</td></tr>
+<tr valign="top"><td><code>fixed</code></td>
+<td>
+<p>logical.  If <code>TRUE</code>, <code>pattern</code> is a string to be
+matched as is.  Overrides all conflicting arguments.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>Arguments passed on to <code><a href="../../base/html/grep.html">base::grepl</a></code>
+</p>
+
+<dl>
+<dt><code>ignore.case</code></dt><dd><p>if <code>FALSE</code>, the pattern matching is <em>case
+sensitive</em> and if <code>TRUE</code>, case is ignored during matching.</p>
+</dd>
+<dt><code>useBytes</code></dt><dd><p>logical.  If <code>TRUE</code> the matching is done
+byte-by-byte rather than character-by-character.  See
+&lsquo;Details&rsquo;.</p>
+</dd>
+</dl>
+</td></tr>
+<tr valign="top"><td><code>all</code></td>
+<td>
+<p>Should all elements of actual value match <code>regexp</code> (TRUE),
+or does only one need to match (FALSE).</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert use only.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>expect_match()</code> is a wrapper around <code><a href="../../base/html/grep.html">grepl()</a></code>. See its documentation for
+more detail about the individual arguments. <code>expect_no_match()</code> provides
+the complementary case, checking that a string <em>does not</em> match a regular
+expression.
+</p>
+
+
+<h3>Functions</h3>
+
+
+<ul>
+<li> <p><code>expect_no_match</code>: Check that a string doesn't match a regular
+expression.
+</p>
+</li></ul>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_reference.html">expect_reference</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+expect_match("Testing is fun", "fun")
+expect_match("Testing is fun", "f.n")
+expect_no_match("Testing is fun", "horrible")
+
+## Not run: 
+expect_match("Testing is fun", "horrible")
+
+# Zero-length inputs always fail
+expect_match(character(), ".")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

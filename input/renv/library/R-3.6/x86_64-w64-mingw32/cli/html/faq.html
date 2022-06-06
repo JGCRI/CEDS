@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Frequently Asked Questions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for faq {cli}"><tr><td>faq {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>Description</h3>
+
+<p>Frequently Asked Questions
+</p>
+
+
+<h3>Details</h3>
+
+
+
+<h4>My platform supports ANSI colors, why does cli not use them?</h4>
+
+<p>It is probably a mistake in the ANSI support detection algorithm. Please
+open an issue at <a href="https://github.com/r-lib/cli/issues">https://github.com/r-lib/cli/issues</a> and do not forget
+to tell us the details of your platform and terminal or GUI.
+</p>
+
+
+
+<h4>How do I turn off ANSI colors and styles?</h4>
+
+<p>Set the <code>NO_COLOR</code> environment variable to a non-empty value. You can do
+this in your <code>.Renviron</code> file (use <code>usethis::edit_r_environ()</code>).
+</p>
+<p>If you want to do this for testthat tests, then consider using the 3rd
+edition on testthat, which does turn off ANSI styling automatically
+inside <code>test_that()</code>.
+</p>
+
+
+
+<h4>cli does not show the output before <code>file.choose()</code></h4>
+
+<p>Try calling <code>flush.console()</code> to flush the console, before
+<code>file.choose()</code>. If flushing does not work and you are in RStudio, then
+it is probably this RStudio bug:
+<a href="https://github.com/rstudio/rstudio/issues/8040">https://github.com/rstudio/rstudio/issues/8040</a> See more details at
+<a href="https://github.com/r-lib/cli/issues/151">https://github.com/r-lib/cli/issues/151</a>
+</p>
+
+
+
+<h4>Why are heading separators wider than my screen in RStudio?</h4>
+
+<p>The display width of some Unicode characters ambiguous in the Unicode
+standard. Some software treats them as narrow (one column on the
+screen), other as wide (two columns). In some terminal emulators (for
+example iTerm2), you can configure the preferred behavior.
+</p>
+<p>Unfortunately the box drawing characters that cli uses also have
+ambiguous width.
+</p>
+<p>In RStudio the behavior depends on the font. In particular, Consolas,
+Courier and Inconsolata treats them as wide characters, so cli output
+will not look great with these. Some good, modern fonts that look good
+include Menlo, Fira Code and Source Code Pro.
+</p>
+<p>If you do not want to change your font, you can also turn off Unicode
+output, by setting the <code>cli.unicode</code> option:<div class="sourceCode r"></p>
+<pre>options(cli.unicode = FALSE)
+</pre></div>
+<p>A related issue: <a href="https://github.com/r-lib/cli/issues/320">https://github.com/r-lib/cli/issues/320</a>
+</p>
+
+
+
+<h4>Is there a suggested font to use with cli?</h4>
+
+<p>In modern terminals, cli output usually looks good.
+</p>
+<p>If you see too wide heading separators in RStudio, then see the previous
+question: Why are heading separators wider than my screen in RStudio?.
+</p>
+<p>If some output is garbled, then cli probably misdetected Unicode support
+for your terminal or font. You can try choosing a different font. In our
+experience output looks good with Menlo, Fira Code and Source Code Pro.
+Alternatively you can turn off Unicode output:<div class="sourceCode r"></p>
+<pre>options(cli.unicode = FALSE)
+</pre></div>
+<p>If you think this is our fault, then please also file an issue at
+<a href="https://github.com/r-lib/cli/issues">https://github.com/r-lib/cli/issues</a>
+</p>
+
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

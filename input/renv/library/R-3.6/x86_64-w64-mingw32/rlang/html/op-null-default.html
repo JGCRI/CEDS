@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Default value for 'NULL'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for op-null-default {rlang}"><tr><td>op-null-default {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Default value for <code>NULL</code></h2>
+
+<h3>Description</h3>
+
+<p>This infix function makes it easy to replace <code>NULL</code>s with a default
+value. It's inspired by the way that Ruby's or operation (<code>||</code>)
+works.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+x %||% y
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x, y</code></td>
+<td>
+<p>If <code>x</code> is NULL, will return <code>y</code>; otherwise returns <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+1 %||% 2
+NULL %||% 2
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

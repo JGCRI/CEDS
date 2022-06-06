@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Make a rule with one or two text labels</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rule {cli}"><tr><td>rule {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Make a rule with one or two text labels</h2>
+
+<h3>Description</h3>
+
+<p>The rule can include either a centered text label, or labels on the
+left and right side.
+</p>
+<p>To color the labels, use the functions <code style="white-space: pre;">col_*</code>, <code style="white-space: pre;">bg_*</code> and <code style="white-space: pre;">style_*</code>
+functions, see <a href="ansi-styles.html">ANSI styles</a>, and the examples below.
+To color the line, either these functions directly, or the <code>line_col</code>
+option.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rule(
+  left = "",
+  center = "",
+  right = "",
+  line = 1,
+  col = NULL,
+  line_col = col,
+  background_col = NULL,
+  width = console_width()
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>left</code></td>
+<td>
+<p>Label to show on the left. It interferes with the <code>center</code>
+label, only at most one of them can be present.</p>
+</td></tr>
+<tr valign="top"><td><code>center</code></td>
+<td>
+<p>Label to show at the center. It interferes  with the
+<code>left</code> and <code>right</code> labels.</p>
+</td></tr>
+<tr valign="top"><td><code>right</code></td>
+<td>
+<p>Label to show on the right. It interferes with the <code>center</code>
+label, only at most one of them can be present.</p>
+</td></tr>
+<tr valign="top"><td><code>line</code></td>
+<td>
+<p>The character or string that is used to draw the line.
+It can also <code>1</code> or <code>2</code>, to request a single line (Unicode, if
+available), or a double line. Some strings are interpreted specially,
+see <em>Line styles</em> below.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>Color of text, and default line color. Either an ANSI style
+function (see <a href="ansi-styles.html">ANSI styles</a>), or a color name that is
+passed to <code><a href="make_ansi_style.html">make_ansi_style()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>line_col, background_col</code></td>
+<td>
+<p>Either a color name (used in
+<code><a href="make_ansi_style.html">make_ansi_style()</a></code>), or a style function (see
+<a href="ansi-styles.html">ANSI styles</a>), to color the line and background.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of the rule. Defaults to the <code>width</code> option, see
+<code><a href="../../base/html/options.html">base::options()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+
+
+<h4>Simple rule</h4>
+
+<div class="sourceCode r"><pre>rule()
+</pre></div>
+<p><img src="../help/figures/rule-simple.svg" alt="rule-simple.svg" />
+</p>
+
+
+
+<h4>Line styles</h4>
+
+<p>Some strings for the <code>line</code> argument are interpreted specially:
+</p>
+
+<ul>
+<li> <p><code>"single"</code>: (same as <code>1</code>), a single line,
+</p>
+</li>
+<li> <p><code>"double"</code>: (same as <code>2</code>), a double line,
+</p>
+</li>
+<li> <p><code>"bar1"</code>, <code>"bar2"</code>, <code>"bar3"</code>, etc., <code>"bar8"</code> uses varying height bars.
+</p>
+</li></ul>
+
+
+
+<h5>Double rule</h5>
+
+<div class="sourceCode r"><pre>rule(line = 2)
+</pre></div>
+<p><img src="../help/figures/rule-double.svg" alt="rule-double.svg" />
+</p>
+
+
+
+<h5>Bars</h5>
+
+<div class="sourceCode r"><pre>rule(line = "bar2")
+rule(line = "bar5")
+</pre></div>
+<p><img src="../help/figures/rule-bars.svg" alt="rule-bars.svg" />
+</p>
+
+
+
+<h5>Custom lines</h5>
+
+<div class="sourceCode r"><pre>rule(center = "TITLE", line = "~")
+</pre></div>
+<p><img src="../help/figures/rule-custom-line.svg" alt="rule-custom-line.svg" /><div class="sourceCode r"></p>
+<pre>rule(center = "TITLE", line = col_blue("~-"))
+</pre></div>
+<p><img src="../help/figures/rule-custom-line-2.svg" alt="rule-custom-line-2.svg" /><div class="sourceCode r"></p>
+<pre>rule(center = bg_red(" ", symbol$star, "TITLE",
+  symbol$star, " "),
+  line = "\u2582",
+  line_col = "orange")
+</pre></div>
+<p><img src="../help/figures/rule-custom-line-3.svg" alt="rule-custom-line-3.svg" />
+</p>
+
+
+
+
+<h4>Left label</h4>
+
+<div class="sourceCode r"><pre>rule(left = "Results")
+</pre></div>
+<p><img src="../help/figures/rule-left-label.svg" alt="rule-left-label.svg" />
+</p>
+
+
+
+<h4>Centered label</h4>
+
+<div class="sourceCode r"><pre>rule(center = " * RESULTS * ")
+</pre></div>
+<p><img src="../help/figures/rule-center-label.svg" alt="rule-center-label.svg" />
+</p>
+
+
+
+<h4>Colored labels</h4>
+
+<div class="sourceCode r"><pre>rule(center = col_red(" * RESULTS * "))
+</pre></div>
+<p><img src="../help/figures/rule-colored-label.svg" alt="rule-colored-label.svg" />
+</p>
+
+
+
+<h4>Colored line</h4>
+
+<div class="sourceCode r"><pre>rule(center = col_red(" * RESULTS * "), line_col = "red")
+</pre></div>
+<p><img src="../help/figures/rule-colored-line.svg" alt="rule-colored-line.svg" />
+</p>
+
+
+
+<h3>Value</h3>
+
+<p>Character scalar, the rule.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Progress bar with estimated time.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for progress_estimated {dplyr}"><tr><td>progress_estimated {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Progress bar with estimated time.</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p>This progress bar has been deprecated since providing progress bars is not
+the responsibility of dplyr. Instead, you might try the more powerful
+<a href="https://github.com/r-lib/progress">progress</a> package.
+</p>
+<p>This reference class represents a text progress bar displayed estimated
+time remaining. When finished, it displays the total duration.  The
+automatic progress bar can be disabled by setting option
+<code>dplyr.show_progress</code> to <code>FALSE</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+progress_estimated(n, min_time = 0)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Total number of items</p>
+</td></tr>
+<tr valign="top"><td><code>min_time</code></td>
+<td>
+<p>Progress bar will wait until at least <code>min_time</code>
+seconds have elapsed before displaying any results.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A ref class with methods <code>tick()</code>, <code>print()</code>,
+<code>pause()</code>, and <code>stop()</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+p &lt;- progress_estimated(3)
+p$tick()
+p$tick()
+p$tick()
+
+p &lt;- progress_estimated(3)
+for (i in 1:3) p$pause(0.1)$tick()$print()
+
+p &lt;- progress_estimated(3)
+p$tick()$print()$
+ pause(1)$stop()
+
+# If min_time is set, progress bar not shown until that many
+# seconds have elapsed
+p &lt;- progress_estimated(3, min_time = 3)
+for (i in 1:3) p$pause(0.1)$tick()$print()
+
+## Not run: 
+p &lt;- progress_estimated(10, min_time = 3)
+for (i in 1:10) p$pause(0.5)$tick()$print()
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

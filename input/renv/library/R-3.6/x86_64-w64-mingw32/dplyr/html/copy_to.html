@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Copy a local data frame to a remote src</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for copy_to {dplyr}"><tr><td>copy_to {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Copy a local data frame to a remote src</h2>
+
+<h3>Description</h3>
+
+<p>This function uploads a local data frame into a remote data source, creating
+the table definition as needed. Wherever possible, the new object will be
+temporary, limited to the current connection to the source.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+copy_to(dest, df, name = deparse(substitute(df)), overwrite = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dest</code></td>
+<td>
+<p>remote data source</p>
+</td></tr>
+<tr valign="top"><td><code>df</code></td>
+<td>
+<p>local data frame</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>name for new remote table.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>If <code>TRUE</code>, will overwrite an existing table with
+name <code>name</code>. If <code>FALSE</code>, will throw an error if <code>name</code> already
+exists.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other parameters passed to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a <code>tbl</code> object in the remote source
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="compute.html">collect()</a></code> for the opposite action; downloading remote data into
+a local dbl.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+iris2 &lt;- dbplyr::src_memdb() %&gt;% copy_to(iris, overwrite = TRUE)
+iris2
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

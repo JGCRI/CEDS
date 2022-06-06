@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: What are quosures and when are they needed?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for topic-quosure {rlang}"><tr><td>topic-quosure {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>What are quosures and when are they needed?</h2>
+
+<h3>Description</h3>
+
+<p>A quosure is a special type of <a href="topic-defuse.html">defused expression</a> that keeps track of the original context the expression was written in. The tracking capabilities of quosures is important when interfacing <a href="topic-data-mask.html">data-masking</a> functions together because the functions might come from two unrelated environments, like two different packages.
+</p>
+
+
+<h3>Blending environments</h3>
+
+<p>Let's take an example where the R user calls the function <code>summarise_bmi()</code> from the foo package to summarise a data frame with statistics of a BMI value. Because the <code>height</code> variable of their data frame is not in metres, they use a custom function <code>div100()</code> to rescale the column.<div class="sourceCode r"></p>
+<pre># Global environment of user
+
+div100 &lt;- function(x) {
+  x / 100
+}
+
+dplyr::starwars %&gt;%
+  foo::summarise_bmi(mass, div100(height))
+</pre></div>
+<p>The <code>summarise_bmi()</code> function is a data-masking function defined in the namespace of the foo package which looks like this:<div class="sourceCode r"></p>
+<pre># Namespace of package foo
+
+bmi &lt;- function(mass, height) {
+  mass / height^2
+}
+
+summarise_bmi &lt;- function(data, mass, height) {
+  data %&gt;%
+    bar::summarise_stats(bmi({{ mass }}, {{ height }}))
+}
+</pre></div>
+<p>The foo package uses the custom function <code>bmi()</code> to perform a computation on two vectors. It interfaces with <code>summarise_stats()</code> defined in bar, another package whose namespace looks like this:<div class="sourceCode r"></p>
+<pre># Namespace of package bar
+
+check_numeric &lt;- function(x) {
+  stopifnot(is.numeric(x))
+  x
+}
+
+summarise_stats &lt;- function(data, var) {
+  data %&gt;%
+    dplyr::transmute(
+      var = check_numeric({{ var }})
+    ) %&gt;%
+    dplyr::summarise(
+      mean = mean(var, na.rm = TRUE),
+      sd = sd(var, na.rm = TRUE)
+    )
+}
+</pre></div>
+<p>Again the package bar uses a custom function, <code>check_numeric()</code>, to validate its input. It also interfaces with data-masking functions from dplyr (using the <a href="topic-double-evaluation.html">define-a-constant</a> trick to avoid issues of double evaluation).
+</p>
+<p>There are three data-masking functions simultaneously interfacing in this snippet:
+</p>
+
+<ul>
+<li><p> At the bottom, <code>dplyr::transmute()</code> takes a data-masked input, and creates a data frame of a single column named <code>var</code>.
+</p>
+</li>
+<li><p> Before this, <code>bar::summarise_stats()</code> takes a data-masked input inside <code>dplyr::transmute()</code> and checks it is numeric.
+</p>
+</li>
+<li><p> And first of all, <code>foo::summarise_bmi()</code> takes two data-masked inputs inside <code>bar::summarise_stats()</code> and transforms them to a single BMI value.
+</p>
+</li></ul>
+
+<p>There is a fourth context, the global environment where <code>summarise_bmi()</code> is called with two columns defined in a data frame, one of which is transformed on the fly with the user function <code>div100()</code>.
+</p>
+<p>All of these contexts (except to some extent the global environment) contain functions that are private and invisible to foreign functions. Yet, the final expanded data-masked expression that is evaluated down the line looks like this (with caret characters indicating the quosure boundaries):<div class="sourceCode r"></p>
+<pre>dplyr::transmute(
+  var = ^check_numeric(^bmi(^mass, ^div100(height)))
+)
+</pre></div>
+<p>The role of quosures is to let R know that <code>check_numeric()</code> should be found in the bar package, <code>bmi()</code> in the foo package, and <code>div100()</code> in the global environment.
+</p>
+
+
+<h3>When should I create quosures?</h3>
+
+<p>As a tidyverse user you generally don't need to worry about quosures because <code style="white-space: pre;">{{</code> and <code>...</code> will create them for you. Introductory texts like <a href="https://dplyr.tidyverse.org/articles/programming.html">Programming with dplyr</a> or the <a href="topic-data-mask-programming.html">standard data-mask programming patterns</a> don't even mention the term. In more complex cases you might need to create quosures with <code><a href="enquo.html">enquo()</a></code> or <code><a href="enquo.html">enquos()</a></code> (even though you generally don't need to know or care that these functions return quosures). In this section, we explore when quosures are necessary in these more advanced applications.
+</p>
+
+
+<h4>Foreign and local expressions</h4>
+
+<p>As a rule of thumb, quosures are only needed for arguments defused with <code><a href="enquo.html">enquo()</a></code> or <code><a href="enquo.html">enquos()</a></code> (or with <code><a href="embrace-operator.html">{{</a></code> which calls <code>enquo()</code> implicitly):<div class="sourceCode r"></p>
+<pre>my_function &lt;- function(var) {
+  var &lt;- enquo(var)
+  their_function(!!var)
+}
+
+# Equivalently
+my_function &lt;- function(var) {
+  their_function({{ var }})
+}
+</pre></div>
+<p>Wrapping defused arguments in quosures is needed because expressions supplied as argument comes from a different environment, the environment of your user. For local expressions created in your function, you generally don't need to create quosures:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  # `expr()` is sufficient, no need for `quo()`
+  expr &lt;- expr(mean({{ var }}))
+  dplyr::summarise(data, !!expr)
+}
+
+my_mean(mtcars, cyl)
+#&gt; # A tibble: 1 x 1
+#&gt;   `mean(cyl)`
+#&gt;         &lt;dbl&gt;
+#&gt; 1        6.19
+</pre></div>
+<p>Using <code><a href="defusing-advanced.html">quo()</a></code> instead of <code><a href="expr.html">expr()</a></code> would have worked too but it is superfluous because <code>dplyr::summarise()</code>, which uses <code><a href="enquo.html">enquos()</a></code>, is already in charge of wrapping your expression within a quosure scoped in your environment.
+</p>
+<p>The same applies if you evaluate manually. By default, <code><a href="../../base/html/eval.html">eval()</a></code> and <code><a href="eval_tidy.html">eval_tidy()</a></code> capture your environment:<div class="sourceCode r"></p>
+<pre>my_mean &lt;- function(data, var) {
+  expr &lt;- expr(mean({{ var }}))
+  eval_tidy(expr, data)
+}
+
+my_mean(mtcars, cyl)
+#&gt; [1] 6.1875
+</pre></div>
+
+
+
+<h4>External defusing</h4>
+
+<p>An exception to this rule of thumb (wrap foreign expressions in quosures, not your own expressions) arises when your function takes multiple expressions in a list instead of <code>...</code>. The preferred approach in that case is to take a tidy selection so that users can combine multiple columns using <code>c()</code>. If that is not possible, you can take a list of externally defused expressions:<div class="sourceCode r"></p>
+<pre>my_group_by &lt;- function(data, vars) {
+  stopifnot(is_quosures(vars))
+  data %&gt;% dplyr::group_by(!!!vars)
+}
+
+mtcars %&gt;% my_group_by(dplyr::vars(cyl, am))
+</pre></div>
+<p>In this pattern, <code>dplyr::vars()</code> defuses expressions externally. It creates a list of quosures because the expressions are passed around from function to function like regular arguments. In fact, <code>dplyr::vars()</code> and <code>ggplot2::vars()</code> are simple aliases of <code><a href="defusing-advanced.html">quos()</a></code>.<div class="sourceCode r"></p>
+<pre>dplyr::vars(cyl, am)
+#&gt; &lt;list_of&lt;quosure&gt;&gt;
+#&gt; 
+#&gt; [[1]]
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^cyl
+#&gt; env:  global
+#&gt; 
+#&gt; [[2]]
+#&gt; &lt;quosure&gt;
+#&gt; expr: ^am
+#&gt; env:  global
+</pre></div>
+<p>For more information about external defusing, see <a href="topic-multiple-columns.html">Taking multiple columns without ...</a>.
+</p>
+
+
+
+<h3>Technical description of quosures</h3>
+
+<p>A quosure carries two things:
+</p>
+
+<ul>
+<li><p> An expression (get it with <code><a href="quosure-tools.html">quo_get_expr()</a></code>).
+</p>
+</li>
+<li><p> An environment (get it with <code><a href="quosure-tools.html">quo_get_env()</a></code>).
+</p>
+</li></ul>
+
+<p>And implements these behaviours:
+</p>
+
+<ul>
+<li><p> It is <em>callable</em>. Evaluation produces a result.
+</p>
+<p>For historical reasons, <code><a href="../../base/html/eval.html">base::eval()</a></code> doesn't support quosure evaluation. Quosures currently require <code><a href="eval_tidy.html">eval_tidy()</a></code>. We would like to fix this limitation in the future.
+</p>
+</li>
+<li><p> It is <em>hygienic</em>. It evaluates in the tracked environment.
+</p>
+</li>
+<li><p> It is <em>maskable</em>. If evaluated in a data mask (currently only masks created with <code><a href="eval_tidy.html">eval_tidy()</a></code> or <code><a href="as_data_mask.html">new_data_mask()</a></code>), the mask comes first in scope before the quosure environment.
+</p>
+<p>Conceptually, a quosure inherits from two chains of environments, the data mask and the user environment. In practice rlang implements this special scoping by rechaining the top of the data mask to the quosure environment currently under evaluation.
+</p>
+</li></ul>
+
+<p>There are similarities between promises (the ones R uses to implement lazy evaluation, not the async expressions from the promises package) and quosures. One important difference is that promises are only evaluated once and cache the result for subsequent evaluation. Quosures behave more like calls and can be evaluated repeatedly, potentially in a different data mask. This property is useful to implement split-apply-combine evaluations.
+</p>
+
+
+<h3>See also</h3>
+
+
+<ul>
+<li> <p><code><a href="enquo.html">enquo()</a></code> and <code><a href="enquo.html">enquos()</a></code> to defuse function arguments as quosures. This is the main way quosures are created.
+</p>
+</li>
+<li> <p><code><a href="defusing-advanced.html">quo()</a></code> which is like <code><a href="expr.html">expr()</a></code> but wraps in a quosure. Usually it is not needed to wrap local expressions yourself.
+</p>
+</li>
+<li> <p><code><a href="quosure-tools.html">quo_get_expr()</a></code> and <code><a href="quosure-tools.html">quo_get_env()</a></code> to access quosure components.
+</p>
+</li>
+<li> <p><code><a href="new_quosure.html">new_quosure()</a></code> and <code><a href="new_quosure.html">as_quosure()</a></code> to assemble a quosure from components.
+</p>
+</li></ul>
+
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

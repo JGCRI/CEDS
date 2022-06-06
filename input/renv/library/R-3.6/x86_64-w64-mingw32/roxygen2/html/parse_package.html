@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse a package, file, or inline code</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for parse_package {roxygen2}"><tr><td>parse_package {roxygen2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse a package, file, or inline code</h2>
+
+<h3>Description</h3>
+
+<p><code>parse_package()</code>, <code>parse_file()</code>, and <code>parse_text()</code> allow you to use
+roxygen's parsing code to parse the roxygen blocks from a package, file, or
+character vector of code. <code>env_package()</code> and <code>env_file()</code> provide
+defaults that generate a temporary environment making it possible to
+associate each block with the corresponding live object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+parse_package(path = ".", env = env_package(path))
+
+parse_file(file, env = env_file(file), srcref_path = NULL)
+
+parse_text(text, env = env_file(file))
+
+env_file(file)
+
+env_package(path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path, file, text</code></td>
+<td>
+<p>Either specify a <code>path</code> to the root directory of
+a package, an R <code>file</code>, or a character vector <code>text</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment environment containing the result of evaluating
+the input code. The defaults will do this for you in a test environment:
+for real code you'll need to generate the environment yourself.
+</p>
+<p>You can also set to <code>NULL</code> if you only want to get the tokenized code
+blocks only. This suppresses evaluation of <code style="white-space: pre;">@eval</code> tags, and will not
+find the code object associated with each block.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of roxy_block objects
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>roxygen2</em> version 7.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

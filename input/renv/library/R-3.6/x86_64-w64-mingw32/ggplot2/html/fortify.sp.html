@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Fortify method for classes from the sp package.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fortify.sp {ggplot2}"><tr><td>fortify.sp {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Fortify method for classes from the sp package.</h2>
+
+<h3>Description</h3>
+
+<p>To figure out the correct variable name for region, inspect
+<code>as.data.frame(model)</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'SpatialPolygonsDataFrame'
+fortify(model, data, region = NULL, ...)
+
+## S3 method for class 'SpatialPolygons'
+fortify(model, data, ...)
+
+## S3 method for class 'Polygons'
+fortify(model, data, ...)
+
+## S3 method for class 'Polygon'
+fortify(model, data, ...)
+
+## S3 method for class 'SpatialLinesDataFrame'
+fortify(model, data, ...)
+
+## S3 method for class 'Lines'
+fortify(model, data, ...)
+
+## S3 method for class 'Line'
+fortify(model, data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>model</code></td>
+<td>
+<p><code>SpatialPolygonsDataFrame</code> to convert into a dataframe.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>not used by this method</p>
+</td></tr>
+<tr valign="top"><td><code>region</code></td>
+<td>
+<p>name of variable used to split up regions</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>not used by this method</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require("maptools")) {
+ sids &lt;- system.file("shapes/sids.shp", package="maptools")
+ nc1 &lt;- readShapePoly(sids,
+   proj4string = CRS("+proj=longlat +datum=NAD27"))
+ nc1_df &lt;- fortify(nc1)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

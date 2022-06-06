@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Flood or clear a range of cells</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for range_flood {googlesheets4}"><tr><td>range_flood {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Flood or clear a range of cells</h2>
+
+<h3>Description</h3>
+
+<p><code>range_flood()</code> &quot;floods&quot; a range of cells with the same content.
+<code>range_clear()</code> is a wrapper that handles the common special case of
+clearing the cell value. Both functions, by default, also clear the format,
+but this can be specified via <code>reformat</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+range_flood(ss, sheet = NULL, range = NULL, cell = NULL, reformat = TRUE)
+
+range_clear(ss, sheet = NULL, range = NULL, reformat = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to write into, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>A cell range to read from. If <code>NULL</code>, all non-empty cells are
+read. Otherwise specify <code>range</code> as described in <a href="https://developers.google.com/sheets/api/guides/concepts#a1_notation">Sheets A1 notation</a>
+or using the helpers documented in <a href="cell-specification.html">cell-specification</a>. Sheets uses
+fairly standard spreadsheet range notation, although a bit different from
+Excel. Examples of valid ranges: <code>"Sheet1!A1:B2"</code>, <code>"Sheet1!A:A"</code>,
+<code>"Sheet1!1:2"</code>, <code>"Sheet1!A5:A"</code>, <code>"A1:B2"</code>, <code>"Sheet1"</code>. Interpreted
+strictly, even if the range forces the inclusion of leading, trailing, or
+embedded empty rows or columns. Takes precedence over <code>skip</code>, <code>n_max</code> and
+<code>sheet</code>. Note <code>range</code> can be a named range, like <code>"sales_data"</code>, without
+any cell reference.</p>
+</td></tr>
+<tr valign="top"><td><code>cell</code></td>
+<td>
+<p>The value to fill the cells in the <code>range</code> with. If unspecified,
+the default of <code>NULL</code> results in clearing the existing value.</p>
+</td></tr>
+<tr valign="top"><td><code>reformat</code></td>
+<td>
+<p>Logical, indicates whether to reformat the affected cells.
+Currently googlesheets4 provides no real support for formatting, so
+<code>reformat = TRUE</code> effectively means that edited cells become unformatted.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes a <code>RepeatCellRequest</code>:
+</p>
+
+<ul>
+<li> <p><a href="https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#repeatcellrequest">https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#repeatcellrequest</a>
+</p>
+</li></ul>
+
+<p>Other write functions: 
+<code><a href="gs4_create.html">gs4_create</a>()</code>,
+<code><a href="gs4_formula.html">gs4_formula</a>()</code>,
+<code><a href="range_delete.html">range_delete</a>()</code>,
+<code><a href="range_write.html">range_write</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  # create a data frame to use as initial data
+  df &lt;- gs4_fodder(10)
+
+  # create Sheet
+  ss &lt;- gs4_create("range-flood-demo", sheets = list(df))
+
+  # default behavior (`cell = NULL`): clear value and format
+  range_flood(ss, range = "A1:B3")
+
+  # clear value but preserve format
+  range_flood(ss, range = "C1:D3", reformat = FALSE)
+
+  # send new value
+  range_flood(ss, range = "4:5", cell = ";-)")
+
+  # send formatting
+  # WARNING: use these unexported, internal functions at your own risk!
+  # This not (yet) officially supported, but it's possible.
+  blue_background &lt;- googlesheets4:::CellData(
+    userEnteredFormat = googlesheets4:::new(
+      "CellFormat",
+      backgroundColor = googlesheets4:::new(
+        "Color",
+        red = 159 / 255, green = 183 / 255, blue = 196 / 255
+      )
+    )
+  )
+  range_flood(ss, range = "I:J", cell = blue_background)
+
+  # range_clear() is a shortcut where `cell = NULL` always
+  range_clear(ss, range = "9:9")
+  range_clear(ss, range = "10:10", reformat = FALSE)
+
+  # clean up
+  gs4_find("range-flood-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

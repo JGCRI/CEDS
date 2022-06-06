@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Evaluate a promise, capturing all types of output.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for evaluate_promise {testthat}"><tr><td>evaluate_promise {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Evaluate a promise, capturing all types of output.</h2>
+
+<h3>Description</h3>
+
+<p>Evaluate a promise, capturing all types of output.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+evaluate_promise(code, print = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p>Code to evaluate.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list containing
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>result</code></td>
+<td>
+<p>The result of the function</p>
+</td></tr>
+<tr valign="top"><td><code>output</code></td>
+<td>
+<p>A string containing all the output from the function</p>
+</td></tr>
+<tr valign="top"><td><code>warnings</code></td>
+<td>
+<p>A character vector containing the text from each warning</p>
+</td></tr>
+<tr valign="top"><td><code>messages</code></td>
+<td>
+<p>A character vector containing the text from each message</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+evaluate_promise({
+  print("1")
+  message("2")
+  warning("3")
+  4
+})
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

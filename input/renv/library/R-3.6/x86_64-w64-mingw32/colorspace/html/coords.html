@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract the Numerical Coordinates of a Color</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for coords {colorspace}"><tr><td>coords {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract the Numerical Coordinates of a Color</h2>
+
+<h3>Description</h3>
+
+<p>This function returns a matrix with three columns which give the coordinates
+of a color in its natural color space.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+coords(color)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>color</code></td>
+<td>
+<p>A color.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A numeric matrix giving the coordinates of the color.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="RGB.html">RGB</a></code>, <code><a href="XYZ.html">XYZ</a></code>, <code><a href="LAB.html">LAB</a></code>,
+<code><a href="polarLAB.html">polarLAB</a></code>, <code><a href="LUV.html">LUV</a></code>, <code><a href="polarLUV.html">polarLUV</a></code>,
+<code><a href="mixcolor.html">mixcolor</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- RGB(1, 0, 0)
+coords(as(x, "HSV"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

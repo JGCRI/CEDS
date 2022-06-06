@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Install a package from a git repository</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for install_git {remotes}"><tr><td>install_git {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Install a package from a git repository</h2>
+
+<h3>Description</h3>
+
+<p>It is vectorised so you can install multiple packages with
+a single command. You do not need to have the <code>git2r</code> package,
+or an external git client installed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+install_git(
+  url,
+  subdir = NULL,
+  ref = NULL,
+  branch = NULL,
+  credentials = git_credentials(),
+  git = c("auto", "git2r", "external"),
+  dependencies = NA,
+  upgrade = c("default", "ask", "always", "never"),
+  force = FALSE,
+  quiet = FALSE,
+  build = TRUE,
+  build_opts = c("--no-resave-data", "--no-manual", "--no-build-vignettes"),
+  build_manual = FALSE,
+  build_vignettes = FALSE,
+  repos = getOption("repos"),
+  type = getOption("pkgType"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>Location of package. The url should point to a public or
+private repository.</p>
+</td></tr>
+<tr valign="top"><td><code>subdir</code></td>
+<td>
+<p>A sub-directory within a git repository that may
+contain the package we are interested in installing.</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>Name of branch, tag or SHA reference to use, if not HEAD.</p>
+</td></tr>
+<tr valign="top"><td><code>branch</code></td>
+<td>
+<p>Deprecated, synonym for ref.</p>
+</td></tr>
+<tr valign="top"><td><code>credentials</code></td>
+<td>
+<p>A git2r credentials object passed through to clone.
+Supplying this argument implies using <code>git2r</code> with <code>git</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>git</code></td>
+<td>
+<p>Whether to use the <code>git2r</code> package, or an external
+git client via system. Default is <code>git2r</code> if it is installed,
+otherwise an external git installation.</p>
+</td></tr>
+<tr valign="top"><td><code>dependencies</code></td>
+<td>
+<p>Which dependencies do you want to check?
+Can be a character vector (selecting from &quot;Depends&quot;, &quot;Imports&quot;,
+&quot;LinkingTo&quot;, &quot;Suggests&quot;, or &quot;Enhances&quot;), or a logical vector.
+</p>
+<p><code>TRUE</code> is shorthand for &quot;Depends&quot;, &quot;Imports&quot;, &quot;LinkingTo&quot; and
+&quot;Suggests&quot;. <code>NA</code> is shorthand for &quot;Depends&quot;, &quot;Imports&quot; and &quot;LinkingTo&quot;
+and is the default. <code>FALSE</code> is shorthand for no dependencies (i.e.
+just check this package, not its dependencies).
+</p>
+<p>The value &quot;soft&quot; means the same as <code>TRUE</code>, &quot;hard&quot; means the same as <code>NA</code>.
+</p>
+<p>You can also specify dependencies from one or more additional fields,
+common ones include:
+</p>
+
+<ul>
+<li><p> Config/Needs/website - for dependencies used in building the pkgdown site.
+</p>
+</li>
+<li><p> Config/Needs/coverage for dependencies used in calculating test coverage.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>upgrade</code></td>
+<td>
+<p>Should package dependencies be upgraded? One of &quot;default&quot;, &quot;ask&quot;, &quot;always&quot;, or &quot;never&quot;. &quot;default&quot;
+respects the value of the <code>R_REMOTES_UPGRADE</code> environment variable if set,
+and falls back to &quot;ask&quot; if unset. &quot;ask&quot; prompts the user for which out of
+date packages to upgrade. For non-interactive sessions &quot;ask&quot; is equivalent
+to &quot;always&quot;. <code>TRUE</code> and <code>FALSE</code> are also accepted and correspond to
+&quot;always&quot; and &quot;never&quot; respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>Force installation, even if the remote state has not changed
+since the previous install.</p>
+</td></tr>
+<tr valign="top"><td><code>quiet</code></td>
+<td>
+<p>If <code>TRUE</code>, suppress output.</p>
+</td></tr>
+<tr valign="top"><td><code>build</code></td>
+<td>
+<p>If <code>TRUE</code> build the package before installing.</p>
+</td></tr>
+<tr valign="top"><td><code>build_opts</code></td>
+<td>
+<p>Options to pass to <code style="white-space: pre;">R CMD build</code>, only used when <code>build</code> is <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>build_manual</code></td>
+<td>
+<p>If <code>FALSE</code>, don't build PDF manual ('&ndash;no-manual').</p>
+</td></tr>
+<tr valign="top"><td><code>build_vignettes</code></td>
+<td>
+<p>If <code>FALSE</code>, don't build package vignettes ('&ndash;no-build-vignettes').</p>
+</td></tr>
+<tr valign="top"><td><code>repos</code></td>
+<td>
+<p>A character vector giving repositories to use.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Type of package to <code>update</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If you need to set git credentials for use in the <code>Remotes</code> field you can do
+so by placing the credentials in the <code>remotes.git_credentials</code> global
+option.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other package installation: 
+<code><a href="install_bioc.html">install_bioc</a>()</code>,
+<code><a href="install_bitbucket.html">install_bitbucket</a>()</code>,
+<code><a href="install_cran.html">install_cran</a>()</code>,
+<code><a href="install_dev.html">install_dev</a>()</code>,
+<code><a href="install_github.html">install_github</a>()</code>,
+<code><a href="install_gitlab.html">install_gitlab</a>()</code>,
+<code><a href="install_local.html">install_local</a>()</code>,
+<code><a href="install_svn.html">install_svn</a>()</code>,
+<code><a href="install_url.html">install_url</a>()</code>,
+<code><a href="install_version.html">install_version</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+install_git("https://github.com/hadley/stringr.git")
+install_git("https://github.com/hadley/stringr.git", ref = "stringr-0.2")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

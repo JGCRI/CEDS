@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Submit a source package to CRAN</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for submit_cran {xfun}"><tr><td>submit_cran {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Submit a source package to CRAN</h2>
+
+<h3>Description</h3>
+
+<p>Build a source package and submit it to CRAN with the <span class="pkg">curl</span> package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+submit_cran(file = pkg_build(), comment = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>The path to the source package tarball. By default, the current
+working directory is treated as the package root directory, and
+automatically built into a tarball, which is deleted after submission. This
+means you should run <code>xfun::submit_cran()</code> in the root directory of a
+package project, unless you want to pass a path explicitly to the
+<code>file</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>comment</code></td>
+<td>
+<p>Submission comments for CRAN. By default, if a file
+&lsquo;<span class="file">cran-comments.md</span>&rsquo; exists, its content will be read and used as the
+comment.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code>devtools::submit_cran()</code> does the same job, with a few more
+dependencies in addition to <span class="pkg">curl</span> (such as <span class="pkg">cli</span>);
+<code>xfun::submit_cran()</code> only depends on <span class="pkg">curl</span>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

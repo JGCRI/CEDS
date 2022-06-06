@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Format or print a ggproto object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for print.ggproto {ggplot2}"><tr><td>print.ggproto {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Format or print a ggproto object</h2>
+
+<h3>Description</h3>
+
+<p>If a ggproto object has a <code style="white-space: pre;">$print</code> method, this will call that method.
+Otherwise, it will print out the members of the object, and optionally, the
+members of the inherited objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'ggproto'
+print(x, ..., flat = TRUE)
+
+## S3 method for class 'ggproto'
+format(x, ..., flat = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A ggproto object to print.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>If the ggproto object has a <code>print</code> method, further arguments
+will be passed to it. Otherwise, these arguments are unused.</p>
+</td></tr>
+<tr valign="top"><td><code>flat</code></td>
+<td>
+<p>If <code>TRUE</code> (the default), show a flattened list of all local
+and inherited members. If <code>FALSE</code>, show the inheritance hierarchy.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+Dog &lt;- ggproto(
+  print = function(self, n) {
+    cat("Woof!\n")
+  }
+ )
+Dog
+cat(format(Dog), "\n")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

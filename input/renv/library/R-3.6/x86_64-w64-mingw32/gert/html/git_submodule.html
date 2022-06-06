@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Submodules</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for git_submodule_list {gert}"><tr><td>git_submodule_list {gert}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Submodules</h2>
+
+<h3>Description</h3>
+
+<p>Interact with submodules in the repository.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+git_submodule_list(repo = ".")
+
+git_submodule_info(submodule, repo = ".")
+
+git_submodule_init(submodule, overwrite = FALSE, repo = ".")
+
+git_submodule_set_to(submodule, ref, checkout = TRUE, repo = ".")
+
+git_submodule_add(url, path = basename(url), ref = "HEAD", ..., repo = ".")
+
+git_submodule_fetch(submodule, ..., repo = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>repo</code></td>
+<td>
+<p>The path to the git repository. If the directory is not a
+repository, parent directories are considered (see <a href="git_repo.html">git_find</a>). To disable
+this search, provide the filepath protected with <code><a href="../../base/html/AsIs.html">I()</a></code>. When using this
+parameter, always explicitly call by name (i.e. <code style="white-space: pre;">repo = </code>) because future
+versions of gert may have additional parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>submodule</code></td>
+<td>
+<p>name of the submodule</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>overwrite existing entries</p>
+</td></tr>
+<tr valign="top"><td><code>ref</code></td>
+<td>
+<p>a branch or tag or hash with</p>
+</td></tr>
+<tr valign="top"><td><code>checkout</code></td>
+<td>
+<p>actually switch the contents of the directory to this commit</p>
+</td></tr>
+<tr valign="top"><td><code>url</code></td>
+<td>
+<p>full git url of the submodule</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>relative of the submodule</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>extra arguments for <a href="git_fetch.html">git_fetch</a> for authentication things</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>gert</em> version 1.5.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

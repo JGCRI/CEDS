@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create names for temporary files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for file_temp {fs}"><tr><td>file_temp {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create names for temporary files</h2>
+
+<h3>Description</h3>
+
+<p><code>file_temp()</code> returns the name which can be used as a temporary file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_temp(pattern = "file", tmp_dir = tempdir(), ext = "")
+
+file_temp_push(path)
+
+file_temp_pop()
+
+path_temp(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pattern</code></td>
+<td>
+<p>A character vector with the non-random portion of the name.</p>
+</td></tr>
+<tr valign="top"><td><code>tmp_dir</code></td>
+<td>
+<p>The directory the file will be created in.</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>The file extension of the temporary file.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional paths appended to the temporary directory by <code>path()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>file_temp_push()</code> can be used to supply deterministic entries in the
+temporary file stack. This can be useful for reproducibility in like example
+documentation and vignettes.
+</p>
+<p><code>file_temp_pop()</code> can be used to explicitly remove an entry from the
+internal stack, however generally this is done instead by calling
+<code>file_temp()</code>.
+</p>
+<p><code>path_temp()</code> constructs a path within the session temporary directory.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+
+path_temp()
+path_temp("does-not-exist")
+
+file_temp()
+file_temp(ext = "png")
+file_temp("image", ext = "png")
+
+
+# You can make the temp file paths deterministic
+file_temp_push(letters)
+file_temp()
+file_temp()
+
+# Or explicitly remove values
+while (!is.null(file_temp_pop())) next
+file_temp_pop()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

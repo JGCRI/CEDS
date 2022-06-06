@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Output redirection</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for with_sink {withr}"><tr><td>with_sink {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Output redirection</h2>
+
+<h3>Description</h3>
+
+<p>Temporarily divert output to a file via <code><a href="../../base/html/sink.html">sink()</a></code>.  For
+sinks of type <code>message</code>, an error is raised if such a sink is already
+active.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+with_output_sink(new, code, append = FALSE, split = FALSE)
+
+local_output_sink(
+  new = list(),
+  append = FALSE,
+  split = FALSE,
+  .local_envir = parent.frame()
+)
+
+with_message_sink(new, code, append = FALSE)
+
+local_message_sink(new = list(), append = FALSE, .local_envir = parent.frame())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)|connection]</code><br />
+A writable <a href="../../base/html/connections.html">connection</a> or a character string naming the file to write
+to. Passing <code>NULL</code> will throw an error.</p>
+</td></tr>
+<tr valign="top"><td><code>code</code></td>
+<td>
+<p><code>[any]</code><br /> Code to execute in the temporary environment</p>
+</td></tr>
+<tr valign="top"><td><code>append</code></td>
+<td>
+<p>logical.  If <code>TRUE</code>, output will be appended to
+<code>file</code>; otherwise, it will overwrite the contents of
+<code>file</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>split</code></td>
+<td>
+<p>logical: if <code>TRUE</code>, output will be sent to the new
+sink and to the current output stream, like the Unix program <code>tee</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.local_envir</code></td>
+<td>
+<p><code style="white-space: pre;">[environment]</code><br /> The environment to use for scoping.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>[any]</code><br /> The results of the evaluation of the <code>code</code>
+argument.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="withr.html">withr</a></code> for examples
+</p>
+<p><code><a href="../../base/html/sink.html">sink()</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

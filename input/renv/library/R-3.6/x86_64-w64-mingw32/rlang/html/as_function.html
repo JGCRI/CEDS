@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert to function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for as_function {rlang}"><tr><td>as_function {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert to function</h2>
+
+<h3>Description</h3>
+
+<p><code>as_function()</code> transforms a one-sided formula into a function.
+This powers the lambda syntax in packages like purrr.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_function(
+  x,
+  env = global_env(),
+  ...,
+  arg = caller_arg(x),
+  call = caller_env()
+)
+
+is_lambda(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A function or formula.
+</p>
+<p>If a <strong>function</strong>, it is used as is.
+</p>
+<p>If a <strong>formula</strong>, e.g. <code>~ .x + 2</code>, it is converted to a function
+with up to two arguments: <code>.x</code> (single argument) or <code>.x</code> and <code>.y</code>
+(two arguments). The <code>.</code> placeholder can be used instead of <code>.x</code>.
+This allows you to create very compact anonymous functions (lambdas) with up
+to two inputs. Functions created from formulas have a special
+class. Use <code>is_lambda()</code> to test for it.
+</p>
+<p>If a <strong>string</strong>, the function is looked up in <code>env</code>. Note that
+this interface is strictly for user convenience because of the
+scoping issues involved. Package developers should avoid
+supplying functions by name and instead supply them by value.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>Environment in which to fetch the function in case <code>x</code>
+is a string.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>These dots are for future extensions and must be empty.</p>
+</td></tr>
+<tr valign="top"><td><code>arg</code></td>
+<td>
+<p>An argument name as a string. This argument
+will be mentioned in error messages as the input that is at the
+origin of a problem.</p>
+</td></tr>
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>The execution environment of a currently
+running function, e.g. <code>caller_env()</code>. The function will be
+mentioned in error messages as the source of the error. See the
+<code>call</code> argument of <code><a href="abort.html">abort()</a></code> for more information.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+f &lt;- as_function(~ .x + 1)
+f(10)
+
+g &lt;- as_function(~ -1 * .)
+g(4)
+
+h &lt;- as_function(~ .x - .y)
+h(6, 3)
+
+# Functions created from a formula have a special class:
+is_lambda(f)
+is_lambda(as_function(function() "foo"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

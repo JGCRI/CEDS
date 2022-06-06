@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tibble constructor and validator</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_tibble {tibble}"><tr><td>new_tibble {tibble}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tibble constructor and validator</h2>
+
+<h3>Description</h3>
+
+<p>Creates or validates a subclass of a tibble.
+These function is mostly useful for package authors that implement subclasses
+of a tibble, like <span class="pkg">sf</span> or <span class="pkg">tsibble</span>.
+</p>
+<p><code>new_tibble()</code> creates a new object as a subclass of <code>tbl_df</code>, <code>tbl</code> and <code>data.frame</code>.
+This function is optimized for performance, checks are reduced to a minimum.
+See <code><a href="../../vctrs/html/new_data_frame.html">vctrs::new_data_frame()</a></code> for details.
+</p>
+<p><code>validate_tibble()</code> checks a tibble for internal consistency.
+Correct behavior can be guaranteed only if this function
+runs without raising an error.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_tibble(x, ..., nrow = NULL, class = NULL, subclass = NULL)
+
+validate_tibble(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A tibble-like object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Name-value pairs of additional attributes.</p>
+</td></tr>
+<tr valign="top"><td><code>nrow</code></td>
+<td>
+<p>The number of rows, inferred from <code>x</code> if omitted.</p>
+</td></tr>
+<tr valign="top"><td><code>class</code></td>
+<td>
+<p>Subclasses to assign to the new object, default: none.</p>
+</td></tr>
+<tr valign="top"><td><code>subclass</code></td>
+<td>
+<p>Deprecated, retained for compatibility. Please use the <code>class</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Construction</h3>
+
+<p>For <code>new_tibble()</code>, <code>x</code> must be a list.
+The <code>nrow</code> argument may be omitted as of tibble 3.1.4.
+If present, every element of the list <code>x</code> should have <code><a href="../../vctrs/html/vec_size.html">vctrs::vec_size()</a></code>
+equal to this value.
+(But this is not checked by the constructor).
+This takes the place of the &quot;row.names&quot; attribute in a data frame.
+<code>x</code> must have names (or be empty),
+but the names are not checked for correctness.
+</p>
+
+
+<h3>Validation</h3>
+
+<p><code>validate_tibble()</code> checks for &quot;minimal&quot; names
+and that all columns are vectors, data frames or matrices.
+It also makes sure that all columns have the same length,
+and that <code><a href="../../vctrs/html/vec_size.html">vctrs::vec_size()</a></code> is consistent with the data.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="tibble.html">tibble()</a></code> and <code><a href="as_tibble.html">as_tibble()</a></code> for ways to construct a tibble
+with recycling of scalars and automatic name repair,
+and <code><a href="../../vctrs/html/df_list.html">vctrs::df_list()</a></code> and <code><a href="../../vctrs/html/new_data_frame.html">vctrs::new_data_frame()</a></code>
+for lower-level implementations.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# The nrow argument is always required:
+new_tibble(list(a = 1:3, b = 4:6), nrow = 3)
+
+# Existing row.names attributes are ignored:
+try(validate_tibble(new_tibble(trees, nrow = 3)))
+
+# The length of all columns must be compatible with the nrow argument:
+try(validate_tibble(new_tibble(list(a = 1:3, b = 4:6), nrow = 2)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tibble</em> version 3.1.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Turn an expression to a label</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expr_label {rlang}"><tr><td>expr_label {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Turn an expression to a label</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#questioning"><img src="../help/figures/lifecycle-questioning.svg" alt='[Questioning]' /></a>
+</p>
+<p><code>expr_text()</code> turns the expression into a single string, which
+might be multi-line. <code>expr_name()</code> is suitable for formatting
+names. It works best with symbols and scalar types, but also
+accepts calls. <code>expr_label()</code> formats the expression nicely for use
+in messages.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expr_label(expr)
+
+expr_name(expr)
+
+expr_text(expr, width = 60L, nlines = Inf)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>expr</code></td>
+<td>
+<p>An expression to labellise.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>Width of each line.</p>
+</td></tr>
+<tr valign="top"><td><code>nlines</code></td>
+<td>
+<p>Maximum number of lines to extract.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# To labellise a function argument, first capture it with
+# substitute():
+fn &lt;- function(x) expr_label(substitute(x))
+fn(x:y)
+
+# Strings are encoded
+expr_label("a\nb")
+
+# Names and expressions are quoted with ``
+expr_label(quote(x))
+expr_label(quote(a + b + c))
+
+# Long expressions are collapsed
+expr_label(quote(foo({
+  1 + 2
+  print(x)
+})))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

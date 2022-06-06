@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract Regex Pattern Matches, Together with Capture Groups</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_match_all {stringi}"><tr><td>stri_match_all {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract Regex Pattern Matches, Together with Capture Groups</h2>
+
+<h3>Description</h3>
+
+<p>These functions extract substrings in <code>str</code> that
+match a given regex <code>pattern</code>. Additionally, they extract matches
+to every <em>capture group</em>, i.e., to all the sub-patterns given
+in round parentheses.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_match_all(str, ..., regex)
+
+stri_match_first(str, ..., regex)
+
+stri_match_last(str, ..., regex)
+
+stri_match(str, ..., regex, mode = c("first", "all", "last"))
+
+stri_match_all_regex(
+  str,
+  pattern,
+  omit_no_match = FALSE,
+  cg_missing = NA_character_,
+  ...,
+  opts_regex = NULL
+)
+
+stri_match_first_regex(
+  str,
+  pattern,
+  cg_missing = NA_character_,
+  ...,
+  opts_regex = NULL
+)
+
+stri_match_last_regex(
+  str,
+  pattern,
+  cg_missing = NA_character_,
+  ...,
+  opts_regex = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_regex</code></p>
+</td></tr>
+<tr valign="top"><td><code>mode</code></td>
+<td>
+<p>single string;
+one of: <code>'first'</code> (the default), <code>'all'</code>, <code>'last'</code></p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex</code></td>
+<td>
+<p>character vector;
+search patterns; for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>omit_no_match</code></td>
+<td>
+<p>single logical value; if <code>FALSE</code>,
+then a row with missing values will indicate that there was no match;
+<code>stri_match_all_*</code> only</p>
+</td></tr>
+<tr valign="top"><td><code>cg_missing</code></td>
+<td>
+<p>single string to be used if a capture group match
+is unavailable</p>
+</td></tr>
+<tr valign="top"><td><code>opts_regex</code></td>
+<td>
+<p>a named list with <span class="pkg">ICU</span> Regex settings,
+see <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>; <code>NULL</code>
+for default settings</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and <code>pattern</code> (with recycling
+of the elements in the shorter vector if necessary). This allows to,
+for instance, search for one pattern in each given string,
+search for each pattern in one given string,
+and search for the i-th pattern within the i-th string.
+</p>
+<p>If no pattern match is detected and <code>omit_no_match=FALSE</code>,
+then <code>NA</code>s are included in the resulting matrix (matrices), see Examples.
+</p>
+<p><code>stri_match</code>, <code>stri_match_all</code>, <code>stri_match_first</code>,
+and <code>stri_match_last</code> are convenience functions.
+They merely call <code>stri_match_*_regex</code> and are
+provided for consistency with other string searching functions' wrappers,
+see, among others, <code><a href="stri_extract.html">stri_extract</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>stri_match_all*</code>,
+a list of character matrices is returned. Each list element
+represents the results of a different search scenario.
+</p>
+<p>For <code>stri_match_first*</code> and <code>stri_match_last*</code>
+a character matrix is returned.
+Each row corresponds to a different search result.
+</p>
+<p>The first matrix column gives the whole match. The second one corresponds to
+the first capture group, the third &ndash; the second capture group, and so on.
+</p>
+<p>If regular expressions feature a named capture group,
+the matrix columns will be named accordingly.
+However, for <code>stri_match_first*</code> and <code>stri_match_last*</code>
+this will only be the case if there is a single pattern.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_extract: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_extract_boundaries.html">stri_extract_all_boundaries</a>()</code>,
+<code><a href="stri_extract.html">stri_extract_all</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_match_all_regex('breakfast=eggs, lunch=pizza, dessert=icecream',
+   '(\\w+)=(\\w+)')
+stri_match_all_regex(c('breakfast=eggs', 'lunch=pizza', 'no food here'),
+   '(\\w+)=(\\w+)')
+stri_match_all_regex(c('breakfast=eggs;lunch=pizza',
+   'breakfast=bacon;lunch=spaghetti', 'no food here'),
+   '(\\w+)=(\\w+)')
+stri_match_all_regex(c('breakfast=eggs;lunch=pizza',
+   'breakfast=bacon;lunch=spaghetti', 'no food here'),
+   '(?&lt;when&gt;\\w+)=(?&lt;what&gt;\\w+)')  # named capture groups
+stri_match_first_regex(c('breakfast=eggs;lunch=pizza',
+   'breakfast=bacon;lunch=spaghetti', 'no food here'),
+   '(\\w+)=(\\w+)')
+stri_match_last_regex(c('breakfast=eggs;lunch=pizza',
+   'breakfast=bacon;lunch=spaghetti', 'no food here'),
+   '(\\w+)=(\\w+)')
+
+stri_match_first_regex(c('abcd', ':abcd', ':abcd:'), '^(:)?([^:]*)(:)?$')
+stri_match_first_regex(c('abcd', ':abcd', ':abcd:'), '^(:)?([^:]*)(:)?$', cg_missing='')
+
+# Match all the pattern of the form XYX, including overlapping matches:
+stri_match_all_regex('ACAGAGACTTTAGATAGAGAAGA', '(?=(([ACGT])[ACGT]\\2))')[[1]][,2]
+# Compare the above to:
+stri_extract_all_regex('ACAGAGACTTTAGATAGAGAAGA', '([ACGT])[ACGT]\\1')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

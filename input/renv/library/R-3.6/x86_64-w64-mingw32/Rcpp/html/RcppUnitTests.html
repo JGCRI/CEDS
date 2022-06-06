@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Rcpp : unit tests results</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for RcppUnitTests {Rcpp}"><tr><td>RcppUnitTests {Rcpp}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Rcpp : unit tests results</h2>
+
+<h3>Description</h3>
+
+<p>Unit tests results for package Rcpp.
+</p>
+<p>Unit tests are run automatically at build time and reports are included in the
+<span class="samp">doc</span> directory as html or text.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../doc/unitTests-results/Rcpp-unitTests.html">../doc/unitTests-results/Rcpp-unitTests.html</a>: html formatted unit test report
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# unit tests are in the unitTests directory of the package
+list.files( system.file("unitTests", package = "Rcpp" ),
+	pattern = "^runit", full = TRUE )
+
+# trigger the unit tests preparation, follow printed instructions
+# on how to run them
+## Not run: 
+source( system.file("unitTests", "runTests.R", package = "Rcpp" ) )
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>Rcpp</em> version 1.0.8 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Labelled vectors for SPSS</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for labelled_spss {haven}"><tr><td>labelled_spss {haven}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Labelled vectors for SPSS</h2>
+
+<h3>Description</h3>
+
+<p>This class is only used when <code>user_na = TRUE</code> in
+<code><a href="read_spss.html">read_sav()</a></code>. It is similar to the <code><a href="labelled.html">labelled()</a></code> class
+but it also models SPSS's user-defined missings, which can be up to
+three distinct values, or for numeric vectors a range.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+labelled_spss(
+  x = double(),
+  labels = NULL,
+  na_values = NULL,
+  na_range = NULL,
+  label = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A vector to label. Must be either numeric (integer or double) or
+character.</p>
+</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
+<p>A named vector or <code>NULL</code>. The vector should be the same type
+as <code>x</code>. Unlike factors, labels don't need to be exhaustive: only a fraction
+of the values might be labelled.</p>
+</td></tr>
+<tr valign="top"><td><code>na_values</code></td>
+<td>
+<p>A vector of values that should also be considered as missing.</p>
+</td></tr>
+<tr valign="top"><td><code>na_range</code></td>
+<td>
+<p>A numeric vector of length two giving the (inclusive) extents
+of the range. Use <code>-Inf</code> and <code>Inf</code> if you want the range to be
+open ended.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>A short, human-readable description of the vector.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+x1 &lt;- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
+is.na(x1)
+
+x2 &lt;- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
+                    label = "Quality rating")
+is.na(x2)
+
+# Print data and metadata
+x2
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>haven</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

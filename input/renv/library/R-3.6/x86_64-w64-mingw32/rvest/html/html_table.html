@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Parse an html table into a data frame</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for html_table {rvest}"><tr><td>html_table {rvest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Parse an html table into a data frame</h2>
+
+<h3>Description</h3>
+
+<p>The algorithm mimics what a browser does, but repeats the values of merged
+cells in every cell that cover.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+html_table(
+  x,
+  header = NA,
+  trim = TRUE,
+  fill = deprecated(),
+  dec = ".",
+  na.strings = "NA",
+  convert = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A document (from <code><a href="reexports.html">read_html()</a></code>), node set (from <code><a href="html_element.html">html_elements()</a></code>),
+node (from <code><a href="html_element.html">html_element()</a></code>), or session (from <code><a href="session.html">session()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>Use first row as header? If <code>NA</code>, will use first row
+if it consists of <code style="white-space: pre;">&lt;th&gt;</code> tags.
+</p>
+<p>If <code>TRUE</code>, column names are left exactly as they are in the source
+document, which may require post-processing to generate a valid data
+frame.</p>
+</td></tr>
+<tr valign="top"><td><code>trim</code></td>
+<td>
+<p>Remove leading and trailing whitespace within each cell?</p>
+</td></tr>
+<tr valign="top"><td><code>fill</code></td>
+<td>
+<p>Deprecated - missing cells in tables are now always
+automatically filled with <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>dec</code></td>
+<td>
+<p>The character used as decimal place marker.</p>
+</td></tr>
+<tr valign="top"><td><code>na.strings</code></td>
+<td>
+<p>Character vector of values that will be converted to <code>NA</code>
+if <code>convert</code> is <code>TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>convert</code></td>
+<td>
+<p>If <code>TRUE</code>, will run <code><a href="../../utils/html/type.convert.html">type.convert()</a></code> to interpret texts as
+integer, double, or <code>NA</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>When applied to a single element, <code>html_table()</code> returns a single tibble.
+When applied to multiple elements or a document, <code>html_table()</code> returns
+a list of tibbles.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+sample1 &lt;- minimal_html("&lt;table&gt;
+  &lt;tr&gt;&lt;th&gt;Col A&lt;/th&gt;&lt;th&gt;Col B&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;x&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;4&lt;/td&gt;&lt;td&gt;y&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;10&lt;/td&gt;&lt;td&gt;z&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;")
+sample1 %&gt;%
+  html_element("table") %&gt;%
+  html_table()
+
+# Values in merged cells will be duplicated
+sample2 &lt;- minimal_html("&lt;table&gt;
+  &lt;tr&gt;&lt;th&gt;A&lt;/th&gt;&lt;th&gt;B&lt;/th&gt;&lt;th&gt;C&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;1&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;td&gt;3&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td colspan='2'&gt;4&lt;/td&gt;&lt;td&gt;5&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;6&lt;/td&gt;&lt;td colspan='2'&gt;7&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;")
+sample2 %&gt;%
+  html_element("table") %&gt;%
+  html_table()
+
+# If a row is missing cells, they'll be filled with NAs
+sample3 &lt;- minimal_html("&lt;table&gt;
+  &lt;tr&gt;&lt;th&gt;A&lt;/th&gt;&lt;th&gt;B&lt;/th&gt;&lt;th&gt;C&lt;/th&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td colspan='2'&gt;1&lt;/td&gt;&lt;td&gt;2&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td colspan='2'&gt;3&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;4&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;")
+sample3 %&gt;%
+  html_element("table") %&gt;%
+  html_table()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rvest</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

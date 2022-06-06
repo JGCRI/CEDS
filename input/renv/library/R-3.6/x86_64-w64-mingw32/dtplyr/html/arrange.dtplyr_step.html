@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Arrange rows by column values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for arrange.dtplyr_step {dtplyr}"><tr><td>arrange.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Arrange rows by column values</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for dplyr generic <code><a href="../../dplyr/html/arrange.html">arrange()</a></code>. It is translated to
+an <code><a href="../../base/html/order.html">order()</a></code> call in the <code>i</code> argument of <code style="white-space: pre;">[.data.table</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+arrange(.data, ..., .by_group = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../dplyr/html/dplyr_data_masking.html">data-masking</a></code>&gt; Variables, or functions of
+variables. Use <code><a href="../../dplyr/html/desc.html">desc()</a></code> to sort a variable in descending order.</p>
+</td></tr>
+<tr valign="top"><td><code>.by_group</code></td>
+<td>
+<p>If <code>TRUE</code>, will sort first by grouping variable. Applies to
+grouped data frames only.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+
+dt &lt;- lazy_dt(mtcars)
+dt %&gt;% arrange(vs, cyl)
+dt %&gt;% arrange(desc(vs), cyl)
+dt %&gt;% arrange(across(mpg:disp))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

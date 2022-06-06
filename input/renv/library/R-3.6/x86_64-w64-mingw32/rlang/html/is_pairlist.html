@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is object a node or pairlist?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for is_pairlist {rlang}"><tr><td>is_pairlist {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is object a node or pairlist?</h2>
+
+<h3>Description</h3>
+
+
+<ul>
+<li> <p><code>is_pairlist()</code> checks that <code>x</code> has type <code>pairlist</code>.
+</p>
+</li>
+<li> <p><code>is_node()</code> checks that <code>x</code> has type <code>pairlist</code> or <code>language</code>.
+It tests whether <code>x</code> is a node that has a CAR and a CDR,
+including callable nodes (language objects).
+</p>
+</li>
+<li> <p><code>is_node_list()</code> checks that <code>x</code> has type <code>pairlist</code> or <code>NULL</code>.
+<code>NULL</code> is the empty node list.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+is_pairlist(x)
+
+is_node(x)
+
+is_node_list(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Object to test.</p>
+</td></tr>
+</table>
+
+
+<h3>Life cycle</h3>
+
+<p>These functions are experimental. We are still figuring out a good
+naming convention to refer to the different lisp-like lists in R.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="is_call.html">is_call()</a></code> tests for language nodes.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

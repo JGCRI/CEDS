@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Internet Explorer proxy settings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ie_proxy {curl}"><tr><td>ie_proxy {curl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Internet Explorer proxy settings</h2>
+
+<h3>Description</h3>
+
+<p>Lookup and mimic the system proxy settings on Windows as set by Internet
+Explorer. This can be used to configure curl to use the same proxy server.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ie_proxy_info()
+
+ie_get_proxy_for_url(target_url = "http://www.google.com")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>target_url</code></td>
+<td>
+<p>url with host for which to lookup the proxy server</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>ie_proxy_info</code> function looks
+up your current proxy settings as configured in IE under &quot;Internet Options&quot;
+&gt; &quot;Tab: Connections&quot; &gt; &quot;LAN Settings&quot;. The <code>ie_get_proxy_for_url</code>
+determines if and which proxy should be used to connect to a particular
+URL. If your settings have an &quot;automatic configuration script&quot; this
+involves downloading and executing a PAC file, which can take a while.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>curl</em> version 4.3.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

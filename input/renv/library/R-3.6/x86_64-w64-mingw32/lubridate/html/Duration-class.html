@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Duration class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Duration-class {lubridate}"><tr><td>Duration-class {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Duration class</h2>
+
+<h3>Description</h3>
+
+<p>Duration is an S4 class that extends the <a href="Timespan-class.html">Timespan</a> class.
+Durations record the exact number of seconds in a time span. They measure the
+exact passage of time but do not always align with measurements
+made in larger units of time such as hours, months and years.
+This is because the exact length of larger time units can be affected
+by conventions such as leap years
+and Daylight Savings Time.
+</p>
+
+
+<h3>Details</h3>
+
+<p>Durations provide a method for measuring generalized timespans when we wish to
+treat time as a mathematical quantity that increases in a uniform, monotone manner
+along a continuous numberline. They allow exact comparisons with other durations.
+See <a href="Period-class.html">Period</a> for an alternative way to measure timespans that better
+preserves clock times.
+</p>
+<p>Durations class objects have one slot: .Data, a numeric object equal to the number
+of seconds in the duration.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

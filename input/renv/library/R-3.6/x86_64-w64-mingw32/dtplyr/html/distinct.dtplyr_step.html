@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Subset distinct/unique rows</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for distinct.dtplyr_step {dtplyr}"><tr><td>distinct.dtplyr_step {dtplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Subset distinct/unique rows</h2>
+
+<h3>Description</h3>
+
+<p>This is a method for the dplyr <code><a href="../../dplyr/html/distinct.html">distinct()</a></code> generic. It is translated to
+<code><a href="../../data.table/html/duplicated.html">data.table::unique.data.table()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'dtplyr_step'
+distinct(.data, ..., .keep_all = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A <code><a href="lazy_dt.html">lazy_dt()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<code><a href="../../dplyr/html/dplyr_data_masking.html">data-masking</a></code>&gt; Optional variables to use
+when determining uniqueness. If there are multiple rows for a given
+combination of inputs, only the first row will be preserved. If omitted,
+will use all variables.</p>
+</td></tr>
+<tr valign="top"><td><code>.keep_all</code></td>
+<td>
+<p>If <code>TRUE</code>, keep all variables in <code>.data</code>.
+If a combination of <code>...</code> is not distinct, this keeps the
+first row of values.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(dplyr, warn.conflicts = FALSE)
+df &lt;- lazy_dt(data.frame(
+  x = sample(10, 100, replace = TRUE),
+  y = sample(10, 100, replace = TRUE)
+))
+
+df %&gt;% distinct(x)
+df %&gt;% distinct(x, y)
+df %&gt;% distinct(x, .keep_all = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dtplyr</em> version 1.2.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

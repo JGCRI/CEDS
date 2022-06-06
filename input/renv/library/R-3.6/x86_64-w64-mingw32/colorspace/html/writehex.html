@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write Hexadecimal Color Descriptions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for writehex {colorspace}"><tr><td>writehex {colorspace}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write Hexadecimal Color Descriptions</h2>
+
+<h3>Description</h3>
+
+<p>Given a color object, this function writes a file containing the hexadecimal
+representation of the colors in the object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+writehex(x, file = "")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a color object.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>the name of the file to be written.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function converts the given color object to RGB and then writes
+hexadecimal strings (of the form <code>#RRGGBB</code>) representing the colors to
+the specified file.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The name of the file is returned as the value of the function.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ross Ihaka
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="readhex.html">readhex</a></code>, <code><a href="readRGB.html">readRGB</a></code>,
+<code><a href="hex2RGB.html">hex2RGB</a></code>, <code><a href="RGB.html">RGB</a></code>, <code><a href="HSV.html">HSV</a></code>,
+<code><a href="XYZ.html">XYZ</a></code>, <code><a href="LAB.html">LAB</a></code>, <code><a href="polarLAB.html">polarLAB</a></code>,
+<code><a href="LUV.html">LUV</a></code>, <code><a href="polarLUV.html">polarLUV</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+set.seed(1)
+x &lt;- RGB(runif(10), runif(10), runif(10))
+## IGNORE_RDIFF_BEGIN
+writehex(x, file.path(tempdir(), "random.txt"))
+## IGNORE_RDIFF_END
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>colorspace</em> version 2.0-2 <a href="00Index.html">Index</a>]</div>
+</body></html>

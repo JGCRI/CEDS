@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Detect Pattern Occurrences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_detect {stringi}"><tr><td>stri_detect {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Detect Pattern Occurrences</h2>
+
+<h3>Description</h3>
+
+<p>These functions determine, for each string in <code>str</code>,
+if there is at least one match to a corresponding <code>pattern</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_detect(str, ..., regex, fixed, coll, charclass)
+
+stri_detect_fixed(
+  str,
+  pattern,
+  negate = FALSE,
+  max_count = -1,
+  ...,
+  opts_fixed = NULL
+)
+
+stri_detect_charclass(str, pattern, negate = FALSE, max_count = -1)
+
+stri_detect_coll(
+  str,
+  pattern,
+  negate = FALSE,
+  max_count = -1,
+  ...,
+  opts_collator = NULL
+)
+
+stri_detect_regex(
+  str,
+  pattern,
+  negate = FALSE,
+  max_count = -1,
+  ...,
+  opts_regex = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>str</code></td>
+<td>
+<p>character vector; strings to search in</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>supplementary arguments passed to the underlying functions,
+including additional settings for <code>opts_collator</code>, <code>opts_regex</code>,
+<code>opts_fixed</code>, and so on</p>
+</td></tr>
+<tr valign="top"><td><code>pattern, regex, fixed, coll, charclass</code></td>
+<td>
+<p>character vector;
+search patterns; for more details refer to <a href="about_search.html">stringi-search</a></p>
+</td></tr>
+<tr valign="top"><td><code>negate</code></td>
+<td>
+<p>single logical value; whether a no-match to a pattern
+is rather of interest</p>
+</td></tr>
+<tr valign="top"><td><code>max_count</code></td>
+<td>
+<p>single integer; allows to stop searching once a given
+number of occurrences is detected; <code>-1</code> (the default) inspects all
+elements</p>
+</td></tr>
+<tr valign="top"><td><code>opts_collator, opts_fixed, opts_regex</code></td>
+<td>
+<p>a named list used to tune up
+the search engine's settings; see
+<code><a href="stri_opts_collator.html">stri_opts_collator</a></code>, <code><a href="stri_opts_fixed.html">stri_opts_fixed</a></code>,
+and <code><a href="stri_opts_regex.html">stri_opts_regex</a></code>, respectively; <code>NULL</code>
+for the defaults</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Vectorized over <code>str</code> and <code>pattern</code> (with recycling
+of the elements in the shorter vector if necessary). This allows to,
+for instance, search for one pattern in each given string,
+search for each pattern in one given string,
+and search for the i-th pattern within the i-th string.
+</p>
+<p>If <code>pattern</code> is empty, then the result is <code>NA</code>
+and a warning is generated.
+</p>
+<p><code>stri_detect</code> is a convenience function.
+It calls either <code>stri_detect_regex</code>,
+<code>stri_detect_fixed</code>, <code>stri_detect_coll</code>,
+or <code>stri_detect_charclass</code>, depending on the argument used.
+</p>
+<p>See also <code><a href="stri_startsendswith.html">stri_startswith</a></code> and <code><a href="stri_startsendswith.html">stri_endswith</a></code>
+for testing whether a string starts or ends with a match to a given pattern.
+Moreover, see <code><a href="stri_subset.html">stri_subset</a></code> for a character vector subsetting.
+</p>
+<p>If <code>max_count</code> is negative, then all stings are examined.
+Otherwise, searching terminates
+once <code>max_count</code> matches (or, if <code>negate</code> is <code>TRUE</code>,
+no-matches) are detected. The uninspected cases are marked
+as missing in the return vector. Be aware that, unless <code>pattern</code> is a
+singleton, the elements in <code>str</code> might be inspected in a
+non-consecutive order.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Each function returns a logical vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other search_detect: 
+<code><a href="about_search.html">about_search</a></code>,
+<code><a href="stri_startsendswith.html">stri_startswith</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_detect_fixed(c('stringi R', 'R STRINGI', '123'), c('i', 'R', '0'))
+stri_detect_fixed(c('stringi R', 'R STRINGI', '123'), 'R')
+
+stri_detect_charclass(c('stRRRingi','R STRINGI', '123'),
+   c('\\p{Ll}', '\\p{Lu}', '\\p{Zs}'))
+
+stri_detect_regex(c('stringi R', 'R STRINGI', '123'), 'R.')
+stri_detect_regex(c('stringi R', 'R STRINGI', '123'), '[[:alpha:]]*?')
+stri_detect_regex(c('stringi R', 'R STRINGI', '123'), '[a-zC1]')
+stri_detect_regex(c('stringi R', 'R STRINGI', '123'), '( R|RE)')
+stri_detect_regex('stringi', 'STRING.', case_insensitive=TRUE)
+
+stri_detect_regex(c('abc', 'def', '123', 'ghi', '456', '789', 'jkl'),
+   '^[0-9]+$', max_count=1)
+stri_detect_regex(c('abc', 'def', '123', 'ghi', '456', '789', 'jkl'),
+   '^[0-9]+$', max_count=2)
+stri_detect_regex(c('abc', 'def', '123', 'ghi', '456', '789', 'jkl'),
+   '^[0-9]+$', negate=TRUE, max_count=3)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

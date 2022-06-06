@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: 'sheets_id' class</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheets_id {googlesheets4}"><tr><td>sheets_id {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2><code>sheets_id</code> class</h2>
+
+<h3>Description</h3>
+
+<p><code>sheets_id</code> is an S3 class that marks a string as a Google Sheet's id, which
+the Sheets API docs refer to as <code>spreadsheetId</code>.
+</p>
+<p>Any object of class <code>sheets_id</code> also has the <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+class, which is used by <a href="../../googledrive/html/googledrive-package.html">googledrive</a> for the same purpose. This means you
+can provide a <code>sheets_id</code> to <a href="../../googledrive/html/googledrive-package.html">googledrive</a> functions, in order to do anything
+with your Sheet that has nothing to do with it being a spreadsheet. Examples:
+change the Sheet's name, parent folder, or permissions. Read more about using
+<a href="googlesheets4-package.html">googlesheets4</a> and <a href="../../googledrive/html/googledrive-package.html">googledrive</a> together in <code>vignette("drive-and-sheets")</code>.
+Note that a <code>sheets_id</code> object is intended to hold <strong>just one</strong> id, while the
+parent class <code>drive_id</code> can be used for multiple ids.
+</p>
+<p><code>as_sheets_id()</code> is a generic function that converts various inputs into an
+instance of <code>sheets_id</code>. See more below.
+</p>
+<p>When you print a <code>sheets_id</code>, we attempt to reveal the Sheet's current
+metadata, via <code><a href="gs4_get.html">gs4_get()</a></code>. This can fail for a variety of reasons (e.g. if
+you're offline), but the input <code>sheets_id</code> is always revealed and returned,
+invisibly.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_sheets_id(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Something that contains a Google Sheet id: an id string, a
+<code><a href="../../googledrive/html/as_id.html">drive_id</a></code>, a URL, a one-row
+<code><a href="../../googledrive/html/dribble.html">dribble</a></code>, or a <code>googlesheets4_spreadsheet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed down to methods. (Not used.)</p>
+</td></tr>
+</table>
+
+
+<h3><code>as_sheets_id()</code></h3>
+
+<p>These inputs can be converted to a <code>sheets_id</code>:
+</p>
+
+<ul>
+<li><p> Spreadsheet id, &quot;a string containing letters, numbers, and some special
+characters&quot;, typically 44 characters long, in our experience. Example:
+<code style="white-space: pre;">1qpyC0XzvTcKT6EISywvqESX3A0MwQoFDE8p-Bll4hps</code>.
+</p>
+</li>
+<li><p> A URL, from which we can excavate a spreadsheet or file id. Example:
+<code>"https://docs.google.com/spreadsheets/d/1BzfL0kZUz1TsI5zxJF1WNF01IxvC67FbOJUiiGMZ_mQ/edit#gid=1150108545"</code>.
+</p>
+</li>
+<li><p> A one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, a &quot;Drive tibble&quot; used by the
+<a href="../../googledrive/html/googledrive-package.html">googledrive</a> package. In general, a <code>dribble</code> can represent several
+files, one row per file. Since googlesheets4 is not vectorized over
+spreadsheets, we are only prepared to accept a one-row <code>dribble</code>.
+</p>
+
+<ul>
+<li> <p><code><a href="../../googledrive/html/drive_get.html">googledrive::drive_get(&quot;YOUR_SHEET_NAME&quot;)</a></code>
+is a great way to look up a Sheet via its name.
+</p>
+</li>
+<li> <p><code><a href="gs4_find.html">gs4_find(&quot;YOUR_SHEET_NAME&quot;)</a></code> is another good way
+to get your hands on a Sheet.
+</p>
+</li></ul>
+
+</li>
+<li><p> Spreadsheet meta data, as returned by, e.g., <code><a href="gs4_get.html">gs4_get()</a></code>. Literally,
+this is an object of class <code>googlesheets4_spreadsheet</code>.
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><a href="../../googledrive/html/as_id.html">googledrive::as_id</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+mini_gap_id &lt;- gs4_example("mini-gap")
+class(mini_gap_id)
+mini_gap_id
+
+as_sheets_id("abc")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

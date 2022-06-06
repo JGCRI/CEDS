@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Converts a date to a decimal of its year</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for decimal_date {lubridate}"><tr><td>decimal_date {lubridate}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Converts a date to a decimal of its year</h2>
+
+<h3>Description</h3>
+
+<p>Converts a date to a decimal of its year
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+decimal_date(date)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>date</code></td>
+<td>
+<p>a POSIXt or Date object</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a numeric object where the date is expressed as a fraction of its year
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+date &lt;- ymd("2009-02-10")
+decimal_date(date)  # 2009.11
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>lubridate</em> version 1.8.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

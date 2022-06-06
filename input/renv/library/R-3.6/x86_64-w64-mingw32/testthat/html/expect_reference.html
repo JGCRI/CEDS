@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Does code return a reference to the expected object?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expect_reference {testthat}"><tr><td>expect_reference {testthat}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Does code return a reference to the expected object?</h2>
+
+<h3>Description</h3>
+
+<p><code>expect_reference()</code> compares the underlying memory addresses of
+two symbols. It is for expert use only.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expect_reference(
+  object,
+  expected,
+  info = NULL,
+  label = NULL,
+  expected.label = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Computation and value to compare it to.
+</p>
+<p>Both arguments supports limited unquoting to make it easier to generate
+readable failures within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>expected</code></td>
+<td>
+<p>Computation and value to compare it to.
+</p>
+<p>Both arguments supports limited unquoting to make it easier to generate
+readable failures within a function or for loop. See <a href="quasi_label.html">quasi_label</a> for
+more details.</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>Extra information to be included in the message. This argument
+is soft-deprecated and should not be used in new code. Instead see
+alternatives in <a href="quasi_label.html">quasi_label</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Used to customise failure messages. For expert
+use only.</p>
+</td></tr>
+<tr valign="top"><td><code>expected.label</code></td>
+<td>
+<p>Used to customise failure messages. For expert
+use only.</p>
+</td></tr>
+</table>
+
+
+<h3>3rd edition</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p><code>expect_reference()</code> is deprecated in the third edition. If you know what
+you're doing, and you really need this behaviour, just use <code>is_reference()</code>
+directly: <code>expect_true(rlang::is_reference(x, y))</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other expectations: 
+<code><a href="comparison-expectations.html">comparison-expectations</a></code>,
+<code><a href="equality-expectations.html">equality-expectations</a></code>,
+<code><a href="expect_error.html">expect_error</a>()</code>,
+<code><a href="expect_length.html">expect_length</a>()</code>,
+<code><a href="expect_match.html">expect_match</a>()</code>,
+<code><a href="expect_named.html">expect_named</a>()</code>,
+<code><a href="expect_null.html">expect_null</a>()</code>,
+<code><a href="expect_output.html">expect_output</a>()</code>,
+<code><a href="expect_silent.html">expect_silent</a>()</code>,
+<code><a href="inheritance-expectations.html">inheritance-expectations</a></code>,
+<code><a href="logical-expectations.html">logical-expectations</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>testthat</em> version 3.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

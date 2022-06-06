@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Concatenate Strings in a List</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for stri_join_list {stringi}"><tr><td>stri_join_list {stringi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Concatenate Strings in a List</h2>
+
+<h3>Description</h3>
+
+<p>These functions concatenate all the strings in each character vector
+in a given list.
+<code>stri_c_list</code> and <code>stri_paste_list</code> are aliases for
+<code>stri_join_list</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+stri_join_list(x, sep = "", collapse = NULL)
+
+stri_c_list(x, sep = "", collapse = NULL)
+
+stri_paste_list(x, sep = "", collapse = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a list consisting of character vectors</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>a single string; separates strings in each of the character
+vectors in <code>x</code></p>
+</td></tr>
+<tr valign="top"><td><code>collapse</code></td>
+<td>
+<p>a single string or <code>NULL</code>; an optional
+results separator</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Unless <code>collapse</code> is <code>NULL</code>, the result will be a single string.
+Otherwise, you get a character vector of length equal
+to the length of <code>x</code>.
+</p>
+<p>Vectors in <code>x</code> of length 0 are silently ignored.
+</p>
+<p>If <code>collapse</code> or <code>sep</code> has length greater than 1,
+then only the first string will be used.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a character vector.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p><a href="https://www.gagolewski.com/">Marek Gagolewski</a> and other contributors
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The official online manual of <span class="pkg">stringi</span> at <a href="https://stringi.gagolewski.com/">https://stringi.gagolewski.com/</a>
+</p>
+<p>Other join: 
+<code><a href="operator_add.html">%s+%</a>()</code>,
+<code><a href="stri_dup.html">stri_dup</a>()</code>,
+<code><a href="stri_flatten.html">stri_flatten</a>()</code>,
+<code><a href="stri_join.html">stri_join</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+stri_join_list(
+   stri_extract_all_words(c('Lorem ipsum dolor sit amet.',
+   'Spam spam bacon sausage and spam.')),
+sep=', ')
+
+stri_join_list(
+   stri_extract_all_words(c('Lorem ipsum dolor sit amet.',
+   'Spam spam bacon sausage and spam.')),
+sep=', ', collapse='. ')
+
+stri_join_list(
+   stri_extract_all_regex(
+      c('spam spam bacon', '123 456', 'spam 789 sausage'), '\\p{L}+'
+   ),
+sep=',')
+
+stri_join_list(
+   stri_extract_all_regex(
+      c('spam spam bacon', '123 456', 'spam 789 sausage'), '\\p{L}+',
+      omit_no_match=TRUE
+   ),
+sep=',', collapse='; ')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>stringi</em> version 1.7.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

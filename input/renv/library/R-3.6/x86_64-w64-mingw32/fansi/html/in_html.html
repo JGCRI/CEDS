@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Frame HTML in a Web Page And Display</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for in_html {fansi}"><tr><td>in_html {fansi}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Frame HTML in a Web Page And Display</h2>
+
+<h3>Description</h3>
+
+<p>Helper function that assembles user provided HTML and CSS into a temporary
+text file, and by default displays it in the browser.  Intended for use in
+examples.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+in_html(x, css = character(), pre = TRUE, display = TRUE, clean = display)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>character vector of html encoded strings.</p>
+</td></tr>
+<tr valign="top"><td><code>css</code></td>
+<td>
+<p>character vector of css styles.</p>
+</td></tr>
+<tr valign="top"><td><code>pre</code></td>
+<td>
+<p>TRUE (default) or FALSE, whether to wrap <code>x</code> in PRE tags.</p>
+</td></tr>
+<tr valign="top"><td><code>display</code></td>
+<td>
+<p>TRUE or FALSE, whether to display the resulting page in a
+browser window.  If TRUE, will sleep for one second before returning, and
+will delete the temporary file used to store the HTML.</p>
+</td></tr>
+<tr valign="top"><td><code>clean</code></td>
+<td>
+<p>TRUE or FALSE, if TRUE and <code>display == TRUE</code>, will delete the
+temporary file used for the web page, otherwise will leave it.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>character(1L) the file location of the page, invisibly, but keep in
+mind it will have been deleted if <code>clean=TRUE</code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="make_styles.html">make_styles()</a></code>.
+</p>
+<p>Other HTML functions: 
+<code><a href="html_esc.html">html_esc</a>()</code>,
+<code><a href="make_styles.html">make_styles</a>()</code>,
+<code><a href="to_html.html">to_html</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+txt &lt;- "\033[31;42mHello \033[7mWorld\033[m"
+writeLines(txt)
+html &lt;- to_html(txt)
+## Not run: 
+in_html(html) # spawns a browser window
+
+## End(Not run)
+writeLines(readLines(in_html(html, display=FALSE)))
+css &lt;- "SPAN {text-decoration: underline;}"
+writeLines(readLines(in_html(html, css=css, display=FALSE)))
+## Not run: 
+in_html(html, css)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fansi</em> version 1.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

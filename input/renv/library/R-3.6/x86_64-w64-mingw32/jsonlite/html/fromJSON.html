@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Convert R objects to/from JSON</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for toJSON, fromJSON {jsonlite}"><tr><td>toJSON, fromJSON {jsonlite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Convert <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> objects to/from JSON</h2>
+
+<h3>Description</h3>
+
+<p>These functions are used to convert between JSON data and <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> objects. The <code><a href="fromJSON.html">toJSON()</a></code> and <code><a href="fromJSON.html">fromJSON()</a></code>
+functions use a class based mapping, which follows conventions outlined in this paper:  <a href="https://arxiv.org/abs/1403.2805">https://arxiv.org/abs/1403.2805</a> (also available as vignette).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fromJSON(
+  txt,
+  simplifyVector = TRUE,
+  simplifyDataFrame = simplifyVector,
+  simplifyMatrix = simplifyVector,
+  flatten = FALSE,
+  ...
+)
+
+toJSON(
+  x,
+  dataframe = c("rows", "columns", "values"),
+  matrix = c("rowmajor", "columnmajor"),
+  Date = c("ISO8601", "epoch"),
+  POSIXt = c("string", "ISO8601", "epoch", "mongo"),
+  factor = c("string", "integer"),
+  complex = c("string", "list"),
+  raw = c("base64", "hex", "mongo", "int", "js"),
+  null = c("list", "null"),
+  na = c("null", "string"),
+  auto_unbox = FALSE,
+  digits = 4,
+  pretty = FALSE,
+  force = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>txt</code></td>
+<td>
+<p>a JSON string, URL or file</p>
+</td></tr>
+<tr valign="top"><td><code>simplifyVector</code></td>
+<td>
+<p>coerce JSON arrays containing only primitives into an atomic vector</p>
+</td></tr>
+<tr valign="top"><td><code>simplifyDataFrame</code></td>
+<td>
+<p>coerce JSON arrays containing only records (JSON objects) into a data frame</p>
+</td></tr>
+<tr valign="top"><td><code>simplifyMatrix</code></td>
+<td>
+<p>coerce JSON arrays containing vectors of equal mode and dimension into matrix or array</p>
+</td></tr>
+<tr valign="top"><td><code>flatten</code></td>
+<td>
+<p>automatically <code><a href="flatten.html">flatten()</a></code> nested data frames into a single non-nested data frame</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments passed on to class specific <code>print</code> methods</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>the object to be encoded</p>
+</td></tr>
+<tr valign="top"><td><code>dataframe</code></td>
+<td>
+<p>how to encode data.frame objects: must be one of 'rows', 'columns' or 'values'</p>
+</td></tr>
+<tr valign="top"><td><code>matrix</code></td>
+<td>
+<p>how to encode matrices and higher dimensional arrays: must be one of 'rowmajor' or 'columnmajor'.</p>
+</td></tr>
+<tr valign="top"><td><code>Date</code></td>
+<td>
+<p>how to encode Date objects: must be one of 'ISO8601' or 'epoch'</p>
+</td></tr>
+<tr valign="top"><td><code>POSIXt</code></td>
+<td>
+<p>how to encode POSIXt (datetime) objects: must be one of 'string', 'ISO8601', 'epoch' or 'mongo'</p>
+</td></tr>
+<tr valign="top"><td><code>factor</code></td>
+<td>
+<p>how to encode factor objects: must be one of 'string' or 'integer'</p>
+</td></tr>
+<tr valign="top"><td><code>complex</code></td>
+<td>
+<p>how to encode complex numbers: must be one of 'string' or 'list'</p>
+</td></tr>
+<tr valign="top"><td><code>raw</code></td>
+<td>
+<p>how to encode raw objects: must be one of 'base64', 'hex' or 'mongo'</p>
+</td></tr>
+<tr valign="top"><td><code>null</code></td>
+<td>
+<p>how to encode NULL values within a list: must be one of 'null' or 'list'</p>
+</td></tr>
+<tr valign="top"><td><code>na</code></td>
+<td>
+<p>how to print NA values: must be one of 'null' or 'string'. Defaults are class specific</p>
+</td></tr>
+<tr valign="top"><td><code>auto_unbox</code></td>
+<td>
+<p>automatically <code><a href="unbox.html">unbox()</a></code> all atomic vectors of length 1. It is usually safer to avoid this and instead use the <code><a href="unbox.html">unbox()</a></code> function to unbox individual elements.
+An exception is that objects of class <code>AsIs</code> (i.e. wrapped in <code><a href="../../base/html/AsIs.html">I()</a></code>) are not automatically unboxed. This is a way to mark single values as length-1 arrays.</p>
+</td></tr>
+<tr valign="top"><td><code>digits</code></td>
+<td>
+<p>max number of decimal digits to print for numeric values. Use <code><a href="../../base/html/AsIs.html">I()</a></code> to specify significant digits. Use <code>NA</code> for max precision.</p>
+</td></tr>
+<tr valign="top"><td><code>pretty</code></td>
+<td>
+<p>adds indentation whitespace to JSON output. Can be TRUE/FALSE or a number specifying the number of spaces to indent. See <code><a href="prettify.html">prettify()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>force</code></td>
+<td>
+<p>unclass/skip objects of classes with no defined JSON mapping</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code><a href="fromJSON.html">toJSON()</a></code> and <code><a href="fromJSON.html">fromJSON()</a></code> functions are drop-in replacements for the identically named functions
+in packages <code>rjson</code> and <code>RJSONIO</code>. Our implementation uses an alternative, somewhat more consistent mapping
+between <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> objects and JSON strings.
+</p>
+<p>The <code><a href="serializeJSON.html">serializeJSON()</a></code> and <code><a href="serializeJSON.html">unserializeJSON()</a></code> functions in this package use an
+alternative system to convert between <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> objects and JSON, which supports more classes but is much more verbose.
+</p>
+<p>A JSON string is always unicode, using <code>UTF-8</code> by default, hence there is usually no need to escape any characters.
+However, the JSON format does support escaping of unicode characters, which are encoded using a backslash followed by
+a lower case <code>"u"</code> and 4 hex characters, for example: <code>"Z\u00FCrich"</code>. The <code>fromJSON</code> function
+will parse such escape sequences but it is usually preferable to encode unicode characters in JSON using native
+<code>UTF-8</code> rather than escape sequences.
+</p>
+
+
+<h3>References</h3>
+
+<p>Jeroen Ooms (2014). The <code>jsonlite</code> Package: A Practical and Consistent Mapping Between JSON Data and <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> Objects. <em>arXiv:1403.2805</em>. <a href="https://arxiv.org/abs/1403.2805">https://arxiv.org/abs/1403.2805</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="read_json.html">read_json()</a></code>, <code><a href="stream_in.html">stream_in()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Stringify some data
+jsoncars &lt;- toJSON(mtcars, pretty=TRUE)
+cat(jsoncars)
+
+# Parse it back
+fromJSON(jsoncars)
+
+# Parse escaped unicode
+fromJSON('{"city" : "Z\\u00FCrich"}')
+
+# Decimal vs significant digits
+toJSON(pi, digits=3)
+toJSON(pi, digits=I(3))
+
+## Not run: 
+#retrieve data frame
+data1 &lt;- fromJSON("https://api.github.com/users/hadley/orgs")
+names(data1)
+data1$login
+
+# Nested data frames:
+data2 &lt;- fromJSON("https://api.github.com/users/hadley/repos")
+names(data2)
+names(data2$owner)
+data2$owner$login
+
+# Flatten the data into a regular non-nested dataframe
+names(flatten(data2))
+
+# Flatten directly (more efficient):
+data3 &lt;- fromJSON("https://api.github.com/users/hadley/repos", flatten = TRUE)
+identical(data3, flatten(data2))
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>jsonlite</em> version 1.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

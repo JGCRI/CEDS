@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Move Drive files to or from trash</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for drive_trash {googledrive}"><tr><td>drive_trash {googledrive}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Move Drive files to or from trash</h2>
+
+<h3>Description</h3>
+
+<p>Move Drive files to or from trash
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+drive_trash(file, verbose = deprecated())
+
+drive_untrash(file, verbose = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>Something that identifies the file(s) of interest on your Google
+Drive. Can be a character vector of names/paths, a character vector of file
+ids or URLs marked with <code><a href="as_id.html">as_id()</a></code>, or a <code><a href="dribble.html">dribble</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a> This logical argument to
+individual googledrive functions is deprecated. To globally suppress
+googledrive messaging, use <code>options(googledrive_quiet = TRUE)</code> (the default
+behaviour is to emit informational messages). To suppress messaging in a
+more limited way, use the helpers <code><a href="googledrive-configuration.html">local_drive_quiet()</a></code> or
+<code><a href="googledrive-configuration.html">with_drive_quiet()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="dribble.html">dribble</a></code>, a tibble with one row per file.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# Create a file and put it in the trash.
+file &lt;- drive_example_remote("chicken.txt") %&gt;%
+  drive_cp("chicken-trash.txt")
+drive_trash("chicken-trash.txt")
+
+# Confirm it's in the trash
+drive_find(trashed = TRUE)
+
+# Remove it from the trash and confirm
+drive_untrash("chicken-trash.txt")
+drive_find(trashed = TRUE)
+
+# Clean up
+drive_rm("chicken-trash.txt")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googledrive</em> version 2.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a formula</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for new_formula {rlang}"><tr><td>new_formula {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a formula</h2>
+
+<h3>Description</h3>
+
+<p>Create a formula
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+new_formula(lhs, rhs, env = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>lhs, rhs</code></td>
+<td>
+<p>A call, name, or atomic vector.</p>
+</td></tr>
+<tr valign="top"><td><code>env</code></td>
+<td>
+<p>An environment.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A formula object.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="new_quosure.html">new_quosure()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+new_formula(quote(a), quote(b))
+new_formula(NULL, quote(b))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

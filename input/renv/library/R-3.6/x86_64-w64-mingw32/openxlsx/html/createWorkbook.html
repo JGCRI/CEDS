@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new Workbook object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for createWorkbook {openxlsx}"><tr><td>createWorkbook {openxlsx}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new Workbook object</h2>
+
+<h3>Description</h3>
+
+<p>Create a new Workbook object
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+createWorkbook(
+  creator = ifelse(.Platform$OS.type == "windows", Sys.getenv("USERNAME"),
+    Sys.getenv("USER")),
+  title = NULL,
+  subject = NULL,
+  category = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>creator</code></td>
+<td>
+<p>Creator of the workbook (your name). Defaults to login username</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+<p>Workbook properties title</p>
+</td></tr>
+<tr valign="top"><td><code>subject</code></td>
+<td>
+<p>Workbook properties subject</p>
+</td></tr>
+<tr valign="top"><td><code>category</code></td>
+<td>
+<p>Workbook properties category</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Workbook object
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Alexander Walker
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="loadWorkbook.html">loadWorkbook()</a></code>
+</p>
+<p><code><a href="saveWorkbook.html">saveWorkbook()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create a new workbook
+wb &lt;- createWorkbook()
+
+## Save workbook to working directory
+## Not run: 
+saveWorkbook(wb, file = "createWorkbookExample.xlsx", overwrite = TRUE)
+
+## End(Not run)
+
+## Set Workbook properties
+wb &lt;- createWorkbook(
+  creator = "Me",
+  title = "title here",
+  subject = "this &amp; that",
+  category = "something"
+)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>openxlsx</em> version 4.2.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

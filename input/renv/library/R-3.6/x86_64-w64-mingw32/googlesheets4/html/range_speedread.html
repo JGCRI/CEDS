@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read Sheet as CSV</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for range_speedread {googlesheets4}"><tr><td>range_speedread {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read Sheet as CSV</h2>
+
+<h3>Description</h3>
+
+<p>This function uses a quick-and-dirty method to read a Sheet that bypasses the
+Sheets API and, instead, parses a CSV representation of the data. This can be
+much faster than <code><a href="range_read.html">range_read()</a></code> &ndash; noticeably so for &quot;large&quot; spreadsheets.
+There are real downsides, though, so we recommend this approach only when the
+speed difference justifies it. Here are the limitations we must accept to get
+faster reading:
+</p>
+
+<ul>
+<li><p> Only formatted cell values are available, not underlying values or details
+on the formats.
+</p>
+</li>
+<li><p> We can't target a named range as the <code>range</code>.
+</p>
+</li>
+<li><p> We have no access to the data type of a cell, i.e. we don't know that it's
+logical, numeric, or datetime. That must be re-discovered based on the
+CSV data (or specified by the user).
+</p>
+</li>
+<li><p> Auth and error handling have to be handled a bit differently internally,
+which may lead to behaviour that differs from other functions in
+googlesheets4.
+</p>
+</li></ul>
+
+<p>Note that the Sheets API is still used to retrieve metadata on the target
+Sheet, in order to support range specification. <code>range_speedread()</code> also
+sends an auth token with the request, unless a previous call to
+<code><a href="gs4_deauth.html">gs4_deauth()</a></code> has put googlesheets4 into a de-authorized state.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+range_speedread(ss, sheet = NULL, range = NULL, skip = 0, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to read, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number. Ignored if the sheet is specified via <code>range</code>. If neither argument specifies the sheet, defaults to the first visible sheet.</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>A cell range to read from. If <code>NULL</code>, all non-empty cells are
+read. Otherwise specify <code>range</code> as described in <a href="https://developers.google.com/sheets/api/guides/concepts#a1_notation">Sheets A1 notation</a>
+or using the helpers documented in <a href="cell-specification.html">cell-specification</a>. Sheets uses
+fairly standard spreadsheet range notation, although a bit different from
+Excel. Examples of valid ranges: <code>"Sheet1!A1:B2"</code>, <code>"Sheet1!A:A"</code>,
+<code>"Sheet1!1:2"</code>, <code>"Sheet1!A5:A"</code>, <code>"A1:B2"</code>, <code>"Sheet1"</code>. Interpreted
+strictly, even if the range forces the inclusion of leading, trailing, or
+embedded empty rows or columns. Takes precedence over <code>skip</code>, <code>n_max</code> and
+<code>sheet</code>. Note <code>range</code> can be a named range, like <code>"sales_data"</code>, without
+any cell reference.</p>
+</td></tr>
+<tr valign="top"><td><code>skip</code></td>
+<td>
+<p>Minimum number of rows to skip before reading anything, be it
+column names or data. Leading empty rows are automatically skipped, so this
+is a lower bound. Ignored if <code>range</code> is given.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Passed along to the CSV parsing function (currently
+<code>readr::read_csv()</code>).</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../tibble/html/tibble-package.html">tibble</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  if (require("readr")) {
+    # since cell type is not available, use readr's col type specification
+    range_speedread(
+      gs4_example("deaths"),
+      sheet = "other",
+      range = "A5:F15",
+      col_types = cols(
+        Age = col_integer(),
+        `Date of birth` = col_date("%m/%d/%Y"),
+        `Date of death` = col_date("%m/%d/%Y")
+      )
+    )
+  }
+
+  # write a Sheet that, by default, is NOT world-readable
+  (ss &lt;- sheet_write(chickwts))
+
+  # demo that range_speedread() sends a token, which is why we can read this
+  range_speedread(ss)
+
+  # clean up
+  googledrive::drive_trash(ss)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

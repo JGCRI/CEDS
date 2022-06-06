@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Is Rtools installed?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rtools_path {pkgbuild}"><tr><td>rtools_path {pkgbuild}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Is Rtools installed?</h2>
+
+<h3>Description</h3>
+
+<p>To build binary packages on windows, Rtools (found at
+<a href="https://CRAN.R-project.org/bin/windows/Rtools/">https://CRAN.R-project.org/bin/windows/Rtools/</a>) needs to be on
+the path. The default installation process does not add it, so this
+script finds it (looking first on the path, then in the registry).
+It also checks that the version of rtools matches the version of R.
+<code>has_rtools()</code> determines if Rtools is installed, caching the results.
+Afterward, run <code>rtools_path()</code> to find out where it's installed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rtools_path()
+
+has_rtools(debug = FALSE)
+
+check_rtools(debug = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>debug</code></td>
+<td>
+<p>If <code>TRUE</code>, will print out extra information useful for
+debugging. If <code>FALSE</code>, it will use result cached from a previous run.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Either a visible <code>TRUE</code> if rtools is found, or an invisible
+<code>FALSE</code> with a diagnostic <code><a href="../../base/html/message.html">message()</a></code>.
+As a side-effect the internal package variable <code>rtools_path</code> is
+updated to the paths to rtools binaries.
+</p>
+
+
+<h3>Acknowledgements</h3>
+
+<p>This code borrows heavily from RStudio's code for finding Rtools.
+Thanks JJ!
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+has_rtools()
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pkgbuild</em> version 1.3.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

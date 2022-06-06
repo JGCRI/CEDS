@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Change the size of a (work)sheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sheet_resize {googlesheets4}"><tr><td>sheet_resize {googlesheets4}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Change the size of a (work)sheet</h2>
+
+<h3>Description</h3>
+
+<p>Changes the number of rows and/or columns in a (work)sheet.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sheet_resize(ss, sheet = NULL, nrow = NULL, ncol = NULL, exact = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ss</code></td>
+<td>
+<p>Something that identifies a Google Sheet:
+</p>
+
+<ul>
+<li><p> its file id as a string or <code><a href="../../googledrive/html/as_id.html">drive_id</a></code>
+</p>
+</li>
+<li><p> a URL from which we can recover the id
+</p>
+</li>
+<li><p> a one-row <code><a href="../../googledrive/html/dribble.html">dribble</a></code>, which is how googledrive
+represents Drive files
+</p>
+</li>
+<li><p> an instance of <code>googlesheets4_spreadsheet</code>, which is what <code><a href="gs4_get.html">gs4_get()</a></code>
+returns
+</p>
+</li></ul>
+
+<p>Processed through <code><a href="sheets_id.html">as_sheets_id()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sheet</code></td>
+<td>
+<p>Sheet to resize, in the sense of &quot;worksheet&quot; or &quot;tab&quot;. You can identify a sheet by name, with a string, or by position, with a number.</p>
+</td></tr>
+<tr valign="top"><td><code>nrow, ncol</code></td>
+<td>
+<p>Desired number of rows or columns, respectively. The default
+of <code>NULL</code> means to leave unchanged.</p>
+</td></tr>
+<tr valign="top"><td><code>exact</code></td>
+<td>
+<p>Logical, indicating whether to impose <code>nrow</code> and <code>ncol</code> exactly
+or to treat them as lower bounds. If <code>exact = FALSE</code>,
+<code>sheet_resize()</code> can only add cells. If <code>exact = TRUE</code>, cells can be
+deleted and their contents are lost.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The input <code>ss</code>, as an instance of <code><a href="sheets_id.html">sheets_id</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Makes an <code>UpdateSheetPropertiesRequest</code>:
+</p>
+
+<ul>
+<li><p> &lt;# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#UpdateSheetPropertiesRequest&gt;
+</p>
+</li></ul>
+
+<p>Other worksheet functions: 
+<code><a href="sheet_add.html">sheet_add</a>()</code>,
+<code><a href="sheet_append.html">sheet_append</a>()</code>,
+<code><a href="sheet_copy.html">sheet_copy</a>()</code>,
+<code><a href="sheet_delete.html">sheet_delete</a>()</code>,
+<code><a href="sheet_properties.html">sheet_properties</a>()</code>,
+<code><a href="sheet_relocate.html">sheet_relocate</a>()</code>,
+<code><a href="sheet_rename.html">sheet_rename</a>()</code>,
+<code><a href="sheet_write.html">sheet_write</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (gs4_has_token()) {
+  # create a Sheet with the default initial worksheet
+  (ss &lt;- gs4_create("sheet-resize-demo"))
+
+  # see (work)sheet dims
+  sheet_properties(ss)
+
+  # no resize occurs
+  sheet_resize(ss, nrow = 2, ncol = 6)
+
+  # reduce sheet size
+  sheet_resize(ss, nrow = 5, ncol = 7, exact = TRUE)
+
+  # add rows
+  sheet_resize(ss, nrow = 7)
+
+  # add columns
+  sheet_resize(ss, ncol = 10)
+
+  # add rows and columns
+  sheet_resize(ss, nrow = 9, ncol = 12)
+
+  # re-inspect (work)sheet dims
+  sheet_properties(ss)
+
+  # clean up
+  gs4_find("sheet-resize-demo") %&gt;%
+    googledrive::drive_trash()
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>googlesheets4</em> version 1.0.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

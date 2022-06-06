@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Execute a function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for exec {rlang}"><tr><td>exec {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Execute a function</h2>
+
+<h3>Description</h3>
+
+<p>This function constructs and evaluates a call to <code>.fn</code>.
+It has two primary uses:
+</p>
+
+<ul>
+<li><p> To call a function with arguments stored in a list (if the
+function doesn't support <a href="dyn-dots.html">dynamic dots</a>). Splice the
+list of arguments with <code style="white-space: pre;">!!!</code>.
+</p>
+</li>
+<li><p> To call every function stored in a list (in conjunction with <code>map()</code>/
+<code><a href="../../base/html/lapply.html">lapply()</a></code>)
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+exec(.fn, ..., .env = caller_env())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.fn</code></td>
+<td>
+<p>A function, or function name as a string.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>&lt;<a href="dyn-dots.html">dynamic</a>&gt; Arguments for <code>.fn</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>.env</code></td>
+<td>
+<p>Environment in which to evaluate the call. This will be
+most useful if <code>f</code> is a string, or the function has side-effects.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+args &lt;- list(x = c(1:10, 100, NA), na.rm = TRUE)
+exec("mean", !!!args)
+exec("mean", !!!args, trim = 0.2)
+
+fs &lt;- list(a = function() "a", b = function() "b")
+lapply(fs, exec)
+
+# Compare to do.call it will not automatically inline expressions
+# into the evaluated call.
+x &lt;- 10
+args &lt;- exprs(x1 = x + 1, x2 = x * 2)
+exec(list, !!!args)
+do.call(list, args)
+
+# exec() is not designed to generate pretty function calls. This is
+# most easily seen if you call a function that captures the call:
+f &lt;- disp ~ cyl
+exec("lm", f, data = mtcars)
+
+# If you need finer control over the generated call, you'll need to
+# construct it yourself. This may require creating a new environment
+# with carefully constructed bindings
+data_env &lt;- env(data = mtcars)
+eval(expr(lm(!!f, data)), data_env)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Smoothed density estimates</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for geom_density {ggplot2}"><tr><td>geom_density {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Smoothed density estimates</h2>
+
+<h3>Description</h3>
+
+<p>Computes and draws kernel density estimate, which is a smoothed version of
+the histogram. This is a useful alternative to the histogram for continuous
+data that comes from an underlying smooth distribution.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+geom_density(
+  mapping = NULL,
+  data = NULL,
+  stat = "density",
+  position = "identity",
+  ...,
+  na.rm = FALSE,
+  orientation = NA,
+  show.legend = NA,
+  inherit.aes = TRUE,
+  outline.type = "upper"
+)
+
+stat_density(
+  mapping = NULL,
+  data = NULL,
+  geom = "area",
+  position = "stack",
+  ...,
+  bw = "nrd0",
+  adjust = 1,
+  kernel = "gaussian",
+  n = 512,
+  trim = FALSE,
+  na.rm = FALSE,
+  orientation = NA,
+  show.legend = NA,
+  inherit.aes = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mapping</code></td>
+<td>
+<p>Set of aesthetic mappings created by <code><a href="aes.html">aes()</a></code> or
+<code><a href="aes_.html">aes_()</a></code>. If specified and <code>inherit.aes = TRUE</code> (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply <code>mapping</code> if there is no plot mapping.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>The data to be displayed in this layer. There are three
+options:
+</p>
+<p>If <code>NULL</code>, the default, the data is inherited from the plot
+data as specified in the call to <code><a href="ggplot.html">ggplot()</a></code>.
+</p>
+<p>A <code>data.frame</code>, or other object, will override the plot
+data. All objects will be fortified to produce a data frame. See
+<code><a href="fortify.html">fortify()</a></code> for which variables will be created.
+</p>
+<p>A <code>function</code> will be called with a single argument,
+the plot data. The return value must be a <code>data.frame</code>, and
+will be used as the layer data. A <code>function</code> can be created
+from a <code>formula</code> (e.g. <code>~ head(.x, 10)</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>position</code></td>
+<td>
+<p>Position adjustment, either as a string, or the result of
+a call to a position adjustment function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="layer.html">layer()</a></code>. These are
+often aesthetics, used to set an aesthetic to a fixed value, like
+<code>colour = "red"</code> or <code>size = 3</code>. They may also be parameters
+to the paired geom/stat.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, missing values are removed with
+a warning. If <code>TRUE</code>, missing values are silently removed.</p>
+</td></tr>
+<tr valign="top"><td><code>orientation</code></td>
+<td>
+<p>The orientation of the layer. The default (<code>NA</code>)
+automatically determines the orientation from the aesthetic mapping. In the
+rare event that this fails it can be given explicitly by setting <code>orientation</code>
+to either <code>"x"</code> or <code>"y"</code>. See the <em>Orientation</em> section for more detail.</p>
+</td></tr>
+<tr valign="top"><td><code>show.legend</code></td>
+<td>
+<p>logical. Should this layer be included in the legends?
+<code>NA</code>, the default, includes if any aesthetics are mapped.
+<code>FALSE</code> never includes, and <code>TRUE</code> always includes.
+It can also be a named logical vector to finely select the aesthetics to
+display.</p>
+</td></tr>
+<tr valign="top"><td><code>inherit.aes</code></td>
+<td>
+<p>If <code>FALSE</code>, overrides the default aesthetics,
+rather than combining with them. This is most useful for helper functions
+that define both data and aesthetics and shouldn't inherit behaviour from
+the default plot specification, e.g. <code><a href="borders.html">borders()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>outline.type</code></td>
+<td>
+<p>Type of the outline of the area; <code>"both"</code> draws both the
+upper and lower lines, <code>"upper"</code>/<code>"lower"</code> draws the respective lines only.
+<code>"full"</code> draws a closed polygon around the area.</p>
+</td></tr>
+<tr valign="top"><td><code>geom, stat</code></td>
+<td>
+<p>Use to override the default connection between
+<code>geom_density()</code> and <code>stat_density()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>bw</code></td>
+<td>
+<p>The smoothing bandwidth to be used.
+If numeric, the standard deviation of the smoothing kernel.
+If character, a rule to choose the bandwidth, as listed in
+<code><a href="../../stats/html/bandwidth.html">stats::bw.nrd()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>adjust</code></td>
+<td>
+<p>A multiplicate bandwidth adjustment. This makes it possible
+to adjust the bandwidth while still using the a bandwidth estimator.
+For example, <code>adjust = 1/2</code> means use half of the default bandwidth.</p>
+</td></tr>
+<tr valign="top"><td><code>kernel</code></td>
+<td>
+<p>Kernel. See list of available kernels in <code><a href="../../stats/html/density.html">density()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>number of equally spaced points at which the density is to be
+estimated, should be a power of two, see <code><a href="../../stats/html/density.html">density()</a></code> for
+details</p>
+</td></tr>
+<tr valign="top"><td><code>trim</code></td>
+<td>
+<p>If <code>FALSE</code>, the default, each density is computed on the
+full range of the data. If <code>TRUE</code>, each density is computed over the
+range of that group: this typically means the estimated x values will
+not line-up, and hence you won't be able to stack density values.
+This parameter only matters if you are displaying multiple densities in
+one plot or if you are manually adjusting the scale limits.</p>
+</td></tr>
+</table>
+
+
+<h3>Orientation</h3>
+
+<p>This geom treats each axis differently and, thus, can thus have two orientations. Often the orientation is easy to deduce from a combination of the given mappings and the types of positional scales in use. Thus, ggplot2 will by default try to guess which orientation the layer should have. Under rare circumstances, the orientation is ambiguous and guessing may fail. In that case the orientation can be specified directly using the <code>orientation</code> parameter, which can be either <code>"x"</code> or <code>"y"</code>. The value gives the axis that the geom should run along, <code>"x"</code> being the default orientation you would expect for the geom.
+</p>
+
+
+<h3>Aesthetics</h3>
+
+<p><code>geom_density()</code> understands the following aesthetics (required aesthetics are in bold):
+</p>
+
+<ul>
+<li> <p><strong><code>x</code></strong>
+</p>
+</li>
+<li> <p><strong><code>y</code></strong>
+</p>
+</li>
+<li> <p><code>alpha</code>
+</p>
+</li>
+<li> <p><code>colour</code>
+</p>
+</li>
+<li> <p><code>fill</code>
+</p>
+</li>
+<li> <p><code>group</code>
+</p>
+</li>
+<li> <p><code>linetype</code>
+</p>
+</li>
+<li> <p><code>size</code>
+</p>
+</li>
+<li> <p><code>weight</code>
+</p>
+</li></ul>
+
+<p>Learn more about setting these aesthetics in <code>vignette("ggplot2-specs")</code>.
+</p>
+
+
+<h3>Computed variables</h3>
+
+
+<dl>
+<dt>density</dt><dd><p>density estimate</p>
+</dd>
+<dt>count</dt><dd><p>density * number of points - useful for stacked density
+plots</p>
+</dd>
+<dt>scaled</dt><dd><p>density estimate, scaled to maximum of 1</p>
+</dd>
+<dt>ndensity</dt><dd><p>alias for <code>scaled</code>, to mirror the syntax of
+<code><a href="geom_histogram.html">stat_bin()</a></code></p>
+</dd>
+</dl>
+
+
+
+<h3>See Also</h3>
+
+<p>See <code><a href="geom_histogram.html">geom_histogram()</a></code>, <code><a href="geom_histogram.html">geom_freqpoly()</a></code> for
+other methods of displaying continuous distribution.
+See <code><a href="geom_violin.html">geom_violin()</a></code> for a compact density display.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ggplot(diamonds, aes(carat)) +
+  geom_density()
+# Map the values to y to flip the orientation
+ggplot(diamonds, aes(y = carat)) +
+  geom_density()
+
+ggplot(diamonds, aes(carat)) +
+  geom_density(adjust = 1/5)
+ggplot(diamonds, aes(carat)) +
+  geom_density(adjust = 5)
+
+ggplot(diamonds, aes(depth, colour = cut)) +
+  geom_density() +
+  xlim(55, 70)
+ggplot(diamonds, aes(depth, fill = cut, colour = cut)) +
+  geom_density(alpha = 0.1) +
+  xlim(55, 70)
+
+
+# Stacked density plots: if you want to create a stacked density plot, you
+# probably want to 'count' (density * n) variable instead of the default
+# density
+
+# Loses marginal densities
+ggplot(diamonds, aes(carat, fill = cut)) +
+  geom_density(position = "stack")
+# Preserves marginal densities
+ggplot(diamonds, aes(carat, after_stat(count), fill = cut)) +
+  geom_density(position = "stack")
+
+# You can use position="fill" to produce a conditional density estimate
+ggplot(diamonds, aes(carat, after_stat(count), fill = cut)) +
+  geom_density(position = "fill")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Functions Used for Styling Diff Components</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for StyleFuns-class {diffobj}"><tr><td>StyleFuns-class {diffobj}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Functions Used for Styling Diff Components</h2>
+
+<h3>Description</h3>
+
+<p>Except for <code>container</code> every function specified here should be
+vectorized and apply formatting to each element in a character vectors.  The
+functions must accept at least one argument and require no more than one
+argument.  The text to be formatted will be passed as a character vector
+as the first argument to each function.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>container</code></td>
+<td>
+<p>function used primarily by HTML styles to generate an
+outermost <code>DIV</code> that allows for CSS targeting of its contents
+(see <code><a href="tag_f.html">cont_f</a></code> for a function generator appropriate for use
+here)</p>
+</td></tr>
+<tr valign="top"><td><code>line</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>line.insert</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>line.delete</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>line.match</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>line.guide</code></td>
+<td>
+<p>function formats guide lines (see <code><a href="guides.html">guides</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>text</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>text.insert</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>text.delete</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>text.match</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>text.guide</code></td>
+<td>
+<p>function formats guide lines (see <code><a href="guides.html">guides</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>gutter</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.insert</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.delete</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.match</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.guide</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>gutter.pad</code></td>
+<td>
+<p>function</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>function to format each hunk header with</p>
+</td></tr>
+<tr valign="top"><td><code>banner</code></td>
+<td>
+<p>function to format entire banner</p>
+</td></tr>
+<tr valign="top"><td><code>banner.insert</code></td>
+<td>
+<p>function to format insertion banner</p>
+</td></tr>
+<tr valign="top"><td><code>banner.delete</code></td>
+<td>
+<p>function to format deletion banner</p>
+</td></tr>
+<tr valign="top"><td><code>meta</code></td>
+<td>
+<p>function format meta information lines</p>
+</td></tr>
+<tr valign="top"><td><code>context.sep</code></td>
+<td>
+<p>function to format the separator used to visually
+distinguish the A and B hunks in &ldquo;context&rdquo; <code>mode</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions are applied in post processing steps.  The <code>diff*</code>
+methods do not do any of the formatting.  Instead, the formatting is done
+only if the user requests to <code>show</code> the object.  Internally, <code>show</code>
+first converts the object to a character vector using <code>as.character</code>,
+which applies every formatting function defined here except for
+<code>container</code>.  Then <code>show</code> applies <code>container</code> before
+forwarding the result to the screen or pager.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a StyleFuns S4 object
+</p>
+
+
+<h3>Note</h3>
+
+<p>the slots are set to class &ldquo;ANY&rdquo; to allow classed functions
+such as those defined in the <code>crayon</code> package.  Despite this seemingly
+permissive slot definition, only functions are allowed in the slots by
+the validation functions.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="Style.html">Style</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>diffobj</em> version 0.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

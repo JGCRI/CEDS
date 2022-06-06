@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Call 'on.exit()' in a parent function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for exit_call {xfun}"><tr><td>exit_call {xfun}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Call <code>on.exit()</code> in a parent function</h2>
+
+<h3>Description</h3>
+
+<p>The function <code><a href="../../base/html/on.exit.html">on.exit</a>()</code> is often used to perform tasks when the
+current function exits. This <code>exit_call()</code> function allows calling a
+function when a parent function exits (thinking of it as inserting an
+<code>on.exit()</code> call into the parent function).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+exit_call(fun, n = 2, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p>A function to be called when the parent function exits.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>The parent frame number. For <code>n = 1</code>, <code>exit_call(fun)</code> is
+the same as <code>on.exit(fun())</code>; <code>n = 2</code> means adding
+<code>on.exit(fun())</code> in the parent function; <code>n = 3</code> means the
+grandparent, etc.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to be passed to <code>on.exit()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>References</h3>
+
+<p>This function was inspired by Kevin Ushey:
+<a href="https://yihui.org/en/2017/12/on-exit-parent/">https://yihui.org/en/2017/12/on-exit-parent/</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+f = function(x) {
+    print(x)
+    xfun::exit_call(function() print("The parent function is exiting!"))
+}
+g = function(y) {
+    f(y)
+    print("f() has been called!")
+}
+g("An argument of g()!")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xfun</em> version 0.29 <a href="00Index.html">Index</a>]</div>
+</body></html>

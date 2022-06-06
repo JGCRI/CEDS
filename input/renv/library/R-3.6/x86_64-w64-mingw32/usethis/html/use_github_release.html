@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Draft a GitHub release</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for use_github_release {usethis}"><tr><td>use_github_release {usethis}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Draft a GitHub release</h2>
+
+<h3>Description</h3>
+
+<p>Creates a <strong>draft</strong> GitHub release for the current package. Once you are
+satisfied that it is correct, you will need to publish the release from
+GitHub. The key pieces of info are which commit / SHA to tag, the associated
+package version, and the relevant NEWS entries.
+</p>
+<p>If you use <code>devtools::release()</code> or <code>devtools::submit_cran()</code> to submit to
+CRAN, information about the submitted state is captured in a CRAN-SUBMISSION
+or CRAN-RELEASE file. <code>use_github_release()</code> uses this info to populate the
+draft GitHub release and, after success, deletes the CRAN-SUBMISSION or
+CRAN-RELEASE file.
+</p>
+<p>In the absence of such a file, we must fall back to assuming the current
+state (SHA of <code>HEAD</code>, package version, NEWS) is the submitted state.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+use_github_release(host = deprecated(), auth_token = deprecated())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>host, auth_token</code></td>
+<td>
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>: No longer
+consulted now that usethis allows the gh package to lookup a token based on
+a URL determined from the current project's GitHub remotes.</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>usethis</em> version 2.1.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

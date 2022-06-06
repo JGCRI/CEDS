@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tools for working with row names</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rownames {tibble}"><tr><td>rownames {tibble}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Tools for working with row names</h2>
+
+<h3>Description</h3>
+
+<p>While a tibble can have row names (e.g., when converting from a regular data
+frame), they are removed when subsetting with the <code>[</code> operator.
+A warning will be raised when attempting to assign non-<code>NULL</code> row names
+to a tibble.
+Generally, it is best to avoid row names, because they are basically a
+character column with different semantics than every other column.
+</p>
+<p>These functions allow to you detect if a data frame has row names
+(<code>has_rownames()</code>), remove them (<code>remove_rownames()</code>), or convert
+them back-and-forth between an explicit column (<code>rownames_to_column()</code>
+and <code>column_to_rownames()</code>).
+Also included is <code>rowid_to_column()</code>, which adds a column at the start of the
+dataframe of ascending sequential row ids starting at 1. Note that this will
+remove any existing row names.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+has_rownames(.data)
+
+remove_rownames(.data)
+
+rownames_to_column(.data, var = "rowname")
+
+rowid_to_column(.data, var = "rowid")
+
+column_to_rownames(.data, var = "rowname")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>.data</code></td>
+<td>
+<p>A data frame.</p>
+</td></tr>
+<tr valign="top"><td><code>var</code></td>
+<td>
+<p>Name of column to use for rownames.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>column_to_rownames()</code> always returns a data frame.
+<code>has_rownames()</code> returns a scalar logical.
+All other functions return an object of the same class as the input.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Detect row names ----------------------------------------------------
+has_rownames(mtcars)
+has_rownames(trees)
+
+# Remove row names ----------------------------------------------------
+remove_rownames(mtcars) %&gt;% has_rownames()
+
+# Convert between row names and column --------------------------------
+mtcars_tbl &lt;- rownames_to_column(mtcars, var = "car") %&gt;% as_tibble()
+mtcars_tbl
+column_to_rownames(mtcars_tbl, var = "car") %&gt;% head()
+
+# Adding rowid as a column --------------------------------------------
+rowid_to_column(trees) %&gt;% head()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>tibble</em> version 3.1.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

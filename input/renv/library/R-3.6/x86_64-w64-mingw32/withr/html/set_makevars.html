@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a new 'Makevars' file, by adding new variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for set_makevars {withr}"><tr><td>set_makevars {withr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a new <code>Makevars</code> file, by adding new variables</h2>
+
+<h3>Description</h3>
+
+<p>You probably want <code><a href="with_makevars.html">with_makevars()</a></code> instead of this function.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+set_makevars(
+  variables,
+  old_path = makevars_user(),
+  new_path = tempfile(),
+  assignment = c("=", ":=", "?=", "+=")
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>variables</code></td>
+<td>
+<p><code style="white-space: pre;">[named character]</code><br /> new variables and their values</p>
+</td></tr>
+<tr valign="top"><td><code>old_path</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> location of existing <code>Makevars</code>
+file to modify.</p>
+</td></tr>
+<tr valign="top"><td><code>new_path</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> location of the new <code>Makevars</code> file</p>
+</td></tr>
+<tr valign="top"><td><code>assignment</code></td>
+<td>
+<p><code style="white-space: pre;">[character(1)]</code><br /> assignment type to use.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Unlike <code><a href="with_makevars.html">with_makevars()</a></code>, it does not activate the new <code>Makevars</code>
+file, i.e. it does not set the <code>R_MAKEVARS_USER</code> environment variable.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>withr</em> version 2.4.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

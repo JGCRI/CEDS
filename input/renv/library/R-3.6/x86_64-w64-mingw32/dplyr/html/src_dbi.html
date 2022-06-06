@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Source for database backends</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for src_dbi {dplyr}"><tr><td>src_dbi {dplyr}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Source for database backends</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="../help/figures/lifecycle-deprecated.svg" alt='[Deprecated]' /></a>
+</p>
+<p>These functions have been deprecated; instead please use <code><a href="tbl.html">tbl()</a></code>
+directly on an <code>DBIConnection</code>. See <a href="https://dbplyr.tidyverse.org/">https://dbplyr.tidyverse.org/</a> for
+more details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+src_mysql(
+  dbname,
+  host = NULL,
+  port = 0L,
+  username = "root",
+  password = "",
+  ...
+)
+
+src_postgres(
+  dbname = NULL,
+  host = NULL,
+  port = NULL,
+  user = NULL,
+  password = NULL,
+  ...
+)
+
+src_sqlite(path, create = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>dbname</code></td>
+<td>
+<p>Database name</p>
+</td></tr>
+<tr valign="top"><td><code>host, port</code></td>
+<td>
+<p>Host name and port number of database</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>for the src, other arguments passed on to the underlying
+database connector, <code><a href="../../DBI/html/dbConnect.html">DBI::dbConnect()</a></code>. For the tbl, included for
+compatibility with the generic, but otherwise ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>user, username, password</code></td>
+<td>
+<p>User name and password.
+</p>
+<p>Generally, you should avoid saving username and password in your
+scripts as it is easy to accidentally expose valuable credentials.
+Instead, retrieve them from environment variables, or use database
+specific credential scores. For example, with MySQL you can set up <code>my.cnf</code>
+as described in <code><a href="../../RMySQL/html/MySQLDriver-class.html">RMySQL::MySQL()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>Path to SQLite database. You can use the special path
+&quot;:memory:&quot; to create a temporary in memory database.</p>
+</td></tr>
+<tr valign="top"><td><code>create</code></td>
+<td>
+<p>if <code>FALSE</code>, <code>path</code> must already exist. If
+<code>TRUE</code>, will create a new SQLite3 database at <code>path</code> if
+<code>path</code> does not exist and connect to the existing database if
+<code>path</code> does exist.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An S3 object with class <code>src_dbi</code>, <code>src_sql</code>, <code>src</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(dbplyr, quietly = TRUE)) {
+
+con &lt;- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+copy_to(con, mtcars)
+
+# To retrieve a single table from a source, use `tbl()`
+mtcars &lt;- con %&gt;% tbl("mtcars")
+mtcars
+
+# You can also use pass raw SQL if you want a more sophisticated query
+con %&gt;% tbl(sql("SELECT * FROM mtcars WHERE cyl == 8"))
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>dplyr</em> version 1.0.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

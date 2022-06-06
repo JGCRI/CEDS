@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Download a specified version of a CRAN package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for download_version {remotes}"><tr><td>download_version {remotes}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Download a specified version of a CRAN package</h2>
+
+<h3>Description</h3>
+
+<p>It downloads the package to a temporary file, and
+returns the name of the file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+download_version(
+  package,
+  version = NULL,
+  repos = getOption("repos"),
+  type = getOption("pkgType"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>package</code></td>
+<td>
+<p>Name of the package to install.</p>
+</td></tr>
+<tr valign="top"><td><code>version</code></td>
+<td>
+<p>Version of the package to install.  Can either be a string giving the exact
+version required, or a specification in the same format as the parenthesized expressions used
+in package dependencies. One of the following formats:
+</p>
+
+<ul>
+<li><p> An exact version required, as a string, e.g. <code>"0.1.13"</code>
+</p>
+</li>
+<li><p> A comparison operator and a version, e.g. <code>"&gt;= 0.1.12"</code>
+</p>
+</li>
+<li><p> Several criteria to satisfy, as a comma-separated string, e.g. <code>"&gt;= 1.12.0, &lt; 1.14"</code>
+</p>
+</li>
+<li><p> Several criteria to satisfy, as elements of a character vector, e.g. <code>c("&gt;= 1.12.0", "&lt; 1.14")</code>
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>repos</code></td>
+<td>
+
+<p>character vector, the base URL(s) of the repositories
+to use, e.g., the URL of a CRAN mirror such as
+<code>"https://cloud.r-project.org"</code>.  For more details on
+supported URL schemes see <code><a href="../../base/html/connections.html">url</a></code>.
+</p>
+<p>Can be <code>NULL</code> to install from local files, directories or URLs:
+this will be inferred by extension from <code>pkgs</code> if of length one.
+</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>character, indicating the type of package to download and
+install.  Will be <code>"source"</code> except on Windows and some macOS
+builds: see the section on &lsquo;Binary packages&rsquo; for those.
+</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments passed on to <code><a href="../../utils/html/install.packages.html">utils::install.packages()</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Name of the downloaded file.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>remotes</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

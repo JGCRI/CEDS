@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Fortify methods for objects produced by 'multcomp'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fortify-multcomp {ggplot2}"><tr><td>fortify-multcomp {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Fortify methods for objects produced by <span class="pkg">multcomp</span></h2>
+
+<h3>Description</h3>
+
+<p>Fortify methods for objects produced by <span class="pkg">multcomp</span>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'glht'
+fortify(model, data, ...)
+
+## S3 method for class 'confint.glht'
+fortify(model, data, ...)
+
+## S3 method for class 'summary.glht'
+fortify(model, data, ...)
+
+## S3 method for class 'cld'
+fortify(model, data, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>model</code></td>
+<td>
+<p>an object of class <code>glht</code>, <code>confint.glht</code>,
+<code>summary.glht</code> or <code><a href="../../multcomp/html/cld.html">multcomp::cld()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>data, ...</code></td>
+<td>
+<p>other arguments to the generic ignored in this method.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require("multcomp")) {
+amod &lt;- aov(breaks ~ wool + tension, data = warpbreaks)
+wht &lt;- glht(amod, linfct = mcp(tension = "Tukey"))
+
+fortify(wht)
+ggplot(wht, aes(lhs, estimate)) + geom_point()
+
+CI &lt;- confint(wht)
+fortify(CI)
+ggplot(CI, aes(lhs, estimate, ymin = lwr, ymax = upr)) +
+   geom_pointrange()
+
+fortify(summary(wht))
+ggplot(mapping = aes(lhs, estimate)) +
+   geom_linerange(aes(ymin = lwr, ymax = upr), data = CI) +
+   geom_point(aes(size = p), data = summary(wht)) +
+   scale_size(trans = "reverse")
+
+cld &lt;- cld(wht)
+fortify(cld)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

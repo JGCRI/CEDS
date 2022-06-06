@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a data frame of map data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for map_data {ggplot2}"><tr><td>map_data {ggplot2}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a data frame of map data</h2>
+
+<h3>Description</h3>
+
+<p>Easily turn data from the <span class="pkg">maps</span> package in to a data frame suitable
+for plotting with ggplot2.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+map_data(map, region = ".", exact = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>map</code></td>
+<td>
+<p>name of map provided by the <span class="pkg">maps</span> package.  These
+include <code><a href="../../maps/html/county.html">maps::county()</a></code>, <code><a href="../../maps/html/france.html">maps::france()</a></code>,
+<code><a href="../../maps/html/italy.html">maps::italy()</a></code>, <code><a href="../../maps/html/nz.html">maps::nz()</a></code>,
+<code><a href="../../maps/html/state.html">maps::state()</a></code>, <code><a href="../../maps/html/usa.html">maps::usa()</a></code>,
+<code><a href="../../maps/html/world.html">maps::world()</a></code>, <code><a href="../../maps/html/world2.html">maps::world2()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>region</code></td>
+<td>
+<p>name of subregions to include.  Defaults to <code>.</code> which
+includes all subregion.  See documentation for <code><a href="../../maps/html/map.html">maps::map()</a></code>
+for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>exact</code></td>
+<td>
+<p>should the <code>region</code> be treated as a regular expression
+(<code>FALSE</code>) or as a fixed string (<code>TRUE</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>all other arguments passed on to <code><a href="../../maps/html/map.html">maps::map()</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require("maps")) {
+states &lt;- map_data("state")
+arrests &lt;- USArrests
+names(arrests) &lt;- tolower(names(arrests))
+arrests$region &lt;- tolower(rownames(USArrests))
+
+choro &lt;- merge(states, arrests, sort = FALSE, by = "region")
+choro &lt;- choro[order(choro$order), ]
+ggplot(choro, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = assault)) +
+  coord_map("albers",  lat0 = 45.5, lat1 = 29.5)
+}
+
+if (require("maps")) {
+ggplot(choro, aes(long, lat)) +
+  geom_polygon(aes(group = group, fill = assault / murder)) +
+  coord_map("albers",  lat0 = 45.5, lat1 = 29.5)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ggplot2</em> version 3.3.5 <a href="00Index.html">Index</a>]</div>
+</body></html>

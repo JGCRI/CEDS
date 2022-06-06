@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for string {rlang}"><tr><td>string {rlang}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a string</h2>
+
+<h3>Description</h3>
+
+<p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="../help/figures/lifecycle-experimental.svg" alt='[Experimental]' /></a>
+</p>
+<p>These base-type constructors allow more control over the creation
+of strings in R. They take character vectors or string-like objects
+(integerish or raw vectors), and optionally set the encoding. The
+string version checks that the input contains a scalar string.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+string(x, encoding = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A character vector or a vector or list of string-like
+objects.</p>
+</td></tr>
+<tr valign="top"><td><code>encoding</code></td>
+<td>
+<p>If non-null, set an encoding mark. This is only
+declarative, no encoding conversion is performed.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+# As everywhere in R, you can specify a string with Unicode
+# escapes. The characters corresponding to Unicode codepoints will
+# be encoded in UTF-8, and the string will be marked as UTF-8
+# automatically:
+cafe &lt;- string("caf\uE9")
+Encoding(cafe)
+charToRaw(cafe)
+
+# In addition, string() provides useful conversions to let
+# programmers control how the string is represented in memory. For
+# encodings other than UTF-8, you'll need to supply the bytes in
+# hexadecimal form. If it is a latin1 encoding, you can mark the
+# string explicitly:
+cafe_latin1 &lt;- string(c(0x63, 0x61, 0x66, 0xE9), "latin1")
+Encoding(cafe_latin1)
+charToRaw(cafe_latin1)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rlang</em> version 1.0.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

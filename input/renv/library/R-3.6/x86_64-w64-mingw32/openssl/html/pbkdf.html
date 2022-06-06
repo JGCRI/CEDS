@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bcrypt PWKDF</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bcrypt_pbkdf {openssl}"><tr><td>bcrypt_pbkdf {openssl}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bcrypt PWKDF</h2>
+
+<h3>Description</h3>
+
+<p>Password based key derivation function with bcrypt. This is not
+part of openssl. It is needed to parse private key files which are
+encoded in the <a href="https://cvsweb.openbsd.org/src/usr.bin/ssh/PROTOCOL.key?annotate=HEAD">new openssh format</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bcrypt_pbkdf(password, salt, rounds = 16L, size = 32L)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>password</code></td>
+<td>
+<p>string or raw vector with password</p>
+</td></tr>
+<tr valign="top"><td><code>salt</code></td>
+<td>
+<p>raw vector with (usually 16) bytes</p>
+</td></tr>
+<tr valign="top"><td><code>rounds</code></td>
+<td>
+<p>number of hashing rounds</p>
+</td></tr>
+<tr valign="top"><td><code>size</code></td>
+<td>
+<p>desired length of the output key</p>
+</td></tr>
+</table>
+
+<hr /><div style="text-align: center;">[Package <em>openssl</em> version 1.4.6 <a href="00Index.html">Index</a>]</div>
+</body></html>

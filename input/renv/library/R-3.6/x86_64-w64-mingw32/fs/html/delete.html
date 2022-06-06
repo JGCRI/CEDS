@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delete files, directories, or links</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for delete {fs}"><tr><td>delete {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delete files, directories, or links</h2>
+
+<h3>Description</h3>
+
+<p><code>file_delete()</code> and <code>link_delete()</code> delete file and links. Compared to
+<a href="../../base/html/files.html">file.remove</a> they always fail if they cannot delete the object rather than
+changing return value or signalling a warning. If any inputs are
+directories, they are passed to <code>dir_delete()</code>, so <code>file_delete()</code> can
+therefore be used to delete any filesystem object.
+</p>
+<p><code>dir_delete()</code> will first delete the contents of the directory, then remove
+the directory. Compared to <a href="../../base/html/unlink.html">unlink</a> it will always throw an error if the
+directory cannot be deleted rather than being silent or signalling a warning.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+file_delete(path)
+
+dir_delete(path)
+
+link_delete(path)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>A character vector of one or more paths.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The deleted paths (invisibly).
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# create a directory, with some files and a link to it
+dir_create("dir")
+files &lt;- file_create(path("dir", letters[1:5]))
+link &lt;- link_create(path_abs("dir"), "link")
+
+# All files created
+dir_exists("dir")
+file_exists(files)
+link_exists("link")
+file_exists(link_path("link"))
+
+# Delete a file
+file_delete(files[1])
+file_exists(files[1])
+
+# Delete the directory (which deletes the files as well)
+dir_delete("dir")
+file_exists(files)
+dir_exists("dir")
+
+# The link still exists, but what it points to does not.
+link_exists("link")
+dir_exists(link_path("link"))
+
+# Delete the link
+link_delete("link")
+link_exists("link")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

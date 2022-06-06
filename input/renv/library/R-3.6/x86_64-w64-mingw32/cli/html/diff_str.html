@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compare two character strings, character by character</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for diff_str {cli}"><tr><td>diff_str {cli}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compare two character strings, character by character</h2>
+
+<h3>Description</h3>
+
+<p>Characters are defined by UTF-8 graphemes.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+diff_str(old, new, max_dist = Inf)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>old</code></td>
+<td>
+<p>First string, must not be <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>new</code></td>
+<td>
+<p>Second string, must not be <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>max_dist</code></td>
+<td>
+<p>Maximum distance to consider, or <code>Inf</code> for no limit.
+If the LCS edit distance is larger than this, then the function
+throws an error with class <code>"cli_diff_max_dist"</code>. (If you specify
+<code>Inf</code> the real limit is <code>.Machine$integer.max</code> but to reach this the
+function would have to run a very long time.)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list that is a <code>cli_diff_str</code> object and also a
+<code>cli_diff_chr</code> object, see <a href="diff_str.html">diff_str</a> for the details about its
+structure.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The diffobj package for a much more comprehensive set of
+<code>diff</code>-like tools.
+</p>
+<p>Other diff functions in cli: 
+<code><a href="diff_chr.html">diff_chr</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+str1 &lt;- "abcdefghijklmnopqrstuvwxyz"
+str2 &lt;- "PREabcdefgMIDDLEnopqrstuvwxyzPOST"
+diff_str(str1, str2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>cli</em> version 3.1.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

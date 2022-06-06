@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create, modify and view file permissions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fs_perms {fs}"><tr><td>fs_perms {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create, modify and view file permissions</h2>
+
+<h3>Description</h3>
+
+<p><code>fs_perms()</code> objects help one create and modify file permissions easily.
+They support both numeric input, octal and symbolic character
+representations. Compared to <a href="../../base/html/octmode.html">octmode</a> they support symbolic representations
+and display the mode the same format as <code>ls</code> on POSIX systems.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_fs_perms(x, ...)
+
+fs_perms(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object which is to be coerced to a fs_perms object. Can be an
+number or octal character representation, including symbolic
+representations.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>On POSIX systems the permissions are displayed as a 9 character string with
+three sets of three characters. Each set corresponds to the permissions for
+the user, the group and other (or default) users.
+</p>
+<p>If the first character of each set is a &quot;r&quot;, the file is readable for those
+users, if a &quot;-&quot;, it is not readable.
+</p>
+<p>If the second character of each set is a &quot;w&quot;, the file is writable for those
+users, if a &quot;-&quot;, it is not writable.
+</p>
+<p>The third character is more complex, and is the first of the following
+characters which apply.
+</p>
+
+<ul>
+<li><p> 'S' If the character is part of the owner permissions and the file is not
+executable or the directory is not searchable by the owner, and the
+set-user-id bit is set.
+</p>
+</li>
+<li><p> 'S' If the character is part of the group permissions and the file is not
+executable or the directory is not searchable by the group, and the
+set-group-id bit is set.
+</p>
+</li>
+<li><p> 'T' If the character is part of the other permissions and the file is not
+executable or the directory is not searchable by others, and the 'sticky'
+(S_ISVTX) bit is set.
+</p>
+</li>
+<li><p> 's' If the character is part of the owner permissions and the file is
+executable or the directory searchable by the owner, and the set-user-id bit
+is set.
+</p>
+</li>
+<li><p> 's' If the character is part of the group permissions and the file is
+executable or the directory searchable by the group, and the set-group-id
+bit is set.
+</p>
+</li>
+<li><p> 't' If the character is part of the other permissions and the file is
+executable or the directory searchable by others, and the &rdquo;sticky&rdquo;
+(S_ISVTX) bit is set.
+</p>
+</li>
+<li><p> 'x' The file is executable or the directory is searchable.
+</p>
+</li>
+<li><p> '-' If none of the above apply.
+Most commonly the third character is either 'x' or <code>-</code>.
+</p>
+</li></ul>
+
+<p>On Windows the permissions are displayed as a 3 character string where the
+third character is only <code>-</code> or <code>x</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Integer and numeric
+fs_perms(420L)
+fs_perms(c(511, 420))
+
+# Octal
+fs_perms("777")
+fs_perms(c("777", "644"))
+
+# Symbolic
+fs_perms("a+rwx")
+fs_perms(c("a+rwx", "u+rw,go+r"))
+
+# Use the `&amp;` and `|`operators to check for certain permissions
+(fs_perms("777") &amp; "u+r") == "u+r"
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

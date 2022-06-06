@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Show which column types are using Altrep</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vroom_altrep {vroom}"><tr><td>vroom_altrep {vroom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Show which column types are using Altrep</h2>
+
+<h3>Description</h3>
+
+<p><code>vroom_altrep()</code> can be used directly as input to the <code>altrep</code>
+argument of <code><a href="vroom.html">vroom()</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+vroom_altrep(which = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>A character vector of column types to use Altrep for. Can also
+take <code>TRUE</code> or <code>FALSE</code> to use Altrep for all possible or none of the
+types</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Alternatively there is also a family of environment variables to control use of
+the Altrep framework. These can then be set in your <code>.Renviron</code> file, e.g.
+with <code>usethis::edit_r_environ()</code>. For versions of R where the Altrep
+framework is unavailable (R &lt; 3.5.0) they are automatically turned off and
+the variables have no effect. The variables can take one of <code>true</code>, <code>false</code>,
+<code>TRUE</code>, <code>FALSE</code>, <code>1</code>, or <code>0</code>.
+</p>
+
+<ul>
+<li> <p><code>VROOM_USE_ALTREP_NUMERICS</code> - If set use Altrep for <em>all</em> numeric types
+(default <code>false</code>).
+</p>
+</li></ul>
+
+<p>There are also individual variables for each type. Currently only
+<code>VROOM_USE_ALTREP_CHR</code> defaults to <code>true</code>.
+</p>
+
+<ul>
+<li> <p><code>VROOM_USE_ALTREP_CHR</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_FCT</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_INT</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_BIG_INT</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_DBL</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_NUM</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_LGL</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_DTTM</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_DATE</code>
+</p>
+</li>
+<li> <p><code>VROOM_USE_ALTREP_TIME</code>
+</p>
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+vroom_altrep()
+vroom_altrep(c("chr", "fct", "int"))
+vroom_altrep(TRUE)
+vroom_altrep(FALSE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vroom</em> version 1.5.7 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Augment data with information from a(n) mfx object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for augment.mfx {broom}"><tr><td>augment.mfx {broom}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Augment data with information from a(n) mfx object</h2>
+
+<h3>Description</h3>
+
+<p>Augment accepts a model object and a dataset and adds
+information about each observation in the dataset. Most commonly, this
+includes predicted values in the <code>.fitted</code> column, residuals in the
+<code>.resid</code> column, and standard errors for the fitted values in a <code>.se.fit</code>
+column. New columns always begin with a <code>.</code> prefix to avoid overwriting
+columns in the original dataset.
+</p>
+<p>Users may pass data to augment via either the <code>data</code> argument or the
+<code>newdata</code> argument. If the user passes data to the <code>data</code> argument,
+it <strong>must</strong> be exactly the data that was used to fit the model
+object. Pass datasets to <code>newdata</code> to augment data that was not used
+during model fitting. This still requires that at least all predictor
+variable columns used to fit the model are present. If the original outcome
+variable used to fit the model is not included in <code>newdata</code>, then no
+<code>.resid</code> column will be included in the output.
+</p>
+<p>Augment will often behave differently depending on whether <code>data</code> or
+<code>newdata</code> is given. This is because there is often information
+associated with training observations (such as influences or related)
+measures that is not meaningfully defined for new observations.
+</p>
+<p>For convenience, many augment methods provide default <code>data</code> arguments,
+so that <code>augment(fit)</code> will return the augmented training data. In these
+cases, augment tries to reconstruct the original data based on the model
+object with varying degrees of success.
+</p>
+<p>The augmented dataset is always returned as a <a href="../../tibble/html/tibble.html">tibble::tibble</a> with the
+<strong>same number of rows</strong> as the passed dataset. This means that the
+passed data must be coercible to a tibble. At this time, tibbles do not
+support matrix-columns. This means you should not specify a matrix
+of covariates in a model formula during the original model fitting
+process, and that <code><a href="../../splines/html/ns.html">splines::ns()</a></code>, <code><a href="../../stats/html/poly.html">stats::poly()</a></code> and
+<code><a href="../../survival/html/Surv.html">survival::Surv()</a></code> objects are not supported in input data. If you
+encounter errors, try explicitly passing a tibble, or fitting the original
+model on data in a tibble.
+</p>
+<p>We are in the process of defining behaviors for models fit with various
+<code>na.action</code> arguments, but make no guarantees about behavior when data is
+missing at this time.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'mfx'
+augment(
+  x,
+  data = model.frame(x$fit),
+  newdata = NULL,
+  type.predict = c("link", "response", "terms"),
+  type.residuals = c("deviance", "pearson"),
+  se_fit = FALSE,
+  ...
+)
+
+## S3 method for class 'logitmfx'
+augment(
+  x,
+  data = model.frame(x$fit),
+  newdata = NULL,
+  type.predict = c("link", "response", "terms"),
+  type.residuals = c("deviance", "pearson"),
+  se_fit = FALSE,
+  ...
+)
+
+## S3 method for class 'negbinmfx'
+augment(
+  x,
+  data = model.frame(x$fit),
+  newdata = NULL,
+  type.predict = c("link", "response", "terms"),
+  type.residuals = c("deviance", "pearson"),
+  se_fit = FALSE,
+  ...
+)
+
+## S3 method for class 'poissonmfx'
+augment(
+  x,
+  data = model.frame(x$fit),
+  newdata = NULL,
+  type.predict = c("link", "response", "terms"),
+  type.residuals = c("deviance", "pearson"),
+  se_fit = FALSE,
+  ...
+)
+
+## S3 method for class 'probitmfx'
+augment(
+  x,
+  data = model.frame(x$fit),
+  newdata = NULL,
+  type.predict = c("link", "response", "terms"),
+  type.residuals = c("deviance", "pearson"),
+  se_fit = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>logitmfx</code>, <code>negbinmfx</code>, <code>poissonmfx</code>, or <code>probitmfx</code>  object.
+(Note that <code>betamfx</code> objects receive their own set of tidiers.)</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <a href="../../base/html/data.frame.html">base::data.frame</a> or <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> containing the original
+data that was used to produce the object <code>x</code>. Defaults to
+<code>stats::model.frame(x)</code> so that <code>augment(my_fit)</code> returns the augmented
+original data. <strong>Do not</strong> pass new data to the <code>data</code> argument.
+Augment will report information such as influence and cooks distance for
+data passed to the <code>data</code> argument. These measures are only defined for
+the original training data.</p>
+</td></tr>
+<tr valign="top"><td><code>newdata</code></td>
+<td>
+<p>A <code><a href="../../base/html/data.frame.html">base::data.frame()</a></code> or <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> containing all
+the original predictors used to create <code>x</code>. Defaults to <code>NULL</code>, indicating
+that nothing has been passed to <code>newdata</code>. If <code>newdata</code> is specified,
+the <code>data</code> argument will be ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>type.predict</code></td>
+<td>
+<p>Passed to <code><a href="../../stats/html/predict.glm.html">stats::predict.glm()</a></code> <code>type</code> argument.
+Defaults to <code>"link"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>type.residuals</code></td>
+<td>
+<p>Passed to <code><a href="../../stats/html/glm.summaries.html">stats::residuals.glm()</a></code> and
+to <code><a href="../../stats/html/influence.measures.html">stats::rstandard.glm()</a></code> <code>type</code> arguments. Defaults to <code>"deviance"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>se_fit</code></td>
+<td>
+<p>Logical indicating whether or not a <code>.se.fit</code> column should be
+added to the augmented output. For some models, this calculation can be
+somewhat time-consuming. Defaults to <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments. Not used. Needed to match generic
+signature only. <strong>Cautionary note:</strong> Misspelled arguments will be
+absorbed in <code>...</code>, where they will be ignored. If the misspelled
+argument has a default value, the default value will be used.
+For example, if you pass <code>conf.lvel = 0.9</code>, all computation will
+proceed using <code>conf.level = 0.95</code>. Additionally, if you pass
+<code>newdata = my_tibble</code> to an <code><a href="reexports.html">augment()</a></code> method that does not
+accept a <code>newdata</code> argument, it will use the default value for
+the <code>data</code> argument.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This generic augment method wraps <code><a href="augment.glm.html">augment.glm()</a></code> for applicable
+objects from the <code>mfx</code> package.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code><a href="../../tibble/html/tibble.html">tibble::tibble()</a></code> with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>.cooksd</code></td>
+<td>
+<p>Cooks distance.</p>
+</td></tr>
+<tr valign="top"><td><code>.fitted</code></td>
+<td>
+<p>Fitted or predicted value.</p>
+</td></tr>
+<tr valign="top"><td><code>.hat</code></td>
+<td>
+<p>Diagonal of the hat matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>.resid</code></td>
+<td>
+<p>The difference between observed and fitted values.</p>
+</td></tr>
+<tr valign="top"><td><code>.se.fit</code></td>
+<td>
+<p>Standard errors of fitted values.</p>
+</td></tr>
+<tr valign="top"><td><code>.sigma</code></td>
+<td>
+<p>Estimated residual standard deviation when corresponding observation is dropped from model.</p>
+</td></tr>
+<tr valign="top"><td><code>.std.resid</code></td>
+<td>
+<p>Standardised residuals.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="augment.glm.html">augment.glm()</a></code>, <code><a href="../../mfx/html/logitmfx.html">mfx::logitmfx()</a></code>, <code><a href="../../mfx/html/negbinmfx.html">mfx::negbinmfx()</a></code>,
+<code><a href="../../mfx/html/poissonmfx.html">mfx::poissonmfx()</a></code>, <code><a href="../../mfx/html/probitmfx.html">mfx::probitmfx()</a></code>
+</p>
+<p>Other mfx tidiers: 
+<code><a href="augment.betamfx.html">augment.betamfx</a>()</code>,
+<code><a href="glance.betamfx.html">glance.betamfx</a>()</code>,
+<code><a href="glance.mfx.html">glance.mfx</a>()</code>,
+<code><a href="tidy.betamfx.html">tidy.betamfx</a>()</code>,
+<code><a href="tidy.mfx.html">tidy.mfx</a>()</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+
+if (requireNamespace("mfx", quietly = TRUE)) {
+
+## Not run:  
+library(mfx)
+
+## Get the marginal effects from a logit regression
+mod_logmfx &lt;- logitmfx(am ~ cyl + hp + wt, atmean = TRUE, data = mtcars)
+tidy(mod_logmfx, conf.int = TRUE)
+
+## Compare with the naive model coefficients of the same logit call (not run)
+# tidy(glm(am ~ cyl + hp + wt, family = binomial, data = mtcars), conf.int = TRUE)
+
+augment(mod_logmfx)
+glance(mod_logmfx)
+
+## Another example, this time using probit regression
+mod_probmfx &lt;- probitmfx(am ~ cyl + hp + wt, atmean = TRUE, data = mtcars)
+tidy(mod_probmfx, conf.int = TRUE)
+augment(mod_probmfx)
+glance(mod_probmfx)
+
+## End(Not run)
+
+}
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>broom</em> version 0.7.12 <a href="00Index.html">Index</a>]</div>
+</body></html>

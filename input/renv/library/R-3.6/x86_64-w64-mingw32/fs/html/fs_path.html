@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: File paths</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fs_path {fs}"><tr><td>fs_path {fs}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>File paths</h2>
+
+<h3>Description</h3>
+
+<p>Tidy file paths, character vectors which are coloured by file type on
+capable terminals.
+</p>
+<p>Colouring can be customized by setting the <code>LS_COLORS</code> environment variable,
+the format is the same as that read by GNU ls / dircolors.
+</p>
+<p>Colouring of file paths can be disabled by setting <code>LS_COLORS</code> to an empty
+string e.g. <code>Sys.setenv(LS_COLORS = "")</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+as_fs_path(x)
+
+fs_path(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>vector to be coerced to a fs_path object.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><a href="https://geoff.greer.fm/lscolors">https://geoff.greer.fm/lscolors</a>,
+<a href="https://github.com/trapd00r/LS_COLORS">https://github.com/trapd00r/LS_COLORS</a>,
+<a href="https://github.com/seebi/dircolors-solarized">https://github.com/seebi/dircolors-solarized</a> for some example colour
+settings.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>fs</em> version 1.5.2 <a href="00Index.html">Index</a>]</div>
+</body></html>
