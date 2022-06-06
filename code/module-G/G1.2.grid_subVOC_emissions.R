@@ -66,6 +66,12 @@ target_filename <- tools::file_path_sans_ext( target_filename )
 stopifnot( length( target_filename ) == 1 )
 emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
 
+# If defined, remove emissions from one iso from gridding
+if ( grid_remove_iso != "" ) {
+  emissions <- dplyr::mutate_at( emissions, vars( all_of(X_extended_years) ),
+                                 list( ~ifelse( iso == grid_remove_iso, 0, . )))
+}
+
 # Read in mapping files
 # the location index indicates the location of each region mask in the 'world' matrix
 location_index             <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05', meta = F )
