@@ -95,7 +95,7 @@ extendFF <- function( df, ext_years ){
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "SO2"
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
@@ -109,7 +109,8 @@ emissions_replaced <- readData( domain = "DEFAULT_EF_IN" ,
 EDGAR_version_number <- "5.0"
 
 # Define sectors that should not be corrected for EDGAR
-excl_sectors <- c("2C_Metal-production")
+excl_sectors <- c( "2C1_Iron-steel-alloy-prod", '2C3_Aluminum-production',
+                   '2C4_Non-Ferrous-other-metals')
 
 if ( em == "CO2" ) {
 
