@@ -1,5 +1,5 @@
 # CEDS
-The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
+The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species (BC, CO, CO<sub>2</sub>, NH<sub>3</sub>, NMVOC, NO<sub>x</sub>,  OC, SO<sub>2</sub>) over the industrial era (1750 - present) along with CH<sub>4</sub> and N<sub>2</sub>O over recent decades. The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
 **April 2021 Release:** April 21, 2021 (v\_2021\_04\_21)
 
