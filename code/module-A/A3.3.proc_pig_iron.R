@@ -44,13 +44,14 @@
     spew_2 <- spew_2[-c(30:34)]  # remove years that are repeated in newest dataset (spew_3)
     spew_1_plus_2 = cbind(spew_1, spew_2)
 
-    # newest dataset produced by worldsteel ranges 2010-2017.
-    spew_3 <- readData( "ACTIVITY_IN", "worldsteel_Pig_Iron_Production_2010-2019", ".xlsx",
+    # newest dataset produced by worldsteel
+    worldSteel_3 <- readData( "ACTIVITY_IN", "worldsteel_Pig_Iron_Production_2010-2019", ".xlsx",
                         domain_extension = "metals/", skip = 2)[ 3:46, 1:12 ]
 
-    spew_3 <- spew_3 %>% select(-Countries)
+    worldSteel_3 <- worldSteel_3 %>% select(-Countries)
 
-    spew <-  full_join(spew_1_plus_2, spew_3, by = c("iso"))
+    # TODO: Change variable names from here on, since this is no longer spew data
+    spew <-  full_join(spew_1_plus_2, worldSteel_3, by = c("iso"))
     # arrange alphabetically
     spew <- spew[order(spew$iso),]
 
@@ -214,7 +215,7 @@
 
 
     # Extend data forward
-    end_year <- 2019
+    end_year <- BP_last_year
     start_year <- 1950
     disaggregate_years <- paste0( 'X', start_year:end_year )
     all_wide_out <- extend_and_interpolate(all_wide_out,disaggregate_years)
