@@ -4,7 +4,7 @@
 # Date Last Updated: July 13, 2020
 # Program Purpose: Adding EF trends for SO2 control percentage for recent years,
 # Input Files: B.[em]_comb_EF_GAINS_EMF30, B.[em]_ControlFrac_db,
-#              SO2_control_frac_last_inv_year.xlsx, SO2_control_frac_exclude_fuel_sector.csv
+#              SO2_control_frac_last_inv_year.csv, SO2_control_frac_exclude_fuel_sector.csv
 # Output Files: B.[em]_ControlFrac_db.csv
 # Notes:
 
@@ -34,19 +34,21 @@
 # Read in GAINS EFs
     gains_ef_db <- readData( 'MED_OUT', paste0( 'B.', em, '_comb_EF_GAINS_EMF30' ) )
 
-# Read in GAINS mapping files
+# Read in mapping files of last inventory year
     last_inv_year_csv <- readData( 'MAPPINGS',
                                    'SO2_control_frac_last_inv_year',
-                                   extension = '.xlsx', sheet_selection = 1 )
+                                   extension = '.csv', sheet_selection = 1 )
+
+    last_inv_year_csv <- last_inv_year_csv %>% select(-c(Inv_file,Notes))
+
     exclude_sector_fuel_combination <-
                readData( 'MAPPINGS', 'SO2_control_frac_exclude_fuel_sector' )
 
 # Read in the control percentage db
     control_db <- readData( 'MED_OUT', paste0( 'B.', em, '_ControlFrac_db' ) )
-
 # ------------------------------------------------------------------------------
 # 2. Recent year Gains EF ratio calculation
-# Equation: Ratio = EF( GAINS_year ) / EF( GAINS_lastinvyear)
+# Equation: Ratio = EF( GAINS_year ) / EF( lastinvyear)
 
 # Define recent years
     recent_years <- as.character( min( last_inv_year_csv$last_inv_year ) : end_year )
