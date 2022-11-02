@@ -32,7 +32,7 @@
 # Define Em Species
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- 'NOx'
+    if ( is.na( em ) ) em <- 'SO2'
 
 # ------------------------------------------------------------------------------
 # 1. Read in files
@@ -187,12 +187,21 @@ nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
             nc_emissions <- nc_emissions[order(nc_emissions$iso),]
         }
 
+# -----------------------------------------------------------------------------
+# 3. Recalculate Emission Factors
+
+new_nc_ef <- calculate_EFs(activity_data = nc_energy_data,
+                           emissions_data = nc_emissions %>% mutate(units = 'kt'))
+new_comb_ef <- calculate_EFs(activity_data = comb_energy_data,
+                             emissions_data = comb_emissions %>% mutate(units = 'kt'))
+
+
 # Combine total emissions and total ef
 total_emissions <- rbind(comb_emissions, nc_emissions)
-total_efs <- rbind(comb_ef_data, nc_ef_data)
+total_efs <- rbind(new_comb_ef, new_nc_ef)
 
 # -----------------------------------------------------------------------------
-# 3. Output
+# 4. Output
 # Add comments for each table
 comments.emissions <- c( paste0( "Default ", em, "emissions" ),
     paste0( " by intermediate sector, intermediate fuel, historical year,",
