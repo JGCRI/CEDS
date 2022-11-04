@@ -417,7 +417,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/bp-stats-review-2020-all-data.xlsx
+	$(ENERGY_DATA)/bp-stats-review-2022-all-data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
