@@ -188,17 +188,39 @@ nc_emissions <- calculateEmissions( nc_energy_data, nc_ef_data )
         }
 
 # -----------------------------------------------------------------------------
-# 3. Recalculate Emission Factors
+# 3. Recalculate Emission Factors, remove NAs/zeros and replace the values from the original EF database
 
 new_nc_ef <- calculate_EFs(activity_data = nc_energy_data,
                            emissions_data = nc_emissions %>% mutate(units = 'kt'))
 new_comb_ef <- calculate_EFs(activity_data = comb_energy_data,
                              emissions_data = comb_emissions %>% mutate(units = 'kt'))
 
+# Replace new calculated values in existing EF files ()
+# To do: replace this method with replaceValueColMatch, which currently will replace the NA values
+
+comb_ef_corrected <- comb_ef_data %>%
+    gather(year, old_value, -iso, -sector, -fuel, -units) %>%
+    left_join(new_comb_ef %>% gather(year, new_value, -iso, -sector, -fuel, -units)) %>%
+    mutate(corrected_value = ifelse(is.na(new_value) | new_value ==0, old_value, new_value)) %>%
+    select(-old_value, -new_value) %>%
+    spread(year, corrected_value)
+
+nc_ef_corrected <- nc_ef_data %>%
+    gather(year, old_value, -iso, -sector, -fuel, -units) %>%
+    left_join(new_nc_ef %>% gather(year, new_value, -iso, -sector, -fuel, -units)) %>%
+    mutate(corrected_value = ifelse(is.na(new_value) | new_value ==0, old_value, new_value)) %>%
+    select(-old_value, -new_value) %>%
+    spread(year, corrected_value)
+
+# Check EFs fro NAs
+
+if( any(is.na(comb_ef_corrected)) ){Error ('NA values in default combustion EFs')}
+if( any(is.na(nc_ef_corrected)) ){Error ('NA values in default process EFs')}
+
 
 # Combine total emissions and total ef
 total_emissions <- rbind(comb_emissions, nc_emissions)
-total_efs <- rbind(new_comb_ef, new_nc_ef)
+total_efs <- rbind(comb_ef_corrected, nc_ef_corrected)
 
 # -----------------------------------------------------------------------------
 # 4. Output
