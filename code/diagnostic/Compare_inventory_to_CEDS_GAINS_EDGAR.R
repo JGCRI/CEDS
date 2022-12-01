@@ -12,7 +12,9 @@
 #               Compare_inventory_to_CEDS_[em].csv
 #               CEDS_[em]_[inv]_compare_to_inv.csv
 
-# TODO: 1. eventually add in BC, OC, and GHGs
+# TODO: 1. eventually add in BC, OC, and GHGs.
+      # 2. EMEP files is manually added in right now to separate out East and West Europe.
+      # 3. inventories that are old (such as Can 2011 and China are added manually as well.
 # ---------------------------------------------------------------------------
 
 # 0. Read in global settings and headers
@@ -44,146 +46,79 @@ if (em %in% em_list) {
 # 2. Inventory data
 
 # Load in country inventory totals
+  # These files are created in the module E scripts.
+    modE_dir <- paste0('../intermediate-output/')
+    files <-intersect(list.files(modE_dir,pattern = em), list.files(modE_dir, pattern = "_inventory_country_total.csv"))
+    # use only files that have data in it
+    setwd("../intermediate-output")
+    files <- files[sapply(files, file.size) > 10]
 
-    # Emissions present in inventory data
-    # TODO: eventually read BC, OC, and GHGs
-        em_list_us <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO')
-        em_list_jpn <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO')
-        em_list_can <- c( 'SO2', 'NOx', 'NH3','NMVOC', 'CO')
-        em_list_kor <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
-        em_list_EMEP <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
-        em_list_twn <- c( 'CO', 'NMVOC', 'NOx', 'SO2')  # Taiwan doesn't have NH3
-        em_list_MEIC <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
-        em_list_aus <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
-        em_list_old_chn <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
+    # Remove old inventories and EMEP from inventory total list (EMEP will be read in next steps)
+    files <- files[- grep("2011", files)]
+    files <- files[- grep("CHN_inventory", files)]
+    files <- files[- grep("EMEP", files)]
 
-        # set emission species and set flags
-        # em <- em_list[h]
+    # Read in data to one list and merge data frames together
+    inv_emissions <-lapply(files,read.csv)
+    inv_total = Reduce(function(...) merge(..., all=T), inv_emissions)
 
-        us_em_flag <- em %in% em_list_us
-        jpn_em_flag <- em %in% em_list_jpn
-        can_em_flag <- em %in% em_list_can
-        can_old_em_flag <- em %in% em_list_can
-        kor_em_flag <- em %in% em_list_kor
-        EMEP_em_flag <- em %in% em_list_EMEP
-        twn_em_flag <- em %in% em_list_twn
-        MEIC_em_flag <- em %in% em_list_MEIC
-        chn_old_em_flag <- em %in% em_list_old_chn
-        aus_em_flag <- em %in% em_list_aus
+    # Clean country specific inventory data
+        # replace year "0" value in 2009 for South Korea with NA. (gap in the data, they changed data collection this year)
+        inv_total_kor <- inv_total %>%
+          filter(iso == "kor") %>%
+          mutate(X2009 = NA)
+        inv_total <- inv_total %>% filter(iso != "kor")
+        inv_total <- rbind(inv_total,inv_total_kor)
 
-    # Read in inventory data
-    if ( us_em_flag == T ) {
-        inv_emissions_US <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"US",'_inventory_country_total'))
-        inv_emissions_US <- subset(inv_emissions_US, select = -c(34:35))
+        # replace last two years of USA with NA (data is very low for unknown reasons)
+        inv_total_usa <- inv_total %>%
+          filter(iso == "usa") %>%
+          mutate(X2018 = NA) %>%
+          mutate(X2019 = NA)
+        inv_total <- inv_total %>% filter(iso != "usa")
+        inv_total <- rbind(inv_total,inv_total_usa)
 
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_US <- data.frame( iso = "usa")
-    }
-
-    if ( jpn_em_flag == T ) {
-        inv_emissions_jpn <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"Japan",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_jpn <- data.frame( iso = "jpn")
-    }
-
-    if ( can_em_flag == T ) {
-        inv_emissions_can <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CAN_2018",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_can <- data.frame( iso = "can")
-    }
-
-    if ( kor_em_flag == T ) {
-        inv_emissions_kor <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"KOR2017",'_inventory_country_total'))
-        inv_emissions_kor$X2009 <- NA
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_kor <- data.frame( iso = "can")
-    }
-
-    if ( EMEP_em_flag == T ) {
-        inv_emissions_EMEP <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"EMEP_NFR14",'_inventory_country_total'))
+    # Read in EMEP file
+    inv_emissions_EMEP <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"EMEP_NFR14",'_inventory_country_total'))
+        # Replace NAs with 0 means to sums everything, not just the columns that don't have NAs.
         inv_emissions_EMEP[is.na(inv_emissions_EMEP)] = 0
-        # note: replacing NAs with 0 means it sums everything, not just the columns that don't have NAs.
 
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_EMEP <- data.frame( iso = "EMEP")
-    }
+        # Map EMEP to East and West regions. Remove EMEP's non-Europe regions.
+        Master_Country_List <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
+        master_country <- Master_Country_List %>%
+            select(c(iso, Region))
+        inv_emissions_East_West_Europe <- inv_emissions_EMEP %>%
+            left_join(master_country, by = c("iso")) %>%
+            select(-iso) %>%
+            dplyr::rename(iso = Region) %>%
+            group_by(iso) %>%
+            summarize_each(funs(sum)) %>%
+            filter(iso %in% c("Eastern Europe","Western Europe"))
+        # cut off years before 1990 since data becomes increasingly incomplete
+        inv_emissions_East_West_Europe <- subset(inv_emissions_East_West_Europe, select = -c(2:11))
 
-    if ( twn_em_flag == T ) {
-        inv_emissions_twn <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"TWN",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_twn <- data.frame( iso = "twn")
-    }
+    # combine EMEP with other inventories
+    inv_total_w_EMEP <- bind_rows(inv_emissions_East_West_Europe, inv_total)
 
-    if ( MEIC_em_flag == T ) {
-        inv_emissions_MEIC <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CHN_2018",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_MEIC <- data.frame( iso = "chn")
-    }
-
-    if ( aus_em_flag == T ) {
-        inv_emissions_aus <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"AUS_2018",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_aus <- data.frame( iso = "aus")
-    }
-
-    # Map EMEP to East and West regions. Remove EMEP's non-Europe regions.
-    Master_Country_List <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
-    master_country <- Master_Country_List %>%
-        select(c(iso, Region))
-    inv_emissions_East_West_Europe <- inv_emissions_EMEP %>%
-        left_join(master_country, by = c("iso")) %>%
-        select(-iso) %>%
-        dplyr::rename(iso = Region) %>%
-        group_by(iso) %>%
-        summarize_each(funs(sum)) %>%
-        filter(iso %in% c("Eastern Europe","Western Europe"))
-
-    # cut off years before 1990 since data becomes increasingly incomplete
-    inv_emissions_East_West_Europe <- subset(inv_emissions_East_West_Europe, select = -c(2:11))
-
-    # Bind inventory rows together.
-    inv_total <- bind_rows(inv_emissions_jpn, inv_emissions_US, inv_emissions_can, inv_emissions_kor,
-                           inv_emissions_East_West_Europe,inv_emissions_MEIC,inv_emissions_twn,inv_emissions_aus)
-
-    # change to long
-    inventory_long <- gather(inv_total,year, inventory, -c(iso))
+    # convert to long format
+    inventory_long <- gather(inv_total_w_EMEP,year, inventory, -c(iso))
 
 # ---------------------------------------------------------------------------
 
     # Load in old inventory data
 
-    if ( can_old_em_flag == T ) {
-        inv_emissions_can_old <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CAN_to2011",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_can <- data.frame( iso = "can_old")
-    }
-
-    if ( chn_old_em_flag == T ) {
-        inv_emissions_chn_old <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CHN",'_inventory_country_total'))
-    } else {
-        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_chn_old <- data.frame( iso = "chn_old")
-    }
-
+    inv_emissions_can_old <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CAN_to2011",'_inventory_country_total'))
+    inv_emissions_chn_old <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CHN",'_inventory_country_total'))
     old_inv_total <- bind_rows(inv_emissions_can_old, inv_emissions_chn_old)
 
     # change to long
     old_inventory_long <- gather(old_inv_total,year, Old_Inventory, -c(iso))
     old_inventory_long$year <- as.numeric(sub('X','',old_inventory_long$year))
 
-
 # ---------------------------------------------------------------------------
 # 3. CEDS
     # Load in CEDS country totals
+    ## TODO: read in all CEDS countries, and have conditional: if inventory iso is in ceds sector, then keep.
     ceds_emissions <- readData( domain = 'MED_OUT', file_name =  paste0( em,'_total_CEDS_emissions' ) )
 
     # remove 1A3dii_Domestic-navigation from USA and Canada
@@ -435,6 +370,7 @@ if (em %in% em_list) {
 # 8. plotting
 
 # rename isos for cleaner graphs
+# Note: if additional inventory is added that doesn't match these isos, will need to add manually to make cleaner.
     combined_long$iso <- gsub("aus", "Australia", combined_long$iso)
     combined_long$iso <- gsub("can", "Canada", combined_long$iso)
     combined_long$iso <- gsub("jpn", "Japan", combined_long$iso)
@@ -485,10 +421,6 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                                "GAINS_(ECLIPSE_V6b_CLE)" = 16,
                                "Old_Inventory" = 1,
                                "REAS_32" = 32 ))
-
-
-
-
 
 print(plot)
 dev.off()
