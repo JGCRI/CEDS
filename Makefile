@@ -153,7 +153,9 @@ clean-diagnostic:
 	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/single_cell_totals/*.jpeg
 
 clean-final:
-	rm -fv $(FINAL_OUT)/*.csv
+	rm -fv $(FINAL_OUT)/current-versions/*.csv
+	rm -fv $(FINAL_OUT)/diagnostics/*.csv
+	rm -fv $(FINAL_OUT)/previous-versions/*.csv
 
 clean-logs:
 	rm -fv $(LOGS)/*.log \
