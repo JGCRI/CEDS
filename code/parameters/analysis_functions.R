@@ -245,7 +245,8 @@ OldtoNewCEDSSectors <- function(map, search_col, inv_sector = NULL) {
     }
 
     return(map)
-    
+}
+
 # ----------------------------------------------------------------------------------
 # diagnosticsMappingFile
 # Brief : Lists 1) any inventory sectors from modE that are not mapped to scaling sectors.
