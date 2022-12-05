@@ -5,6 +5,7 @@
 # Program Purpose: Add user-specified inventory data to the default process emissions database
 # Input Files: C.[em]_NC_emissions.csv
 # Output Files:  C.[em]_NC_emissions.csv
+#               DIAG_OUT: C.[em]_NC_emissions_user_added
 # Notes:
 # TODO: User added emissions are currently extended automatically to adjacent years
 #       with constant emission factors. If default non-combustion emission data already
