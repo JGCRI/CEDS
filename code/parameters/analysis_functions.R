@@ -206,6 +206,107 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
     return( valid )
 }
 
+# ----------------------------------------------------------------------------------
+# OldtoNewCEDSSectors
+# Brief:         Replaces old CEDS sectors with new CEDS sectors.
+# Dependencies:  IO_functions.R
+# Author(s):     Andrea Mott
+# Params:        `map` is the original mapping file
+# Return:        the modified mapping file
+# Input Files:   none
+# Output Files:  none
+# Notes: The only thing this function assumes is a two-column old_to_new mapping file: search_col, new_sectors.
+# When we refer to names(old_to_new)[1] this is the "ceds_sector" for a scaling mapping file.
+# And names(old_to_new)[2] is typically the "new_sector"
+# search_col gives the names of the column in map to search on
+
+OldtoNewCEDSSectors <- function(map, search_col, inv_sector = NULL) {
+
+    # Input old to new CEDS sectors mapping file
+    old_to_new <- readData("MAPPINGS", "old_to_new_sectors.csv")
+
+    # Apply checks before running
+    stopifnot(ncol(old_to_new) == 2)
+    stopifnot(search_col %in% names(map))
+
+    # Replace sectors
+    names(old_to_new)[1] <- search_col # overwrite old_to_new search col name with whatever user specifies
+    search_name <- names(old_to_new)[1]
+    replace_name <- names(old_to_new)[2]
+    map <- left_join(map, old_to_new, by = search_name)
+    replace_vals <- map[[replace_name]]
+    map[[search_name]][!is.na(replace_vals)] <- map[[replace_name]][!is.na(replace_vals)]
+    map <- dplyr::select(map,-replace_name)
+
+    # If inventory sector exists, then assume a scaling mapping file.
+    # Remove duplicated inv_sector and replace with NA
+    if (inv_sector %in% colnames(map)) {
+        map$inv_sector[duplicated(map$inv_sector)] <- NA
+    }
+
+    return(map)
+}
+
+# ----------------------------------------------------------------------------------
+# diagnosticsMappingFile
+# Brief : Lists 1) any inventory sectors from modE that are not mapped to scaling sectors.
+#               2) any inventory sectors that are not mapped to scaling sectors.
+#               3) any CEDS sectors that are not mapped to scaling sectors.
+# Params: scaling_map (mapping file)
+#         inv_data_full (module E inventory)
+# Author(s):     Andrea Mott, Noah Prime
+
+diagnosticsMappingFile  <- function( scaling_map, inv_data_full){
+
+    # write out inventory sectors not included in mapping file
+    inv <- inv_data_full
+    inv$inv_sector <- inv$sector
+    inv_sectors_not_in_mapping_file <- anti_join(inv, scaling_map, by = "inv_sector") %>%
+        select(inv_sector) %>%
+        mutate( inv_sector = ifelse( inv_sector == 'NA', NA, inv_sector ) ) %>%
+        na.omit()
+    if( dim( inv_sectors_not_in_mapping_file )[1] > 0 ){
+        inv_sectors_not_in_mapping_file <- inv_sectors_not_in_mapping_file %>%
+            mutate( description = 'inventory sectors not included in mapping file' ) %>%
+            mutate(sector_origin = "inventory") %>%
+            dplyr::rename(sector = inv_sector) %>%
+            select(sector_origin, sector, description)
+    }
+
+    # write out inventory sectors that are not mapped to scalings sectors
+    inv_sectors_not_scaled <- scaling_map %>%
+        filter(is.na(scaling_sector)) %>%
+        select(inv_sector) %>%
+        na.omit()
+    if( dim( inv_sectors_not_scaled )[1] > 0 ){
+        inv_sectors_not_scaled <- inv_sectors_not_scaled %>%
+            mutate(description = "inventory sectors not mapped to scalings sectors") %>%
+            dplyr::rename(sector = inv_sector) %>%
+            mutate(sector_origin = "inventory") %>%
+            select(sector_origin, sector, description)
+    }
+
+    # write out any CEDS sectors that are not mapped to scaling sectors
+    ceds_sectors_not_scaled <- scaling_map %>%
+        filter(is.na(scaling_sector)) %>%
+        select(ceds_sector) %>%
+        na.omit()
+    if( dim( ceds_sectors_not_scaled )[1] > 0 ){
+        ceds_sectors_not_scaled <- ceds_sectors_not_scaled %>%
+            mutate(description = "CEDS sectors not mapped to scaling sectors") %>%
+            mutate(sector_origin = "CEDS") %>%
+            dplyr::rename(sector = ceds_sector) %>%
+            select(sector_origin, sector, description)
+    }
+
+    # combine all diagnostics into one df
+    all_diagnostics <- rbind(ceds_sectors_not_scaled, inv_sectors_not_in_mapping_file, inv_sectors_not_scaled)
+
+    if(nrow(all_diagnostics) > 1){
+        writeData(all_diagnostics,'DIAG_OUT', paste0('F.',em,'_',inv_name,'_mapping_file_diagnostics'),meta = FALSE)
+    }
+}
+
 # ---------------------------------------------------------------------------------
 # fuelCheck
 # Brief:         Checks whether all the fuels in the given dataset are in the

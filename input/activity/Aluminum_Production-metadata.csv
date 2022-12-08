@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,SO2,all,2C3_Aluminum-production,1850,2018,"Smith et al. (2011) metal smelting emissions, updated + iron smelting in USA, CAN, FIN, CHN"

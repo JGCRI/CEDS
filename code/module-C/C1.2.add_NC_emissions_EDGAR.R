@@ -63,7 +63,7 @@ EDGAR_years <- EDGAR_start_year : EDGAR_end_year
 X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
 # Define sectors that should not use EDGAR (also have to modify C2.1.base_NC_EF.R)
-excl_sectors <- c( )
+excl_sectors <- c( "2C_Metal-production" )
 
 if( em == "CO2" ) {
 

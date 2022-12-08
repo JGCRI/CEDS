@@ -153,7 +153,9 @@ clean-diagnostic:
 	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/single_cell_totals/*.jpeg
 
 clean-final:
-	rm -fv $(FINAL_OUT)/*.csv
+	rm -fv $(FINAL_OUT)/current-versions/*.csv
+	rm -fv $(FINAL_OUT)/diagnostics/*.csv
+	rm -fv $(FINAL_OUT)/previous-versions/*.csv
 
 clean-logs:
 	rm -fv $(LOGS)/*.log \
@@ -187,6 +189,7 @@ clean-modF:
 
 clean-modH:
 	rm -fv $(MED_OUT)/H*.csv
+	rm -fv $(EXT_DATA)/H*.csv
 	find $(EXT_IN) -name "H*.csv" ! -name "H.N2O_7BC_extension-NH3_and_NOx_sectors_1_2*.csv"  -delete
 
 clean-SO2:
@@ -435,12 +438,16 @@ $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
 
 # aa3-3
 # Process pig iron production
-$(EXT_DATA)/A.Pig_Iron_Production.csv: \
-	$(MOD_A)/A3.3.proc_pig_iron.R \
-	$(MED_OUT)/A.UN_pop_master.csv \
-	#(ACTIV)/metals/Blast_furnace_iron_production_1850-2014.xlsx \
-	#(ACTIV)/metals/Pig_Iron_Production_US.csv \
-	#(ACTIV)/metals/Pig_Iron_Production_Mitchell.csv
+# $(EXT_DATA)/A.Pig_Iron_Production.csv: \
+#	$(MOD_A)/A3.3.proc_pig_iron.R \
+#	$(MED_OUT)/A.UN_pop_master.csv
+#	$(MED_OUT)/A.NC_activity_db.csv
+#	Rscript $< $(EM) --nosave --no-restore
+
+# aa3-4
+# Process sintering production
+$(MED_OUT)/A.Sintering_production.csv: \
+	$(MOD_A)/A3.5.proc_sintering.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa4-1
@@ -474,6 +481,8 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MOD_A)/A5.2.add_NC_activity_population.R \
 	$(MOD_A)/A5.2.add_NC_activity_energy.R \
 	$(MOD_A)/A5.2.add_NC_activity_fossil_fuel_production.R \
+	$(MOD_A)/A5.2.add_NC_activity_aluminum_production.R \
+	$(MOD_A)/A3.3.proc_pig_iron.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -487,6 +496,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MAPPINGS)/NC_EDGAR_sector_mapping.csv \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(MAPPINGS)/Master_Country_List.csv \
+	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
@@ -500,6 +510,8 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	Rscript $(word 7,$^) $(EM) --nosave --no-restore
 	Rscript $(word 8,$^) $(EM) --nosave --no-restore
 	Rscript $(word 9,$^) $(EM) --nosave --no-restore
+	Rscript $(word 10,$^) $(EM) --nosave --no-restore
+	Rscript $(word 11,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.pulp_paper_consumption_full.csv: \
 	$(MED_OUT)/A.NC_activity_db.csv
@@ -579,6 +591,8 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.2.add_activity_population.R \
 	$(MOD_A)/A7.2.add_activity_pulp_paper_consumption.R \
 	$(MOD_A)/A7.2.add_activity_fossil_fuel_production.R \
+	$(MOD_A)/A7.2.add_activity_aluminum.R \
+	$(MOD_A)/A7.2.add_activity_pig_iron.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(MED_OUT)/A.NC_activity.csv \
@@ -588,6 +602,8 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+	Rscript $(word 5,$^) $(EM) --nosave --no-restore
+	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 
 $(MED_OUT)/A.NC_default_activity_extended.csv: \
 	$(MOD_A)/A7.3.proc_activity.R \
@@ -764,9 +780,20 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 # cc2-1
 $(MED_OUT)/C.$(EM)_NC_EF.csv: \
 	$(MOD_C)/C2.1.base_NC_EF.R \
+	$(MOD_C)/C1.2.add_NC_default_EF.R \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/C.$(EM)_NC_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
+
+# cc2-2 #TODO: is this a good place for this?
+$(MED_OUT)/C.$(EM)_sintering_emissions.csv: \
+	$(MOD_C)/C3.1.calc_sintering_emissions.R \
+	$(MED_OUT)/C.$(EM)_NC_EF.csv \
+	$(MED_OUT)/A.Sintering_production.csv
+	Rscript $< $(EM) --nosave --no-restore
+
+
 
 # dd1-1
 # Calculates  NC and combustion emissions from activity data and
@@ -777,6 +804,7 @@ $(MED_OUT)/D.$(EM)_default_total_emissions.csv: \
 	$(MED_OUT)/A.final_comb_activity_modern.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/B.$(EM)_comb_EF_db.csv \
+	$(MED_OUT)/C.$(EM)_sintering_emissions.csv \
 	$(MED_OUT)/C.$(EM)_NC_EF.csv
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -996,7 +1024,6 @@ $(MED_OUT)/H.$(EM)_total_EFs_extended.csv: \
 	$(MOD_H)/H2.2.add_EFs_EF-trend.R \
 	$(MOD_H)/H2.2.add_EFs_Emissions-trend.R \
 	$(EXT_IN)/CEDS_historical_extension_methods_EF.csv \
-	$(EXT_IN)/extension-data/A.Pig_Iron_Production.csv \
 	$(MED_OUT)/H.$(EM)_total_EFs_adjusted-sector.csv \
 	$(MED_OUT)/A.total_activity_extended.csv
 	Rscript $< $(EM) --nosave --no-restore

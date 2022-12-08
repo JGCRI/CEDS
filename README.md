@@ -1,5 +1,5 @@
 # CEDS
-The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species over the industrial era (1750 - present). The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
+The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species (BC, CO, CO<sub>2</sub>, NH<sub>3</sub>, NMVOC, NO<sub>x</sub>,  OC, SO<sub>2</sub>) over the industrial era (1750 - present) along with CH<sub>4</sub> and N<sub>2</sub>O over recent decades. The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
 **April 2021 Release:** April 21, 2021 (v\_2021\_04\_21)
 
@@ -42,7 +42,7 @@ Documentation of CEDS assumptions and system operation, including a user guide, 
 
 Current issues with the data or system are documented in the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) system in this GitHub repository. Users can submit issues using this system. These can include anomalies found in either the aggregate or gridded emissions data. Please use an appropriate tag for any submitted issues. Note that by default only unresolved issues are shown. All issues, including resolved issues, can be viewed by removing the "is:open" filter. *Issues relevant for CMIP6 data releases are tagged with a “CMIP6” label (note that issues will be closed when resolved in subsequent CEDS data releases, but are still available for viewing.)*
 
-Further information can also be found at the [project web site](http://www.globalchange.umd.edu/ceds/), including a [CMIP6 page](http://www.globalchange.umd.edu/ceds/ceds-cmip6-data/) that provides details for obtaining gridded emission datasets produced by this project for use in CMIP6. You can also sign up for data release announcements from the CEDSinfo listserv following the instructions on the [project web site](http://www.globalchange.umd.edu/ceds/).
+Further information can also be found at the [project web site](https://www.pnnl.gov/projects/ceds), including a link to a page that provides details for obtaining gridded emission datasets produced by this project for use in CMIP6. You can also sign up for data release announcements from the CEDSinfo listserv following the instructions on the [project web site](https://www.pnnl.gov/projects/ceds).
 
 If you plan to use the CEDS data system for a research project you are encouraged to contact [Steve Smith](mailto:ssmith@pnnl.gov) so that we can coordinate with any on-going work on the CEDS system and make sure we are not duplicating effort. CEDS is research software, and we will be happy to help and make sure that you are able to make the best possible use of this system.
 
