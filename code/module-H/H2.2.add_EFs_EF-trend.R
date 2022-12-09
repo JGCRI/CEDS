@@ -3,7 +3,7 @@
 # Author: Rachel Hoesly
 # Program Purpose: Extend EFs back by EF trend
 # Input Files: H.[em]_total_EFs_extended_db.csv, CEDS_historical_extension_methods_EF.csv
-# Output Files: H.[em]_total_EFs_extended_db.csv
+# Output Files: H.[em]_total_EFs_extended_db.csv, H.[em]_user_defined_data_EF-trend_sector.csv
 # TODO:
 # ---------------------------------------------------------------------------
 

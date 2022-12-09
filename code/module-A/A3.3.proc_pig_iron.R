@@ -1,10 +1,13 @@
 # ------------------------------------------------------------------------------
 # Program Name: A3.3.proc_pig_iron.R
 # TODO: This file could have a more informative name
-# Author: Linh Vu
-# Date Last Updated: 14 April 2016
+# Author: Linh Vu, Andrea Mott
+# Date Last Updated: 5 November 2021
 # Program Purpose: Process pig iron production
 # Input Files:  Blast_furnace_iron_production_1850-2014.xlsx,
+#               Blast_furnace_iron_production_1890-1980.xlsx,
+#               Blast_furnace_iron_production_1980-2014.xlsx,
+#               worldsteel_Pig_Iron_Production_2010-2019.xlsx,
 #               Pig_Iron_Production_US.csv, Pig_Iron_Production_Mitchell.csv,
 #               A.UN_pop_master.csv
 # Output Files: A.Pig_Iron_Production.csv, A.Pig_Iron_Production_full.csv
@@ -20,7 +23,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "common_data.R", "data_functions.R","interpolation_extension_functions.R",
-                  "analysis_functions.R","process_db_functions.R" ) # Additional function files may be required.
+                  "analysis_functions.R","process_db_functions.R", "timeframe_functions.R" , "IO_functions.R")
     log_msg <- "Process pig iron production"
     script_name <- "A3.3.proc_pig_iron.R"
 
@@ -52,6 +55,7 @@
 
     # TODO: Change variable names from here on, since this is no longer spew data
     spew <-  full_join(spew_1_plus_2, worldSteel_3, by = c("iso"))
+
     # arrange alphabetically
     spew <- spew[order(spew$iso),]
 
@@ -228,8 +232,29 @@
     all_wide_out <- all_wide_out[order(all_wide_out$iso),]
 
 # ---------------------------------------------------------------------------
+
 # 3. Output
     writeData( all_wide_out, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
     writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
+
+# ------------------------------------------------------------------------------
+# 4. Turn data into driver data
+
+    act_input <- readData( "MAPPINGS", "activity_input_mapping")
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
+                     sheet_selection = "Sectors" )
+
+    # Make into driver format
+    activity_data <- dplyr::rename( all_wide_out, activity = sector)
+    activity_data <- dplyr::select(activity_data, -fuel)
+    activity_data$activity <- "pig_iron"
+
+    # Add reformatted activity_data to the activity database, extending or truncating it as necessary.
+    # By default, it will be extended forward to the common end year, but not backwards.
+    # Only do this if the activityCheck header function determines that the activities in
+    # the reformatted activity_data are all present in the Master List.
+        if ( activityCheck( activity_data, check_all = FALSE ) ) {
+            addToActivityDb( activity_data )
+        }
 
 logStop()

@@ -207,6 +207,47 @@ duplicateCEDSSectorCheck <- function( scaling_map, check_valid = TRUE, check_all
 }
 
 # ----------------------------------------------------------------------------------
+# OldtoNewCEDSSectors
+# Brief:         Replaces old CEDS sectors with new CEDS sectors.
+# Dependencies:  IO_functions.R
+# Author(s):     Andrea Mott
+# Params:        `map` is the original mapping file
+# Return:        the modified mapping file
+# Input Files:   none
+# Output Files:  none
+# Notes: The only thing this function assumes is a two-column old_to_new mapping file: search_col, new_sectors.
+# When we refer to names(old_to_new)[1] this is the "ceds_sector" for a scaling mapping file.
+# And names(old_to_new)[2] is typically the "new_sector"
+# search_col gives the names of the column in map to search on
+
+OldtoNewCEDSSectors <- function(map, search_col, inv_sector = NULL) {
+
+    # Input old to new CEDS sectors mapping file
+    old_to_new <- readData("MAPPINGS", "old_to_new_sectors.csv")
+
+    # Apply checks before running
+    stopifnot(ncol(old_to_new) == 2)
+    stopifnot(search_col %in% names(map))
+
+    # Replace sectors
+    names(old_to_new)[1] <- search_col # overwrite old_to_new search col name with whatever user specifies
+    search_name <- names(old_to_new)[1]
+    replace_name <- names(old_to_new)[2]
+    map <- left_join(map, old_to_new, by = search_name)
+    replace_vals <- map[[replace_name]]
+    map[[search_name]][!is.na(replace_vals)] <- map[[replace_name]][!is.na(replace_vals)]
+    map <- dplyr::select(map,-replace_name)
+
+    # If inventory sector exists, then assume a scaling mapping file.
+    # Remove duplicated inv_sector and replace with NA
+    if (inv_sector %in% colnames(map)) {
+        map$inv_sector[duplicated(map$inv_sector)] <- NA
+    }
+
+    return(map)
+}
+
+# ----------------------------------------------------------------------------------
 # diagnosticsMappingFile
 # Brief : Lists 1) any inventory sectors from modE that are not mapped to scaling sectors.
 #               2) any inventory sectors that are not mapped to scaling sectors.
@@ -264,7 +305,6 @@ diagnosticsMappingFile  <- function( scaling_map, inv_data_full){
     if(nrow(all_diagnostics) > 1){
         writeData(all_diagnostics,'DIAG_OUT', paste0('F.',em,'_',inv_name,'_mapping_file_diagnostics'),meta = FALSE)
     }
-
 }
 
 # ---------------------------------------------------------------------------------

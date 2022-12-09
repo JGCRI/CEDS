@@ -1,15 +1,14 @@
 #------------------------------------------------------------------------------
-# Program Name: A5.2.add_NC_activity_smelting.R
-# Author: Jon Seibert
-# Date Last Modified: June 19, 2015
-# Program Purpose: To process and reformat non-combustion (process) smelting activity_data,
+# Program Name: A5.2.add_NC_activity_aluminum_production.R
+# Author: Jon Seibert, Andrea Mott
+# Date Last Modified: May 18, 2021
+# Program Purpose: To process and reformat non-combustion (process) aluminum production activity_data,
 #                  and add it to the activity database.
-# Input Files: A.NC_activty_db.csv, 2011_NC_SO2_ctry.csv, Smelter-Feedstock-Sulfur.xlsx,
+# Input Files: A.NC_activty_db.csv, 2011_NC_SO2_ctry.csv, Aluminum_Production.xlsx,
 #             activity_input_mapping.csv
 # Output Files: A.NC_activty_db.csv
 # Notes:
 # TODO:
-#-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -20,9 +19,9 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "data_functions.R", "timeframe_functions.R", "process_db_functions.R",
-                  "analysis_functions.R" ) # Additional function files required.
+                  "analysis_functions.R", "interpolation_extension_functions.R" ) # Additional function files required.
     log_msg <- "Initial reformatting of smelting process activity activity_data" # First message to be printed to the log
-    script_name <- "A5.2.add_NC_activity_smelting.R"
+    script_name <- "A5.2.add_NC_activity_aluminum_smelting.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -31,7 +30,7 @@
 # 0.5. Settings
 
 # Input file
-    input_name <- "Smelter-Feedstock-Sulfur"
+    input_name <- "Aluminum_Production"
     input_ext <- ".xlsx"
     input <- paste0( input_name, input_ext )
 
@@ -65,9 +64,12 @@
 
     # Apply activity and unit assignments, and reorders columns to standard form
         activity_data$activity <- activity_name
-        activity_data$units <- "ktS"
+        activity_data$units <- "kt"
         results <- cbind( activity_data[ c( "iso", "activity", "units" ) ] ,
                           activity_data[ 2:( length( activity_data ) - 3 ) ] )
+
+        # remove redundant usa row
+        results <- na.omit(results)
 
     # Sort results by iso and activity
         results <- results[ with( results, order( iso, activity ) ), ]
@@ -82,6 +84,17 @@
         if ( activityCheck( results, check_all = FALSE ) ) {
               addToActivityDb( results )
         }
+
+        # historically extend, filling in 0s. Extend aluminum forward
+        results[ paste0('X', historical_pre_extension_year: 1849)] <- 0
+        results[ paste0('X', 2018:end_year)] <- NA
+        results[ paste0('X', 2018:end_year)] <- as.numeric(as.character(results[ paste0('X', 2018:end_year)]))
+        results <- results[ c( 'iso' , 'activity' , 'units' , X_extended_years ) ]
+        results_test <- extend_and_interpolate(results, paste0('X', 2017:end_year))
+
+        # write results
+        writeData( results, "MED_OUT", "A.Aluminum_production", meta = F )
+        writeData( results, "EXT_IN", "A.Aluminum_production", domain_extension = "extension-data/")
     }
 
     logStop()

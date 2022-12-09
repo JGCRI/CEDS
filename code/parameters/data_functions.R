@@ -12,7 +12,8 @@
 #       removeNARows, NAsToZeros, repeatAndAddVector, addCols, intersectNames, isNumYear, isXYear,
 #       isYear, removeBlanks, indDataStart, buildCEDSTemplate, interpolate_NAs, interpolate_NAs2,
 #       extend_and_interpolate, verify_calculate_share_params, calculate_shares, calculate_correct_shares,
-#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country, disagg_iso_with_population
+#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country, disagg_iso_with_population,
+#       calculate_EFs
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -1906,3 +1907,69 @@ disagg_iso_with_population <- function( agg_iso_region, disagg_isos_in_agg_regio
     }
 
 }
+
+
+# -----------------------------------------------------------------------------
+# calculate_EFs
+# Brief: Calculates EFs from emissions and activity data
+# Details:
+# Dependencies: common_data, data_functions
+# Author(s): Rachel Hoesly
+# Params:   agg_iso_region              Aggregate iso
+#           disagg_isos_in_agg_region   Disaggragate iso into constituent isos
+#           df_in                       Emissions data set
+#           population_data             UN population data
+#           years_use                   Data set range of years
+# Return:   EF data frame in the same format as activity data
+
+calculate_EFs <- function(activity_data, emissions_data_in){
+
+# Ef * Activity = Emissions
+# EF= Emissions/Activity:
+
+
+# 0/0 must be set to 0.
+# Fill out a blank template, identical to activity data, with emissions data
+ef_template <- activity_data
+ef_template[X_emissions_years] <- 0
+ef_template$units <- NA
+
+# Populate template with emissions data
+emissions_data <- replaceValueColMatch( ef_template, emissions_data_in,
+                                        x.ColName = X_emissions_years, #replace emissions years values
+                                        match.x = c('iso','sector','fuel'),
+                                        addEntries = FALSE)
+emissions_data <- replaceValueColMatch( emissions_data, emissions_data_in,
+                                        x.ColName = 'units', #replace units
+                                        match.x = c('iso','sector','fuel'),
+                                        addEntries = FALSE)
+
+# Sort activity and emissions and check
+activity_data <- activity_data[ with ( activity_data, order( iso, sector, fuel ) ), ]
+emissions_data <- emissions_data[ with ( emissions_data, order( iso, sector, fuel ) ), ]
+ef_template <- ef_template[ with ( ef_template, order( iso, sector, fuel ) ), ]
+
+if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                emissions_data[ , c('iso' , 'sector' , 'fuel' ) ] )){
+    stop( paste('activity and emissions data do not match. Please check') ) }
+
+# Calculate EFs
+new_efs <- ef_template
+
+if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                new_efs[ , c('iso' , 'sector' , 'fuel' ) ] ) ){
+    stop( paste('activity and new_efs data do not match. Please check') ) }
+
+new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
+new_efs[ X_emissions_years ] <- as.matrix(emissions_data[ X_emissions_years ]) / as.matrix(activity_data[ X_emissions_years ])
+#
+# # Replace NA and Inf with zero
+# new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
+# new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
+
+return(new_efs)
+
+}
+
+
+
