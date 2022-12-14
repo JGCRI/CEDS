@@ -47,6 +47,19 @@
 # ------------------------------------------------------------------------------
 # 2. Calculate kt of sintering for all countries
 
+    # Extend data forward
+    # SJS TODO - make this work probably need to add columns with NA's for years 
+    # after the sintering_percent data is available and the last CEDS year.
+    # At that point I think the extend_and_interpolate function should work:
+    # Or maybe add that as an optional functionality with extend_and_interpolate,
+    # since this is probably not the only place this will be an issue? (or maybe
+    # there's already a function that does this?)
+    end_year <- BP_last_year
+    start_year <- 1950
+    disaggregate_years <- paste0( 'X', start_year:end_year )
+    sintering_percent_v2 <- extend_and_interpolate(sintering_percent,disaggregate_years)
+    sintering_percent_v2[ is.na( sintering_percent_v2 ) ] <- 0
+
     # Add all other countries to "sintering_percent".
     join <- sintering_percent %>%
       left_join(MCL, by = c("iso" = "Paper_Figure_Region")) %>%

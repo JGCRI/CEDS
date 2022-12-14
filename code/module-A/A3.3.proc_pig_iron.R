@@ -161,6 +161,10 @@
     names( us_long ) <- c( "iso", "year", "us_en" )
 
 # Combine all data with priority mitchell > spew > spew_pre (except US where spew > spew_pre > us > mitchell)
+# SJS TODO
+# Problem is here - using X_extended_years puts zero's if there is no data. I think we want to use only years that are up to worldsteel
+# Perhaps if we 1) identify last year in worldsteel data somewhere above, and then 
+# 2) add NA's for extra years without data then extend_and_interpolate below will work properly.
     all <- data.frame( year = X_extended_years ) %>%
       merge( data.frame( iso = unique(
         c( us_long$iso, mitchell_long$iso, spew_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
