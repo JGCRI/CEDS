@@ -732,6 +732,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(PARAMS)/process_db_functions.R \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
+	$(MED_OUT)/E.$(EM)_EDGAR_v5.csv \
 	$(MED_OUT)/E.CO2_Andrew_Cement.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
 	Rscript $< $(EM) --nosave --no-restore
@@ -821,6 +822,12 @@ $(MED_OUT)/D.$(EM)_default_nc_emissions.csv: \
 # Creates formatted emissions inventory
 $(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv: \
 	$(MOD_E)/E.UNFCCC_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-1
+# Creates formatted EDGAR emissions
+$(MED_OUT)/E.$(EM)_EDGAR_v5.csv: \
+	$(MOD_E)/E.EDGAR_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
