@@ -581,8 +581,10 @@ extend_and_interpolate <- function( df_in, data_columns ){
     }
 
 #   Convert NaNs to NAs
-    df_no_NaN <- df_in %>%
-        dplyr::mutate_at( data_columns, funs( if_else( is.nan( . ), NA_real_, . ) ) )
+    is.nan.data.frame <- function(x)
+        do.call(cbind, lapply(x, is.nan))
+    df_no_NaN <- df_in
+    df_no_NaN[is.nan.data.frame( df_no_NaN)] <- NA
 
 #   Check if there are any NAs ( or NaNs technically, since NaNs are now NAs )
 #   If there are no NAs, return the original data frame, as the rest of the function

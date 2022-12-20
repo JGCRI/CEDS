@@ -48,20 +48,23 @@
 # 2. Calculate kt of sintering for all countries
 
     # Extend data forward
-    # SJS TODO - make this work probably need to add columns with NA's for years 
-    # after the sintering_percent data is available and the last CEDS year.
-    # At that point I think the extend_and_interpolate function should work:
-    # Or maybe add that as an optional functionality with extend_and_interpolate,
-    # since this is probably not the only place this will be an issue? (or maybe
-    # there's already a function that does this?)
+
+    # Define years to interpolate NAs for the sintering data (interpolate through the sintering data, then extend constant forward)
+    S_max <- sintering_percent %>% names %>% str_replace("X","") %>% as.numeric %>% max(na.rm = T)
+    if(is.na(S_max)) stop('Sintering data in unexpted format, extention needs to be adressed')
+    if(S_max < 2019) stop('Sintering data in unexpted format, extention needs to be adressed')
+    X_S_extended_years <- paste0('X',extended_years[extended_years<= S_max ])
+    X_S_extended_years_add <- paste0('X',extended_years[extended_years > S_max ])
+
     end_year <- BP_last_year
     start_year <- 1950
     disaggregate_years <- paste0( 'X', start_year:end_year )
+    sintering_percent[X_S_extended_years_add] <- as.numeric(NA)
     sintering_percent_v2 <- extend_and_interpolate(sintering_percent,disaggregate_years)
     sintering_percent_v2[ is.na( sintering_percent_v2 ) ] <- 0
 
     # Add all other countries to "sintering_percent".
-    join <- sintering_percent %>%
+    join <- sintering_percent_v2 %>%
       left_join(MCL, by = c("iso" = "Paper_Figure_Region")) %>%
       mutate(iso = if_else(!is.na(iso.y), iso.y, iso)) %>%
       select(-iso.y)
@@ -72,7 +75,7 @@
       full_join(MCL, by = "iso") %>%
       dplyr::rename(region = iso)
 
-    # countries where we dot have sintering data (NAs)
+    # countries where we don't have sintering data (NAs)
     Fsint %>% filter(is.na(X1920)) -> df_w_na
     # countries that have sintering data (no NAs)
     Fsint %>% filter(!is.na(X1920)) -> df_wo_na

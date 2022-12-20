@@ -69,7 +69,6 @@
     SHORT_TO_METRIC <- .9072  # short ton to metric ton (for US)
 
 
-
 # Define functions
     #TODO: make it clear what these functions actually do?
 # TODO: Update to use function in code/parameter once that's available ### <-Is this a thing? If so, use. If not, either create or comment this function better.
@@ -163,9 +162,18 @@
 # Combine all data with priority mitchell > spew > spew_pre (except US where spew > spew_pre > us > mitchell)
 # SJS TODO
 # Problem is here - using X_extended_years puts zero's if there is no data. I think we want to use only years that are up to worldsteel
-# Perhaps if we 1) identify last year in worldsteel data somewhere above, and then 
+# Perhaps if we 1) identify last year in worldsteel data somewhere above, and then
 # 2) add NA's for extra years without data then extend_and_interpolate below will work properly.
-    all <- data.frame( year = X_extended_years ) %>%
+
+# Define years to interpolate NAs for the world steel data (interpolate through the World Steel data, then extend constant forward)
+    WS_max <- worldSteel_3 %>% names %>% as.numeric %>% max(na.rm = T)
+    if(is.na(WS_max)) stop('World Steel data in unexpted format, extention needs to be adressed')
+    if(WS_max < 2019) stop('World Steel data in unexpted format, extention needs to be adressed')
+    X_WS_extended_years <- paste0('X',extended_years[extended_years<= WS_max ])
+    X_WS_extended_years_add <- paste0('X',extended_years[extended_years > WS_max ])
+
+# Format World Steel data
+    all <- data.frame( year = X_WS_extended_years ) %>%
       merge( data.frame( iso = unique(
         c( us_long$iso, mitchell_long$iso, spew_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
                                                                    merge( us_long, all = T ) %>%
@@ -189,9 +197,12 @@
     all_wide <- cast( all, iso + sector + fuel + units ~ year, value = "en" )
     all_wide$iso <- as.character( all_wide$iso )
 
+# Define years to interpolate over -
+# interpolate through the last year of world steel data, then
 # Interpolate NAs
-  if (!all_equal(interpolate_NAs(  all_wide[ X_extended_years ]), interpolate_NAs2( all_wide[ X_extended_years ]))) stop()
-    all_wide[ X_extended_years ] <- interpolate_NAs( all_wide[ X_extended_years ] )
+  if (!all_equal(interpolate_NAs(  all_wide[ X_WS_extended_years ]), interpolate_NAs2( all_wide[ X_WS_extended_years ]))) stop()
+    all_wide[ X_WS_extended_years ] <- interpolate_NAs( all_wide[ X_WS_extended_years ] )
+# Replace remaining NAs with zero for all extended years, except years after the world steel data
     all_wide[ is.na( all_wide ) ] <- 0
 
 # Disaggregate countries
@@ -220,15 +231,16 @@
                                             id_cols = c( 'iso', 'sector', 'fuel', 'units' ), population )
     all_wide_out <- all_wide_yug
 
-
-
     # Extend data forward
+    # Add NA columns for the years after World Steel data but in the extension data (will extend constant forward later)
+    all_wide_out[X_WS_extended_years_add] <- as.numeric(NA)
+
     end_year <- BP_last_year
     start_year <- 1950
     disaggregate_years <- paste0( 'X', start_year:end_year )
     all_wide_out <- extend_and_interpolate(all_wide_out,disaggregate_years)
     all_wide_out[ is.na( all_wide_out ) ] <- 0
-
+    print('made it here')
     # Remove countries that are all zeroes from full dataset
     Xyears <- names( all_wide_out )[ grepl( "X", names( all_wide_out ) ) ]
     all_wide_out <- subset( all_wide_out, rowSums( all_wide_out[ Xyears ] ) > 0 )
