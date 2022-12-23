@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: F1.1.Edgar_scaling.R
-# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Patrick O'Rourke
-# Date Last Modified: August 12, 2020
+# Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Patrick O'Rourke, Noah Prime
+# Date Last Modified: June 30, 2021
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  Edgar emissions
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
@@ -52,16 +52,8 @@
 #   the inventory (as a vector of iso codes)
     vn <- "5.0"  # EDGAR data version number
     inv_data_folder <- "EM_INV"
+    inv_name <- 'EDGAR' #for naming diagnostic files
 
-    if( as.numeric( vn ) == 4.3 ){
-
-      inv_name <- 'EDGAR_PG' # for naming diagnostic files
-
-    } else{
-
-      inv_name <- 'EDGAR' #for naming diagnostic files
-
-    }
 
     sector_fuel_mapping <- "Edgar"
     mapping_method <- 'sector'
@@ -138,106 +130,18 @@ if ( em == "N2O") {
 
   inv_years <- c( EDGAR_start_year : EDGAR_end_year )
 
-# ------------------------------------------------------------------------------
-# 1.5 Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-
-# Import file
-#   Define settings for EDGAR v4.2
-  if( as.numeric( vn ) == 4.2 ){
-
-    inventory_data_file <- paste0( 'EDGAR42_', em )
-    inv_data_sheet <- readData( inv_data_folder, domain_extension = "EDGAR/",
-                                    inventory_data_file )
-
-#   Define settings for EDGAR v4.3
-  } else if( as.numeric( vn ) == 4.3 ){
-
-    inventory_data_file <- paste0( 'JRC_PEGASOS_', em, '_TS_REF' )
-    sheet_name = paste0( 'NEW_v4.3_EM_', em, '_ref' )
-    rows_to_skip <- 8
-    extension_use <- ".xls"
-
-    inv_data_sheet <- readData( inv_data_folder, domain_extension = "EDGAR/",
-                                inventory_data_file, extension_use,
-                                sheet_selection = sheet_name, skip = rows_to_skip )
-
-#   Define settings for EDGAR v5
-  } else if( as.numeric( vn ) == 5 ){
-
-    inventory_data_file <- paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_",
-                                   EDGAR_start_year, "_", EDGAR_end_year )
-    sheet_name <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
-    rows_to_skip <- 9
-    extension_use <- ".xls"
-
-    inv_data_sheet <-  readData( inv_data_folder, domain_extension = "EDGAR/",
-                        inventory_data_file,  extension_use,
-                        sheet_selection = sheet_name, skip = rows_to_skip,
-                        missing_value = c( "", "NULL" ) )
-
-#   Define settings for other EDGAR versions
-  } else {
-
-    stop( script_name, " has not been formatted to process Edgar v", vn, ". Please ",
-          "reformat the script and rerun." )
-  }
-
-# Clean rows and columns to standard format
-    inv_data_sheet$units <- 'kt'
-
-    if( as.numeric( vn ) %in% c( 4.3, 5 ) ){
-
-      inv_data_sheet <- inv_data_sheet[ , c( 'ISO_A3', 'IPCC', 'units',
-                                           inv_years ) ]
-
-    } else if( as.numeric( vn ) == 4.2 ){
-
-      inv_data_sheet <- inv_data_sheet[ , c( 'ISO_A3', 'IPCC', 'units',
-                                             paste0( 'X', inv_years ) ) ]
-
-    }
-
-    names( inv_data_sheet ) <- c( 'iso', 'sector', 'units',
-                                  paste0( 'X', inv_years ) )
-    inv_data_sheet$iso <- tolower( inv_data_sheet$iso )
-
-# Remove rows with all NA's
-    inv_data_sheet <-
-        inv_data_sheet[ apply( X = inv_data_sheet[ , paste0( "X", inv_years ) ],
-                               MARGIN = 1, function( x )
-                                             ( !all( is.na( x ) ) ) ) ,]
-
-# Make negative emissions zero
-    inv_data_sheet_neg_fixed <- inv_data_sheet %>%
-      mutate_at( .vars = paste0( "X", inv_years ), .funs = funs( if_else( . < 0 , 0, . ) ) )
-
-    rows_that_had_negatives <- dplyr::setdiff( inv_data_sheet, inv_data_sheet_neg_fixed )
-
-    if( nrow( rows_that_had_negatives ) > 0 ){
-
-      printLog( "Some EDGAR values were negative and reset to 0 in ", script_name, "..." )
-
-      inv_data_sheet <- inv_data_sheet_neg_fixed
-
-    }
-
-# Write standard form inventory
-    writeData( inv_data_sheet, domain = "MED_OUT",
-               paste0( 'E.', em, '_', inv_name, '_inventory' ) )
-
-    inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
-    inv_data_folder <- 'MED_OUT'
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
-    scaling_data <- F.readScalingData( inventory = inventory_data_file,
-                                       inv_data_folder,
-                                       mapping = sector_fuel_mapping,
-                                       method = mapping_method,
-                                       region, inv_name, inv_years )
+   inventory_data_file <- paste0( "E.", em, "_EDGAR_v5" )
+   scaling_data <- F.readScalingData( inventory = inventory_data_file,
+                                      'MED_OUT',
+                                      mapping = sector_fuel_mapping,
+                                      method = mapping_method,
+                                      region, inv_name, inv_years)
 
     list2env( scaling_data, envir = .GlobalEnv )
 
