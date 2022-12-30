@@ -65,7 +65,7 @@
 
     # Apply activity and unit assignments, and reorders columns to standard form
         activity_data$activity <- activity_name
-        activity_data$units <- unit
+        activity_data$units <- "ktS"
         results <- cbind( activity_data[ c( "iso", "activity", "units" ) ] ,
                           activity_data[ 2:( length( activity_data ) - 3 ) ] )
 

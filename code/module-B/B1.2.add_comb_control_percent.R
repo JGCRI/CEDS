@@ -91,7 +91,7 @@
         printLog( paste( 'Adding new data to existing control percent',
                          'database for', em ) )
         addToDb_overwrite( new_data = control_percent, em = em,
-                           file_extension = 'ControlFrac_db' )
+                           file_extension = 'ControlFrac_db', module = "B" )
     } else {
         printLog( paste( 'No data to be added to existing control',
                          'percent data base for', em ) )

@@ -1,0 +1,5 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,SO2,all,2C_Metal-production,1850,2018,"Smith et al. (2011) metal smelting emissions, updated + iron smelting in USA, CAN, FIN, CHN"
+Emissions,SO2,mex,2C_Metal-production,1850,2019,"Smith et al. (2011) bottom up metal smelting emissions, updated, blended with reported emissions from Southern Copper Corp (Sustainability and Annual reports)"
+Emissions,SO2,chn,2C_Metal-production,1850,2019,"Bottom up metal smelting emissions, using fraction of smelters with acid plants from 2000[euro]2010 (Wu etal 2012), updated to 2017"
+Emissions,SO2,chl,2C_Metal-production,1850,2019,"Bottom up metal smelting emissions, scaled to match country reports on total emissions in latter years."

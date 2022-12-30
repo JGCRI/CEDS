@@ -65,9 +65,9 @@
 
 #       Years within GAINS emissions data, GAINS 1st year, and GAINS last year for extension and interpolation
         GAINS_EMISS_YEARS <- GAINS_years # Currently: 1990-2050, every 5 years
-        GAINS_START_YEAR <- GAINS_EMISS_YEARS[[1]]                                        # Currently: 1990
-        GAINS_START_YEAR_X <- paste0( "X", GAINS_START_YEAR )                             # Currently: X2000
-        LAST_GAINS_YEAR_FOR_INTERP <- 2020
+        GAINS_START_YEAR <- GAINS_EMISS_YEARS[[1]]
+        GAINS_START_YEAR_X <- paste0( "X", GAINS_START_YEAR )
+        LAST_GAINS_YEAR_FOR_INTERP <- min( GAINS_EMISS_YEARS[ GAINS_years >=BP_last_year ] )
 
 #       Years within GAINS emissions data which are in CEDS, years needed to interpolate GAINS data, and GAINS data with interpolated years
 #       Note: Keeping GAINS 2020 data for interpolation purposes

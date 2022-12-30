@@ -22,17 +22,17 @@ X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
 # USER SET DATA - Set this to the last year of the BP data used
 # The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_last_year <- 2019
+BP_last_year <- 2021
 
 # USER SET DATA - Set this to point to the name of the BP statisical data, which should be
 # Located in the inputs/energy folder
-BP_data_file_name <- "bp-stats-review-2020-all-data"
+BP_data_file_name <- "bp-stats-review-2022-all-data"
 # NOTE - Need to also change this file name in the makefile
 
 # The actual last year of data provided in the BP energy data. User need to set an additional value for this object if
 # they are utilizing a BP_data_file_name not listed below:
 if( BP_data_file_name == "BP_energy_data.xlsx" ){ BP_actual_last_year <- 2014}
-if( BP_data_file_name == "bp-stats-review-2020-all-data" ){ BP_actual_last_year <- 2019}
+if( BP_data_file_name == "bp-stats-review-2022-all-data" ){ BP_actual_last_year <- 2021}
 
 BP_first_year <- IEA_end_year + 1 # First year for BP only data
 BP_years <- BP_first_year : BP_last_year # The years for which there is only BP data
@@ -45,9 +45,8 @@ BP_FSU_aggregate <- TRUE
 
 # Edgar year
 EDGAR_start_year <- 1970
-EDGAR_end_year <- 2015   # Set to 2015 for EDGAR v5.
-                         # Note that CO2 in v5 has an end year of 2018. Values to 2018 in this version
-                         # are still utilized for CO2, despite this being set to 2015.
+EDGAR_end_year <- 2015       # Set to 2015 for EDGAR v5.
+EDGAR_end_year_CO2 <- 2018   # Note that CO2 in v5 has an end year of 2018.
 
 # The combined yearset for historical emission years
 emissions_years <- c( IEA_years,BP_years )

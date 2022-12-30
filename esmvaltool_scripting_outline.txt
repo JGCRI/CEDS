@@ -1,0 +1,145 @@
+#load required libraries
+library(....)
+
+#set working directory to recipe generator folder
+setwd(...)
+
+#input parameters
+input <- read.csv( <some CSV file with inputs> )
+
+#define diff type and name
+diff_type <- <sourced from csv file. a single string: "diff" or "per-diff">
+scenario_name <- <sourced from input csv file. a single string such as: "high-SO4-at-height">
+
+#make a list of the regions
+region_list <- input$region_list
+masks <- input$mask_list #these masks will line up with their respective inputs to the left
+
+for (region in region_list) { #all of the following script will take place in this loop
+
+	#mask the region from the input parameters 
+	mask <- masks[ <index of the current region running through the loop> ] #this works because the correct mask is indexed at the same number as the current region if the csv file is set up correctly
+	#NOTE: will need to put a README or a header in the csv file to instruct how to set it up
+	
+----------------------------------------------------------------------------------------------------
+#this is all directly copied and pasted from the previous script. No changes need to be made here
+	  # Compile each component of the yml recipe file
+		header <- list(description = "Analysis of perturbation model outputs for Emissions-MIP",
+                 authors = list('nicholson_matthew'),
+                 maintainer = list('nicholson_matthew'),
+                 references = list('esmvaltool'),
+                 projects = list('esmval', 'emissions_mip'))
+  
+		header_nested <- header %>%
+			list(documentation = .)
+  
+		part1 <- as.yaml(header_nested, indent.mapping.sequence=TRUE,line.sep = "\n")
+----------------------------------------------------------------------------------------------------  
+	
+	#create a list of datasets and populate it with each input dataset from csv file. 
+	#The strings should look like: ('{dataset: GISS-nudge, project: CMIP6, activity: AerChemMIP, institute: NASA-GISS, exp: reference, ensemble: r1i1p5f1, grid: gn}', 
+                                   '{dataset: GISS-nudge, project: CMIP6, activity: AerChemMIP, institute: NASA-GISS, exp: highSO4_so2HtBW2000, ensemble: r1i1p5f1, grid: gn}'))
+	
+	datasets <- list() #empty list to be populated
+	
+	#would do this by using paste0, a loop, and indexing, for example
+	for ( i in 1:<number of datasets that have specified 'all' under all variables>){
+		
+		#make sure to only loop through the datasets that specified 'all' under 'variables	
+		#may need to break this out into a separate dataframe using filter unless there is a more convenient
+		#way. Then populate
+		
+		current_dataset <- input$dataset[i]
+		current_project <- input$project[i]
+		etc...
+	
+		datasets[i] <- paste0('{dataset: ', current_dataset, ', project: ', current_project etc...) 
+	}
+	
+---------------------------------------------------------------------------------------------------------
+#taken stright from script, should be kept in as is
+
+ 
+  part2 <- as.yaml(datasets, indent = 8, indent.mapping.sequence=TRUE,line.sep = "\n")
+  part2 <- gsub("'", '', part2)
+  
+  if(region == 'global'){
+    part3 <- as.yaml(list(preprocessors = list(preproc_mask = list(mask_landsea = list(mask_out = mask)),
+                                               preproc_sfc = list(extract_levels = list(levels = 100000,
+                                                                                        scheme = 'linear_horizontal_extrapolate_vertical'),
+                                                                  regrid = list(target_grid = '1x1',
+                                                                                scheme = 'linear'),
+                                                                  annual_statistics = list(operator = 'mean')),
+                                               preproc_nolev = list(regrid = list(target_grid = '1x1',
+                                                                                  scheme = 'linear'),
+                                                                    annual_statistics = list(operator = 'mean')))),line.sep = "\n")
+  } else {
+    part3 <- as.yaml(list(preprocessors = list(preproc_sfc = list(extract_levels = list(levels = 100000,
+                                                                                        scheme = 'linear_horizontal_extrapolate_vertical'),
+                                                                  regrid = list(target_grid = '1x1',
+                                                                                scheme = 'linear'),
+                                                                  annual_statistics = list(operator = 'mean'),
+                                                                  mask_landsea = list(mask_out = mask)),
+                                               preproc_nolev = list(regrid = list(target_grid = '1x1',
+                                                                                  scheme = 'linear'),
+                                                                    annual_statistics = list(operator = 'mean'),
+                                                                    mask_landsea = list(mask_out = mask)))),line.sep = "\n")
+  }
+ ---------------------------------------------------------------------------------------------------------
+	
+	#create a variables list
+	variables_to_read <- read.csv( <variable csv file> )
+	
+	#assign (using assign function) variable values from the csv file into a variables list like is currently done in the file
+	#will be indexing down the columns
+	for( i in 1:length(variables_to_read)) {
+		var_name <- variables_to_read$variable_name[i]
+		var_preprocessor <- variables_to_read$preprocessor[i]
+		var_mip <- variables_to_read$mip[i]
+		
+		#create the additional_datasets list
+		#first create a dataframe filtered with just the datasets that have the current variable under 'variable'
+		df_of_additional_datasets <- <filter for just the datasets in input that have the current variable in the variable list>
+		
+		#create the list from that dataframe
+			for ( i in 1:<number of datasets that have specified <current var> under variables>){
+		
+			#make sure to only loop through the datasets that specified <current variable> under 'variables'	
+		
+			current_dataset <- input$dataset[i]
+			current_project <- input$project[i]
+			etc...
+	
+			list_of_additional_datasets[i] <- paste0('{dataset: ', current_dataset, ', project: ', current_project etc...) 
+		}
+	
+	#add all the collected data from the variables and dataset (input) csv files into a list for each var
+	curr_var (named after var_name) <- list( preprocessor = var_preprocessor,
+											 mip = var_mip,
+											 additional_datasets = list-of_additional_datasets)
+
+	}
+	
+	
+	#once all the variables are generated, put them in a list together (use assign function?)
+	var_list <- <all the variables put into a list>
+	                                                                         scripts = list(initial_analysis_output = list(script = paste0('/pic/projects/GCAM/Emissions-MIP/ESMValTool/esmvaltool/diag_scripts/emissions_mip/initial_analysis-giss-', diff_type, '.py'),
+                                                                                                                       quickplot = list(plot_type = 'pcolormesh')))))), indent.mapping.sequence=TRUE,line.sep = "\n")
+	#add a scripts list to the bottom of the variables list
+	
+	
+	#then create Emissions_MIP_analysis list
+	Emissions_MIP_analysis = list(description = 'Model variable outputs',
+                                  themes = list('phys'),
+                                  realms = list('atmos'),
+								  variables = var_list)
+								  
+	#feed this into the as.yaml and diagnostics list
+	part4 <- as.yaml(list(diagnostics = list(Emissions_MIP_analysis_list)
+	
+	part4 <- gsub("'", '', part4)
+	
+	  # Write out yaml file
+  write(c(part1, part2, part3, part4), paste0("Phase1bv1.1/", region, "/", region, "_", diff_type, "_", scenario_name,".yml"))
+} #end of for loop for the region
+	

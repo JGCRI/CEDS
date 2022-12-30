@@ -95,7 +95,7 @@ extendFF <- function( df, ext_years ){
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "SO2"
 
 activity_data <- readData( "MED_OUT", "A.NC_activity" )
 
@@ -109,12 +109,15 @@ emissions_replaced <- readData( domain = "DEFAULT_EF_IN" ,
 EDGAR_version_number <- "5.0"
 
 # Define sectors that should not be corrected for EDGAR
-excl_sectors <- c( )
+excl_sectors <- c("2C1_Iron-steel-alloy-prod", '2C3_Aluminum-production', '2C4_Non-Ferrous-other-metals' )
+
 if ( em == "CO2" ) {
 
   excl_sectors <- c( excl_sectors, "2A1_Cement-production", "3D_Soil-emissions" )
-
 }
+
+excl_extend_sectors <- c("2C1_Iron-steel-alloy-prod", '2C3_Aluminum-production', '2C4_Non-Ferrous-other-metals' )
+excl_no_extend_sectors <- excl_sectors[which(excl_sectors %!in% excl_extend_sectors)]
 
 # ------------------------------------------------------------------------------
 # 2. Generate emissions factors and extendForward (constant) as necessary
@@ -273,15 +276,38 @@ if( length ( check ) > 0 ) {
                                                addEntries = FALSE )
 }
 
-# Add back unchanged EFs
-  new_efs_corrected_user_added <- rbind( new_efs_corrected_user_added, new_efs_excl ) %>%
-    dplyr::arrange( iso, sector, fuel, units )
 
-# Logic Check for negative emissions factors
-if (any(new_efs_corrected_user_added < 0) ){ stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ) ) }
 
 # ------------------------------------------------------------------------------
-# 5. For waste CO2, apply fraction of fossil fuel * urban population shares to EF
+# 5. Extend non-EDGAR corrected EFs
+
+extended_efs_notEDGAR_corrected <- dplyr::filter( new_efs_excl, sector %in% excl_extend_sectors )
+extended_efs_excl <- dplyr::filter( new_efs_excl, sector %in% excl_no_extend_sectors )
+
+extend_years <- c(paste0( 'X',EDGAR_end_year),EDGAR_replace_years)
+
+  # Write NAs over EFs we want to extend over
+  extended_efs_notEDGAR_corrected[ EDGAR_replace_years][extended_efs_notEDGAR_corrected[ EDGAR_replace_years]==0] <- NA
+
+  extended_efs_notEDGAR_corrected <- melt( extended_efs_notEDGAR_corrected, id = c( "iso", "sector", "fuel", "units" ) )
+  extended_efs_notEDGAR_corrected <- ddply( extended_efs_notEDGAR_corrected, .( iso, sector, fuel, units ), function( df ){
+      df$value <- na.locf( df$value, na.rm = F )
+      df$value <- na.locf( df$value, na.rm = F, fromLast = T )
+      return( df )
+  })
+
+  extended_efs_notEDGAR_corrected <- cast( extended_efs_notEDGAR_corrected )
+
+
+  # Add back unchanged EFs
+  new_efs_corrected_user_added <- rbind( new_efs_corrected_user_added, extended_efs_notEDGAR_corrected, extended_efs_excl) %>%
+      dplyr::arrange( iso, sector, fuel, units )
+
+  # Logic Check for negative emissions factors
+  if (any(new_efs_corrected_user_added < 0) ){ stop('There are negative EFs in ', paste0( "C.", em, "_", "NC", "_EF" ) ) }
+
+# ------------------------------------------------------------------------------
+# 6. For waste CO2, apply fraction of fossil fuel * urban population shares to EF
 if ( em == "CO2") {
   ff <- readData( "DEFAULT_EF_IN", "CO2_waste_fossil_fraction" )
   population <- readData( "MED_OUT", "A.UN_pop_master" )
