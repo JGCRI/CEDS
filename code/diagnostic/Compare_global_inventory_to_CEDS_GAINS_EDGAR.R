@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NMVOC"
+if ( is.na( em ) ) em <- "CO"
 
 #flag for whether or not to include HTAP in comparisons
 add_HTAP <- TRUE
@@ -516,6 +516,15 @@ if (em %in% em_list) {
     edgar_v6_long$year <- as.numeric(edgar_v6_long$year)
     edgar_v6_long$EDGAR_6.1 <- as.numeric(edgar_v6_long$EDGAR_6.1)
 
+    #world data
+    edgar_v6_world <- edgar_v6 %>%
+        group_by(Region) %>%
+        dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)%>%
+        select(Region,everything()) %>%
+        gather(year,EDGAR_6.1, -c(Region))
+
+    #make the year column a double
+    edgar_v6_world$year <- as.double(edgar_v6_world$year)
 
 
 # ---------------------------------------------------------------------------
@@ -621,7 +630,8 @@ if(add_HTAP == TRUE){
     combined_w_edgar <- left_join(combined, edgar_long, by = c("iso","year"))
     combined_w_GAINS <- left_join(combined_w_edgar, gains_long, by = c("iso","year"))
     combined_w_REAS <- left_join(combined_w_GAINS, REAS_long, by = c("iso","year"))
-    combined_w_oldinv <- left_join(combined_w_REAS, old_inventory_long, by = c("iso", "year"))
+    combined_w_edgar_6 <- left_join(combined_w_REAS, edgar_v6_long, by = c("iso","year"))
+    combined_w_oldinv <- left_join(combined_w_edgar_6, old_inventory_long, by = c("iso", "year"))
 
     if(add_HTAP == TRUE){
         combined_w_edgar_htap <- left_join(combined_w_oldinv, EDGAR_HTAP_long, by = c("iso","year"))
@@ -662,7 +672,8 @@ if(add_HTAP == TRUE){
         #combines all the data into one dtaframe
         global_combined <- left_join(ceds_world_regions, gains_global_data, by = c("Region","year"))
         global_combined_w_edgar <- left_join(global_combined, edgar_world, by = c("Region","year"))
-        global_combined_w_reas <- left_join(global_combined_w_edgar, REAS_world, by = c("Region","year"))
+        global_combined_w_edgar_6 <- left_join(global_combined_w_edgar, edgar_v6_world, by = c("Region","year"))
+        global_combined_w_reas <- left_join(global_combined_w_edgar_6, REAS_world, by = c("Region","year"))
 
         #add HTAP data if present
         if(add_HTAP == TRUE){
@@ -706,6 +717,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
     geom_line(data = subset(combined_long, Inventory == "CEDS_v_2021_04_21"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_5.0"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_HTAPv3"), size = 1) +
+    geom_line(data = subset(combined_long, Inventory == "EDGAR_6.1"), size = 1) +
     geom_point(data = subset(combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1) +
     geom_line(data = subset(combined_long, Inventory =='REAS_32'), size = 1) +
     scale_y_continuous(limits=c(0,max(combined_long$total_emissions)), labels = scales::comma) +
@@ -725,6 +737,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                                   'CEDS_v_2021_04_21'= "#D81B60",
                                   'EDGAR_5.0'= "#3F6324",
                                   'EDGAR_HTAPv3'='#000000',
+                                  'EDGAR_6.1' = '#FFC107',
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#000000",
                                   'REAS_32'= "#7A2884")) +
     scale_linetype_manual(name= 'Inventory',
@@ -733,6 +746,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                                      'CEDS_v_2021_04_21' = 1,
                                      'EDGAR_5.0'= 1,
                                      'EDGAR_HTAPv3'= 1,
+                                     'EDGAR_6.1' = 1,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
@@ -741,6 +755,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                                   "CEDS_v_2021_04_21" = 32,
                                   "EDGAR_5.0" = 32,
                                   "EDGAR_HTAPv3" = 32,
+                                  'EDGAR_6.1' = 32,
                                   "GAINS_(ECLIPSE_V6b_CLE)" = 3,
                                   "REAS_32" = 32 ))+
     theme(legend.position = "bottom") +
@@ -754,6 +769,7 @@ plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, co
     geom_line(data = subset(global_combined_long, Inventory == "EDGAR_5.0"), size = 1) +
     geom_point(data = subset(global_combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1.5) +
     geom_line(data = subset(global_combined_long, Inventory == 'EDGAR_HTAPv3'), size = 1) +
+    geom_line(data = subset(global_combined_long, Inventory == "EDGAR_6.1"), size = 1) +
     geom_line(data = subset(global_combined_long, Inventory =='REAS_32'), size = 1) +
     scale_y_continuous(limits=c(0,max(global_combined_long$total_emissions)), labels = scales::comma) +
     labs(x= "" , y= paste(em ,'Emissions [Gg/yr]') )+
@@ -771,18 +787,21 @@ plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, co
                                   'EDGAR_5.0'= "#3F6324",
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#00dee6",
                                   'EDGAR_HTAPv3'='#000000',
+                                  'EDGAR_6.1' = '#FFC107',
                                   'REAS_32'= "#7A2884")) +
     scale_linetype_manual(name= 'Inventory',
                           values = c('CEDS_v_2021_04_21' = 1,
                                      'EDGAR_5.0'= 1,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'EDGAR_HTAPv3'= 1,
+                                     'EDGAR_6.1' = 1,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
                        values = c("CEDS_v_2021_04_21" = 32,
                                   "EDGAR_5.0" = 32,
                                   "GAINS_(ECLIPSE_V6b_CLE)" = 16,
                                   "EDGAR_HTAPv3" = 32,
+                                  'EDGAR_6.1' = 32,
                                   "REAS_32" = 32 ))+
     theme(legend.position = "bottom") +
     theme(plot.margin = margin(t = 10,
