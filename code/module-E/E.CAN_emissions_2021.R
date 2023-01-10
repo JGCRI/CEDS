@@ -59,7 +59,7 @@
   #read in the raw data
   raw_data <- list() #empty list
   raw_data_path <- paste0('emissions-inventories/Canada/raw_2021/',em,'/')
-  temp <- list.files(path = raw_data_path, pattern = paste0('*.csv'))
+  temp <- list.files(path = raw_data_path, pattern = paste0('APEI*'))
   for(i in 1:length(temp)) {raw_data[[i]] <- assign(paste0(em,'_',i),read.csv(file = paste0(raw_data_path,temp[i]), stringsAsFactors = FALSE)%>%
                                                       select(Source = 1, everything()) %>%
                                                       gather("year","value",-c('Source','Sector','SubSector')))}
