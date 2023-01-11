@@ -35,7 +35,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "NMVOC"
 
 #flag for whether or not to include HTAP in comparisons
 add_HTAP <- TRUE
@@ -735,7 +735,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                        values = c('Country_inventory'= "#1E88E5",
                                   'Old_Inventory'= "#1E88E5",
                                   'CEDS_v_2021_04_21'= "#D81B60",
-                                  'EDGAR_5.0'= "#3F6324",
+                                  'EDGAR_5.0'= "#BF7618",
                                   'EDGAR_HTAPv3'='#000000',
                                   'EDGAR_6.1' = '#FFC107',
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#000000",
@@ -744,7 +744,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                           values = c('Country_inventory' = 0,
                                      'Old_Inventory' = 0,
                                      'CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 1,
+                                     'EDGAR_5.0'= 2,
                                      'EDGAR_HTAPv3'= 1,
                                      'EDGAR_6.1' = 1,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
@@ -784,14 +784,14 @@ plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, co
 
     scale_color_manual(name = 'Inventory',
                        values = c('CEDS_v_2021_04_21'= "#D81B60",
-                                  'EDGAR_5.0'= "#3F6324",
+                                  'EDGAR_5.0'= "#BF7618",
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#00dee6",
                                   'EDGAR_HTAPv3'='#000000',
                                   'EDGAR_6.1' = '#FFC107',
                                   'REAS_32'= "#7A2884")) +
     scale_linetype_manual(name= 'Inventory',
                           values = c('CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 1,
+                                     'EDGAR_5.0'= 2,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'EDGAR_HTAPv3'= 1,
                                      'EDGAR_6.1' = 1,
