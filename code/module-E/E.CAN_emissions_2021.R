@@ -1,6 +1,6 @@
 # Program Name: E.CAN_emissions_2021.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Huong Nguyen, Andrea Mott, Harrison Suchyta
-# Date Last Modified: Oct 26, 2022
+# Date Last Modified: Jan 17, 2023
 # Program Purpose: To read in & reformat Canada emissions inventory data.
 #                  This file uses the newer format used since 2022. This data
 #                  only extends back to 1990, so older data is still used back
@@ -32,7 +32,6 @@
 
 # Get emission species first so can name log appropriately
   args_from_makefile <- commandArgs( TRUE )
-  em <- 'NMVOC'
     #args_from_makefile[ 1 ]
   if ( is.na( em ) ) em <- "CH4"
   em.read <- em
@@ -41,7 +40,7 @@
   if( em == "NMVOC" ) em.read <- "VOC (t)"
   if( em == "CO" ) em.read <- "CO (t)"
   if( em == "NH3" ) em.read <- "NH3 (t)"
-  if (em %in% c ('BC','OC')) em.read <- "PM25 (t)"
+  if (em == "PM25") em.read <- "PM25 (t)"
 
   # ------------------------------------------------------------------------------
   # 1. Define parameters for inventory specific script
@@ -56,6 +55,9 @@
 
 # ------------------------------------------------------------------------------
 # 2. Reformat raw data files
+
+  #Makes sure only present data is prcessed
+  if( em %!in% c("CO2", "CH4", "N2O","OC") ){
   #read in the raw data
   raw_data <- list() #empty list
   raw_data_path <- paste0('emissions-inventories/Canada/raw_2021/',em,'/')
@@ -85,91 +87,14 @@
     dplyr::group_by(iso,sector,year) %>%
     dplyr::summarise(value = sum(value)) %>%
     spread(key = 'year', value = 'value')
+  } else {Note <- c( "No CAN data available." )
+  output_final <- dplyr::tibble( Note )}
 
 
-# ------------------------------------------------------------------------------
-
-# 3. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
-
-  # combined sector and subsector into one column and rename as "sector" for mapping
-
-  file_path <- filePath( inv_data_folder, inventory_data_file,
-                         extension = ".csv",
-                         domain_extension = subfolder_name )
-
-# Process given emission if inventory data exists
-
-  if ( file.exists( file_path ) ) {
-    # Import Inventory
-    inv_data <- readData( inv_data_folder,
-                                domain_extension = subfolder_name,
-                                inventory_data_file , ".csv",
-                                sheet_selection = sheet_name )
-    # Write out blank df if no inventory data exists for given emission
-  } else {
-    inv_data <- data.frame()
-  }
-
-    # Remove double counting (remove rows in R that have a "y" under "is it a total", which is same as removing N/A from the subsector columns)
-    inv_data_sheet <- inv_data[!is.na(inv_data$Subsector),]
-
-    # select valuable columns
-    inv_data_sheet <- select(inv_data_sheet,Region,Source,Sector,Year,"SOX..t.","NOX..t.","CO..t.","NH3..t.","VOC..t.","PM25..t.")
-    inv_data_sheet$iso <- "can"
-    inv_data_sheet <- dplyr::rename(inv_data_sheet,
-                                             sector=Source,subsector = Sector,
-                                             SO2=SOX..t.,
-                                             NOx=NOX..t.,
-                                             CO =CO..t.,
-                                             NH3=NH3..t.,
-                                             NMVOC = VOC..t.,
-                                             PM25= PM25..t.)
-
-    # Set NAs to 0
-    inv_data_sheet[is.na(inv_data_sheet)] <- 0
-
-    # Run if em is not CO2, CH4, or N20 - CAN does not have these
-    if( em %!in% c("CO2", "CH4", "N2O") ){
-
-    # em_list <- c( "SO2","NOx","CO","NH3","NMVOC","BC","OC")
-    # for( n in em_list){
-    #   em <- paste0( n )
-
-    # differentiate BC and OC from PM2.5, but keep variable em for BC/oC script in part 3
-    if (em %in% c ('BC','OC')) {
-      em2 <- 'PM25'
-    } else {em2 <- em}
-
-      # aggregate emissions by region, sector, subsector, and year
-      output <- inv_data_sheet %>%
-        dplyr::select( c("iso", "sector", "subsector", "Year", em2 ) ) %>%
-        dplyr::group_by( iso, sector, subsector, Year ) %>%
-        dplyr::mutate( em2 = sum( get( em2 ) ) ) %>%
-        dplyr::distinct( iso, sector, subsector, Year, em2) %>%
-        tidyr::spread( key = "Year", value = "em2")
-
-      # combined sector and subsector into one column and rename as "sector" for mapping
-      output_sector_sub_combined <- transform(output, sector_subsector=paste(sector,subsector,sep="_"))
-      output_sector_sub_combined$sector_subsector <-gsub(" / ","",output_sector_sub_combined$sector_subsector, fixed=TRUE)
-      output_final <- subset(output_sector_sub_combined, select = -c(sector,subsector))
-      output_final <- output_final %>%
-        dplyr::rename(sector = sector_subsector) %>%
-        dplyr::select(iso, sector, everything())
-
-      # Make numeric
-      output_final[ , paste0( 'X', inv_years ) ] <-
-        sapply( output_final[ , paste0( 'X', inv_years ) ],
-                as.numeric )
-      # Convert from tonnes to kt
-      output_final[ , paste0( 'X', inv_years ) ] <-
-        as.matrix( output_final[ , paste0( 'X', inv_years ) ] ) / 1000
-
-# ------------------------------------------------------------------------------
 # Find BC and OC emissions
 
     # Define parameters for BC and OC specific script
     # Read in scaling mapping file and filter transportation sectors
-
     ceds_sector <- "1A3b_Road"
     inv_iso <- "can"
     PM <- "PM25"
@@ -187,15 +112,10 @@
 
     if (em %in% c("BC","OC") ) {
 
-        em <- 'BC'
         em_emissions <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
         output_final <- em_emissions
 
     }
-
-# -----------------------------------------------------------------------------
-    } else {Note <- c( "No CAN data available." )
-    output_final <- dplyr::tibble( Note )}
 
 
 # 3. Write standard form inventory-
@@ -217,10 +137,12 @@
       writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
                  paste0('inventory_',em,'_', inv_name))
 
+      #get rid of "sector" column and sum all the yearly data together
       country_total <- country_total %>%
-        select(-sector)%>%
+        ungroup() %>%
+        dplyr::select(-sector) %>%
         group_by(iso) %>%
-        summarize_each(funs(sum))
+        summarise_at(vars(-group_cols(),),sum)
 
     writeData( country_total, domain = "MED_OUT",
                paste0('E.',em,'_', inv_name, '_inventory_country_total'))
