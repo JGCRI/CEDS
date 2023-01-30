@@ -18,7 +18,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('summary_visualization_functions.R')
-log_msg <- "Writes summary comparison plots to pdf for Production Run" # First message to be printed to the log
+log_msg <- "Writes summary comparison plots to pdf for Production Run diagnostics" # First message to be printed to the log
 script_name <- "Production Run Comparison Plots.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
@@ -83,7 +83,7 @@ plot_list <- names(CO2_plots)
 
 # Global Sectors
 pdf( "../final-emissions/diagnostics/Summary_Comparison_Plots.pdf" ,
-     width = 11, height = 10, paper ='special' )
+     width = 9, height = 10, paper ='special' )
 
 for( plot in seq_along(plot_list)){
 grid.arrange( g_legend(OC_plots[[plot]]+ theme( legend.position = "bottom" )),
