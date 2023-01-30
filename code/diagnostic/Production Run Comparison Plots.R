@@ -72,21 +72,26 @@ all_plot_lists  <- list(BC_plots,
 # Construct list of plots (is there a select countries plot?)
 # Print Graphs
 
-#Check that all the plot lists are the same
-all_names <- sapply(all_plot_lists, names)
+# Check that all the plot lists are the same. The code below will not work if the
+# plot lists for all emission species are not identical
+all_names <- lapply(all_plot_lists, names)
 
-for(i in 2:ncol(all_names)){
-   if( any(!all_names[,1]== all_names[,i]) ) stop('Not all the summary plot objects are the same')
-}
+for(i in 2:length(all_names)){
+  if( ! setequal(all_names[[1]],all_names[[i]]) ){stop('Not all the summary plot objects are equal, they contain different plots.
+     The selected countries in different emission plots may be different. Plot objects must be equal
+     for this script to work. May need to run S1.1write_summary_data again for certain em species - check selected countries.')
+  } }
 
+# Print Figures
+printLog('Printing plots.')
 plot_list <- names(CO2_plots)
 
-# Global Sectors
 pdf( "../final-emissions/diagnostics/Summary_Comparison_Plots.pdf" ,
      width = 9, height = 10, paper ='special' )
 
 for( plot in seq_along(plot_list)){
-grid.arrange( g_legend(OC_plots[[plot]]+ theme( legend.position = "bottom" )),
+grid.arrange( g_legend(OC_plots[[plot]]+ theme( legend.position = "bottom" ,
+                                                legend.background = element_rect(color = "black"))),
               BC_plots[[plot]]+ theme( legend.position = "none" ),
               CO_plots[[plot]]+ theme( legend.position = "none" ),
               NH3_plots[[plot]]+ theme( legend.position = "none" ),

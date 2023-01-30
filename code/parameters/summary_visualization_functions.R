@@ -34,7 +34,6 @@ year_breaks <- 10
 
 # Plot theme
 theme_diagnostic <- list(theme_minimal(),
-                         scale_color_viridis_d(option = "turbo"),
                          theme(panel.background = element_rect(fill = "#D8D9DA",colour = "#D8D9DA",size = 0.5, linetype = "solid")),
                          theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid',colour = "white")),
                          theme(panel.grid.minor = element_line(size = 0.25, linetype = 'solid',colour = "white")))
