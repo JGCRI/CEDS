@@ -1738,59 +1738,137 @@ F.addScaledToDb <- function( ef_scaled, em_scaled,
       # 4) Make sure the function fails with a warning if there are no inventory sectors present in the inventory data.
       # 5) Pass inv_data_sheet as an argument for the function.
 
-  F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_name, X_inv_years) {
+F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_name, X_inv_years) {
 
-    # Find emission ratio of default comb emissions BC/PM2.5 and OC/PM2.5
+  # Find emission ratio of default comb emissions BC/PM2.5 and OC/PM2.5
 
-    # Fail if no inv sectors exist
-    # if (inv_sector_name > 0) {
+  # Fail if no inv sectors exist
+  # if (inv_sector_name > 0) {
 
-      # Input BC and OC default combustion emissions
-          em_to_PM25_defaultratio <- readData( "DEFAULT_EF_IN", paste0('CD.',em,"_to_PM25_defaultratio.csv"))
+  # Input BC and OC default combustion emissions
+  em_to_PM25_defaultratio <- readData( "DEFAULT_EF_IN", paste0('CD.',em,"_to_PM25_defaultratio.csv")) %>%
+    select(-X)
+
+  #determine which years exist in the defaultratio file
+  default_years <- names(em_to_PM25_defaultratio)[grepl('X',names(em_to_PM25_defaultratio)) == TRUE]
+
+  #get a list of years that appear in X_inv_years but not in defaultratio
+  years_not_in_default <- X_inv_years[X_inv_years %!in% default_years]
+
+  #If there are missing years, extend the defaultratio file from the last
+  #year with data through the new years
+  if(length(years_not_in_default) > 0 ){
+    last_year_data <- em_to_PM25_defaultratio[,ncol(em_to_PM25_defaultratio)]
+
+    for(curr_year in years_not_in_default){
+      em_to_PM25_defaultratio[,curr_year] <- last_year_data
+    }
+  }
+
+  # Select desired iso and sector(s)
+  em_to_PM25_defaultratio_filtered <- em_to_PM25_defaultratio %>%
+    filter(iso %in% inv_iso & sector %in% ceds_sector)
+
+  # Match default ratio years to inventory years
+  # Remove "iso" and "sector" columns for matrix multiplication. They are re-added in later steps.
+
+  em_to_PM25_defaultratio_cleaned <- em_to_PM25_defaultratio_filtered %>%
+    select(all_of(X_inv_years))
+
+  # read in PM2.5 from inventory data (output zero for all other values).
+
+  PM25_inv <-inv_data_sheet %>%
+    filter(sector %in% inv_sector_name) %>%
+    filter(iso %in% inv_iso)
+
+  #if some inv_sector_name sectors are not in the current dataset, delete them
+  #from the list so as to not cause an error later
+  inv_sector_name <- inv_sector_name[inv_sector_name %in% PM25_inv$sector]
 
 
-      # Select desired iso and sector(s)
-      em_to_PM25_defaultratio_filtered <- em_to_PM25_defaultratio %>%
-          filter(iso %in% inv_iso & sector %in% ceds_sector) %>%
-          select(-X)
+  # remove iso and sector for matrix multiplication
+  PM25_inv <- PM25_inv %>%
+    ungroup() %>%
+    select(-iso,-sector)
 
-    # Match default ratio years to inventory years
-    # Remove "iso" and "sector" columns for matrix multiplication. They are re-added in later steps.
+  # For PM10 data, assumed ratio would be 10% less
+  if (PM == "PM10") {
+    PM25_inv <- PM25_inv*0.9
+  }
 
-      em_to_PM25_defaultratio_cleaned <- em_to_PM25_defaultratio_filtered %>%
-          select(all_of(X_inv_years))
+  # Calculate BC and OC emissions using default ratios and PM2.5 inv data
+  # multiplication depends on number of rows in PM2.5 inv data
+  #em_emissions <- PM25_inv
+  rows <- nrow(PM25_inv)
+  if (rows == 1) {
+    em_emissions <- PM25_inv * em_to_PM25_defaultratio_cleaned
+  } else {em_emissions <- data.frame(mapply('*',PM25_inv,em_to_PM25_defaultratio_cleaned))
+  }
 
-    # read in PM2.5 from inventory data (output zero for all other values).
+  # Clean for output
+  em_emissions$sector <- inv_sector_name
+  em_emissions$iso <- em_to_PM25_defaultratio_filtered$iso      #inv_iso
+  em_emissions <- em_emissions %>%
+    select(iso,sector, everything())
+  em_emissions[is.na(em_emissions)] = 0
 
-      PM25_inv <-inv_data_sheet %>%
-          filter(sector %in% inv_sector_name) %>%
-          filter(iso %in% inv_iso)
-
-
-    # remove iso and sector for matrix multiplication
-      PM25_inv <- PM25_inv %>%
-          select(-iso,-sector)
-
-      # For PM10 data, assumed ratio would be 10% less
-      if (PM == "PM10") {
-          PM25_inv <- PM25_inv*0.9
-      }
-
-    # Calculate BC and OC emissions using default ratios and PM2.5 inv data
-      # multiplication depends on number of rows in PM2.5 inv data
-      #em_emissions <- PM25_inv
-      rows <- nrow(PM25_inv)
-      if (rows == 1) {
-          em_emissions <- PM25_inv * em_to_PM25_defaultratio_cleaned
-      } else {em_emissions <- data.frame(mapply('*',PM25_inv,em_to_PM25_defaultratio_cleaned))
-      }
-
-    # Clean for output
-      em_emissions$sector <- inv_sector_name
-      em_emissions$iso <- em_to_PM25_defaultratio_filtered$iso      #inv_iso
-      em_emissions <- em_emissions %>%
-          select(iso,sector, everything())
-      em_emissions[is.na(em_emissions)] = 0
-
-     return(em_emissions)
+  return(em_emissions)
 }
+
+
+#   F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_name, X_inv_years) {
+#
+#     # Find emission ratio of default comb emissions BC/PM2.5 and OC/PM2.5
+#
+#     # Fail if no inv sectors exist
+#     # if (inv_sector_name > 0) {
+#
+#       # Input BC and OC default combustion emissions
+#           em_to_PM25_defaultratio <- readData( "DEFAULT_EF_IN", paste0('CD.',em,"_to_PM25_defaultratio.csv"))
+#
+#
+#       # Select desired iso and sector(s)
+#       em_to_PM25_defaultratio_filtered <- em_to_PM25_defaultratio %>%
+#           filter(iso %in% inv_iso & sector %in% ceds_sector) %>%
+#           select(-X)
+#
+#     # Match default ratio years to inventory years
+#     # Remove "iso" and "sector" columns for matrix multiplication. They are re-added in later steps.
+#
+#       em_to_PM25_defaultratio_cleaned <- em_to_PM25_defaultratio_filtered %>%
+#           select(all_of(X_inv_years))
+#
+#     # read in PM2.5 from inventory data (output zero for all other values).
+#
+#       PM25_inv <-inv_data_sheet %>%
+#           filter(sector %in% inv_sector_name) %>%
+#           filter(iso %in% inv_iso)
+#
+#
+#     # remove iso and sector for matrix multiplication
+#       PM25_inv <- PM25_inv %>%
+#           select(-iso,-sector)
+#
+#       # For PM10 data, assumed ratio would be 10% less
+#       if (PM == "PM10") {
+#           PM25_inv <- PM25_inv*0.9
+#       }
+#
+#     # Calculate BC and OC emissions using default ratios and PM2.5 inv data
+#       # multiplication depends on number of rows in PM2.5 inv data
+#       #em_emissions <- PM25_inv
+#       rows <- nrow(PM25_inv)
+#       if (rows == 1) {
+#           em_emissions <- PM25_inv * em_to_PM25_defaultratio_cleaned
+#       } else {em_emissions <- data.frame(mapply('*',PM25_inv,em_to_PM25_defaultratio_cleaned))
+#       }
+#
+#     # Clean for output
+#       em_emissions$sector <- inv_sector_name
+#       em_emissions$iso <- em_to_PM25_defaultratio_filtered$iso      #inv_iso
+#       em_emissions <- em_emissions %>%
+#           select(iso,sector, everything())
+#       em_emissions[is.na(em_emissions)] = 0
+#
+#      return(em_emissions)
+# }

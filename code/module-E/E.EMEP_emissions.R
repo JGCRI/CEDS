@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.EMEP_emissions.R
-# Author(s): Patrick O'Rourke, Andrea Mott
-# Date Last Updated: March 26, 2021
+# Author(s): Patrick O'Rourke, Andrea Mott, Harrison Suchyta
+# Date Last Updated: January 31, 2023
 # Program Purpose: To read in & reformat EMEP emissions data.
 # Input Files: All EMEP emissions data, Master_Country_List.csv
 # Output Files: All Initial EMEP txt files resaved as csv files (in input folder),
@@ -171,7 +171,7 @@
     	    ceds_sector <- "1A3b_Road"
     	    inv_iso <- EMEP_em$iso
     	    inv_sector_name <- c("F_RoadTransport")
-    	    inv_years <- c(1980:2018)
+    	    inv_years <- c(1980:2020)
     	    X_inv_years <- paste0("X",inv_years)
     	    PM <- "PM25"
 
