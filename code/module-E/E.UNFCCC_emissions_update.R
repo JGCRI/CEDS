@@ -40,7 +40,7 @@ if( ! ( em %in% c( "CH4", "N2O", "CO2" ) ) ){
 
 } else{
 
-    UNFCCC_years <- paste0( 1990:2018 )
+    UNFCCC_years <- paste0( 1990:2020 )
     UNFCCC_years_with_Xs <- paste0( "X", UNFCCC_years )
 
 # -----------------------------------------------------------------------------------------------------------
@@ -59,12 +59,12 @@ if( ! ( em %in% c( "CH4", "N2O", "CO2" ) ) ){
 # 2. Formatting Data
 
 # Fix column names, add units column, remove rows not needed
-colnames(UNFCCC) = UNFCCC[ 4, ]
+colnames(UNFCCC) = UNFCCC[ 3, ]
 
 # TODO: Remove hard coded last inventory year below
 UNFCCC_clean <- UNFCCC %>%
     dplyr::slice( -( 1:4 ) ) %>%
-    dplyr::rename( UNFCCC = " ", "2018" = "Last Inventory Year (2018)", sector = Year ) %>%
+    dplyr::rename( UNFCCC = " ", "2020" = "Last Inventory Year (2020)", sector = Year ) %>%
     dplyr::mutate( units = "kt" ) %>%
 
 
