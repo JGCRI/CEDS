@@ -1743,7 +1743,7 @@ F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_
   # Find emission ratio of default comb emissions BC/PM2.5 and OC/PM2.5
 
   # Fail if no inv sectors exist
-  # if (inv_sector_name > 0) {
+  if (inv_sector_name > 0) {
 
   # Input BC and OC default combustion emissions
   em_to_PM25_defaultratio <- readData( "DEFAULT_EF_IN", paste0('CD.',em,"_to_PM25_defaultratio.csv")) %>%
@@ -1813,6 +1813,7 @@ F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_
   em_emissions[is.na(em_emissions)] = 0
 
   return(em_emissions)
+  }
 }
 
 

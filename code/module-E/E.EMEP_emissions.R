@@ -157,7 +157,8 @@
 
     	# Cast to wide format
     	    EMEP_emdf <- cast( EMEP_em, iso + sector + units ~ year,
-    	                       value = "emissions" )
+    	                       value = "emissions" )%>%
+    	                 replace(is.na(.), 0)
 
     	# Relabel units from Gg to kt (same numerical value, different label)
     	    EMEP_emdf$units <- 'kt'
