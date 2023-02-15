@@ -34,7 +34,7 @@
 # Describes which emission species is being analyzed
     args_from_makefile <- commandArgs( TRUE )
     em <<- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "BC"
+    if ( is.na( em ) ) em <- "NOx"
 
 #   TODO: When level 2 NFR14 data is used, this will need to include an if else statement - as level 2 NFR14
 #         data for SO2 is now labelled as SO2, not SOx. It will also need to be moved lower, so that
@@ -113,7 +113,7 @@
           	  } else {
           	    EMEP_em <- dplyr::mutate( EMEP_em,
           	                      sector = sapply( strsplit( EMEP_em$sector,
-          				                                          split = ' ',
+          				                                          split = '_',
           				                                          fixed = TRUE ),
           	                                      function( x ) ( x [ 2 ] ) ) )
         	    }
