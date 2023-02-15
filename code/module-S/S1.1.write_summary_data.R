@@ -21,7 +21,8 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", "analysis_functions.R", 'process_db_functions.R',
-              "summary_functions.R", 'common_data.R', 'timeframe_functions.R')
+              "summary_functions.R", 'common_data.R', 'timeframe_functions.R',
+              'summary_visualization_functions.R')
 log_msg <- "Writes Final summary data" # First message to be printed to the log
 script_name <- "S1.1.write_summary_data.R"
 
@@ -38,6 +39,14 @@ write_years <- 1750:end_year
 
 # Option to also write out data by CEDS sectors
 WRITE_CEDS_SECTORS = TRUE
+
+# Select individual country(ies) to plot in comparison graphs. If not selecting
+# a country for comparison graphs, define as NA
+country_select <- NA
+# country_select <- c('usa','chn')
+
+# Option to print out comparison figures for current emission species
+WRITE_COMPARISON_PLOTS = TRUE
 
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
@@ -226,6 +235,12 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   # Write out current-run
   writeSummary()
 
+  #Comparison Figures - plot and write Rdata object
+  comparison_plots <- summary_comparison_plots()
+
+  #Print comparison plots to PDF if option chosen
+  if(WRITE_COMPARISON_PLOTS == TRUE) print_single_em_comparison_plots()
+
   # Read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
   em_last_fn <- list.files( paste0( "../final-emissions/", em, "_last-run/" ), pattern = base_fn )
@@ -371,7 +386,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   }
 
   # Warn the user about CH4 and N2O extension
-  # Chemical industry emissions, for example, are 20% of EDGAR NOx emissions in 1970, but no sector 
+  # Chemical industry emissions, for example, are 20% of EDGAR NOx emissions in 1970, but no sector
   # specific data is included in CEDS for extending these emissions.
   if( em %in% c( 'CH4', 'N2O' ) ){
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
