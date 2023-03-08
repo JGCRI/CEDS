@@ -32,22 +32,22 @@
      MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
 
 #    B.) Load FAO manure management data file
-     FAO_mm <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_management')
+     FAO_mm <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_management', meta = FALSE)
 
 #    C.) Load FAO manure left on pasture data file
-     FAO_mp <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_pasture')
+     FAO_mp <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_pasture', meta = FALSE)
 
 #    D.) Load FAO Synthetic Fertilizers data file
-     FAO_sf <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_ synthetic_fertilizer')
+     FAO_sf <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_synthetic_fertilizer', meta = FALSE)
 
 #    E.) Load FAO Manure applied to Soils data file
-     FAO_ma <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_appplied')
+     FAO_ma <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_appplied', meta = FALSE)
 
 #    F.) Load FAO Cultivation of Organic Soils data file
-     FAO_cos <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_organic_soil_cultivation')
+     FAO_cos <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_organic_soil_cultivation', meta = FALSE)
 
 #    G.) Load UN Population data file
-     un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
+     un_pop <- readData( "MED_OUT" , 'A.UN_pop_master', meta = FALSE)
 # -----------------------------------------------------------------------------
 # 2. Process FAO N2O data
 
@@ -61,10 +61,10 @@
 
 #      Map over CEDS iso codes
        FAO_manure <- FAO_manure_summed %>%
-            left_join(MCL[c('iso','FAO_Country_Code')], by = c('Area.Code' = 'FAO_Country_Code')) %>%
+            left_join(MCL[c('iso','FAO_Country_Code_2021')], by = c('Area.Code..M49.' = 'FAO_Country_Code_2021')) %>%
 
 #      Remove columns that are not needed
-            select(-Domain.Code, -Area.Code, -Area, -Element.Code, -Element, -Item.Code, -Item, -Year.Code,
+            select(-Domain.Code, -Area.Code..M49., -Area, -Element.Code, -Element, -Item.Code, -Item, -Year.Code,
                    -Unit, -Value, -Flag, -Flag.Description) %>%
 
 #      Rename "Domain" variable "sector"
@@ -103,10 +103,10 @@
 
 #      Map over CEDS iso codes
        FAO_soil <- FAO_soil_summed %>%
-           left_join(MCL[c('iso','FAO_Country_Code')], by = c('Area.Code' = 'FAO_Country_Code')) %>%
+           left_join(MCL[c('iso','FAO_Country_Code_2021')], by = c('Area.Code..M49.' = 'FAO_Country_Code_2021')) %>%
 
 #      Remove columns that are not needed
-           select(-Domain.Code, -Area.Code, -Area, -Element.Code, -Element, -Item.Code, -Item, -Year.Code,
+           select(-Domain.Code, -Area.Code..M49., -Area, -Element.Code, -Element, -Item.Code, -Item, -Year.Code,
                   -Unit, -Value, -Flag, -Flag.Description) %>%
 
 #      Rename "Domain" variable "sector"

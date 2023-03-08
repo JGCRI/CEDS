@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_CH4_NC_emissions_FAO.R
-# Authors: Rachel Hoesly
-# Date Last Modified: 10 May 2019
+# Authors: Rachel Hoesly, Harrison Suchyta
+# Date Last Modified: 24 February 2023
 # Program Purpose: Use the package FAOSTAT to retrieve methane emissions
 #             data for agriculture.
 # Input Files: Master_Coutnry_list.csv, FAO_methane_API.csv
@@ -27,7 +27,8 @@
 # 1. Load Data
 
   MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
-  FAO_API <-  readData('EM_INV' ,'FAO_methane_API')
+  FAO_API_old <-  readData('EM_INV' ,'FAO_methane_API')
+  FAO_API <-  readData('EM_INV' ,'FAO_methane')
   un_pop <- readData( "MED_OUT" , 'A.UN_pop_master' )
 
 # -----------------------------------------------------------------------------
@@ -45,20 +46,32 @@
 # 3. Process FAO methane data
 
 # Remove countries with limited or inconsistent data, use default instead
-fao_data_remove <- c(22) # arb has only one datapoint, so stay with EDGAR default
+#fao_data_remove <- c('Aruba') # arb has only one datapoint, so stay with EDGAR default
+
+#DELETE CHUNK
+# FAO_new <- FAO_API_old %>%
+#        filter( FAOST_CODE %!in% fao_data_remove) %>%
+#        left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>%
+#        select(-FAOST_CODE) %>%
+#        melt(id.vars = c('iso','Year')) %>%
+#        dplyr::mutate(value = as.numeric(as.character(value))) %>%
+#        dplyr::mutate(variable = gsub('X','',variable)) %>%
+#        dplyr::mutate(variable = gsub('\\.','-',variable)) %>%
+#        filter(!is.na(iso), Year %in% extended_years) %>%
+#        dplyr::mutate(Year = paste0('X',Year)) %>% unique %>%
+#        cast(iso+variable~Year) %>%
+#        dplyr::rename(sector = variable)
 
 FAO <- FAO_API %>%
-       filter( FAOST_CODE %!in% fao_data_remove) %>%
-       left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>%
-       select(-FAOST_CODE) %>%
-       melt(id.vars = c('iso','Year')) %>%
-       dplyr::mutate(value = as.numeric(as.character(value))) %>%
-       dplyr::mutate(variable = gsub('X','',variable)) %>%
-       dplyr::mutate(variable = gsub('\\.','-',variable)) %>%
+       dplyr::rename(FAO_Country_Code_2021 = Area.Code..M49.) %>%
+       left_join(MCL[c('iso','Country_Name','FAO_Country_Code_2021')], by = 'FAO_Country_Code_2021') %>%
+       select(iso,Year,Item,Value) %>%
+       dplyr::rename(sector = Item) %>%
        filter(!is.na(iso), Year %in% extended_years) %>%
-       dplyr::mutate(Year = paste0('X',Year)) %>% unique %>%
-       cast(iso+variable~Year) %>%
-       dplyr::rename(sector = variable)
+       dplyr::mutate(Year = paste0('X',Year)) %>% unique() %>%
+       mutate(as.character(Value)) %>%
+       cast(iso+sector~Year, value = 'Value', sum)
+
 
 # -----------------------------------------------------------------------------
 # 4. Country Splitting
