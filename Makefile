@@ -423,6 +423,16 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(ENERGY_DATA)/bp-stats-review-2022-all-data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
+# aa3-1.2
+# Extends oil IEA data with detailed BP data
+$(MED_OUT)/A.IEA_BP_energy_ext.csv: \
+	$(MOD_A)/A3.1.IEA_BP_data_extension_detailed.R \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
+	$(MAPPINGS)/Master_Country_List.csv \
+	$(ENERGY_DATA)/bp-stats-review-2022-oil-by-product.csv \
+	$(MAPPINGS)/BP_detailed_extension.csv 
+	Rscript $< $(EM) --nosave --no-restore
+
 # aa3-2
 # Write out difference between IEA and CEDS coal
 $(MED_OUT)/A.IEA_CEDS_coal_difference.csv: \
@@ -456,7 +466,7 @@ $(MED_OUT)/A.Sintering_production.csv: \
 # Splits energy combustion data and energy activity data
 $(MED_OUT)/A.default_comb_activity_with_other.csv: \
 	$(MOD_A)/A4.1.default_modern_energy_data.R \
-	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
+	$(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 

@@ -131,7 +131,7 @@
     }
 
 # ------------------------------------------------------------------------------
-# 4. Extend IEA data to latest years in BP data
+# 4. Extend IEA data with BP data (oil, coal, gas)
 # Estimate IEA data for years it is not yet available. Do this by calculating
 #   the ratio of IEA data to BP data for the latest year IEA data is available
 #   and then multiplying this ratio by BP data for the more recent years
@@ -168,6 +168,13 @@
             bp_drivers[[i]], ], iea_proj_data[[i]],
             by = c( "iso", "sector", "fuel" ) )
     }
+
+
+
+
+
+# ------------------------------------------------------------------------------
+# 5. Extend Other Fuels
 
 # Biomass usage is projected by population changes (maybe)
 # Don't use this yet; assume biomass is constant. Might use later.
@@ -392,6 +399,13 @@
 # Write out Diagnostic Output
   writeData( iea_data_before_BP_ext, domain = "DIAG_OUT", fn =
                "A.IEA_BP_energy_ext_before_BP-ext", comments = NULL, meta = F )
+
+  writeData( iea_proj_data[[1]], domain = "DIAG_OUT", fn = "A.BP_ext_ratios_oil",
+             comments = NULL, meta = F)
+  writeData( iea_proj_data[[2]], domain = "DIAG_OUT", fn =
+                 "A.BP_ext_ratios_gas", comments = NULL, meta = F)
+  writeData( iea_proj_data[[3]], domain = "DIAG_OUT", fn =
+                 "A.BP_ext_ratios_coal", comments = NULL, meta = F)
 
 # Every script should finish with this line
  logStop()
