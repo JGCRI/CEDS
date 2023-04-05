@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Program Name:E.EDGAR_emissions_2021.R
+# Program Name:E.EDGAR_emissions_v6.1.R
 # Author(s): Noah Prime, Harrison Suchyta
 # Date Last Modified: January 3, 2023
 # Program Purpose: Intended to reformat EDGAR default emissions data and add it to
@@ -19,7 +19,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
               "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
 log_msg <- paste0( "Processing EDGAR non-combustion default emissions data..." ) # First message to be printed to the log
-script_name <- "E.EDGAR_emissions_2021.R"
+script_name <- "E.EDGAR_emissions_v6.1.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
@@ -29,7 +29,7 @@ initialize( script_name, log_msg, headers )
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "N2O"
+if ( is.na( em ) ) em <- "CO"
 
 # Input domain
 domain <- "EM_INV"

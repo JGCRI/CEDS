@@ -6,7 +6,7 @@
 #               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS.
 # Input Files: [em]_total_CEDS_emissions.csv
 #              'E.', em,'_',inv,'_inventory_country_total'
-#              Master_Country_List.csv, emf-30_ctry_map.csv,
+#              MCL.csv, emf-30_ctry_map.csv,
 #              emf-30_comparison_sector_map-comb_vs_process.csv
 # Output Files: Compare_inventory_to_CEDS_[em].pdf
 #               Compare_inventory_to_CEDS_[em].csv
@@ -14,15 +14,11 @@
 
 # TODO: 1. eventually add in BC, OC, and GHGs
 # ---------------------------------------------------------------------------
-setwd('C:/users/such559/Documents/CEDS-Dev')
+
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
 PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/parameters/"
-
-#read in mapping file to organize countries
-mapping_world_region <- read.csv('input/mappings/Master_Country_List.csv') %>%
-           subset(select = c(iso,Region))
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -35,11 +31,18 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NMVOC"
+if ( is.na( em ) ) em <- "CO"
 
+
+# ---------------------------------------------------------------------------
 #flag for whether or not to include HTAP in comparisons
 add_HTAP <- TRUE
+# ---------------------------------------------------------------------------
+# 0. Input Files
+#read in mapping file to organize countries
 
+MCL <- readData( "MAPPINGS", "Master_Country_List" ) %>%
+    subset(select = c(iso,Region))
 # ---------------------------------------------------------------------------
 # 1. Run for relevant inventory emissions
 
@@ -142,8 +145,7 @@ if (em %in% em_list) {
     }
 
     # Map EMEP to East and West regions. Remove EMEP's non-Europe regions.
-    Master_Country_List <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
-    master_country <- Master_Country_List %>%
+    master_country <- MCL %>%
         select(c(iso, Region))
     inv_emissions_East_West_Europe <- inv_emissions_EMEP %>%
         left_join(master_country, by = c("iso")) %>%
@@ -278,7 +280,7 @@ if (em %in% em_list) {
     #------------
     #world data
     ceds_world_regions <- ceds_emissions %>%
-                          left_join(mapping_world_region, by = 'iso') %>%
+                          left_join(MCL, by = 'iso') %>%
                           select(-c(iso,fuel,units)) %>%
                           group_by(Region) %>%
                           dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)%>%
@@ -547,7 +549,7 @@ if (em %in% em_list) {
     #-------
     #world data
     REAS_world <- REAS_emissions %>%
-                  left_join(mapping_world_region, by = 'iso') %>%
+                  left_join(MCL, by = 'iso') %>%
                   filter(sector != 'TOTAL') %>%
                   select(-c(sector,units,iso)) %>%
                   group_by(Region) %>%
@@ -596,7 +598,7 @@ if(add_HTAP == TRUE){
     Edgar_for_world_unprocessed <- EDGAR_HTAP_long
 
     EDGAR_HTAP_long <- EDGAR_HTAP_long %>%
-        left_join(mapping_world_region, by = 'iso')
+        left_join(MCL, by = 'iso')
 
     EDGAR_HTAP_long$iso[EDGAR_HTAP_long$Region == 'Eastern Europe'] <- 'Eastern Europe'
     EDGAR_HTAP_long$iso[EDGAR_HTAP_long$Region == 'Western Europe'] <- 'Western Europe'
@@ -611,7 +613,7 @@ if(add_HTAP == TRUE){
     Edgar_HTAP_long_for_world <- Edgar_for_world_unprocessed
 
     Edgar_HTAP_world <- Edgar_HTAP_long_for_world %>%
-                        left_join(mapping_world_region, by = 'iso') %>%
+                        left_join(MCL, by = 'iso') %>%
                         subset(select =-c(iso)) %>%
                         select(Region,everything())
     Edgar_HTAP_world <- Edgar_HTAP_world[!is.na(Edgar_HTAP_world$Region),] %>%
