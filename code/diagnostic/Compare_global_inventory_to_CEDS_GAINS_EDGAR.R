@@ -47,7 +47,7 @@ MCL <- readData( "MAPPINGS", "Master_Country_List" ) %>%
 # 1. Run for relevant inventory emissions
 
 em_list <- c(  'SO2','NOx', 'NH3', 'NMVOC', 'CO')
-
+for (em in em_list){
 if (em %in% em_list) {
 
 # ---------------------------------------------------------------------------
@@ -468,10 +468,10 @@ if (em %in% em_list) {
 
     # Edgar sectors to remove
     edgar_v6_remove_sectors <- c( '1.A.3.a', #domestic aviation
-                               '4.F', #agricultural waste
-                               '1.C.1', #international aviation,
-                               '1.C.2', #international navigation,
-                               '7.A') # fossil fuel fires
+                               '3.C.1', #agricultural waste
+                               # '1.C.1', #international aviation,
+                               # '1.C.2', #international navigation,
+                               '5.B') # fossil fuel fires
     # 4.3 process EDGAR data
 
     # Clean rows and columns to standard format.
@@ -572,9 +572,10 @@ if(add_HTAP == TRUE){
     emission_file <- paste0("EDGAR_HTAPv3_", em)
     inventory_data_file <- "../emissions-inventories"
     Edgar_HTAP <- readData(domain = "EM_INV",
-                           domain_extension = "HTAPv3_TIMESERIES/",
+                           domain_extension = "EDGAR_HTAPv3/",
                            file_name = emission_file,
-                           extension = ".csv") %>%
+                           extension = ".xlsx",
+                           sheet_selection = emission_file) %>%
                            filter(!Sector %in% remove_HTAP_sectors)
     Edgar_HTAP %>% subset(select = c(Data_provider,Substance,Year,Country,Sector,Annual)) %>%
                    group_by(Year,Country) %>%
@@ -746,9 +747,9 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                           values = c('Country_inventory' = 0,
                                      'Old_Inventory' = 0,
                                      'CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 2,
+                                     'EDGAR_5.0'= 3,
                                      'EDGAR_HTAPv3'= 1,
-                                     'EDGAR_6.1' = 1,
+                                     'EDGAR_6.1' = 5,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
@@ -793,10 +794,10 @@ plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, co
                                   'REAS_32'= "#7A2884")) +
     scale_linetype_manual(name= 'Inventory',
                           values = c('CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 2,
+                                     'EDGAR_5.0'= 3,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'EDGAR_HTAPv3'= 1,
-                                     'EDGAR_6.1' = 1,
+                                     'EDGAR_6.1' = 5,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
                        values = c("CEDS_v_2021_04_21" = 32,
@@ -816,7 +817,7 @@ plot(plot_world)
 dev.off()
 
 } else {printLog( paste0( em, ' is not in invenotry to CEDS comparison. ' ) )}
-
+print(paste0(em,' done'))}
 logStop()
 
 # END
