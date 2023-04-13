@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: C1.2.add_N2O_NC_emissions_FAO.R
-# Authors: Patrick O'Rourke
-# Date Last Modified: 12 October 2018
+# Authors: Patrick O'Rourke, Noah Prime
+# Date Last Modified: 10 April 2023
 # Program Purpose: Use the package FAOSTAT to retrieve N2O emissions
 #             data for agriculture.
 # Input Files: Master_Country_List.csv, FAO_N2O_API_manure_management.csv,
@@ -182,14 +182,28 @@
                                   dis_end_year= 1991,
                                   dis_start_year = 1961)
 #   Disaggregate blx data
-    FAO_blx <- disaggregate_country(original_data = FAO_ussr,
-                                   id_cols = c('iso','sector'),
-                                   trend_data = population,
-                                   trend_match_cols = 'iso',
-                                   combined_iso = 'blx',
-                                   disaggregate_iso = c("bel","lux"),
-                                   dis_end_year= 1999,
-                                   dis_start_year = 1961)
+    FAO_blx <- tryCatch(
+        {
+            FAO_blx <- disaggregate_country(original_data = FAO_ussr,
+                                            id_cols = c('iso','sector'),
+                                            trend_data = population,
+                                            trend_match_cols = 'iso',
+                                            combined_iso = 'blx',
+                                            disaggregate_iso = c("bel","lux"),
+                                            dis_end_year= 1999,
+                                            dis_start_year = 1961)
+
+            return(FAO_blx)
+        },
+        error=function(cond) {
+            message(paste("Warning: The blx iso does not appear to exist in the FAO data"))
+            message(cond)
+            FAO_blx <- FAO_ussr
+            return(FAO_blx)
+        }
+    )
+
+
 #   Disaggregate yug data
     FAO_yug <- disaggregate_country(original_data = FAO_blx,
                                    id_cols = c('iso','sector'),
