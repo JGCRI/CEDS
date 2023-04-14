@@ -425,12 +425,12 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 
 # aa3-1.2
 # Extends oil IEA data with detailed BP data
-$(MED_OUT)/A.IEA_BP_energy_ext.csv: \
+$(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension_detailed.R \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
 	$(MAPPINGS)/Master_Country_List.csv \
-	$(ENERGY_DATA)/bp-stats-review-2022-oil-by-product.csv \
-	$(MAPPINGS)/BP_detailed_extension.csv 
+	$(MAPPINGS)/energy/BP_detailed_extension.csv \
+	$(ENERGY_DATA)/bp-stats-review-2022-oil-by-product.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2

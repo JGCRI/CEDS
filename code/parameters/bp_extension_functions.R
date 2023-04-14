@@ -1,31 +1,26 @@
 # ----------------------------------------------------------------------------------
-# iea R header file:  bp_extension_functions.R
+# R header file:  bp_extension_functions.R
 # Authors: Rachel Hoesly
 # Last Updated: April 1, 2023
-# Functions contained:
-#
+# Functions contained:check_iea_bp, extend_iea_growth_detailed, extend_iea_growth_aggregate
+#   mean_method, iea_to_bp_conversion_factor, bp_to_iea_trend, bp_to_iea_trend,
+#   extension_correction
 # Notes: Function that help with the BP extension and detailed petroleum BP extension
-
-# -----------------------------------------------------------------------------
-
 # ------------------------------------------------------------------------------
-
 # Special Packages
 source( '../code/parameters/IO_functions.R' )
+
 # -----------------------------------------------------------------------------
 # check_iea_bp
 # Brief: check to make sure the data frames are set up identically (same order,
 #        iso, sector, fuel, etc. But different trend values)
-# Details:
+# Details: checks that the iso/sector/fuel columns are the same for both data files
+#        ensures that data frame order is identical
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#
-# Return:
-# Input Files: iea: iea data
-#              bp: bp trend data
-# Output Files:
-
+# Params: iea: iea data
+#         bp:bp data
+# Return: none
 # -----------------------------------------------------------------------------
 
 check_iea_bp <- function(iea, bp){
@@ -39,16 +34,15 @@ if( !identical(iea %>% select(any_of(c('iso', 'sector', 'fuel')))  ,
 
 # -----------------------------------------------------------------------------
 # extend_iea_growth_detailed
-# Brief: Extend with Growth Method (annual growth in bp data)
-# Details:
+# Brief: Extend with Growth Method (annual growth in bp data) for detailed bp data
+# Details: extends the iea data with the noormal method (growth in the bp data). If
+#       limit is specified, limits the bp growth ratio
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#         bp
-#
-# Return:
-# Input Files:
-# Output Files:
+# Params: iea: iea data
+#         bp: bp data
+#         bp_growth_limit: upper growth limit for bp growth ratio
+# Return: iea data with extended value
 
 # -----------------------------------------------------------------------------
 extend_iea_growth_detailed <- function(iea, bp, bp_growth_limit = NA){
@@ -84,20 +78,20 @@ extend_iea_growth_detailed <- function(iea, bp, bp_growth_limit = NA){
 }
 # -----------------------------------------------------------------------------
 # extend_iea_growth_aggregate
-# Brief: Extend with Growth Method (annual growth in bp data)
-# Details:
+# Brief: Extend with Growth Method (annual growth in bp data) for aggregate bp data
+# Details: extends the iea data with the normal method (growth in the bp data). If
+#       limit is specified, limits the bp growth ratio. For aggregate bp data.
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#         bp
-#
-# Return:
-# Input Files:
-# Output Files:
-
+# Params: iea: iea data
+#         bp: bp data
+#         bp_growth_limit: upper growth limit for bp growth ratio
+#         fuel: aggregate fue type used to write diagnostic data if specified
+# Return: iea data with extended value
 # -----------------------------------------------------------------------------
 extend_iea_growth_aggregate <- function(iea, iea_aggregate,
-                                        bp, bp_growth_limit = NA,
+                                        bp,
+                                        bp_growth_limit = NA,
                                         fuel=NA){
 
     printLog("Extending IEA data with BP growth")
@@ -144,12 +138,8 @@ extend_iea_growth_aggregate <- function(iea, iea_aggregate,
 # because we only have problems with large values)
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#         bp
-#
-# Return:
-# Input Files:
-# Output Files:
+# Params: set of values on which to remove outliers and mean
+# Return: geometric mean calculated without outliers
 
 # -----------------------------------------------------------------------------
 # Define function to create "average conversion" -
@@ -170,16 +160,13 @@ mean_method <- function(x){
 
 # -----------------------------------------------------------------------------
 # iea_to_bp_conversion_factor
-# Brief: Extend with Growth Method (annual growth in bp data)
+# Brief: calculate "conversion factor" to transform bp to iea "units
 # Details:
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#         bp
-#
-# Return:
-# Input Files:
-# Output Files:
+# Params: iea: iea data
+#         bp: bp data
+# Return: data frame with "conversion factor" for each row in the iea/bp data
 
 # -----------------------------------------------------------------------------
 iea_to_bp_conversion_factor <- function(iea, bp){
@@ -202,21 +189,20 @@ return(iea_bp_trend_conversion)
 
 # -----------------------------------------------------------------------------
 # bp_to_iea_trend
-# Brief: Extend with Growth Method (annual growth in bp data)
-# Details:
+# Brief: transforms bp data to iea "units
+# Details: Transforms bp data to iea "units" using the "conversion factor" calculated
+#        "iea_to_bp_conversion_factor" function above
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#         bp
-#
-# Return:
-# Input Files:
-# Output Files:
+# Params: bp: bp data
+#         iea_to_bp_conversion: conversion factor data frame created with the
+#               the function "iea_to_bp_conversion"
+# Return: bp data in iea units
 
 # -----------------------------------------------------------------------------
 
 bp_to_iea_trend <- function(bp,
-                             iea_to_bp_conversion){
+                            iea_to_bp_conversion){
 
     printLog('Converting bp trend to "iea trend units"')
     check_iea_bp(iea_to_bp_conversion, bp)
@@ -230,25 +216,25 @@ bp_trend_iea_unit[paste0('X',(BP_first_year - 5):BP_last_year)] <- bp[paste0('X'
 return(bp_trend_iea_unit)}
 
 # -----------------------------------------------------------------------------
-# bp_to_iea_trend
-# Brief: Extend with Growth Method (annual growth in bp data)
+# extension_correction
+# Brief: Evaluates the iea trends created with the growth method and the iea conversion
+#       and corrects the groth method trend where unreasonable
 # Details:
 # Dependencies: 0
 # Author(s): Rachel Hoesly
-# Params: iea
-#         bp
-#
-# Return:
-# Input Files:
-# Output Files:
-#
+# Params: iea: iea data
+#        iea_bp_trend_conversion: iea trend with bp growth method
+#        bp_trend_iea_unit: bp trend in iea units
+#        iea_bp_ratio_limit: limit for the allowable difference between the two methods
+#        fuel: specified fuel if applicable to write diagnostics
+# Return: corrected IEA data
 # -----------------------------------------------------------------------------
 
 extension_correction <- function(iea,
                                  iea_bp_trend_conversion,
                                  bp_trend_iea_unit,
                                  iea_bp_ratio_limit,
-                                 fuel=NA){
+                                 fuel=NA){ #think we can remove the NA option and the logic here
 
     printLog("Checking and correcting iea extension.")
     check_iea_bp(iea, bp_trend_iea_unit)
