@@ -106,14 +106,27 @@ FAO <- FAO_API %>%
                                                        "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"),
                                   dis_end_year= 1991,
                                   dis_start_year = 1961)
-  FAO_blx <- disaggregate_country(original_data = FAO_ussr,
-                                   id_cols = c('iso','sector'),
-                                   trend_data = population,
-                                   trend_match_cols = 'iso',
-                                   combined_iso = 'blx',
-                                   disaggregate_iso = c("bel","lux"),
-                                   dis_end_year= 1999,
-                                   dis_start_year = 1961)
+  FAO_blx <- tryCatch(
+      {
+          FAO_blx <- disaggregate_country(original_data = FAO_ussr,
+                                          id_cols = c('iso','sector'),
+                                          trend_data = population,
+                                          trend_match_cols = 'iso',
+                                          combined_iso = 'blx',
+                                          disaggregate_iso = c("bel","lux"),
+                                          dis_end_year= 1999,
+                                          dis_start_year = 1961)
+
+          return(FAO_blx)
+      },
+      error=function(cond) {
+          message(paste("Warning: The blx iso does not appear to exist in the FAO data"))
+          message(cond)
+          FAO_blx <- FAO_ussr
+          return(FAO_blx)
+      }
+  )
+
   FAO_yug <- disaggregate_country(original_data = FAO_blx,
                                    id_cols = c('iso','sector'),
                                    trend_data = population,
