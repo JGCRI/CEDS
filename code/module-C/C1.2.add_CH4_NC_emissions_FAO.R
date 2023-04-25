@@ -45,23 +45,6 @@
 # -----------------------------------------------------------------------------
 # 3. Process FAO methane data
 
-# Remove countries with limited or inconsistent data, use default instead
-#fao_data_remove <- c('Aruba') # arb has only one datapoint, so stay with EDGAR default
-
-#DELETE CHUNK
-# FAO_new <- FAO_API_old %>%
-#        filter( FAOST_CODE %!in% fao_data_remove) %>%
-#        left_join(MCL[c('iso','FAO_Country_Code')], by = c('FAOST_CODE' = 'FAO_Country_Code')) %>%
-#        select(-FAOST_CODE) %>%
-#        melt(id.vars = c('iso','Year')) %>%
-#        dplyr::mutate(value = as.numeric(as.character(value))) %>%
-#        dplyr::mutate(variable = gsub('X','',variable)) %>%
-#        dplyr::mutate(variable = gsub('\\.','-',variable)) %>%
-#        filter(!is.na(iso), Year %in% extended_years) %>%
-#        dplyr::mutate(Year = paste0('X',Year)) %>% unique %>%
-#        cast(iso+variable~Year) %>%
-#        dplyr::rename(sector = variable)
-
 FAO <- FAO_API %>%
        dplyr::rename(FAO_Country_Code_2021 = Area.Code..M49.) %>%
        left_join(MCL[c('iso','Country_Name','FAO_Country_Code_2021')], by = 'FAO_Country_Code_2021') %>%
@@ -71,6 +54,10 @@ FAO <- FAO_API %>%
        dplyr::mutate(Year = paste0('X',Year)) %>% unique() %>%
        mutate(as.character(Value)) %>%
        cast(iso+sector~Year, value = 'Value', sum)
+
+FAO$sector <- mapvalues(FAO$sector,
+          c('Manure Management', 'Rice Cultivation', 'Enteric Fermentation'),
+          c('3B_Manure-management', '3D_Rice-Cultivation', '3E_Enteric-fermentation'))
 
 
 # -----------------------------------------------------------------------------
