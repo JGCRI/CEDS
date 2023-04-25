@@ -118,7 +118,7 @@ part3: CO-emissions NMVOC-emissions CH4-emissions
 
 # Targets used to remove output files for a fresh run
 clean-all: \
-	clean-intermediate clean-diagnostic clean-final clean-logs clean-io clean-modA clean-modB clean-modC \
+	clean-intermediate clean-diagnostic clean-logs clean-io clean-modA clean-modB clean-modC \
 	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
 
 clean-user_defined_energy:
