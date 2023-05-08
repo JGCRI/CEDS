@@ -66,6 +66,7 @@ UNFCCC_clean <- UNFCCC %>%
     dplyr::slice( -( 1:4 ) ) %>%
     dplyr::rename( UNFCCC = " ", "2020" = "Last Inventory Year (2020)", sector = Year ) %>%
     dplyr::mutate( units = "kt" ) %>%
+    dplyr::mutate( UNFCCC = str_replace(UNFCCC, 'Türkiye', 'Turkey')) %>%
 
 
 # Add X's to years, and fix emissions values (remove commas, make numeric, and remove values that aren't numbers)
