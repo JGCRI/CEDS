@@ -34,7 +34,10 @@ if( !identical(iea %>% select(any_of(c('iso', 'sector', 'fuel')))  ,
 
 # -----------------------------------------------------------------------------
 # extend_iea_growth_detailed
-# Brief: Extend with Growth Method (annual growth in bp data) for detailed bp data
+# Brief: Extend with Growth Method (annual growth in bp data) for detailed bp data.
+#       Here detailed petroleum BP is used - the petroleum BP data with some data for detailed
+#       fuel types - as opposed to the aggregate BP data with trends of just petroleum
+#       coal, etc).
 # Details: extends the iea data with the noormal method (growth in the bp data). If
 #       limit is specified, limits the bp growth ratio
 # Dependencies: 0
@@ -225,7 +228,10 @@ return(bp_trend_iea_unit)}
 # Params: iea: iea data
 #        iea_bp_trend_conversion: iea trend with bp growth method
 #        bp_trend_iea_unit: bp trend in iea units
-#        iea_bp_ratio_limit: limit for the allowable difference between the two methods
+#        iea_bp_ratio_limit: limit for the allowable difference between the two
+#               growth methods. Unitless. Default set to 3 as defined in the
+#               A3.1_BP_data_extension_detailed.R. Ie: Growth method can be 3 times
+#               larger than the unit conversion method before throwing a flag
 #        fuel: specified fuel if applicable to write diagnostics
 # Return: corrected IEA data
 # -----------------------------------------------------------------------------
@@ -238,14 +244,12 @@ extension_correction <- function(iea,
 
     printLog("Checking and correcting iea extension.")
     check_iea_bp(iea, bp_trend_iea_unit)
-# Compare regular extension with trended BP in iea unit
-# Ratio: regular growth extension/bp trend in iea unit
-# compare_extensions <- BP_trend_data  %>%
-#     select(iso, sector, fuel, units, Product, BP_Oil_product)
-# compare_extensions[X_BP_years] <- IEA_extended_growth[X_BP_years]/
-#     bp_trend_iea_unit[X_BP_years]
+# Compare "BP growth ratio" based extension with "BP in IEA unit" extension
+# Ratio: BP growth ratio extension/BP in IEA unit trend
 
 # Compare regular extension with trended BP in iea unit
+# Build a dataframe (iea_extension_correction) that will compare the values and
+# set up the logic to correct the value
 iea_extension_correction <- iea  %>%
     select(iso, sector, fuel, units)
 iea_extension_correction[paste0('X',(BP_first_year - 5):BP_last_year,'.iea_with_bp_growth')] <- iea[paste0('X',(BP_first_year - 5):BP_last_year)]
@@ -255,7 +259,7 @@ iea_extension_correction[paste0('X',(BP_first_year - 5):BP_last_year,'.compariso
     bp_trend_iea_unit[X_BP_years]
 iea_extension_correction[is.na(iea_extension_correction)] <- 0
 
-# if any of the BP_years comparisons are outside the threshold, use the bp trend
+# if any of the BP_years comparisons are outside the limit, use the bp trend
 iea_extension_correction["decision_flag"] <- ifelse( apply(iea_extension_correction[paste0('X',BP_years,'.comparison')] > iea_bp_ratio_limit , 1, any),
                                                      "trend","growth")
 iea_extension_correction[X_BP_years] <- NA
@@ -274,10 +278,17 @@ iea_extension_correction_diagnostics <- iea_extension_correction[diagnostic_colu
 iea_extension_correction_diagnostics[paste0('X',(BP_first_year - 5):IEA_end_year)] <- iea_extension_correction[paste0('X',(BP_first_year - 5):IEA_end_year,'.iea_with_bp_growth')]
 iea_extension_correction_diagnostics[X_BP_years]<- iea_extension_correction[X_BP_years]
 
+iea_extension_correction_diagnostics.COMMENTS <- c( paste0( "Diagnostics for BP extension method comparison.",
+                                                            " Shows values of extension methods, decision flag, and final value." ) )
+
 if(is.na(fuel)){
-writeData(iea_extension_correction_diagnostics, 'DIAG_OUT','A.BP_detailed_extension_comparison_correction.csv')}
+writeData(iea_extension_correction_diagnostics, 'DIAG_OUT',
+          'A.BP_detailed_extension_comparison_correction.csv',
+          comments = iea_extension_correction_diagnostics.COMMENTS)}
 if(!is.na(fuel)){
-    writeData(iea_extension_correction_diagnostics, 'DIAG_OUT',paste0('A.BP_',fuel,'_extension_comparison_correction.csv'))}
+    writeData(iea_extension_correction_diagnostics, 'DIAG_OUT',
+              paste0('A.BP_',fuel,'_extension_comparison_correction.csv',
+              comments = iea_extension_correction_diagnostics.COMMENTS))}
 
 out <- iea[c('iso', 'sector', 'fuel', 'units', X_IEA_years)]
 out[X_BP_years]  <- iea_extension_correction[X_BP_years]

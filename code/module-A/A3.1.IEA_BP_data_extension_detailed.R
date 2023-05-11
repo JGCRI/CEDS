@@ -2,7 +2,8 @@
 # Program Name: A3.1.IEA_BP_data_extension_detailed.R
 # Authors Names: Rachel Hoesly
 # Date Last Modified: 20 March 2023
-# Program Purpose: Reads in BP data and extended IEA data. Recalculates
+# Program Purpose: Reads in detailed BP petroleum data and extended IEA data
+#                  (extended using aggregate BP data). Recalculates
 #                  trends for some detailed oil products and replaces those
 #                  in the data
 # Input Files: "A.IEA_BP_energy_ext", MCL, "bp-stats-review-2022-oil-by-product",
@@ -11,6 +12,11 @@
 # Notes: When new data comes out, this BP sheet needs to be altered and saved
 #               as a csv. Easier todo it by hand in excel (just simple
 #               formatting)
+#        Extension here uses 2 methods:
+#           - the BP growth method: standard CEDS trend method where the ratio of
+#           growth in the trend data is applied to the data to be extended
+#           - unit conversion method: the bp data is "converted" to the units of
+#           the IEA data
 #-------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -74,7 +80,7 @@ detailed_bp_map <- readData( "MAPPINGS", "BP_detailed_extension", domain_extensi
 
 # convert thousand barrels per day to kt
 # 158.987 Liters per barrel
-# The converted vaue is not used in the bp extenion, but can be useful for debugging
+# The converted value is not used in the bp extension, but can be useful for debugging
 # for some sectors (not good for all sectors depends on the mapping between
 # detailed fuels)
 detailed_bp_data_kt <- detailed_bp_data %>%
@@ -112,14 +118,17 @@ check_iea_bp(IEA_petroleum_data, BP_trend_data)
 
 # ------------------------------------------------------------------------------
 # 2. Extend with Growth Method
+# Growth method: IEA data is extended using the trend of the BP data. BP trend is
+# calculated with IEA(n+1) = IEA(n)* BP(n+1)/BP(n) where BP(n+1) is the data in the next
+# year and BP(n) is the data in year n.
 
 IEA_extended_growth <- extend_iea_growth_detailed(iea = IEA_petroleum_data,
                                           bp = BP_trend_data,
                                           bp_growth_limit = BP_growth_limit)
 
 # ------------------------------------------------------------------------------
-# 3. Extend with BP IEA units method
-# Create a BP to IEA "conversion factor" to create a bp trend in "IEA" units
+# 3. Extend with BP-IEA units method
+# Create a BP to IEA "conversion factor" to create a BP trend in "IEA" units
 # mean(iea/bp)*bp_trend = estimated bp trend in IEA units
 
 
@@ -132,17 +141,16 @@ BP_trend_IEA_unit <- bp_to_iea_trend(bp = BP_trend_data,
 
 # ------------------------------------------------------------------------------
 # 4. Extension Comparison and Correction
+# Compare the BP growth methods and the BP-IEA unit conversion method. Set a
+# limit for the tolerance of the ratio between the 2 trends.
 
 IEA_extended_correction <- extension_correction(iea = IEA_extended_growth,
                      iea_bp_trend_conversion = IEA_BP_trend_conversion,
                      bp_trend_iea_unit = BP_trend_IEA_unit,
                      iea_bp_ratio_limit =  IEA_BP_ratio_limit)
 
-
-
 # ------------------------------------------------------------------------------
 # 4. Final processing
-
 
 # Replace corrected oil data in activity data
 
