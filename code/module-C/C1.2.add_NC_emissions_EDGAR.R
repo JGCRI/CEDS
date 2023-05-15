@@ -6,7 +6,7 @@
 #                      data and add it to the database for the relevant emissions species.
 # Input Files: Master_Country_List.csv, Master_EDGAR_sector_mapping
 #             bp-stats-review-2019-all-data.xlsx, Master_Fuel_Sector_List.xlsx
-#             relevant EDGAR emissions data ( EDGAR = E.[em]_EDGAR_v5.csv )
+#             relevant EDGAR emissions data ( EDGAR = E.[em]_EDGAR_v6.1.csv )
 # Output Files: C.CH4_EDGAR_NC_Emissions_fugitive_solid_fuels.csv, C.EDGAR_NC_Emissions_[em].csv,
 #               C.EDGAR_NC_Emissions_[em]_negative.csv, C.[em]_NC_emissions_db.csv,
 #               C.EDGAR_NC_Emissions_[em]_not_final_isos.csv
@@ -38,7 +38,7 @@
   if ( is.na( em ) ) em <- "N2O"
 
 # EDGAR data version number
-vn <- "5.0"
+vn <- "6.1"
 
 # Input domain
 domain <- "EM_INV"
@@ -88,7 +88,7 @@ if (em == "BC" || em == "OC") {
 # 2. Input
 
 # Read in pre-formatted EDGAR data from intermediate-output (uses default extension .csv)
-edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR_v5" ))
+edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR_v6.1" ))
 
 # Read in master country list mapping file
 Master_Country_List <- readData( "MAPPINGS", 'Master_Country_List' )

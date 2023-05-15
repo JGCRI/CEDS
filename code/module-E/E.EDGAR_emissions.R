@@ -1,10 +1,11 @@
 # ------------------------------------------------------------------------------
-# Program Name:E.EDGAR_emissions_v6.1.R
+# Program Name:E.EDGAR_emissions.R
 # Author(s): Noah Prime, Harrison Suchyta
-# Date Last Modified: January 3, 2023
+# Date Last Modified: May 3, 2023
 # Program Purpose: Intended to reformat EDGAR default emissions data and add it to
 #                  the data base for the relevant emissions species
 # Input Files: relevant EDGAR emissions data ( EDGAR = [em]_1970_[edgar_end_year].xls )
+#           This script processes EDGARv6.1 data.
 # Output Files: E.EDGAR_Emissions_[em].csv
 # TODO:
 #
@@ -19,7 +20,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 headers <- c( "common_data.R","data_functions.R", "analysis_functions.R",
               "process_db_functions.R", 'timeframe_functions.R') # Additional function files required.
 log_msg <- paste0( "Processing EDGAR non-combustion default emissions data..." ) # First message to be printed to the log
-script_name <- "E.EDGAR_emissions_v6.1.R"
+script_name <- "E.EDGAR_emissions.R"
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
@@ -43,13 +44,11 @@ X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 # ------------------------------------------------------------------------------
 # 2. Input
 
-# File settings for EDGAR v5
+# File settings for EDGARv6.1
 fn <- c( paste0( em, "_", EDGAR_start_year, "_",
                  EDGAR_end_year ), ".xlsx")
 sheet_to_use <- paste0(em, "_IPCC1996" )
 rows_to_skip <- 9
-
-
 
 # Read in EDGAR data
 edgar <- readData( domain, domain_extension = domain_ext,
@@ -114,7 +113,7 @@ edgar[ edgar < 0 ] <- 0
 # 12. Output
 
 # write formatted EDGAR data to intermediate-output
-writeData(edgar, domain = "MED_OUT", fn = paste0( "E.", em, "_EDGAR_2021" ))
+writeData(edgar, domain = "MED_OUT", fn = paste0( "E.", em, "_EDGAR" ))
 
 logStop( )
 
