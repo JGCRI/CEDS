@@ -88,7 +88,7 @@ if (em == "BC" || em == "OC") {
 # 2. Input
 
 # Read in pre-formatted EDGAR data from intermediate-output (uses default extension .csv)
-edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR_v6.1" ))
+edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR" ))
 
 # Read in master country list mapping file
 Master_Country_List <- readData( "MAPPINGS", 'Master_Country_List' )
