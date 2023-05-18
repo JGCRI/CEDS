@@ -30,7 +30,7 @@ initialize( script_name, log_msg, headers )
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "CH4"
 
 # Input domain
 domain <- "EM_INV"
@@ -47,6 +47,10 @@ X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 # File settings for EDGARv6.1
 fn <- c( paste0( em, "_", EDGAR_start_year, "_",
                  EDGAR_end_year ), ".xlsx")
+
+if( em == 'CH4') fn <- "v60_CH4_1970_2018.xls"
+if( em == 'N2O') fn <- "v60_N2O_1970_2018.xls"
+
 sheet_to_use <- paste0(em, "_IPCC1996" )
 rows_to_skip <- 9
 
