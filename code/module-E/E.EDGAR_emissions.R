@@ -48,12 +48,16 @@ X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 fn <- c( paste0( em, "_", EDGAR_start_year, "_",
                  EDGAR_end_year ), ".xlsx")
 
-if( em == 'CH4') fn <- "v60_CH4_1970_2018.xls"
-if( em == 'N2O') fn <- "v60_N2O_1970_2018.xls"
+if( em == 'CH4') fn <- c( "v60_CH4_1970_2018", ".xls")
+if( em == 'N2O') fn <- c("v60_N2O_1970_2018", ".xls")
+if( em == 'CO2') fn [1] <- "IEA_EDGAR_CO2_1970-2021"
 
 sheet_to_use <- paste0(em, "_IPCC1996" )
-rows_to_skip <- 9
 
+rows_to_skip <- 9
+if( em == 'CO2') rows_to_skip <- 10
+
+print('here')
 # Read in EDGAR data
 edgar <- readData( domain, domain_extension = domain_ext,
                    file_name = fn[ 1 ], extension = fn[ 2 ],
