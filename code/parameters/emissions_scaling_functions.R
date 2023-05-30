@@ -189,11 +189,13 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
     } else if( scaling_map_is_xlsx == FALSE & scaling_ext_method_csv_exists == FALSE  ){
 
         printLog( "No 'method' instructions provided for", paste0( mapping, inv_mapping_string, ".csv." ), "Using default scaling methods..." )
-        ext_method <- "NA"
-        ext_method <- as.data.frame( ext_method ) %>%
-            dplyr::rename( iso = ext_method ) %>%
-            dplyr::mutate_at( .vars = c( "scaling_sector", "pre_ext_method", "interp_method", "post_ext_method" ),
-                              funs( identity( "NA" ) ) )
+        # ext_method <- "NA"
+        # ext_method <- as.data.frame( ext_method ) %>%
+        #     dplyr::rename( iso = ext_method ) %>%
+        #     dplyr::mutate_at( .vars = c( "scaling_sector", "pre_ext_method", "interp_method", "post_ext_method" ),
+        #                       funs( identity( "NA" ) ) )
+
+        ext_method <- data.frame('iso' = NA, 'scaling_sector' = NA, 'pre_ext_method' = NA, 'interp_method' = NA, 'post_ext_method' = NA)
 
     }
 
@@ -206,11 +208,13 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
 
         printLog( "No 'year' instructions provided for", paste0( mapping, inv_mapping_string, ".csv." ),
                   "Using all years in inventory data as passed to F.readScalingData..." )
-        ext_year <- "NA"
-        ext_year <- as.data.frame( ext_year ) %>%
-            dplyr::rename( iso = ext_year ) %>%
-            dplyr::mutate_at( .vars = c( "scaling_sector", "pre_ext_year", "post_ext_year" ),
-                              funs( identity( "NA" ) ) )
+        # ext_year <- "NA"
+        # ext_year <- as.data.frame( ext_year ) %>%
+        #     dplyr::rename( iso = ext_year ) %>%
+        #     dplyr::mutate_at( .vars = c( "scaling_sector", "pre_ext_year", "post_ext_year" ),
+        #                       funs( identity( "NA" ) ) )
+
+        ext_year <- data.frame('iso' = NA, 'scaling_sector' = NA, 'pre_ext_year' = NA, 'post_ext_year' = NA)
 
     }
 
