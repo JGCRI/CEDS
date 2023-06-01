@@ -35,7 +35,7 @@
 # Define emissions species variable
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CH4"
+  if ( is.na( em ) ) em <- "N2O"
 
 # EDGAR data version number
 vn <- "6.1"
@@ -46,9 +46,6 @@ domain_ext <- "EDGAR/"
 
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
-
-# Temporary assignment for script development
-#em <- "CO2"
 
 # Define EDGAR years
 # CO2 end year in v5 is 2018, else 2015
@@ -203,7 +200,7 @@ if( em == "CO2" ){
             dplyr::group_by( sector, fuel, units, Years ) %>%
             dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
             dplyr::arrange( sector, fuel, units, Years ) %>%
-            dplyr::mutate( disagg_emissions = round( disagg_emissions, digits = 10 ) ) %>%
+            dplyr::mutate( disagg_emissions = as.numeric(round( disagg_emissions, digits = 10 ) )) %>%
             dplyr::ungroup( ) %>%
             dplyr::rename( Emissions = disagg_emissions )
 
@@ -212,12 +209,14 @@ if( em == "CO2" ){
             dplyr::select( -iso ) %>%
             dplyr::group_by( sector, fuel, units, Years ) %>%
             dplyr::summarise_all( funs( sum ( ., na.rm = TRUE ) ) ) %>%
-            dplyr::mutate( Emissions = round( Emissions, digits = 10 ) )
+            dplyr::mutate( Emissions = as.numeric(round( Emissions, digits = 10 ) ))
 
-        diff1 <- setdiff( agg_region_of_interest_long, downscaled_check)
-        diff2 <- setdiff( downscaled_check, agg_region_of_interest_long)
+        check <- downscaled_check %>%
+            left_join(agg_region_of_interest_long, by = c('sector','fuel','units','Years')) %>%
+            mutate(test = all.equal(Emissions.x,Emissions.y, tolerance = .00000001))
+        #use near equal test because of floating point precision
 
-        if( nrow( diff1 ) != 0 | nrow( diff2 ) != 0 ){
+        if(! all(check$test) ){
 
             stop( paste0( "Downscaled emissions do not equal aggregate region emissions for all sectors. ",
                           "See ", script_name, "..." ) )
