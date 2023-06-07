@@ -31,10 +31,9 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # ------------------------------------------------------------------------------
 # 1. Define parameters for inventory specific script
 
-    inventory_data_file <- 'USA/US_GHG_inventory_new'
+    inventory_data_file <- 'USA/US_GHG_inventory'
     inv_data_folder <- "EM_INV"
     inv_name <- 'US_GHG' #for naming diagnostic files
-    # inv_years<-c( 1990:2018 )
 
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
