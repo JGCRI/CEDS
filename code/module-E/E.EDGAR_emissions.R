@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Program Name:E.EDGAR_emissions.R
-# Author(s): Noah Prime, Harrison Suchyta
+# Author(s): Noah Prime, Harrison Suchyta, Rachel Hoesly
 # Date Last Modified: May 3, 2023
 # Program Purpose: Intended to reformat EDGAR default emissions data and add it to
 #                  the data base for the relevant emissions species
@@ -60,7 +60,6 @@ if( em == 'N2O') sheet_to_use <- "IPCC 1996"
 rows_to_skip <- 9
 if( em == 'CO2') rows_to_skip <- 10
 
-print('here')
 # Read in EDGAR data
 edgar <- readData( domain, domain_extension = domain_ext,
                    file_name = fn[ 1 ], extension = fn[ 2 ],
@@ -79,10 +78,11 @@ edgar <- edgar %>%
 # Define units as kt (as EDGAR data is in Gg, which is the same as kt)
 edgar$units <- 'kt'
 
-
 # Remove unnecessary columns and arrange (iso-sector-units-sector description-data)
+# select fossil emissions
 len <- ncol( edgar )
 edgar <- edgar %>%
+    filter(fossil_bio == 'fossil') %>%
     select( iso, sector, units, sector_description, all_of(9: (len - 2)) ) %>%
     arrange(iso,sector)
 
@@ -97,7 +97,6 @@ names( edgar ) <- c( names( edgar[ 1 : 4 ] ), paste0( "X", names( edgar[ 5 : len
 edgar <- edgar %>%
     dplyr::mutate_at( .vars =  X_EDGAR_years,
                       .funs = list( ~as.numeric( . ) ) )
-
 
 # Remove rows with all NA's
 edgar <- edgar[ apply( X = edgar[ , X_EDGAR_years ],
