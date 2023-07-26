@@ -45,8 +45,9 @@ BP_FSU_aggregate <- TRUE
 
 # Edgar year
 EDGAR_start_year <- 1970
-EDGAR_end_year <- 2018       # Set to 2015 for EDGAR v5.
+EDGAR_end_year <- 2018       # In the 2023 update, the GHGS go to 2021, but the pollutants go to 2018
 EDGAR_end_year_CO2 <- 2018   # Note that CO2 in v5 has an end year of 2018.
+EDGAR_end_year_GHG <- 2021   # In the 2023 update, the GHGS go to 2021, but the pollutants go to 2018
 
 # The combined yearset for historical emission years
 emissions_years <- c( IEA_years,BP_years )
