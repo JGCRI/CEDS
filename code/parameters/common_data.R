@@ -75,8 +75,8 @@ cdiac_end_year <- 2011
 cdiac_end_year_cement <- 2015
 
 # Andrew cement years
-Andrew_start_year <- 1900
-Andrew_end_year <- 2018
+Andrew_start_year <- 1880
+Andrew_end_year <- 2021
 
 # Fernandes years
 Fernandes_years <- 1850 : 2000
