@@ -13,7 +13,7 @@
 # Set of historical years for which the CEDS system has IEA data.
 
 # USER SET DATA - Set this to the last year of the IEA data used
-IEA_end_year  <- 2017  # Latest year of IEA data; used to compare BP and IEA
+IEA_end_year  <- 2021  # Latest year of IEA data; used to compare BP and IEA
 
 IEA_start_year  <- 1960 # First year of IEA data
 X_IEA_end_year  <- paste0( "X", IEA_end_year  ) # First Xyear of IEA data
@@ -100,8 +100,8 @@ Hyde_start_year <- 1800
 # ---------------------------------
 # Define IEA composite region names used within CEDS. These tend to change
 # between IEA versions, so are defined in common_data.R.
-FSU_IEA_composite_name <- "Former Soviet Union (If no detail)"
-FYUG_IEA_composite_name <- "Former Yugoslavia (If no detail)"
+FSU_IEA_composite_name <- "Former Soviet Union (if no detail)"
+FYUG_IEA_composite_name <- "Former Yugoslavia (if no detail)"
 Other_African_composite_name <- "Other Africa"
 Other_Americas_composite_name <- "Other non-OECD Americas"
 Other_Asia_composite_name <- "Other non-OECD Asia"

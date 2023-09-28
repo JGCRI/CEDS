@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------
 # Program Name: A1.3.IEA_downscale_ctry.R
 # Author's Name: Page Kyle, for GCAM; modified for use in CEDS project by
-#                Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, and
+#  don’t               Steve Smith, Emily Voelker, Tyler Pitkanen, Jon Seibert, and
 #                Linh Vu, Patrick O'Rourke
-# Date Last Modified: May 3, 2020
+# Date Last Modified: September 20, 2023
 # Program Purpose: Reads in the initial IEA energy data.
 #				   Splits the composite data into individual countries.
 # 				   Maps the aggregate coal consumption in earlier years to
@@ -152,7 +152,7 @@
 
 # ------------------------------------------------------------------------------
 # 2. Prep population, CDIAC data for country splitting
-
+    printLog("Prep CDIAC and population data")
 # Process UN Population Data
     un_pop$X_year <- paste0( "X", un_pop$year )
     un_pop$pop <- as.numeric( un_pop$pop )
@@ -201,12 +201,19 @@
 #    like aggregate countries and capitalization inconsistencies. Uses
 #    energy-data-adjustment instructions to make additional corrections.
 
+    printLog("Pre-calculations for IEA data adjustments")
+
 # Subset only the relevant years (and convert NAs to 0, if NAs exist)
+
   	IEA_IDcodes  <- c( "COUNTRY", "FLOW", "PRODUCT" )
   	A.IEAfull <- A.IEAfull %>%
   	    dplyr::select( all_of(IEA_IDcodes), all_of(X_IEA_years) ) %>%
   	    dplyr::mutate_at( .vars = X_IEA_years,
   	                      .funs = funs( if_else( is.na( . ), 0, . ) ) )
+
+# Subset IEA mapping for composite and single countries
+  	IEA_composite <- subset( MCL, IEAName %in% IEA_composite_regions )
+  	IEA_single <- subset( MCL, IEAName %!in% IEA_composite$IEAName )
 
 #TODOO add check if country and sector match something in IEA data
 # Adjust IEA energy stat according to instruction files in energy-data-adjustment folder
@@ -312,23 +319,13 @@
 
   	 }
 
-# Deal with composite regions (e.g. Other Africa) and historical countries
-#     (Former Soviet Union and Former Yugoslavia) that get broken
-
-# Split the country mapping table into composite regions and single-countries
-	  IEA_composite <- subset( MCL, IEAName %in% IEA_composite_regions )
-
-	  IEA_single <- subset( MCL, IEAName %!in% IEA_composite$IEAName )
-
-# Split IEA energy statistics into table of single countries and composite
-#   regions (keeping only desired composite regions)
-	  A.IEAcomp <- subset( A.IEAfull, COUNTRY %in% IEA_composite$IEAName )
-	  A.IEAsingle <- subset( A.IEAfull, COUNTRY %in% IEA_single$IEAName )
-	  A.IEAsingle$iso <- IEA_single$iso[ match( A.IEAsingle$COUNTRY,
-	                                            IEA_single$IEAName ) ]
+  	IEA_composite <- subset( MCL, IEAName %in% IEA_composite_regions )
+  	IEA_single <- subset( MCL, IEAName %!in% IEA_composite$IEAName )
 
 # ------------------------------------------------------------------------------
 # 4. First process FSU and former Yugoslavia
+
+	  printLog("Process FSU and former Yugoslavia")
 
 # Subset countries that are being downscaled in certain years using historical
 #   energy data in a specified year
@@ -350,9 +347,8 @@
   	X_USSR_Yug_years <- paste( "X", USSR_Yug_years, sep = "" )
   	postUSSR_Yug_years   <- IEA_years[ IEA_years >= 1990 ]
   	X_postUSSR_Yug_years <- paste( "X", postUSSR_Yug_years, sep = "" )
-  	A.USSR_Yug  <- subset( A.IEAcomp, COUNTRY %in% c(
-              FSU_IEA_composite_name,
-              FYUG_IEA_composite_name ) )
+  	A.USSR_Yug  <-  A.IEAfull %>%
+  	    filter( COUNTRY %in% c(FSU_IEA_composite_name, FYUG_IEA_composite_name ) )
 
 # Re-map the forms of coal from the historical years--called "if no detail"
 #   (this is before 1978)--to the relevant coal types for matching with the
@@ -396,13 +392,30 @@
   	A.USSR_Yug[ A.USSR_Yug$PRODUCT == "Brown coal (if no detail) (kt)",
                 X_no_detail_coal_years ] <- 0
 
-  	A.USSR_Yug_ctry <- subset( A.IEAsingle, iso %in%
-  	                             IEA_composite$iso[ IEA_composite$IEAName %in%
-  	                                                  c( FSU_IEA_composite_name,
-  	                                                     FYUG_IEA_composite_name ) ] )
-  	A.USSR_Yug_ctry$IEAcomp <- IEA_composite$IEAName[
-  	                             match( A.USSR_Yug_ctry$iso, IEA_composite$iso ) ]
+# Separate out FSU and Yug individual countries for use later
+  	FSU_Yug_countries <- MCL %>%
+  	    filter(IEAName %in% c( FSU_IEA_composite_name, FYUG_IEA_composite_name ) ) %>%
+  	    pull(iso)
+  	FSU_Yug_IEAName <- MCL %>%
+  	    filter(iso %in% FSU_Yug_countries) %>%
+  	    filter(IEAName %!in% c( FSU_IEA_composite_name, FYUG_IEA_composite_name ) ) %>%
+  	    pull(IEAName)
+# Create map for former yugoslavia and fsu IEAName to IEA composite region
+  	FSU_Yug_map <- MCL %>%
+  	    select(iso, IEAName) %>%
+  	    filter(IEAName %in% c( FSU_IEA_composite_name, FYUG_IEA_composite_name ) ) %>%
+  	    dplyr::rename(IEAcomp = IEAName) %>%
+  	    left_join(  MCL %>%
+  	                    select(iso, IEAName) %>%
+  	                    filter(iso %in% FSU_Yug_countries) %>%
+  	                    filter(IEAName %!in% c( FSU_IEA_composite_name, FYUG_IEA_composite_name ) ) %>%
+  	                    filter(!is.na(IEAName)) %>%
+  	                    unique )
 
+#Individual FSU and FY countries in IEA data
+  	A.USSR_Yug_ctry <- A.IEAfull %>%
+  	    filter(COUNTRY %in% FSU_Yug_IEAName) %>%
+  	    left_join(FSU_Yug_map, by = c("COUNTRY" = "IEAName"))
 
 # Use data from 1990 to estimate what fractions of overall FSU or Yug data
 #   belong to their sub-countries
@@ -501,10 +514,13 @@
 
 # Replace NAs with 0.
 # Make sure that rows with NAs are not needed.
-	  A.USSR_Yug_ctry_stat[ is.na( A.USSR_Yug_ctry_stat ) ] <- 0
+	A.USSR_Yug_ctry_stat[ is.na( A.USSR_Yug_ctry_stat ) ] <- 0
+
 
 # -----------------------------------------------------------------------------
 # 5. Fix scaling of Former Soviet Union (FSU) transformation sector
+
+	  printLog("Fix FSU tranformation sector")
 
 # Here the reporting is not consistent between the FSU years and afterward. So instead of
 # by sector, the scaling is performed using the sum of the main transformation sectors
@@ -579,232 +595,278 @@
                                       match.x = c( 'iso', 'FLOW', 'PRODUCT' ),
                                       addEntries = FALSE )
 
-# Put it back
-    A.USSR_Yug_ctry_stat <- fsu_data
+# Add FSU/Yugoslavia fix to other IEA data
+   A.IEA_FSU_fix <- fsu_data %>%
+         select(iso, FLOW, PRODUCT, all_of(X_IEA_years)) #fixed FSU/FY IEA data
 
 # -----------------------------------------------------------------------------
-# 6. Now process composite regions
-#    Composite regions where CDIAC data is used to downscale energy to countries
-#    over all historical years
+# 6. Pre Process IEA data to disagregate Composite Regions
+#    Split out composite regions where CDIAC data is used to downscale energy to countries
+#    over all historical years. Bunker fuels do not use CDIAC data, all other fuels
+#    use CDIAC data
 
+    printLog("Process composite IEA regions")
+
+#   Define Bunker Fuels
+    bunker_flows <- c( 'MARBUNK', 'AVRBUNK' )
+
+#   Subset single countries and add iso
+    A.IEAsingle <- subset( A.IEAfull, COUNTRY %in% IEA_single$IEAName )
+    A.IEAsingle$iso <- IEA_single$iso[ match( A.IEAsingle$COUNTRY,
+                                              IEA_single$IEAName ) ]
 #   A. Subset composite regions
     other_countries <- c( Other_African_composite_name, Other_Americas_composite_name, Other_Asia_composite_name )
-	A.IEA_others  <- subset( A.IEAcomp, COUNTRY %in% other_countries )
+	A.IEA_others  <- subset( A.IEAfull, COUNTRY %in% other_countries )
 
 #   B. Add iso - same as IEA name for "other_countries"
     A.IEA_others$iso <- A.IEA_others$COUNTRY
 
 #   C. Split between bunker fuel and other fuel use (use different cdiac data to disaggregate)
-    bunker_flows <- c( 'MARBUNK', 'AVRBUNK' )
+
     A.IEA_others_fuel <- A.IEA_others[ which( A.IEA_others$FLOW %!in% bunker_flows ), ]
     A.IEA_others_bunkers <- A.IEA_others[ which( A.IEA_others$FLOW %in% bunker_flows ), ]
 
-#   D. Disaggregate other_fuel
-#       i.) Disaggregate other African countries
-        A.IEA_others_fuel_africa <- disaggregate_country( original_data = A.IEA_others_fuel,
-                                                trend_data = cdiac_trend_fuel,
-                                                trend_match_cols = c( 'iso', 'PRODUCT' ),
-                                                combined_iso = Other_African_composite_name,
-                                                disaggregate_iso = unique( MCL[ which( MCL$IEAName == Other_African_composite_name ),'iso' ] ),
-                                                dis_end_year = IEA_end_year,
-                                                dis_start_year = start_year,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F,
-                                                allow_dropped_data = T )
+    A.IEA_single_fuel <- A.IEAsingle[ which( A.IEAsingle$FLOW %!in% bunker_flows ), ]
+    A.IEA_single_bunkers <- A.IEAsingle[ which( A.IEAsingle$FLOW %in% bunker_flows ), ]
 
-#       ii.)  Disaggregate other Asian countries
-        A.IEA_others_fuel_asia <- disaggregate_country( original_data = A.IEA_others_fuel_africa,
-                                                trend_data = cdiac_trend_fuel,
-                                                trend_match_cols = c( 'iso', 'PRODUCT' ),
-                                                combined_iso = Other_Asia_composite_name,
-                                                disaggregate_iso = unique( MCL[ which( MCL$IEAName == Other_Asia_composite_name ),'iso' ] ),
-                                                dis_end_year = IEA_end_year,
-                                                dis_start_year = start_year,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F,
-                                                allow_dropped_data = T )
-
-#       iii.) Disaggregate other non-OECD American countries
-#             Note: Suriname is included within this IEA region through 1999, afterwards it is within
-#             its own region (IEA World energy Statistics: Database Documentation (2019 edition), page 46)
-
-#           a.) Diaggregate through 1999 with Suriname included
-            A.IEA_others_fuel_asia_to_1999 <- A.IEA_others_fuel_asia %>%
-                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", start_year : 1999 ) )
-
-            A.IEA_others_fuel_americas_to_1999 <- disaggregate_country( original_data = A.IEA_others_fuel_asia_to_1999,
-                                                trend_data = cdiac_trend_fuel,
-                                                trend_match_cols = c( 'iso', 'PRODUCT' ),
-                                                combined_iso = Other_Americas_composite_name,
-                                                disaggregate_iso = unique( MCL[ which(
-                                                    MCL$IEAName == Other_Americas_composite_name | MCL$iso == "sur" ),'iso' ] ),
-                                                dis_end_year = 1999,
-                                                dis_start_year = start_year,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F,
-                                                allow_dropped_data = T )
-
-#           b.) Subset Suriname  data through 1999 - to be added to all IEA data later in processing
-            A.IEA_others_fuel_suriname_to_1999 <- A.IEA_others_fuel_americas_to_1999 %>%
-                dplyr::filter( iso == "sur" )
-
-            A.IEA_others_fuel_americas_to_1999 <- A.IEA_others_fuel_americas_to_1999 %>%
-                dplyr::filter( iso != "sur" )
-
-#           c.) Disaggregate 2000-2017 without Suriname, as data for this region exists for 2000 - 2017
-            A.IEA_others_fuel_asia_2000_to_end_year <- A.IEA_others_fuel_asia %>%
-                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", 2000 : IEA_end_year ) )
-
-            A.IEA_others_fuel_americas_2000_to_end_year <- disaggregate_country( original_data = A.IEA_others_fuel_asia_2000_to_end_year,
-                                                trend_data = cdiac_trend_fuel,
-                                                trend_match_cols = c( 'iso', 'PRODUCT' ),
-                                                combined_iso = Other_Americas_composite_name,
-                                                disaggregate_iso = unique( MCL[ which(
-                                                    MCL$IEAName == Other_Americas_composite_name ),'iso' ] ),
-                                                dis_end_year = IEA_end_year,
-                                                dis_start_year = 2000,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F,
-                                                allow_dropped_data = T )
-
-#           d.) Combine the two other Americas data frames, without Suriname
-            A.IEA_others_fuel_americas <- A.IEA_others_fuel_americas_to_1999 %>%
-                dplyr::left_join( A.IEA_others_fuel_americas_2000_to_end_year, by = c( IEA_IDcodes, "iso" ) )
-
-#   E. Disaggregate bunker fuel
-#       i.) Disaggregate other African countries
-        A.IEA_others_bunkers_africa <- disaggregate_country( original_data = A.IEA_others_bunkers,
-                                                trend_data = cdiac_trend_bunkers,
-                                                trend_match_cols = c( 'iso', 'FLOW' ),
-                                                combined_iso = Other_African_composite_name,
-                                                disaggregate_iso = unique( MCL[ which( MCL$IEAName == Other_African_composite_name ),'iso' ] ),
-                                                dis_end_year = IEA_end_year,
-                                                dis_start_year = start_year,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F )
-
-#       ii.)  Disaggregate other Asian countries
-        A.IEA_others_bunkers_asia <- disaggregate_country( original_data =  A.IEA_others_bunkers_africa,
-                                                trend_data = cdiac_trend_bunkers,
-                                                trend_match_cols = c( 'iso', 'FLOW' ),
-                                                combined_iso = Other_Asia_composite_name,
-                                                disaggregate_iso = unique( MCL[ which( MCL$IEAName == Other_Asia_composite_name ),'iso' ] ),
-                                                dis_end_year = IEA_end_year,
-                                                dis_start_year = start_year,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F )
-
-#       iii.) Disaggregate non-OECD American countries
-#             Note: Suriname is included within this IEA region through 1999, afterwards it is within
-#             its own region (IEA World energy Statistics: Database Documentation (2019 edition), page 46)
-
-#           a.) Diaggregate through 1999 with Suriname included
-            A.IEA_others_bunkers_asia_to_1999 <- A.IEA_others_bunkers_asia %>%
-                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", start_year : 1999 ) )
-
-            A.IEA_others_bunkers_americas_to_1999 <- disaggregate_country( original_data = A.IEA_others_bunkers_asia_to_1999,
-                                                trend_data = cdiac_trend_bunkers,
-                                                trend_match_cols = c( 'iso', 'FLOW' ),
-                                                combined_iso = Other_Americas_composite_name,
-                                                disaggregate_iso = unique( MCL[ which( MCL$IEAName == Other_Americas_composite_name | MCL$iso == "sur" ),'iso' ] ),
-                                                dis_end_year = 1999,
-                                                dis_start_year = start_year,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F )
-
-#           b.) Subset Suriname  data through 1999 - to be added to all IEA data later in processing
-            A.IEA_others_bunkers_suriname_to_1999 <- A.IEA_others_bunkers_americas_to_1999 %>%
-                dplyr::filter( iso == "sur" )
-
-            A.IEA_others_bunkers_americas_to_1999 <- A.IEA_others_bunkers_americas_to_1999 %>%
-                dplyr::filter( iso != "sur" )
-
-#           c.) Disaggregate 2000-2017 without Suriname, as data for this region exists for 2000 - 2017
-            A.IEA_others_bunkers_asia_2000_to_end_year <- A.IEA_others_bunkers_asia %>%
-                dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", 2000 : IEA_end_year ) )
-
-            A.IEA_others_bunkers_americas_2000_to_end_year <- disaggregate_country( original_data = A.IEA_others_bunkers_asia_2000_to_end_year,
-                                                trend_data = cdiac_trend_bunkers,
-                                                trend_match_cols = c( 'iso', 'FLOW' ),
-                                                combined_iso = Other_Americas_composite_name,
-                                                disaggregate_iso = unique( MCL[ which( MCL$IEAName == Other_Americas_composite_name ),'iso' ] ),
-                                                dis_end_year = IEA_end_year,
-                                                dis_start_year = 2000,
-                                                method = 2,
-                                                id_cols = T,
-                                                remove_aggregate = T,
-                                                write_over_values = F )
-
-#           d.) Combine the two other Americas data frames, without Suriname
-            A.IEA_others_bunkers_americas <- A.IEA_others_bunkers_americas_to_1999 %>%
-                dplyr::left_join( A.IEA_others_bunkers_americas_2000_to_end_year, by = c( IEA_IDcodes, "iso" ) )
-
-#   F. Combine the composite region data frames (others_fuel and others_bunkers)
-    A.Others_ctry_stat <- dplyr::bind_rows( A.IEA_others_fuel_americas, A.IEA_others_bunkers_americas )
-
-#   G. Combine the Suriname data frames (up to 1999 - others_fuel and others_bunkers)
-    A.Others_suriname_stat_to_1999 <- dplyr::bind_rows( A.IEA_others_fuel_suriname_to_1999,
-                                                        A.IEA_others_bunkers_suriname_to_1999)
 
 # -----------------------------------------------------------------------------
-# 7. Now combine data into one database
+# 6. Pre Process IEA data to disaggregate Composite Regions - define function to
+#    separate out single countries from composite regions and disaggregate
 
-# A. Combine data on Suriname (data pre-2000 from disaggregated non-OECD
-#   American countries and 2000 - IEA_end_year within A.Others_ctry_stat)
+# Write a function that separates out single countries from composite regions,
+# and disaggregate composite regions. Apply this function for "other fuels"
+# and for "bunker fuels
+# This function isn't very "clean". It calls objects that are in the workspace,
+# rather than defining those objects as inputs to the function. Can fix later if
+# necessary
 
-#       i.) Subset Suriname data from A.IEAsingle - 2000 through IEA_end_year
-        A.Others_suriname_stat_2000_to_end_year <- A.IEAsingle %>%
-            dplyr::filter( iso == "sur" ) %>%
-            dplyr::select( all_of(IEA_IDcodes), paste0( "X", 2000 : IEA_end_year ), iso )
+# If countries to break out change make sure to update single_break_from_composite
 
-        A.IEAsingle <- A.IEAsingle %>%
-            dplyr::filter( iso != "sur" )
+# List of single countries that break out of composite regions
+# Need to remove from single data when adding everything back together
 
-#       ii.)  Combine the Suriname data
-        suriname_IEA_name <- unique( MCL %>% dplyr::filter( iso == "sur" ) %>% dplyr::select( IEAName ) )
+    single_break_from_composite <- c('nam','khm','lao', 'mng', 'sur')
 
-        A.Suriname_stat <- A.Others_suriname_stat_to_1999 %>%
-            dplyr::mutate( COUNTRY = paste( suriname_IEA_name ) ) %>%  # Set pre-2000 data COUNTRY to "Suriname" from Other_Americas_composite_name
-            dplyr::left_join( A.Others_suriname_stat_2000_to_end_year, by = c( IEA_IDcodes, "iso" ) )
+# disaggregate_IEA_composite_regions
+    disaggregate_IEA_composite_regions <- function(in_IEA_data_other, # A.IEA_others_fuel or A.IEA_others_bunkers
+                                               in_IEA_data_single, #A.IEA_single_fuel or A.IEA_single_bunkers
+                                               in_IEA_full = A.IEAfull,
+                                               in_trend_data, #cdiac_trend_fuel or cdiac_trend_bunkers
+                                               in_trend_match_cols #c( 'iso', 'PRODUCT' ) (other fuel) or c( 'iso', 'FLOW' )(bunkers)
+                                               ){
+############## Other Africa
+#  Namibia (until 1990) then Namibia
+#  Réunion (until 2010) then part of France (along with other colonies)
+#  For now, disaggregate Reunion from Other Africa for all years
+#   Other Africa and Namibia
+#   Add Namibia to other Africa
+    A.IEA_other_africa_namibia <- in_IEA_data_other %>%
+        filter(iso == Other_African_composite_name) %>%
+        bind_rows(in_IEA_data_single %>% filter(iso == 'nam'))
+
+    A.IEA_Other_Africa_Namibia <- breakout_single_country_from_composite(original_data = A.IEA_other_africa_namibia,
+                                                breakout_country_iso = "nam",
+                                                breakout_country_country = 'Namibia',
+                                                dis_trend_data = in_trend_data,
+                                                dis_trend_match_cols = in_trend_match_cols,
+                                                composite_region = Other_African_composite_name,
+                                                composite_isos = c("bdi", "bfa", "caf", "com" ,"cpv", "dji",
+                                                                   "esh", "gin", "gmb", "gnb", "gnq", "lbr","lso",
+                                                                   "mli","mrt", "mwi", "reu", "sle", "som", "stp" ,
+                                                                   "syc", "tcd","nam"),
+                                                break_out_end_year = 1990)
+    A.IEA_Other_Africa_disaggregated <- disaggregate_country(original_data = A.IEA_Other_Africa_Namibia,
+                                                                         trend_data = in_trend_data,
+                                                                         trend_match_cols = in_trend_match_cols,
+                                                                         combined_iso = Other_African_composite_name,
+                                                                         disaggregate_iso = unique( MCL[ which(
+                                                                             MCL$IEAName == Other_African_composite_name),'iso' ] ),
+                                                                         dis_end_year = IEA_end_year,
+                                                                         dis_start_year = start_year,
+                                                                         method = 2,
+                                                                         id_cols = T,
+                                                                         remove_aggregate = T,
+                                                                         write_over_values = F,
+                                                                         allow_dropped_data = T)
+
+############## Other Asia
+#  Mongolia (until 1984) then Mongolia
+#  Cambodia (until 1994) then Cambodia
+#  Lao People’s Democratic Republic (until 1999) then Laos
+
+# Mongolia
+    A.IEA_Other_Asia_mng <- in_IEA_data_other %>%
+        filter(iso == Other_Asia_composite_name) %>%
+        bind_rows(in_IEA_data_single %>% filter(iso %in% c('mng')))
+
+    A.IEA_Other_Asia_Mongolia <- breakout_single_country_from_composite(original_data = A.IEA_Other_Asia_mng,
+                                                            breakout_country_iso = "mng",
+                                                            breakout_country_country = 'Mongolia',
+                                                            dis_trend_data = in_trend_data,
+                                                            dis_trend_match_cols = in_trend_match_cols,
+                                                            composite_region = Other_Asia_composite_name,
+                                                            composite_isos = c("afg", "btn", "cok","fji","fsm","kir","mac","mdv","mhl",
+                                                                               "ncl","niu","plw","png","pyf","slb","tkl","tls","ton","vut",
+                                                                               "wlf","wsm",'khm','lao', 'mng'),
+                                                            break_out_end_year = 1984)
+# Cambodia
+    A.IEA_Other_Asia_khm <- A.IEA_Other_Asia_Mongolia %>%
+        bind_rows(in_IEA_data_single %>% filter(iso %in% c('khm')))
+
+    A.IEA_Other_Asia_Cambodia <- breakout_single_country_from_composite(original_data =  A.IEA_Other_Asia_khm,
+                                                                                    breakout_country_iso = "khm",
+                                                                                    breakout_country_country = 'Cambodia',
+                                                                                    dis_trend_data = in_trend_data,
+                                                                                    dis_trend_match_cols = in_trend_match_cols,
+                                                                                    composite_region = Other_Asia_composite_name,
+                                                                                    composite_isos = c("afg", "btn", "cok","fji","fsm","kir","mac","mdv","mhl",
+                                                                                                       "ncl","niu","plw","png","pyf","slb","tkl","tls","ton","vut",
+                                                                                                       "wlf","wsm",'khm','lao'),
+                                                                                    break_out_end_year = 1994)
+# Laos
+    A.IEA_Other_Asia_lao <- A.IEA_Other_Asia_Cambodia %>%
+        bind_rows(in_IEA_data_single %>% filter(iso %in% c('lao')))
+
+    A.IEA_Other_Asia_Laos <- breakout_single_country_from_composite(original_data =  A.IEA_Other_Asia_lao,
+                                                                                    breakout_country_iso = "lao",
+                                                                                    breakout_country_country = "Lao People's Democratic Republic",
+                                                                                    dis_trend_data = in_trend_data,
+                                                                                    dis_trend_match_cols = in_trend_match_cols,
+                                                                                    composite_region = Other_Asia_composite_name,
+                                                                                    composite_isos = c("afg", "btn", "cok","fji","fsm","kir","mac","mdv","mhl",
+                                                                                                       "ncl","niu","plw","png","pyf","slb","tkl","tls","ton","vut",
+                                                                                                       "wlf","wsm",'lao'),
+                                                                                    break_out_end_year = 1999)
+ # Disaggregate Other region
+    A.IEA_Other_Asia_disaggregated <- disaggregate_country(original_data = A.IEA_Other_Asia_Laos,
+                                                                       trend_data = in_trend_data,
+                                                                       trend_match_cols = in_trend_match_cols,
+                                                                       combined_iso = Other_Asia_composite_name,
+                                                                       disaggregate_iso = unique( MCL[ which(
+                                                                           MCL$IEAName == Other_Asia_composite_name ),'iso' ] ),
+                                                                       dis_end_year = IEA_end_year,
+                                                                       dis_start_year = start_year,
+                                                                       method = 2,
+                                                                       id_cols = T,
+                                                                       remove_aggregate = T,
+                                                                       write_over_values = F,
+                                                                       allow_dropped_data = T)
+
+############## Other America
+# Suriname (until 1999)
+# French Guiana (until 2010) then France (guf)
+# Guadeloupe (until 2010) (glp)
+# Martinique (until 2010) then France (mtq)
+
+# Suriname
+    A.IEA_Other_America_sur <- in_IEA_data_other %>%
+        filter(iso == Other_Americas_composite_name) %>%
+        bind_rows(in_IEA_data_single %>% filter(iso %in% c('sur')))
+
+    A.IEA_Other_America_Suriname <- breakout_single_country_from_composite(original_data =  A.IEA_Other_America_sur,
+                                                                                breakout_country_iso = "sur",
+                                                                                breakout_country_country = "Suriname",
+                                                                                dis_trend_data = in_trend_data,
+                                                                                dis_trend_match_cols = in_trend_match_cols,
+                                                                                composite_region = Other_Americas_composite_name,
+                                                                                composite_isos = c("abw", "asm", "atg", "bhs", "blz", "bmu", "brb",
+                                                                                                   "cym", "dma", "flk", "glp", "grd", "guf", "kna",
+                                                                                                   "lca", "msr", "mtq", "pri", "spm", "sur", "sxm",
+                                                                                                   "tca", "vct", "vgb", "vir"),
+                                                                                break_out_end_year = 1999)
+
+# Disaggregate Other region
+    A.IEA_Other_Americas_disaggregated <- disaggregate_country(original_data = A.IEA_Other_America_Suriname,
+                                                                       trend_data = in_trend_data,
+                                                                       trend_match_cols = in_trend_match_cols,
+                                                                       combined_iso = Other_Americas_composite_name,
+                                                                       disaggregate_iso = unique( MCL[ which(
+                                                                           MCL$IEAName == Other_Americas_composite_name ),'iso' ] ),
+                                                                       dis_end_year = IEA_end_year,
+                                                                       dis_start_year = start_year,
+                                                                       method = 2,
+                                                                       id_cols = T,
+                                                                       remove_aggregate = T,
+                                                                       write_over_values = F,
+                                                                       allow_dropped_data = T)
+####### combine output
+
+    disagregate_IEA_composite_region_output <- A.IEA_Other_Africa_disaggregated %>%
+        bind_rows(A.IEA_Other_Asia_disaggregated) %>%
+        bind_rows(A.IEA_Other_Americas_disaggregated)
+
+ return(disagregate_IEA_composite_region_output)
+
+}# disaggregate_IEA_composite_regions
+
+#---------------------------------------------------
+# 07.  Disaggregate other fuels and bunker fuel from other regions (seperately
+# using function from above)
+    printLog("Process IEA other fuels composite IEA regions")
+
+    A.IEA_other_fuels_Other_disaggregated <- disaggregate_IEA_composite_regions(
+        in_IEA_data_other = A.IEA_others_fuel,
+        in_IEA_data_single = A.IEA_single_fuel,
+        in_trend_data = cdiac_trend_fuel,
+        in_trend_match_cols = c( 'iso', 'PRODUCT' ),
+    )
+
+    printLog("Process IEA bunker fuels composite IEA regions")
+
+    A.IEA_bunker_fuels_Other_disaggregated <- disaggregate_IEA_composite_regions(
+        in_IEA_data_other = A.IEA_others_bunkers,
+        in_IEA_data_single = A.IEA_single_bunkers,
+        in_trend_data = cdiac_trend_bunkers,
+        in_trend_match_cols = c( 'iso', 'FLOW' )
+    )
+
+# -----------------------------------------------------------------------------
+# 8. Combine data into one database
+
+# Other Fuel Composite regions
+
+    A.IEA_disaggrgate_ctry_all <- A.IEA_other_fuels_Other_disaggregated %>%
+        bind_rows(A.IEA_bunker_fuels_Other_disaggregated) %>%
+        bind_rows(A.USSR_Yug_ctry_stat) %>%
+        bind_rows(A.IEAsingle %>%
+                      filter(iso %!in% c(single_break_from_composite, FSU_Yug_countries)))
 
 # B. Subset final energy statistics to only the rows that aren't zero in all years
-  	A.IEAsingle <- A.IEAsingle[ rowSums( A.IEAsingle[
-          X_IEA_years ] ) != 0, ]
-  	A.IEAsingle_noUSSR_Yug <- subset( A.IEAsingle, iso %!in%
-          A.USSR_Yug_ctry_stat$iso )
-
-  	A.USSR_Yug_ctry_stat <- A.USSR_Yug_ctry_stat[ rowSums(
-          A.USSR_Yug_ctry_stat[ X_IEA_years ] ) != 0, ]
-  	A.Others_ctry_stat <- A.Others_ctry_stat[ rowSums(
-          A.Others_ctry_stat[ X_IEA_years ] ) != 0, ]
-  	A.Suriname_stat <- A.Suriname_stat[ rowSums(
-  	    A.Suriname_stat[ X_IEA_years ] ) != 0, ]
+    A.IEA_disaggrgate_ctry_all_remove_zeros <- A.IEA_disaggrgate_ctry_all[ rowSums( A.IEA_disaggrgate_ctry_all[
+        X_IEA_years ] ) != 0, ]
 
 # C. Combine the country-level data tables and write out energy balances
 # Use iso codes rather than IEA's country names
   	IEA_isoID <- c( "iso", "FLOW", "PRODUCT" )
-  	A.IEA_en_stat_ctry_hist <- dplyr::bind_rows(
-  	    A.IEAsingle_noUSSR_Yug[ c( IEA_isoID, X_IEA_years ) ],
-      	A.USSR_Yug_ctry_stat[ c( IEA_isoID, X_IEA_years ) ],
-      	A.Others_ctry_stat[ c( IEA_isoID, X_IEA_years ) ],
-      	A.Suriname_stat[ c( IEA_isoID, X_IEA_years ) ] )
+  	A.IEA_en_stat_ctry_hist <- A.IEA_disaggrgate_ctry_all_remove_zeros %>%
+  	    select(all_of(IEA_isoID), all_of(X_IEA_years)) %>%
+  	    arrange_(IEA_isoID)
 
 # -----------------------------------------------------------------------------
-# 8. Output Final IEA Energy Data
+# 9. Final checks on IEA Energy Data
+
+# Check final countries in processed IEA data
+  	final_out_iso <- A.IEA_en_stat_ctry_hist %>%
+  	    pull(iso) %>%
+  	    unique
+  	check_against_iso <- MCL %>%
+  	    filter(final_data_flag == 1,
+  	           iso %!in% c('global', 'pse','lie','fro','grl')) %>%
+  	    pull(iso) %>% unique
+
+ if( setdiff(check_against_iso, final_out_iso) %>% length > 0)stop(
+     'Processed IEA data missing countries in MCL')
+# Double check repeat entries
+  if(A.IEA_en_stat_ctry_hist %>% nrow != A.IEA_en_stat_ctry_hist %>%
+     select(all_of(IEA_isoID)) %>% unique %>% nrow	)stop(
+         'Processed IEA data had duplicate rows after disaggrgating composite regions')
+# World Sums
+  A.IEA_world <- A.IEAfull %>%
+      filter(COUNTRY == 'World')
+
+# -----------------------------------------------------------------------------
+# 10. Output Final IEA Energy Data
 
 # Add comments for each table
     comments.A.IEA_en_stat_ctry_hist <- c( paste0( "IEA energy statistics ",
