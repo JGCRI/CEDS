@@ -153,9 +153,11 @@ clean-diagnostic:
 	rm -fv $(DIAG_OUT)/gridding-diagnostic-plots/single_cell_totals/*.jpeg
 
 clean-final:
-	rm -fv $(FINAL_OUT)/current-versions/*.csv
 	rm -fv $(FINAL_OUT)/diagnostics/*.csv
 	rm -fv $(FINAL_OUT)/previous-versions/*.csv
+
+clean-current:
+	rm -fv $(FINAL_OUT)/current-versions/*.csv	
 
 clean-logs:
 	rm -fv $(LOGS)/*.log \
@@ -420,7 +422,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/bp-stats-review-2020-all-data.xlsx
+	$(ENERGY_DATA)/bp-stats-review-2022-all-data.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
