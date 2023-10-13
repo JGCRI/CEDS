@@ -42,7 +42,7 @@
     mapping_method <- 'sector'
     inv_name <- 'AUS_2018' #for naming diagnostic files
     region <- c( "aus" )
-    inv_years<-c( 2001:2022 )
+    inv_years<-c( 2001:2021 )
     #inv_years<-c( 2000, 2006, 2012 )
 
 # ------------------------------------------------------------------------------
