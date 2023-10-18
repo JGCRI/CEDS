@@ -27,7 +27,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "NOx"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -65,9 +65,7 @@
 
 # Use different mapping function if SO2 - scale back to default EFs
     if ( em == 'SO2' ) {
-
-      sector_fuel_mapping <- paste0( inv_name, "_", em )
-
+        sector_fuel_mapping <- paste0( inv_name, "_", em )
     }
 
     mapping_method <- 'sector'
@@ -81,7 +79,7 @@
 #       "arm", "geo", "kgz", "mlt", "mne". and fsu isos
 
     # At least one set of inventory data must extend to the earliest year
-    inv_years <- c( 1980 : 2017 )
+    inv_years <- c( 1980 : 2020 )
 
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
     inventory_data_file <- paste0( "E.", em, "_", inv_name, "_inventory" )
@@ -90,7 +88,7 @@
 
 # Scaling for specific species
     if ( em %in% c("BC", "OC") ) {
-      sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_BCOC')
     }
 
 # ------------------------------------------------------------------------------
