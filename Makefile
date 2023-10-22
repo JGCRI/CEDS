@@ -751,7 +751,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
@@ -878,8 +878,8 @@ $(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv: \
-	$(MOD_E)/E.CAN_emissions_2018.R
+$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions_2021.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -952,7 +952,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_2018_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \

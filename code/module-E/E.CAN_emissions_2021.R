@@ -24,7 +24,7 @@
                 "emissions_scaling_functions.R", "analysis_functions.R",
                 "interpolation_extension_functions.R" ) # Additional function files required.
   log_msg <- "Initial reformatting of Canada emissions (newer data)" # First message to be printed to the log
-  script_name <- "E.CAN_emissions_2017Update.R"
+  script_name <- "E.CAN_emissions_2021.R"
 
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
@@ -47,10 +47,10 @@
   inventory_data_file <- 'EN_APEI-Can-Prov_Terr'
   subfolder_name <- 'Canada/'
   inv_data_folder <- "EM_INV"
-  inv_name <- 'CAN_2022' # For naming diagnostic files
-  inv_years <- c( 1990:2020 )
+  inv_name <- 'CAN_2021' # For naming diagnostic files
+  inv_years <- c( 1990:2021 )
   # Because this data comes read in as reversed.
-  inv_years_reversed <- c( 2020:1990 )
+  inv_years_reversed <- c( 2021:1990 )
 
 
 # ------------------------------------------------------------------------------
