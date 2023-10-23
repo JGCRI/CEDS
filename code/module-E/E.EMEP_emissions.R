@@ -53,6 +53,11 @@
     Em_Format <<- args_from_makefile[ 2 ]
     if ( is.na( Em_Format ) ) Em_Format <- "NFR14"
 
+    # Stop if somehow got here with BC/OC and NFR09
+    if ( (Em_Format == "NFR09") & (em %in% c('BC', 'OC')) ){
+        stop('BC and OC not supported for EMEP NFR09')
+    }
+
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
 
@@ -165,12 +170,14 @@
 	    # ------------------------------------------------------------------------------
 	    # Find BC and OC emissions
 
+	    # This section is because BC/OC/PM2.5 contributions are quite mixed in many sectors
+	    # and hard to break out, but for road transport mostly diesel comb
+
 	    # Define parameters for BC and OC specific script
 	    ceds_sector <- "1A3b_Road"
 	    inv_iso <- EMEP_em$iso
 	    inv_sector_name <- c("F_RoadTransport")
-	    inv_years <- c(1980:2020)
-	    X_inv_years <- paste0("X",inv_years)
+	    X_inv_years <- grep("X", colnames(EMEP_emdf), value=TRUE)
 	    PM <- "PM25"
 
 	    # clean PM25 inv sheet for BC and OC script
