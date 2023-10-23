@@ -63,13 +63,13 @@ last_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( EM, "_last-run/",
                                               pattern = paste0('CEDS_',EM,'_emissions_by_country_fuel') ) ),
                                               meta = F )
 
-current_Em_by_Country_Sector  <-  readData( "FIN_OUT", paste0("current-Versions/",
-                                              list.files( paste0( "../final-emissions/current-Versions" ),
+current_Em_by_Country_Sector  <-  readData( "FIN_OUT", paste0("current-versions/",
+                                              list.files( paste0( "../final-emissions/current-versions" ),
                                               pattern = paste0('CEDS_',EM,'_emissions_by_country_sector') ) ),
                                               meta = F )
 
-current_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( "current-Versions/",
-                                              list.files( paste0( "../final-emissions/current-Versions" ),
+current_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( "current-versions/",
+                                              list.files( paste0( "../final-emissions/current-versions" ),
                                               pattern = paste0('CEDS_',EM,'_emissions_by_country_fuel') ) ),
                                        meta = F )
 
@@ -236,7 +236,7 @@ names(summary_plot_output)[(last_index+1)] <- country_select[i]
 }}
 
 # Save as R object, to print to pdf later
-save(summary_plot_output, file = paste0('../final-emissions/diagnostics/Comparison_Plots_',EM,'.RData'))
+save(summary_plot_output, file = paste0('../final-emissions/diagnostics/Comparison_Plots_',EM,'.Rdata'))
 
 return(summary_plot_output)
 
