@@ -24,6 +24,9 @@ X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 # The set of years for the BP data extendForwards further, and is used to augment the IEA.
 BP_last_year <- 2021
 
+# USER SET DATA - Set this to the last year of the EMEP data used
+EMEP_last_year <- 2021
+
 # USER SET DATA - Set this to point to the name of the BP statisical data, which should be
 # Located in the inputs/energy folder
 BP_data_file_name <- "bp-stats-review-2022-all-data"

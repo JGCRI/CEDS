@@ -79,7 +79,8 @@
 #       "arm", "geo", "kgz", "mlt", "mne". and fsu isos
 
     # At least one set of inventory data must extend to the earliest year
-    inv_years <- c( 1980 : 2020 )
+    # EMEP_last_year is set in common_data.R
+    inv_years <- c( 1980 : EMEP_last_year )
 
 # EMEP level 1 inventory is reformatted by the E2.EMEP_em_emissions_lvl1.R script
     inventory_data_file <- paste0( "E.", em, "_", inv_name, "_inventory" )
