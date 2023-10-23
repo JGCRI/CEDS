@@ -32,16 +32,28 @@ source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 #--------------------------------------------------------------------------------------------------
-# Read in data NH3 and NOx final emissions
+# Read in data NH3 and NOx final emissions 
 
 #   Read in NH3 final emissions
+    # Check that single current version of NH3 emissions exists
+    filename <- list.files('../final-emissions/current-versions/', 'CEDS_NH3_emissions_by_country_CEDS_sector_*')
+    if( length(filename) != 1){
+      stop('Check that there is exactly one CEDS_NH3_emissions_by_country_CEDS_sector_<date>.csv file')
+    }
+    # Read in data
     CEDS_final_NH3 <- readData( "FIN_OUT", domain_extension = 'current-versions/',
-                                paste0( "CEDS_NH3_emissions_by_country_CEDS_sector_", version_stamp ),
+                                filename,
                                 meta = F )
 
 #   Read in NOx final emissions
+    # Check that single current version of NH3 emissions exists
+    filename <- list.files('../final-emissions/current-versions/', 'CEDS_NOx_emissions_by_country_CEDS_sector_*')
+    if( length(filename) != 1){
+      stop('Check that there is exactly one CEDS_NH3_emissions_by_country_CEDS_sector_<date>.csv file')
+    }
+    # Read in data
     CEDS_final_NOx <- readData( "FIN_OUT", domain_extension = 'current-versions/',
-                            paste0( "CEDS_NOx_emissions_by_country_CEDS_sector_", version_stamp ),
+                            filename,
                             meta = F )
 
 #--------------------------------------------------------------------------------------------------
