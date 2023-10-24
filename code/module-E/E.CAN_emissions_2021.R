@@ -32,7 +32,7 @@
 
 # Get emission species first so can name log appropriately
   args_from_makefile <- commandArgs( TRUE )
-    #args_from_makefile[ 1 ]
+  em <- args_from_makefile[ 1 ]
   if ( is.na( em ) ) em <- "CH4"
   em.read <- em
   if( em == "NOx" ) em.read <- "NOx (t)"
@@ -56,12 +56,13 @@
 # ------------------------------------------------------------------------------
 # 2. Reformat raw data files
 
-  #Makes sure only present data is prcessed
+  #Makes sure only present data is processed
   if( em %!in% c("CO2", "CH4", "N2O","OC") ){
   #read in the raw data
   raw_data <- list() #empty list
   raw_data_path <- paste0('emissions-inventories/Canada/raw_2021/',em,'/')
   temp <- list.files(path = raw_data_path, pattern = paste0('APEI*'))
+  temp <- temp[ !grepl("metadata", temp) ]
   for(i in 1:length(temp)) {raw_data[[i]] <- assign(paste0(em,'_',i),read.csv(file = paste0(raw_data_path,temp[i]), stringsAsFactors = FALSE)%>%
                                                       select(Source = 1, everything()) %>%
                                                       gather("year","value",-c('Source','Sector','SubSector')))}
