@@ -53,10 +53,6 @@
     Em_Format <<- args_from_makefile[ 2 ]
     if ( is.na( Em_Format ) ) Em_Format <- "NFR14"
 
-    # Stop if somehow got here with BC/OC and NFR09
-    if ( (Em_Format == "NFR09") & (em %in% c('BC', 'OC')) ){
-        stop('BC and OC not supported for EMEP NFR09')
-    }
 
 # -----------------------------------------------------------------------------------------------------------
 # 1. Read in files
