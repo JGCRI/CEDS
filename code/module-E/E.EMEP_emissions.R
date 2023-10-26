@@ -96,12 +96,6 @@
     }
 
 
-    # Function to return the second element in string split by "_"
-    # Ex. "part1_part2" -> "part2"
-    get_string_after_underscore <- function(s){
-        split_vec <- strsplit(s, '_')
-        return(split_vec[[1]][2])
-    }
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
     if ( length( EMEP ) > 0 ) {
@@ -111,22 +105,6 @@
     	# Reorder Columns of Interest
 	    EMEP_em <- EMEP_em %>%
 	        dplyr::select(ISO2, sector, units, year, emissions)
-
-    	# Remove All Information from sectors Before " "
-    	# Only for NFR14 LEVEL1 format. NFR09 format does not have any spaces
-    	if ( Em_Format == 'NFR14' && level == "LEVEL1" ) {
-
-      	    EMEP_em <- dplyr::mutate( EMEP_em, sector = as.character( sector ) )
-            if (em == 'OC') {
-                print("skip")
-            } else if (em == 'BC'){
-                print("skip")
-            } else {
-                # Remove letter in front of sector description
-                EMEP_em <- EMEP_em %>%
-                    dplyr::mutate(sector = sapply(sector, get_string_after_underscore))
-            }
-        }
 
     	# Order By ISO2 & sector
 	    EMEP_em <- dplyr::mutate( EMEP_em, ISO2 = as.character( ISO2 ) )
