@@ -94,7 +94,11 @@
 
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
-    if ( length( EMEP ) > 0 ) {
+    
+    # NFR09 does not have Road Transport broken out, so don't go through BC/OC estimation routine
+    continue_process <- (length(EMEP) > 0) & !((em.read == 'PM25') & (Em_Format == 'NFR09'))
+
+    if ( continue_process ) {
 
         EMEP_em <- EMEP
 
@@ -162,8 +166,7 @@
 	    if (em %in% c("BC","OC") ) {
             em_emissions <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
             EMEP_emdf <- em_emissions
-            EMEP_emdf <- EMEP_emdf %>%
-                dplyr::mutate(sector = gsub('F_', '', sector))
+            EMEP_emdf <- EMEP_emdf
 	    }
 
 	    # ------------------------------------------------------------------
