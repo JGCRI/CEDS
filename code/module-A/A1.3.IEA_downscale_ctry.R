@@ -655,12 +655,14 @@
                                                in_trend_data, #cdiac_trend_fuel or cdiac_trend_bunkers
                                                in_trend_match_cols #c( 'iso', 'PRODUCT' ) (other fuel) or c( 'iso', 'FLOW' )(bunkers)
                                                ){
+
 ############## Other Africa
 #  Namibia (until 1990) then Namibia
 #  Réunion (until 2010) then part of France (along with other colonies)
 #  For now, disaggregate Reunion from Other Africa for all years
 #   Other Africa and Namibia
 #   Add Namibia to other Africa
+        printLog("In disaggregate_IEA_composite_regions: disaggrgating Other Africa")
     A.IEA_other_africa_namibia <- in_IEA_data_other %>%
         filter(iso == Other_African_composite_name) %>%
         bind_rows(in_IEA_data_single %>% filter(iso == 'nam'))
@@ -691,6 +693,7 @@
                                                                          allow_dropped_data = T)
 
 ############## Other Asia
+    printLog("In disaggregate_IEA_composite_regions: disaggrgating Other Asia")
 #  Mongolia (until 1984) then Mongolia
 #  Cambodia (until 1994) then Cambodia
 #  Lao People’s Democratic Republic (until 1999) then Laos
@@ -754,6 +757,7 @@
                                                                        allow_dropped_data = T)
 
 ############## Other America
+    printLog("In disaggregate_IEA_composite_regions: disaggrgating Other America")
 # Suriname (until 1999)
 # French Guiana (until 2010) then France (guf)
 # Guadeloupe (until 2010) (glp)
