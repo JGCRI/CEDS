@@ -43,6 +43,16 @@
     IEA_energy_balance_factor <- readData( "ENERGY_IN", "IEA_energy_balance_factor" )
     biomass_conversion <- readData( "MED_OUT", "A.Fernandes_biomass_conversion" )
 
+# 1.5 Correct Negative IEA value
+# ------------------------------------------------------------------------------
+
+    # In the 2022 IEA data, there is a negative value in domestic coaking coal for moz in 2013
+    if(IEA_end_year > 2021) stop("Section 1.5 in A2.1.IEA_en_bal.R is configured for the 2021 IEA data.
+                                 Check corrections for negative IEA values. Change this logic when updating IEA data.")
+    A.IEA_en_stat_ctry_hist_full<- A.IEA_en_stat_ctry_hist_full %>%
+        mutate(X2013 = ifelse( (iso == 'moz' & FLOW == 'DOMSUP' & PRODUCT == 'Coking coal (kt)' & X2013 == -1 ),
+               0, X2013))
+
 # ------------------------------------------------------------------------------
 # 2. Check that IEA mappings and balance factor files are complete
 
@@ -341,6 +351,18 @@
 # Reorder the columns for clarity
     A.en_stat_sector_fuel <-
         A.en_stat_sector_fuel[ c( 'iso', 'sector','fuel','units', X_IEA_years ) ]
+
+#   Stop if any activity data is < 0
+    negative_activity_check <- A.en_stat_sector_fuel %>%
+        dplyr::filter( sector %!in% c( "hard_coal-adl-dom-supply", "natural_gas-adl-dom-supply",
+                                       "diesel_oil-adl-dom-supply", "light_oil-adl-dom-supply",
+                                       "heavy_oil-adl-dom-supply", "refinery-and-natural-gas" ) )
+
+    if( any( negative_activity_check[, X_IEA_years ] < 0 ) ){
+
+        stop( "There are negative values in the activity data. This should not occur..." )
+
+    }
 
 # -----------------------------------------------------------------------------
 # 7. Output

@@ -224,7 +224,7 @@ initialize( script_name, log_msg, headers )
 # diag_Eur should be defined in either iso_Fern or iso_IEA, but no other isos
 # should be within these assignments (it is possible newer IEA version
 # contain additional, or fewer, isos in diag_Eur).
-    IEA_end_year_used_to_config_res_bio <- 2017
+    IEA_end_year_used_to_config_res_bio <- 2021
 
     if( IEA_end_year > IEA_end_year_used_to_config_res_bio ){
 
@@ -238,9 +238,9 @@ initialize( script_name, log_msg, headers )
 
     # Resolution:
     #   Use Fern for: aze, rus, svk, ukr
-    #   Use IEA for: aut, geo,  hrv, hun,  irl,  ita, mda, nld, swe
+    #   Use IEA for: geo,  hrv, hun,  irl,  ita, mda, nld, swe
     iso_Fern <- c( iso_Fern, "aze", "rus", "svk", "ukr" )
-    iso_IEA <- c( iso_IEA, "aut", "geo",  "hrv", "hun",  "irl",  "ita", "mda", "nld", "swe" )
+    iso_IEA <- c( iso_IEA, "geo",  "hrv", "hun",  "irl",  "ita", "mda", "swe" )
     rm( iso_Eur, iso_rest )
 
 # Keep relevant columns
