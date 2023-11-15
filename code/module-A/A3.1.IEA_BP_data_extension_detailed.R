@@ -71,7 +71,7 @@ no_ratio_years <- 5
 # 1. Read in files
 activity <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
 MCL <- readData( "MAPPINGS", "Master_Country_List" )
-detailed_bp_data <- readData( "ENERGY_IN", "bp-stats-review-2022-oil-by-product", skip = 2)
+detailed_bp_data <- readData( "ENERGY_IN", BP_detailed_oil_data_file_name, skip = 2)
 detailed_bp_map <- readData( "MAPPINGS", "BP_detailed_extension", domain_extension = "energy/")
 
 

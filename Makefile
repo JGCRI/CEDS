@@ -420,7 +420,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/bp-stats-review-2022-all-data.xlsx
+	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2023.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-1.2
@@ -430,7 +430,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv: \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MAPPINGS)/energy/BP_detailed_extension.csv \
-	$(ENERGY_DATA)/bp-stats-review-2022-oil-by-product.csv
+	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2023-oil-by-product.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
