@@ -239,7 +239,7 @@ initialize( script_name, log_msg, headers )
     # Resolution:
     #   Use Fern for: aze, rus, svk, ukr
     #   Use IEA for: geo,  hrv, hun,  irl,  ita, mda, nld, swe
-    iso_Fern <- c( iso_Fern, "aze", "rus", "svk", "ukr" )
+    iso_Fern <- c( iso_Fern, "aze", "rus", "svk", "ukr", "svn" )
     iso_IEA <- c( iso_IEA, "geo",  "hrv", "hun",  "irl",  "ita", "mda", "swe" )
     rm( iso_Eur, iso_rest )
 
