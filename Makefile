@@ -422,7 +422,17 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/bp-stats-review-2022-all-data.xlsx
+	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2023.xlsx
+	Rscript $< $(EM) --nosave --no-restore
+
+# aa3-1.2
+# Extends oil IEA data with detailed BP data
+$(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv: \
+	$(MOD_A)/A3.1.IEA_BP_data_extension_detailed.R \
+	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
+	$(MAPPINGS)/Master_Country_List.csv \
+	$(MAPPINGS)/energy/BP_detailed_extension.csv \
+	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2023-oil-by-product.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
@@ -458,7 +468,7 @@ $(MED_OUT)/A.Sintering_production.csv: \
 # Splits energy combustion data and energy activity data
 $(MED_OUT)/A.default_comb_activity_with_other.csv: \
 	$(MOD_A)/A4.1.default_modern_energy_data.R \
-	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
+	$(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
