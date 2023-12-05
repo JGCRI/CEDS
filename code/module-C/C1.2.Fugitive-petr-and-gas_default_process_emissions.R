@@ -6,7 +6,7 @@
 #                  gas production ( 1B2_Fugitive-petr, 1B2b_Fugitive-NG-distr,
 #                  and 1B2b_Fugitive-NG-prod )
 # Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
-#              relevant EDGAR emissions data ( E.[em]_EDGAR_v5 )
+#              relevant EDGAR emissions data ( E.[em]_EDGAR )
 #              Master_EDGAR_sector_mapping.csv, C.[em]_GAINS_fug_oil_gas_shares.csv, Master_Country_List.csv,
 #              A.UN_pop_master.csv, C.N2O_EDGAR_NOx_N2O_fugitive_oil_NG_ratios.csv
 # Output Files: C.[em]_Fugitive-petr-and-gas_aggregate_emissions.csv,
@@ -60,9 +60,6 @@ return_diff <- function( dataframe1, dataframe2 ) {
 
 # Read in EDGAR data
 
-#   Define EDGAR version using and other input settings
-    vn <- "5.0"
-
 #   Defineinput domain
     domain_use <- "EM_INV"
     domain_ext <- "EDGAR/"
@@ -80,7 +77,7 @@ return_diff <- function( dataframe1, dataframe2 ) {
     edgar_Xyear <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
 #   Read in pre-formatted EDGAR data from intermediate-output (uses default extension .csv)
-    edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR_v5" ))
+    edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR" ))
 
 
 # For all ems besides NH3, load the GAINS fugitive oil and gas subsector emissions shares.
