@@ -13,7 +13,7 @@
 # Set of historical years for which the CEDS system has IEA data.
 
 # USER SET DATA - Set this to the last year of the IEA data used
-IEA_end_year  <- 2017  # Latest year of IEA data; used to compare BP and IEA
+IEA_end_year  <- 2021  # Latest year of IEA data; used to compare BP and IEA
 
 IEA_start_year  <- 1960 # First year of IEA data
 X_IEA_end_year  <- paste0( "X", IEA_end_year  ) # First Xyear of IEA data
@@ -22,17 +22,19 @@ X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
 # USER SET DATA - Set this to the last year of the BP data used
 # The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_last_year <- 2021
+BP_last_year <- 2022
 
-# USER SET DATA - Set this to point to the name of the BP statisical data, which should be
+# USER SET DATA - Set this to point to the name of the BP statistical data, which should be
 # Located in the inputs/energy folder
-BP_data_file_name <- "bp-stats-review-2022-all-data"
+BP_data_file_name <- "Statistical_Review_of_World_Energy_2023"
+BP_detailed_oil_data_file_name <- "Statistical_Review_of_World_Energy_2023-oil-by-product"
 # NOTE - Need to also change this file name in the makefile
 
 # The actual last year of data provided in the BP energy data. User need to set an additional value for this object if
 # they are utilizing a BP_data_file_name not listed below:
 if( BP_data_file_name == "BP_energy_data.xlsx" ){ BP_actual_last_year <- 2014}
 if( BP_data_file_name == "bp-stats-review-2022-all-data" ){ BP_actual_last_year <- 2021}
+if( BP_data_file_name == "Statistical_Review_of_World_Energy_2023" ){ BP_actual_last_year <- 2022}
 
 BP_first_year <- IEA_end_year + 1 # First year for BP only data
 BP_years <- BP_first_year : BP_last_year # The years for which there is only BP data
@@ -100,8 +102,8 @@ Hyde_start_year <- 1800
 # ---------------------------------
 # Define IEA composite region names used within CEDS. These tend to change
 # between IEA versions, so are defined in common_data.R.
-FSU_IEA_composite_name <- "Former Soviet Union (If no detail)"
-FYUG_IEA_composite_name <- "Former Yugoslavia (If no detail)"
+FSU_IEA_composite_name <- "Former Soviet Union (if no detail)"
+FYUG_IEA_composite_name <- "Former Yugoslavia (if no detail)"
 Other_African_composite_name <- "Other Africa"
 Other_Americas_composite_name <- "Other non-OECD Americas"
 Other_Asia_composite_name <- "Other non-OECD Asia"
