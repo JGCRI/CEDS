@@ -52,7 +52,7 @@
     sector_fuel_mapping <- 'US-GHG'
 
     mapping_method <- 'sector'
-    inv_years <- 1990 : 2018
+    inv_years <- 1990 : 2021
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 

@@ -18,9 +18,6 @@
 # Input Files:
 # Output Files:  list of summary plots (ggplot objects)
 
-# debug # # later add country select option
-# country_select <- c('usa')
-
 summary_comparison_plots <- function(
                           MCL = Master_Country_List,
                           MSL = Master_Sector_Level_map,
@@ -75,7 +72,7 @@ current_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( "current-versions/"
 
 #Process Data for figures
 dfplot_global_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
     left_join(MSL %>% select(aggregate_sectors,Figure_sector), by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
     filter(Sector != "Shipping") %>%
@@ -85,7 +82,7 @@ dfplot_global_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Cur
     mutate(year = as.numeric(str_replace(year, 'X','')))
 
 dfplot_global_fuel <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
     mutate(Fuel = fuel) %>%
     group_by(Fuel, Version) %>%
     summarize_if(is.numeric, sum) %>%
@@ -93,14 +90,14 @@ dfplot_global_fuel <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current')
     mutate(year = as.numeric(str_replace(year, 'X','')))
 
 dfplot_global_total <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
     group_by(Version) %>%
     summarize_if(is.numeric, sum) %>%
     gather(year, value, -Version) %>%
     mutate(year = as.numeric(str_replace(year, 'X','')))
 
 dfplot_Regions_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
     left_join(MCL %>% select(iso, Paper_Figure_Region)) %>%
     left_join(MSL %>% select(aggregate_sectors,Figure_sector), by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
@@ -183,7 +180,7 @@ names(summary_plot_output) <- c("Global Sectors",'Global Fuel','Globl Total',
 if(!is.na(country_select)){
 
     dfplot_all_countries <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-        rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+        bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
         filter(sector != "1A3_International-shipping",
                iso %in% country_select) %>%
         mutate(Country = iso) %>%
@@ -207,7 +204,7 @@ names(summary_plot_output)[(last_index+1)] <- "Selected Countries"
 
 #Plot individual country graphs by sector
 dfplot_countries_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
     left_join(MSL %>% select(aggregate_sectors,Figure_sector), by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
     filter(Sector != "Shipping") %>%

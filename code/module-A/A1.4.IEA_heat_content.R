@@ -362,7 +362,8 @@
     coal_all_ext_forward <- coal_all_ext %>%
         dplyr::mutate_at( years_to_extend_to, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
 
-  }
+  }else(
+      coal_all_ext_forward <- coal_all_ext )
 
 # ---------------------------------------------------------------------------
 # 5. Output
