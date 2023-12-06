@@ -34,14 +34,38 @@ initialize( script_name, log_msg, headers )
 #--------------------------------------------------------------------------------------------------
 # Read in data NH3 and NOx final emissions
 
+NH3_file <- list.files('../final-emissions/current-versions/', 'CEDS_NH3_emissions_by_country_CEDS_sector_*')
+NOx_file <- list.files('../final-emissions/current-versions/', 'CEDS_NOx_emissions_by_country_CEDS_sector_*')
+
+# Check that files are unique
+stopifnot( "More than one CEDS NH3 emissions files" = length( NH3_file ) == 1 )
+stopifnot( "More than one CEDS NOx emissions files" = length( NOx_file ) == 1 )
+
+# Warning message about differring version stamps
+NH3_version_stamp <- gsub('.csv', '', gsub('CEDS_NH3_emissions_by_country_CEDS_sector_v_', '', NH3_file))
+NOx_version_stamp <- gsub('.csv', '', gsub('CEDS_NOx_emissions_by_country_CEDS_sector_v_', '', NOx_file))
+if(NH3_version_stamp != NOx_version_stamp){
+  printLog(
+    paste0(
+      '\n===================================================================================\n',
+      '===================================================================================\n',
+      'Warning, NH3 version stamp (', NH3_version_stamp, ') and NOx version stamp (',
+      NOx_version_stamp, ') do not match.\nMeaning emissions were generated on seperate days',
+      ' and could potentially be from different runs.\nIf not then continue without issue.\n',
+      '===================================================================================\n',
+      '===================================================================================\n'
+    )
+  )
+}
+
 #   Read in NH3 final emissions
     CEDS_final_NH3 <- readData( "FIN_OUT", domain_extension = 'current-versions/',
-                                paste0( "CEDS_NH3_emissions_by_country_CEDS_sector_", version_stamp ),
+                                NH3_file,
                                 meta = F )
 
 #   Read in NOx final emissions
     CEDS_final_NOx <- readData( "FIN_OUT", domain_extension = 'current-versions/',
-                            paste0( "CEDS_NOx_emissions_by_country_CEDS_sector_", version_stamp ),
+                            NOx_file,
                             meta = F )
 
 #--------------------------------------------------------------------------------------------------
