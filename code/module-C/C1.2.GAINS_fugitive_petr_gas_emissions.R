@@ -45,7 +45,7 @@
 #   Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "N2O"
 
 #   Stop script if running for unsupported species
     if ( ! ( em %in% c( 'BC', 'CH4', 'CO', 'CO2', 'N2O', 'NMVOC', 'NOx', 'OC', 'SO2' ) ) ) {
@@ -165,35 +165,12 @@
 #   UN Population data
     pop <- readData( "MED_OUT", "A.UN_pop_master" )
 
-# If em = N2O, load EDGAR v5 NOx and N2O data
+# If em = N2O, load EDGAR NOx and N2O data
     if( em == "N2O" ){
 
-      vn <- "5.0" # EDGAR data version number
-      domain <- "EM_INV" # Input domain
-      domain_ext <- "EDGAR/" # Input domain ext.
+      EDGAR_N2O <- readData( domain = "MED_OUT", file_name = paste0( "E.N2O_EDGAR" ))
 
-      # N2O
-      fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", EDGAR_INV_START_YEAR, "_",
-                       EDGAR_INV_END_YEAR ), ".xls")
-      sheet_to_use <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
-
-      # NOx
-      fn_NOx <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", "NOx", "_", EDGAR_INV_START_YEAR, "_",
-                           EDGAR_INV_END_YEAR ), ".xls")
-      sheet_to_use_NOx <- paste0( "v", vn, "_EM_", "NOx", "_IPCC1996" )
-
-
-      rows_to_skip <- 9
-
-      EDGAR_N2O <- readData( domain, domain_extension = domain_ext,
-                             file_name = fn[ 1 ], extension = fn[ 2 ],
-                             sheet_selection = sheet_to_use, skip = rows_to_skip,
-                             missing_value = c( "", "NULL" ) )
-
-      EDGAR_NOx <- readData( domain, domain_extension = domain_ext,
-                             file_name = fn_NOx[ 1 ], extension = fn_NOx[ 2 ],
-                             sheet_selection = sheet_to_use_NOx, skip = rows_to_skip,
-                             missing_value = c( "", "NULL" ) )
+      EDGAR_NOx <-  readData( domain = "MED_OUT", file_name = paste0( "E.NOx_EDGAR" ))
 
     }
 
@@ -1021,126 +998,120 @@ GAINS_fugitive_emissions_final <- dplyr::bind_rows( GAINS_fug_gas_prod_final_emi
         dplyr::select( iso, sector, fuel, units, X_emissions_years )
 
 # ------------------------------------------------------------------------------
-
-# 11. If em is N2O, apply ratio of Edgar 1B2 (Fugitive emissions from oil and gas) NOx to N2O emissions
+# 11. GAINS doesn't have N2O data. If N2O, then derive an emissions N2O/NOx
+#   emissions ratio from EDGAR, and apply to GAINS NOx emissions.
+#   N2O emissions are small and they are both combustion data so should be fine
+#   For uncalculated ratio (zero NOx emissions, or no data):
+#   - If later year ratio - extend ratio from previous year
+#   - Replace with Global Ratio
+#    - Replace with
 
 if( em == "N2O" ){
+
+loadPackage('zoo')
 
   printLog( "Using EDGAR N2O and NOx data to produce default fugitive oil and gas emissions, as GAINS only provides",
             "NOx data for these sectors..." )
 
-# Define function for cleaning EDGAR data
-  EDGAR_clean_for_ratio <- function( EDGAR_data_in, EDGAR_years, MCL_final_isos, EDGAR_em ){
-#     TODO: Note the scg work below - this may not be necessary in future EDGAR versions
-      EDGAR_clean <- EDGAR_data_in %>%
-          dplyr::select( ISO_A3, Name, IPCC, IPCC_description, EDGAR_years ) %>%
-          dplyr::rename( iso = ISO_A3 ) %>%
-          dplyr::mutate( iso = tolower( iso ) ) %>%
-        # As of EDGAR v5, this is the only petr. and gas fugitive EDGAR sector for N2O and NOx
-          dplyr::filter( IPCC == "1B2", IPCC_description == "Fugitive emissions from oil and gas" )
+#   Calculate Regional/Global/National Ratios to fill in missing data
+    EDGAR_N2O_NOx_Regions <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+        select(iso, sector, units, sector_description, year, N2O, NOx) %>%
+        filter(sector_description == "Fugitive emissions from oil and gas") %>%
+        left_join(MCL %>% select(iso, Figure_Region)) %>%
+        filter(!is.na(Figure_Region)) %>%  # CHANGE LATER
+        group_by(Figure_Region, sector, units, sector_description, year) %>%
+        summarize_if(is.numeric, sum, na.rm = TRUE) %>%
+        mutate(N2O_NOx_ratio = N2O/NOx) %>%
+        filter(N2O_NOx_ratio>0) %>%
+        filter(is.finite(N2O_NOx_ratio) ) %>%
+        mutate(ratio_region = N2O_NOx_ratio) %>%
+        select(Figure_Region, sector, units, sector_description, year, ratio_region)
 
-#     Apply EDGAR region aggregate Serbia and Montengro data to each CEDS relevant iso, so that both isos get their aggregate region ratio
-      EDGAR_scg_fix <- EDGAR_clean %>%
-          dplyr::bind_rows( EDGAR_clean %>%
-                                dplyr::filter( iso == "scg" ) %>%
-                                dplyr::mutate( iso = "srb", Name =  "Serbia" ) ) %>%
-          dplyr::bind_rows( EDGAR_clean %>%
-                               dplyr::filter( iso == "scg" ) %>%
-                               dplyr::mutate( iso = "srb (kosovo)", Name =  "Kosovo" ) ) %>%
-          dplyr::mutate( iso = if_else( iso == "scg",  "mne", iso ),
-                         Name = if_else( Name == "Serbia and Montenegro", "Montenegro", Name ) ) %>%
-          dplyr::filter( iso %in% MCL_final_isos$iso ) %>%
-          dplyr::filter_at( .vars = EDGAR_years, any_vars( !is.na( . ) ) ) %>%
-          tidyr::gather( year, emissions, EDGAR_years ) %>%
-          rename_at( .vars = "emissions",  funs( paste0( EDGAR_em, "_emissions" ) ) )
+    EDGAR_N2O_NOx_Global <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+        select(sector, units, sector_description, year, N2O, NOx) %>%
+        filter(sector_description == "Fugitive emissions from oil and gas") %>%
+        group_by(sector, units, sector_description, year) %>%
+        summarize_if(is.numeric, sum, na.rm = TRUE) %>%
+        mutate(N2O_NOx_ratio = N2O/NOx) %>%
+        filter(N2O_NOx_ratio>0) %>%
+        filter(is.finite(N2O_NOx_ratio) ) %>%
+        mutate(ratio_global = N2O_NOx_ratio) %>%
+        ungroup() %>%
+        select(sector, units, year, ratio_global)
 
-      return( EDGAR_scg_fix )
+    EDGAR_N2O_NOx_National <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+        filter(sector_description == "Fugitive emissions from oil and gas") %>%
+        select(iso, units, year, N2O, NOx) %>%
+        group_by(iso, units, year) %>%
+        summarize_if(is.numeric, sum, na.rm = TRUE) %>%
+        mutate(N2O_NOx_ratio = N2O/NOx) %>%
+        filter(N2O_NOx_ratio>0) %>%
+        filter(is.finite(N2O_NOx_ratio) ) %>%
+        mutate(ratio_national = N2O_NOx_ratio) %>%
+        select(iso, units, year, ratio_national)
 
-  }
+#   Calculate iso-sector N2O/NOx ratio
+#   Fill in NA for any uncalculated ratios in the following order:
+#   - Region Sector ratio
+#   - Global Sector ratio
+#   - national ratio
+#   - extend ratio forward
 
-#   Process Edgar N2O and NOx data
-    names( EDGAR_N2O ) <- c( names( EDGAR_N2O[ 1 : 6 ] ),
-                             paste0( "X", names( EDGAR_N2O[ 7 : length( EDGAR_N2O ) ] ) ) ) # Add X's to year columns for EDGAR v5
-    names( EDGAR_NOx ) <- c( names( EDGAR_NOx[ 1 : 6 ] ),
-                             paste0( "X", names( EDGAR_NOx[ 7 : length( EDGAR_NOx ) ] ) ) ) # Add X's to year columns for EDGAR v5
+# Define empty columns to add 1960-1969
+    addYearColumns <- paste("X", start_year:(EDGAR_start_year-1), sep = "")
 
-    EDGAR_N2O_clean <- EDGAR_clean_for_ratio( EDGAR_N2O, X_EDGAR_INV_YEARS, MCL_clean, "N2O" )
-    EDGAR_NOx_clean <- EDGAR_clean_for_ratio( EDGAR_NOx, X_EDGAR_INV_YEARS, MCL_clean, "NOx" )
-
-#   Combine EDGAR N2O and NOx data into 1 data frame
-    EDGAR_N2O_and_NOx <- EDGAR_N2O_clean %>%
-        dplyr::full_join( EDGAR_NOx_clean, by = c( "iso", "Name", "IPCC", "IPCC_description", "year" ) )
-
-    if( any( EDGAR_N2O_clean$iso %!in% EDGAR_N2O_and_NOx$iso ) | any( EDGAR_NOx_clean$iso %!in% EDGAR_N2O_and_NOx$iso ) ){
-
-        stop( "Combined EDGAR NOx and N2O data is missing isos from either the NOx data or the N2O data..." )
-
-    }
-
-#   Overwrite NOx or NO2 data with NA for a given iso + year combination if either NOx or N2O data is NA for the combination,
-#   as ratios will not be able to be computed for such combinations and a global default for the year will be provided.
-    emissions_columns <- c( "N2O_emissions", "NOx_emissions")
-
-    EDGAR_N2O_and_NOx_NA_fix <- EDGAR_N2O_and_NOx %>%
-        dplyr::mutate_at( emissions_columns, funs( if_else( is.na( N2O_emissions ) |
-                                                            is.na( NOx_emissions ), NA_real_, . ) ) )
-
-#   Make global summed emissions for each year and global ratio
-#   TODO: use regional ratios for isos which do not have ratio from EDGAR, instead of global ratio
-    EDGAR_N2O_NOx_global <- EDGAR_N2O_and_NOx_NA_fix %>%
-        dplyr::select( -iso, -Name ) %>%
-        dplyr::filter( !is.na( N2O_emissions ), !is.na( NOx_emissions ) ) %>%
-        dplyr::group_by( IPCC, IPCC_description, year ) %>%
-        dplyr::summarise_all( sum, na.rm = TRUE ) %>%
-        dplyr::ungroup( ) %>%
-        dplyr::mutate( Ratio_N2O_per_NOx_global = N2O_emissions / NOx_emissions ) %>%
-        dplyr::select( -N2O_emissions, -NOx_emissions )
-
-#   Make ratio for each iso + year combo
-    EDGAR_national_ratio <- EDGAR_N2O_and_NOx_NA_fix %>%
-        dplyr::mutate( Ratio_N2O_per_Nox = N2O_emissions / NOx_emissions )
+    EDGAR_N2O_and_NOx <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+        left_join(MCL %>% select(iso, Figure_Region)) %>%
+        filter(sector_description == "Fugitive emissions from oil and gas") %>%
+        mutate(N2O_NOx_ratio = N2O/NOx) %>%
+        mutate(N2O_NOx_ratio = ifelse(N2O == 0 & NOx == 0, 0, N2O_NOx_ratio)) %>%
+        mutate(N2O_NOx_ratio = ifelse(N2O != 0 & NOx == 0, NA, N2O_NOx_ratio)) %>%
+        left_join( EDGAR_N2O_NOx_Regions) %>%
+        left_join( EDGAR_N2O_NOx_Global) %>%
+        left_join( EDGAR_N2O_NOx_National) %>%
+        mutate( N2O_NOx_ratio = ifelse(!is.na(N2O_NOx_ratio), N2O_NOx_ratio,ratio_region)) %>%
+        mutate( N2O_NOx_ratio = ifelse(!is.na(N2O_NOx_ratio), N2O_NOx_ratio,ratio_global)) %>%
+        mutate( N2O_NOx_ratio = ifelse(!is.na(N2O_NOx_ratio), N2O_NOx_ratio,ratio_national)) %>%
+        select(iso, sector, units, sector_description, year, N2O_NOx_ratio) %>%
+        unique() %>%
+        spread(year, N2O_NOx_ratio) %>%
+        tibble::add_column(!!!set_names(as.list(rep(NA, length(addYearColumns))),nm=addYearColumns)) %>%
+        select(iso, sector, units, paste0('X',start_year:end_year))
 
 #   Add any missing final CEDS isos
-    if( any( MCL_clean$iso %!in% EDGAR_national_ratio$iso ) ){
-
-        missing_isos <- subset( MCL_clean$iso, MCL_clean$iso %!in% EDGAR_national_ratio$iso )
-
+    if( any( MCL_clean$iso %!in% EDGAR_N2O_and_NOx$iso ) ){
+    # Missing isos
+        missing_isos <- subset( MCL_clean$iso, MCL_clean$iso %!in% EDGAR_N2O_and_NOx$iso )
+    # make data frame of missing isos with global n20 ratio
         missing_isos_df <- missing_isos %>%
             dplyr::as_data_frame(  ) %>%
             dplyr::rename( iso = value ) %>%
-            dplyr::mutate_at( X_EDGAR_INV_YEARS, funs( identity( NA_real_ ) ) ) %>%
-            tidyr::gather( year, Ratio_N2O_per_Nox, X_EDGAR_INV_YEARS ) %>%
-            dplyr::mutate( IPCC = "1B2", IPCC_description = "Fugitive emissions from oil and gas" )
-
-        EDGAR_national_ratio <- EDGAR_national_ratio %>%
+            bind_cols(do.call("rbind", replicate(length(missing_isos),
+                                                 EDGAR_N2O_NOx_Global %>% spread(year, ratio_global),
+                                                 simplify = FALSE)))
+    # Add missing isos to final N20 ratio
+        EDGAR_ratio_final <- EDGAR_N2O_and_NOx %>%
             dplyr::bind_rows( missing_isos_df )
-
-
-    }
-
-#   Add global ratios where NA and for isos not in EDGAR
-    EDGAR_national_ratio_with_global_ratio_fix <- EDGAR_national_ratio %>%
-        dplyr::left_join( EDGAR_N2O_NOx_global, by = c( "IPCC", "IPCC_description", "year" ) ) %>%
-        dplyr::mutate( Ratio_N2O_per_Nox = if_else( is.na( Ratio_N2O_per_Nox ),
-                                                    Ratio_N2O_per_NOx_global, Ratio_N2O_per_Nox ) ) %>%
-        dplyr::select( iso, year, Ratio_N2O_per_Nox )
+    # Check all countries are in df
+        if( any( MCL_clean$iso %!in% EDGAR_ratio_final$iso ) ) stop('Not all isos are in the N20-NOx ratio data frame - even after replacing.')
+    }else(EDGAR_ratio_final <-  EDGAR_N2O_and_NOx)
 
 #   Extend ratios forwards and backwards to cover all CEDS years
-    EDGAR_ratios_extended <- EDGAR_national_ratio_with_global_ratio_fix %>%
-        tidyr::spread( year, Ratio_N2O_per_Nox ) %>%
-        dplyr::mutate_at( X_MISSING_EDGAR_EARLY_YEARS, funs( identity( !!rlang::sym( first( X_EDGAR_INV_YEARS ) ) ) ) ) %>%
-        dplyr::mutate_at( X_MISSING_EDGAR_LATE_YEARS, funs( identity( !!rlang::sym( last( X_EDGAR_INV_YEARS ) ) ) ) ) %>%
-        dplyr::select( iso, all_of(X_emissions_years) ) %>%
-        tidyr::gather( year, Ratio_N2O_per_Nox,  all_of(X_emissions_years) )
+    EDGAR_ratio_final[ paste0('X',EDGAR_start_year:end_year) ] <- t(na.locf(t(EDGAR_ratio_final[ paste0('X',EDGAR_start_year:end_year) ])))
+    EDGAR_ratio_final[ paste0('X',start_year:end_year) ] <- t(na.locf(t(EDGAR_ratio_final[ paste0('X',start_year:end_year) ]),fromLast = TRUE))
 
+    if( any(is.na(EDGAR_ratio_final)) ) stop("NA's in final EDGAR N20-NOx ratio")
 
 #   Apply Ratio to emissions
     GAINS_fugitive_emissions_final <- GAINS_fugitive_emissions_final %>%
-        dplyr::ungroup( ) %>%
-        tidyr::gather( year, NOx_emissions, all_of(X_emissions_years) ) %>%
-        dplyr::left_join( EDGAR_ratios_extended, by = c( "iso", "year" ) ) %>%
-        dplyr::mutate( N2O_emissions = NOx_emissions * Ratio_N2O_per_Nox ) %>%
-        dplyr::select( -NOx_emissions, -Ratio_N2O_per_Nox ) %>%
+        gather(year, NOx_emissions,-iso,-sector,-fuel,-units) %>%
+        dplyr::left_join( EDGAR_ratio_final %>% gather(year, ratio,-iso,-sector,-units) ) %>%
+        dplyr::mutate( N2O_emissions = NOx_emissions * ratio ) %>%
+        dplyr::select( -NOx_emissions, -ratio ) %>%
         tidyr::spread( year, N2O_emissions )
 
 }

@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "CO2"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -229,7 +229,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   # Move last-run files to a temp folder [em]_last-run
   dir.create( paste0( "../final-emissions/", em, "_last-run" ), showWarnings = F )
-  fl <- list.files( "../final-emissions/current-versions/", pattern = paste0( "_", em, "_" ), full.names = T )
+  fl <- list.files( "../final-emissions/current-versions", pattern = paste0( "_", em, "_" ), full.names = T )
   moveFileList( fl, paste0( "../final-emissions/", em, "_last-run/" ) )
 
   # Write out current-run
