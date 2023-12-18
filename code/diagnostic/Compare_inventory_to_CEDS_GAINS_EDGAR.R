@@ -33,7 +33,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 1. Run for relevant inventory emissions
@@ -48,7 +48,7 @@ if (em %in% em_list) {
 # Load in country inventory totals
   # These files are created in the module E scripts.
     modE_dir <- paste0('../intermediate-output/')
-    files <-intersect(list.files(modE_dir,pattern = em), list.files(modE_dir, pattern = "_inventory_country_total.csv"))
+    files <-intersect(list.files(modE_dir,pattern = paste0('E.', em, '_')), list.files(modE_dir, pattern = "_inventory_country_total.csv"))
     # use only files that have data in it
     setwd("../intermediate-output")
     files <- files[sapply(files, file.size) > 10]

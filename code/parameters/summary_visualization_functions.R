@@ -233,7 +233,7 @@ names(summary_plot_output)[(last_index+1)] <- country_select[i]
 }}
 
 # Save as R object, to print to pdf later
-save(summary_plot_output, file = paste0('../final-emissions/diagnostics/Comparison_Plots_',EM,'.RData'))
+save(summary_plot_output, file = paste0('../final-emissions/diagnostics/Comparison_Plots_',EM,'.Rdata'))
 
 return(summary_plot_output)
 

@@ -32,7 +32,7 @@ source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
 
 #--------------------------------------------------------------------------------------------------
-# Read in data NH3 and NOx final emissions
+# Read in data NH3 and NOx final emissions 
 
 NH3_file <- list.files('../final-emissions/current-versions/', 'CEDS_NH3_emissions_by_country_CEDS_sector_*')
 NOx_file <- list.files('../final-emissions/current-versions/', 'CEDS_NOx_emissions_by_country_CEDS_sector_*')
@@ -58,13 +58,14 @@ if(NH3_version_stamp != NOx_version_stamp){
   )
 }
 
-#   Read in NH3 final emissions
-    CEDS_final_NH3 <- readData( "FIN_OUT", domain_extension = 'current-versions/',
-                                NH3_file,
-                                meta = F )
 
-#   Read in NOx final emissions
-    CEDS_final_NOx <- readData( "FIN_OUT", domain_extension = 'current-versions/',
+# Read in NH3 data
+CEDS_final_NH3 <- readData( "FIN_OUT", domain_extension = 'current-versions/',
+                            NH3_file,
+                            meta = F )
+
+# Read in NOx final emissions
+CEDS_final_NOx <- readData( "FIN_OUT", domain_extension = 'current-versions/',
                             NOx_file,
                             meta = F )
 
