@@ -154,6 +154,9 @@ clean-diagnostic:
 
 clean-final:
 	rm -fv $(FINAL_OUT)/diagnostics/*.csv
+	rm -fv $(FINAL_OUT)/diagnostics/*.pdf
+	rm -fv $(FINAL_OUT)/diagnostics/*.Rdata
+	rm -fv $(FINAL_OUT)/diagnostics/*.Rd
 	rm -fv $(FINAL_OUT)/previous-versions/*.csv
 
 clean-current:
