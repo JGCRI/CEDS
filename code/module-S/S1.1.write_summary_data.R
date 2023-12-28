@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NMVOC"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -42,11 +42,15 @@ WRITE_CEDS_SECTORS = TRUE
 
 # Select individual country(ies) to plot in comparison graphs. If not selecting
 # a country for comparison graphs, define as NA
-country_select <- NA
+country_select <- 'can'
 # country_select <- c('usa','chn')
 
 # Option to print out comparison figures for current emission species
 WRITE_COMPARISON_PLOTS = TRUE
+# Option to print out the individual figures, rather than just the pdf
+WRITE_INDIVIDUAL_COMPARISON_PLOTS = FALSE
+# Define individual country color
+color = 'darkorchid'
 
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
@@ -236,10 +240,11 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   writeSummary()
 
   #Comparison Figures - plot and write Rdata object
-  comparison_plots <- summary_comparison_plots()
+  comparison_plots <- summary_comparison_plots(global_color = color )
 
   #Print comparison plots to PDF if option chosen
   if(WRITE_COMPARISON_PLOTS == TRUE) print_single_em_comparison_plots()
+  if(WRITE_INDIVIDUAL_COMPARISON_PLOTS == TRUE) print_summary_graphs(print_regions = FALSE)
 
   # Read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
@@ -366,9 +371,9 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # Source figure and comparison files to print figures
 # source('../code/diagnostic/Figures.R')
 
-  source('../code/diagnostic/Compare_to_RCP.R')
-  if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
-  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_inventory_to_CEDS_GAINS_EDGAR.R')
+  # source('../code/diagnostic/Compare_to_RCP.R')
+  # if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
+  # if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_inventory_to_CEDS_GAINS_EDGAR.R')
 
 # Warn the user that if they are interested in N2O emissions and NH3 or NOx emissions
 # have changed since the last run for sectors 1 and 2, then H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R needs

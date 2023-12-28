@@ -5,15 +5,18 @@
 
 # This file should be sourced by any R script running diagnostics on CEDS data.
 # Functions contained:
-#   diagnostic_compare_plot
-
+#   summary_comparison_plots
+#   print_single_em_comparison_plots
+#   print_summary_graphs
+#
 # ----------------------------------------------------------------------------------
 # summary_comparison_plots
-# Brief:         Produces plots to compare the current Version with the last Version
-# Details:
-# Dependencies:
-# Author(s):
-# Params:   country_select: vector or isos to be plotted individually
+# Brief: Produces plots to compare the current Version with the last Version
+# Details: Produces plots by aggregate sector, global, fuels etc. Can also pull
+#       out individual country comparison plots
+# Dependencies: none
+# Author(s): Rachel
+# Params: country_select: vector or isos to be plotted individually
 # Return:
 # Input Files:
 # Output Files:  list of summary plots (ggplot objects)
@@ -25,7 +28,9 @@ summary_comparison_plots <- function(
                           MCL = Master_Country_List,
                           MSL = Master_Sector_Level_map,
                           CS = country_select,
-                          EM = em){
+                          EM = em,
+                          global_color = 'darkorchid'){
+
 printLog("Create Comparison plots for current vs previous data")
 # Plot options
 graph_start <- min(extended_years)
@@ -33,9 +38,9 @@ graph_end <- max(extended_years)
 year_breaks <- 10
 
 # Plot theme
-theme_diagnostic <- list(theme_minimal(),
-                         theme(panel.background = element_rect(fill = "#D8D9DA",colour = "#D8D9DA",size = 0.5, linetype = "solid")),
-                         theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid',colour = "white")),
+# Gray background for diagnostic figures
+theme_diagnostic <- list(theme(panel.background = element_rect(fill = "gray90",colour = "gray90",size = 0.5, linetype = "solid")),
+                         theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid',colour = "gray95")),
                          theme(panel.grid.minor = element_line(size = 0.25, linetype = 'solid',colour = "white")))
 
 version_comparison_formatting <- list(
@@ -43,7 +48,7 @@ version_comparison_formatting <- list(
                     limits = c(1960, graph_end+1)) ,
     #scale_y_continuous( labels = 'comma' ),
     guides( linetype = guide_legend( override.aes = list( size = c( 1.5, 0.5 ) ) ) ),
-    labs( x = "" , y = 'Emissions [Gg/yr]' ),
+    labs( x = "" , y = 'Emissions [Tg/yr]' ),
     ggtitle(EM),
     scale_linetype_manual( name= 'Version',
                        breaks = c( 'Last' ,'Current'),
@@ -74,15 +79,17 @@ current_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( "current-versions/"
                                        meta = F )
 
 #Process Data for figures
+# Convert from Gg to Tg: 1000Gg = 1 Tg
 dfplot_global_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
-    left_join(MSL %>% select(aggregate_sectors,Figure_sector), by = c('sector' = "aggregate_sectors")) %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+    left_join(MSL %>% select(aggregate_sectors,Figure_sector) %>% unique, by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
-    filter(Sector != "Shipping") %>%
     group_by(Sector, Version) %>%
     summarize_if(is.numeric, sum) %>%
     gather(year, value, -Sector, -Version) %>%
-    mutate(year = as.numeric(str_replace(year, 'X','')))
+    mutate(year = as.numeric(str_replace(year, 'X',''))) %>%
+    mutate(value = value/1000) %>% #Convert from Gg to Tg
+    filter(!is.na(value))
 
 dfplot_global_fuel <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current') %>%
     rbind( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
@@ -90,26 +97,37 @@ dfplot_global_fuel <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current')
     group_by(Fuel, Version) %>%
     summarize_if(is.numeric, sum) %>%
     gather(year, value, -Fuel, -Version) %>%
-    mutate(year = as.numeric(str_replace(year, 'X','')))
+    mutate(year = as.numeric(str_replace(year, 'X',''))) %>%
+    mutate(value = value/1000) %>% #Convert from Gg to Tg
+    filter(!is.na(value))
 
-dfplot_global_total <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
+
+dfplot_global_total <- current_Em_by_Country_Sector %>% mutate(Version = 'Current') %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
     group_by(Version) %>%
     summarize_if(is.numeric, sum) %>%
     gather(year, value, -Version) %>%
-    mutate(year = as.numeric(str_replace(year, 'X','')))
+    mutate(year = as.numeric(str_replace(year, 'X',''))) %>%
+    mutate(value = value/1000) %>% #Convert from Gg to Tg
+    filter(!is.na(value))
 
 dfplot_Regions_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
-    left_join(MCL %>% select(iso, Paper_Figure_Region)) %>%
-    left_join(MSL %>% select(aggregate_sectors,Figure_sector), by = c('sector' = "aggregate_sectors")) %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+    left_join(MCL %>% select(iso, Paper_Figure_Region)%>% unique) %>%
+    left_join(MSL %>% select(aggregate_sectors,Figure_sector)%>% unique, by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
-    filter(Sector != "Shipping") %>%
+    # filter(Sector != "Shipping") %>%
     mutate(Region = Paper_Figure_Region) %>%
     group_by(Region, Sector, Version) %>%
     summarize_if(is.numeric, sum) %>%
     gather(year, value, -Sector, -Region, -Version) %>%
-    mutate(year = as.numeric(str_replace(year, 'X','')))
+    mutate(year = as.numeric(str_replace(year, 'X',''))) %>%
+    mutate(value = value/1000) %>% #Convert from Gg to Tg
+    filter(!is.na(value))
+
+dfplot_global_region <- dfplot_Regions_sectors %>%
+    group_by(Region, Version, year) %>%
+    summarize_if(is.numeric, sum)
 
 dfplot_Africa_sectors <- dfplot_Regions_sectors %>%
     filter(Region == 'Africa')
@@ -149,11 +167,19 @@ plot_global_fuel <- ggplot(dfplot_global_fuel, aes(x = year, y = value, color = 
     version_comparison_formatting+
     theme_diagnostic
 
+plot_global_region <- ggplot(dfplot_global_region, aes(x = year, y = value, color = Region, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Region ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Region ), alpha = 1 ) +
+    version_comparison_formatting+
+    theme_diagnostic
+
 plot_global_total <- ggplot(dfplot_global_total, aes(x = year, y = value,  linetype= Version))+
     geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Last' ),
-               size = 2 ,aes( x = year, y= value), alpha = .4 ) +
+               size = 2 ,aes( x = year, y= value), alpha = .4 , color = global_color) +
     geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Current'  ),
-               size = 0.5, aes( x = year, y = value ), alpha = 1 ) +
+               size = 0.5, aes( x = year, y = value ), alpha = 1 , color = global_color) +
     version_comparison_formatting+
     theme_diagnostic
 
@@ -174,8 +200,8 @@ region_plots <- lapply(list(dfplot_Africa_sectors, dfplot_China_sectors, dfplot_
 
 #output
 
-summary_plot_output <- c(list(plot_global_sectors, plot_global_fuel, plot_global_total), region_plots)
-names(summary_plot_output) <- c("Global Sectors",'Global Fuel','Globl Total',
+summary_plot_output <- c(list(plot_global_sectors, plot_global_fuel, plot_global_region, plot_global_total), region_plots)
+names(summary_plot_output) <- c("Global Sectors",'Global Fuel', 'Global Region', 'Global Total',
                                 "Africa", "China", "North America", "Europe", "FSU", "Latin America", "Other Asia/Pacific")
 
 # If individual country(ies) selected:
@@ -190,7 +216,8 @@ if(!is.na(country_select)){
         group_by(Country, Version) %>%
         summarize_if(is.numeric, sum) %>%
         gather(year, value, -Country, -Version) %>%
-        mutate(year = as.numeric(str_replace(year, 'X','')))
+        mutate(year = as.numeric(str_replace(year, 'X','')))%>%
+        mutate(value = value/1000) #Convert from Gg to Tg
 
     plot_all_countries <- ggplot(dfplot_all_countries, aes(x = year, y = value, color = Country, linetype= Version))+
         geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Last' ),
@@ -208,13 +235,14 @@ names(summary_plot_output)[(last_index+1)] <- "Selected Countries"
 #Plot individual country graphs by sector
 dfplot_countries_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
     rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
-    left_join(MSL %>% select(aggregate_sectors,Figure_sector), by = c('sector' = "aggregate_sectors")) %>%
+    left_join(MSL %>% select(aggregate_sectors,Figure_sector) %>% unique, by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
     filter(Sector != "Shipping") %>%
     group_by(iso, Sector, Version) %>%
     summarize_if(is.numeric, sum) %>%
     gather(year, value, -Sector, -iso, -Version) %>%
-    mutate(year = as.numeric(str_replace(year, 'X','')))
+    mutate(year = as.numeric(str_replace(year, 'X',''))) %>%
+    mutate(value = value/1000) #Convert from Gg to Tg
 
 for (i in seq_along(country_select)){
 
@@ -244,15 +272,16 @@ return(summary_plot_output)
 
 # ----------------------------------------------------------------------------------
 # print_single_em_comparison_plots
-# Brief:         Print the comparison plots for the current emission species to
+# Brief: Print the comparison plots for the current emission species to
 #       to diagnostic output
-# Details:
-# Dependencies:
-# Author(s):
+# Details: Only prints the figures plotted in summary_comparison_plots
+# Dependencies: uses output from summary_comparison_plots
+# Author(s): Rachel Hoesly
 # Params:   country_select: vector or isos to be plotted individually
-# Return:
+#           comparison_plots: output from summary_comparison_plots
+# Return: none, saves plots in pdf
 # Input Files: comparison_plot: list of ggplots created with summary_comparison_plot()
-# Output Files:  list of summary plots (ggplot objects)
+# Output Files: pdf of plotted summary plots (not returned just saved)
 
 print_single_em_comparison_plots <- function(plot_list = comparison_plots,
                                              CS = country_select,
@@ -264,7 +293,8 @@ print_single_em_comparison_plots <- function(plot_list = comparison_plots,
 
     grid.arrange( plot_list[["Global Sectors"]]+ggtitle('Global Sectors'),
                   plot_list[["Global Fuel"]]+ggtitle('Global Fuel'),
-                  plot_list[["Globl Total"]]+ggtitle('Globl Total'),
+                  plot_list[["Global Region"]]+ggtitle('Global Region'),
+                  plot_list[["Global Total"]]+ggtitle('Global Total'),
                   ncol = 3, nrow = 3,padding = unit(3, "line"),
                   top = paste0( "Global CEDS comparison - current to previous version" ) )
 
@@ -294,14 +324,11 @@ print_single_em_comparison_plots <- function(plot_list = comparison_plots,
 
 # ----------------------------------------------------------------------------------
 # g_legend
-# Brief:
-# Details:
-# Dependencies:
-# Author(s):
-# Params:
-# Return:
-# Input Files:
-# Output Files:
+# Brief: extracts the legend from a ggplot plot
+# Dependencies: none
+# Author(s): the internet
+# Params: a.gplot: a ggplot plot
+# Return: the ggplot legend object
 
 g_legend<-function( a.gplot ){
 
@@ -312,3 +339,51 @@ g_legend<-function( a.gplot ){
 
 }
 
+# ----------------------------------------------------------------------------------
+# print_summary_graphs
+# Brief: print the individual summary graphs as pdfs. Useful for presentations.
+# Details: Only prints the figures plotted in summary_comparison_plots
+# Dependencies: uses output from summary_comparison_plots
+# Author(s): Rachel Hoesly
+# Params:   country_select: vector or isos to be plotted individually
+#           comparison_plots: output from summary_comparison_plots
+# Return: none, saves plots in pdf
+# Input Files: comparison_plot: list of ggplots created with summary_comparison_plot()
+# Output Files: individual pdfs of plotted summary plots (not returned just saved)
+
+print_summary_graphs <- function(plot_list = comparison_plots,
+                                 print_regions = FALSE){
+    ggsave(paste0("../final-emissions/diagnostics/",em,"_global_sector.pdf"),
+           plot = plot_list[["Global Sectors"]], width =6 , height=4, units = "in")
+
+    ggsave(paste0("../final-emissions/diagnostics/",em,"_global_fuel.pdf"),
+           plot = plot_list[["Global Fuel"]], width =6 , height=4, units = "in")
+
+    ggsave(paste0("../final-emissions/diagnostics/",em,"_global_region.pdf"),
+           plot = plot_list[["Global Region"]], width =6 , height=4, units = "in")
+
+    ggsave(paste0("../final-emissions/diagnostics/",em,"_global_total.pdf"),
+           plot = plot_list[["Global Total"]], width =4 , height=2.25, units = "in")
+
+    ggsave(paste0("../final-emissions/diagnostics/",em,"_global_total_no_legend.pdf"),
+           plot = plot_list[["Global Total"]]+ theme(legend.position = "none"),
+           width =3 , height=2.25, units = "in")
+
+    if(print_regions == TRUE){
+
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_africa.pdf"),
+               plot = plot_list[["Africa"]], width =4 , height=2.25, units = "in")
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_china.pdf"),
+               plot = plot_list[["China"]], width =4 , height=2.25, units = "in")
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_northamerica.pdf"),
+               plot = plot_list[["North America"]], width =4 , height=2.25, units = "in")
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_europe.pdf"),
+               plot = plot_list[["Europe"]], width =4 , height=2.25, units = "in")
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_fsu.pdf"),
+               plot = plot_list[["FSU"]], width =4 , height=2.25, units = "in")
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_latinamerica.pdf"),
+               plot = plot_list[["Latin America"]], width =4 , height=2.25, units = "in")
+        ggsave(paste0("../final-emissions/diagnostics/",em,"_otherasia.pdf"),
+               plot = plot_list[["Other Asia/Pacific"]], width =4 , height=2.25, units = "in")
+
+    }}
