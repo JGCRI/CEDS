@@ -35,7 +35,7 @@
 # Define emissions species variable
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "N2O"
+  if ( is.na( em ) ) em <- "CH4"
 
 # EDGAR data version number
 vn <- "6.1"

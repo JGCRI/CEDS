@@ -1,256 +1,256 @@
-iso,final_data_flag,IEAName,IEA_Fert_reg,BPName,HydeName,Country_Name,OECD_flag,FAO_Country_Code,UNFCCC,Region,Figure_Region,Paper_Figure_Region,EMEP,WorldBank,BPName_Oil_production,BPName_Gas_production,BP_Oil_product,WB_income_level,note
-abw,1,Other non-OECD Americas,Latin America,Other Caribbean,,Aruba,NonOECD,22,Aruba,Latin America,Central and South America,Latin America,,AW,,,S. & Cent. America,high-income,separated from Netherlands Antilles in 1986
-afg,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Afghanistan,NonOECD,2,Afghanistan,Asia,Other Asia,Other Asia/Pacific/ME,,AF,,,Asia Pacific,,
-ago,1,Angola,Africa,Western Africa,angola,Angola,NonOECD,7,Angola,Africa,Africa,Africa,,AO,Angola,,Africa,,
-alb,1,Albania,Central European countries,Other Europe,albania,Albania,NonOECD,3,Albania,Eastern Europe,Eastern Europe,Europe,AL,AL,,,Europe,,
-ant,0,Netherlands Antilles,Latin America,Other Caribbean,,Netherlands Antilles,NonOECD,151,Netherlands Antilles,Latin America,Central and South America,Latin America,,AN,,,S. & Cent. America,,historical
-are,1,United Arab Emirates,Middle East,United Arab Emirates,U.A.E.,United Arab Emirates,NonOECD,225,United Arab Emirates,Middle East,Middle East,Other Asia/Pacific/ME,,AE,United Arab Emirates,United Arab Emirates,Middle East,high-income,
-arg,1,Argentina,Latin America,Argentina,argentina,Argentina,NonOECD,9,Argentina,Latin America,Central and South America,Latin America,,AR,Argentina,Argentina,S. & Cent. America,,
-arm,1,Armenia,CIS,Other CIS,,Armenia,NonOECD,1,Armenia,FSU,FSU,Former Soviet Union,AM,AM,,,CIS,,
-arm,1,Former Soviet Union (if no detail),CIS,,,Armenia,NonOECD,1,Armenia,FSU,FSU,Former Soviet Union,AM,AM,,,CIS,,
-asm,1,Other non-OECD Americas,Latin America,Other Caribbean,,American Samoa,NonOECD,5,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,S. & Cent. America,,
-atg,1,Other non-OECD Americas,Latin America,Other Caribbean,,Antigua and Barbuda,NonOECD,8,Antigua and Barbuda,Latin America,Central and South America,Latin America,,AG,,,S. & Cent. America,high-income,
-aus,1,Australia,Oceania,Australia,australia,Australia,OECD,10,Australia,OtherOECD90,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,AU,Australia,Australia,Asia Pacific,high-income,
-aut,1,Austria,Western Europe,Austria,austria,Austria,OECD,11,Austria,Western Europe,Western Europe,Europe,AT,AT,,,European Union,high-income,
-aze,1,Azerbaijan,CIS,Azerbaijan,,Azerbaijan,NonOECD,52,Azerbaijan,FSU,FSU,Former Soviet Union,AZ,AZ,Azerbaijan,Azerbaijan,CIS,,
-aze,1,Former Soviet Union (if no detail),CIS,,,Azerbaijan,NonOECD,52,Azerbaijan,FSU,FSU,Former Soviet Union,AZ,AZ,,,CIS,,
-bdi,1,Other Africa,Africa,Middle Africa,,Burundi,NonOECD,29,Burundi,Africa,Africa,Africa,,BI,,,Africa,,
-bel,1,Belgium,Western Europe,Belgium,,Belgium,OECD,255,Belgium,Western Europe,Western Europe,Europe,BE,BE,,,Europe,high-income,
-ben,1,Benin,Africa,Western Africa,,Benin,NonOECD,53,Benin,Africa,Africa,Africa,,BJ,,,Africa,,
-bfa,1,Other Africa,Africa,Middle Africa,,Burkina Faso,NonOECD,233,Burkina Faso,Africa,Africa,Africa,,BF,,,Africa,,
-bgd,1,Bangladesh,Other Asia,Bangladesh,banglad.,Bangladesh,NonOECD,16,Bangladesh,Asia,Other Asia,Other Asia/Pacific/ME,,BD,,Bangladesh,Asia Pacific,,
-bgr,1,Bulgaria,Central European countries,Bulgaria,bulgaria,Bulgaria,NonOECD,27,Bulgaria,Eastern Europe,Eastern Europe,Europe,BG,BG,,,European Union,,
-bhr,1,Bahrain,Middle East,Other Middle East,bahrain,Bahrain,NonOECD,13,Bahrain,Middle East,Middle East,Other Asia/Pacific/ME,,BH,,Bahrain,Middle East,high-income,
-bhs,1,Other non-OECD Americas,Latin America,Other Caribbean,,Bahamas,NonOECD,12,Bahamas,Latin America,Central and South America,Latin America,,BS,,,S. & Cent. America,high-income,
-bih,1,Bosnia and Herzegovina,Central European countries,Other Europe,,Bosnia and Herzegovina,NonOECD,80,Bosnia and Herzegovina,Eastern Europe,Eastern Europe,Europe,BA,BA,,,Europe,,
-bih,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Bosnia and Herzegovina,NonOECD,80,Bosnia and Herzegovina,Eastern Europe,Eastern Europe,Europe,BA,BA,,,Europe,,
-blr,1,Belarus,CIS,Belarus,,Belarus,NonOECD,57,Belarus,FSU,FSU,Former Soviet Union,BY,BY,,,CIS,,
-blr,1,Former Soviet Union (if no detail),CIS,,,Belarus,NonOECD,57,Belarus,FSU,FSU,Former Soviet Union,BY,BY,,,CIS,,
-blx,0,,,,,Belgium-Luxembourg ,OECD,15,,Western Europe,Western Europe,Europe,,,,,Europe,,historical
-blz,1,Other non-OECD Americas,Latin America,Other Caribbean,,Belize,NonOECD,23,Belize,Latin America,Central and South America,Latin America,,BZ,,,S. & Cent. America,,
-bmu,1,Other non-OECD Americas,Western Europe,Other Caribbean,,Bermuda,NonOECD,17,Bermuda,Latin America,Central and South America,Latin America,,BM,,,Europe,high-income,
-bol,1,Plurinational State of Bolivia,Latin America,Other South America,bolivia,Bolivia,NonOECD,19,Bolivia,Latin America,Central and South America,Latin America,,BO,,Bolivia,S. & Cent. America,,
-bra,1,Brazil,Latin America,Brazil,brazil,Brazil,NonOECD,21,Brazil,Latin America,Central and South America,Latin America,,BR,Brazil,Brazil,Brazil,,
-brb,1,Other non-OECD Americas,Latin America,Other Caribbean,barbados,Barbados,NonOECD,14,Barbados,Latin America,Central and South America,Latin America,,BB,,,S. & Cent. America,high-income,
-brn,1,Brunei Darussalam,Other Asia,Other Asia Pacific,brunei,Brunei Darussalam,NonOECD,26,Brunei Darussalam,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,BN,Brunei,Brunei,Asia Pacific,high-income,
-btn,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Bhutan,NonOECD,18,Bhutan,Asia,Other Asia,Other Asia/Pacific/ME,,BT,,,Asia Pacific,,
-bwa,1,Botswana,Africa,Other Southern Africa,,Botswana,NonOECD,20,Botswana,Africa,Africa,Africa,,BW,,,Africa,,
-caf,1,Other Africa,Africa,Middle Africa,,Central African Republic,NonOECD,37,Central African Republic,Africa,Africa,Africa,,CF,,,Africa,,
-can,1,Canada,North America,Canada,canada,Canada,OECD,33,Canada,OtherOECD90,North America,North America,CA,CA,Canada,Canada,North America,high-income,
-che,1,Switzerland,Western Europe,Switzerland,,Switzerland,OECD,211,Switzerland,Western Europe,Western Europe,Europe,CH,CH,,,Europe,high-income,
-chl,1,Chile,Latin America,Chile,chili,Chile,OECD,40,Chile,Latin America,Central and South America,Latin America,,CL,,,S. & Cent. America,high-income,
-chn,1,People's Republic of China,China,China,china,China,NonOECD,41,China,Asia,China,China,,CN,China,China,China,,
-civ,1,Cote dIvoire,Africa,Western Africa,ivory coast,Cote dIvoire,NonOECD,107,Cote dIvoire,Africa,Africa,Africa,,CI,,,Africa,,
-cmr,1,Cameroon,Africa,Western Africa,cameroon,Cameroon,NonOECD,32,Cameroon,Africa,Africa,Africa,,CM,,,Africa,,
-cod,1,Democratic Republic of the Congo,Africa,Western Africa,zaire,Democratic Republic of Congo,NonOECD,250,Democratic Republic of Congo,Africa,Africa,Africa,,CD,Republic of Congo ,,Africa,,
-cod,1,Democratic Republic of the Congo,Africa,Western Africa,,Democratic Republic of Congo,NonOECD,250,Democratic Republic of Congo,Africa,Africa,Africa,,CD,,,Africa,,
-cog,1,Republic of the Congo,Africa,Western Africa,congo,Congo,NonOECD,46,Congo,Africa,Africa,Africa,,CG,,,Africa,,
-cok,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Cook Islands,NonOECD,47,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-col,1,Colombia,Latin America,Colombia,colombia,Colombia,NonOECD,44,Colombia,Latin America,Central and South America,Latin America,,CO,Colombia,Colombia,S. & Cent. America,,
-com,1,Other Africa,Africa,Eastern Africa,,Comoros,NonOECD,45,Comoros,Africa,Africa,Africa,,KM,,,Africa,,
-cpv,1,Other Africa,Africa,Western Africa,,Cape Verde,NonOECD,35,Cape Verde,Africa,Africa,Africa,,CV,,,Africa,,
-cri,1,Costa Rica,Latin America,Other Caribbean,,Costa Rica,NonOECD,48,Costa Rica,Latin America,Central and South America,Latin America,,CR,,,S. & Cent. America,,
-csk,0,,,,czechosl.,Czechoslovakia,OECD,51,Czechoslovakia,Eastern Europe,Eastern Europe,Europe,,,,,Europe,,historical
-cub,1,Cuba,Latin America,Other Caribbean,cuba,Cuba,NonOECD,49,Cuba,Latin America,Central and South America,Latin America,,CU,,,S. & Cent. America,,
-cuw,1,Curacao/Netherlands Antilles,Latin America,Other Caribbean,,Curacao,NonOECD,,,Latin America,Central and South America,Latin America,,,,,S. & Cent. America,high-income,separated from Netherlands Antilles in 2010
-cym,1,Other non-OECD Americas,Latin America,Other Caribbean,,Cayman Islands,NonOECD,36,Cayman Islands,Latin America,Central and South America,Latin America,,KY,,,S. & Cent. America,high-income,
-cyp,1,Cyprus,Western Europe,Other Europe,,Cyprus,NonOECD,50,Cyprus,Western Europe,Western Europe,Europe,CY,CY,,,Europe,high-income,
-cze,1,Czech Republic,Central European countries,Czech Republic,,Czech Republic,OECD,167,Czech Republic,Eastern Europe,Eastern Europe,Europe,CZ,CZ,,,European Union,high-income,
-deu,1,Germany,Western Europe,Germany,germany,Germany,OECD,79,Germany,Western Europe,Western Europe,Europe,DE,DE,,Germany,Europe,high-income,
-dji,1,Other Africa,Africa,Eastern Africa,,Djibouti,NonOECD,72,Djibouti,Africa,Africa,Africa,,DJ,,,Africa,,
-dma,1,Other non-OECD Americas,Latin America,Other Caribbean,,Dominica,NonOECD,55,Dominica,Latin America,Central and South America,Latin America,,DM,,,S. & Cent. America,,
-dnk,1,Denmark,Western Europe,Denmark,denmark,Denmark,OECD,54,Denmark,Western Europe,Western Europe,Europe,DK,DK,Denmark,Denmark,Europe,high-income,
-dom,1,Dominican Republic,Latin America,Other Caribbean,,Dominican Republic,NonOECD,56,Dominican Republic,Latin America,Central and South America,Latin America,,DO,,,S. & Cent. America,,
-dza,1,Algeria,Africa,Algeria,algeria,Algeria,NonOECD,4,Algeria,Africa,Africa,Africa,,DZ,Algeria,Algeria,Africa,,
-ecu,1,Ecuador,Latin America,Ecuador,ecuador,Ecuador,NonOECD,58,Ecuador,Latin America,Central and South America,Latin America,,EC,Ecuador,,S. & Cent. America,,
-egy,1,Egypt,Africa,Egypt,egypt,Egypt,NonOECD,59,Egypt,Africa,Africa,Africa,,EG,Egypt,Egypt,Africa,,
-eri,1,Eritrea,Africa,Eastern Africa,,Eritrea,NonOECD,178,Eritrea,Africa,Africa,Africa,,ER,,,Africa,,
-esh,1,Other Africa,Africa,Other Northern Africa,,Western Sahara,NonOECD,205,Western Sahara,Africa,Africa,Africa,,EH,,,Africa,,
-esp,1,Spain,Western Europe,Spain,spain,Spain,OECD,203,Spain,Western Europe,Western Europe,Europe,ES,ES,,,Europe,high-income,
-est,1,Estonia,CIS,Estonia,,Estonia,OECD,63,Estonia,FSU,FSU,Former Soviet Union,EE,EE,,,CIS,high-income,
-est,1,Former Soviet Union (if no detail),CIS,,,Estonia,OECD,63,Estonia,FSU,FSU,Former Soviet Union,EE,EE,,,CIS,high-income,
-eth,1,Ethiopia,Africa,Eastern Africa,,Ethiopia,NonOECD,62,Ethiopia,Africa,Africa,Africa,,ET,,,Africa,,
-fin,1,Finland,Western Europe,Finland,,Finland,OECD,67,Finland,Western Europe,Western Europe,Europe,FI,FI,,,Europe,high-income,
-fji,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Fiji,NonOECD,66,Fiji,Asia,Other Asia,Other Asia/Pacific/ME,,FJ,,,Asia Pacific,,
-flk,1,Other non-OECD Americas,Latin America,Other South America,,Falkland Islands,NonOECD,65,Falkland Islands,Latin America,Central and South America,Latin America,,,,,S. & Cent. America,,
-fra,1,France,Western Europe,France,france,France,OECD,68,France,Western Europe,Western Europe,Europe,FR,FR,,,Europe,high-income,
-fro,1,,,,,Faeroe Islands,NonOECD,,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,high-income,
-fsm,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Federated States of Micronesia,NonOECD,145,Federated States of Micronesia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-gab,1,Gabon,Africa,Western Africa,gabon,Gabon,NonOECD,74,Gabon,Africa,Africa,Africa,,GA,Gabon,,Africa,,
-gbr,1,United Kingdom,Western Europe,United Kingdom,uk,United Kingdom,OECD,229,United Kingdom of Great Britain and Northern Ireland,Western Europe,Western Europe,Europe,GB,GB,United Kingdom,United Kingdom,Europe,high-income,
-geo,1,Georgia,CIS,Other CIS,,Georgia,NonOECD,73,Georgia,FSU,FSU,Former Soviet Union,GE,GE,,,CIS,,
-geo,1,Former Soviet Union (if no detail),CIS,,,Georgia,NonOECD,73,Georgia,FSU,FSU,Former Soviet Union,GE,GE,,,CIS,,
-gha,1,Ghana,Africa,Western Africa,ghana,Ghana,NonOECD,81,Ghana,Africa,Africa,Africa,,GH,,,Africa,,
-gib,1,Gibraltar,Western Europe,Other Europe,,Gibraltar,NonOECD,82,Gibraltar,Western Europe,Western Europe,Europe,,GI,,,Europe,high-income,
-gin,1,Other Africa,Africa,Western Africa,,Guinea,NonOECD,90,Guinea,Africa,Africa,Africa,,GN,,,Africa,,
-global,1,,,None,,Global,Neither,,,Global,Global,International,,,,,,,
-glp,1,Other non-OECD Americas,Latin America,Other Caribbean,,Guadeloupe,NonOECD,87,Guadeloupe,Latin America,Central and South America,Latin America,,GP,,,S. & Cent. America,,
-gmb,1,Other Africa,Africa,Western Africa,,Gambia,NonOECD,75,Gambia,Africa,Africa,Africa,,GN,,,Africa,,
-gnb,1,Other Africa,Africa,Western Africa,,Guinea-Bissau,NonOECD,175,Guinea-Bissau,Africa,Africa,Africa,,GW,,,Africa,,
-gnq,1,Other Africa,Africa,Western Africa,,Equatorial Guinea,NonOECD,61,Equatorial Guinea,Africa,Africa,Africa,,GQ,Equatorial Guinea,,Africa,,
-grc,1,Greece,Western Europe,Greece,greece,Greece,OECD,84,Greece,Western Europe,Western Europe,Europe,GR,GR,,,Europe,high-income,
-grd,1,Other non-OECD Americas,Latin America,Other Caribbean,,Grenada,NonOECD,86,Grenada,Latin America,Central and South America,Latin America,,GD,,,S. & Cent. America,,
-grl,1,,,,,Greenland,OECD,85,,Western Europe,Western Europe,Europe,,,,,Europe,high-income,
-gtm,1,Guatemala,Latin America,Other Caribbean,guatemala,Guatemala,NonOECD,89,Guatemala,Latin America,Central and South America,Latin America,,GT,,,S. & Cent. America,,
-guf,1,Other non-OECD Americas,Latin America,Other South America,,French Guiana,NonOECD,69,French Guiana,Latin America,Central and South America,Latin America,,GF,,,S. & Cent. America,,
-gum,,,,,,Guam,NonOECD,88,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,high-income,
-guy,1,Guyana,Latin America,Other South America,,Guyana,NonOECD,91,Guyana,Latin America,Central and South America,Latin America,,GY,,,S. & Cent. America,,
-hkg,1,Hong Kong (China),Other Asia,China Hong Kong SAR,,"Hong Kong, China",NonOECD,96,"Hong Kong, China",Asia,Other Asia,Other Asia/Pacific/ME,,HK,,,Asia Pacific,high-income,
-hnd,1,Honduras,Latin America,Other Caribbean,,Honduras,NonOECD,95,Honduras,Latin America,Central and South America,Latin America,,HN,,,S. & Cent. America,,
-hrv,1,Croatia,Central European countries,Other Europe,,Croatia,NonOECD,98,Croatia,Eastern Europe,Eastern Europe,Europe,HR,HR,,,European Union,high-income,
-hrv,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Croatia,NonOECD,98,Croatia,Eastern Europe,Eastern Europe,Europe,HR,HR,,,European Union,high-income,
-hti,1,Haiti,Latin America,Other Caribbean,,Haiti,NonOECD,93,Haiti,Latin America,Central and South America,Latin America,,HT,,,S. & Cent. America,,
-hun,1,Hungary,Central European countries,Hungary,hungary,Hungary,OECD,97,Hungary,Eastern Europe,Eastern Europe,Europe,HU,HU,,,European Union,high-income,
-idn,1,Indonesia,Other Asia,Indonesia,indonesia,Indonesia,NonOECD,101,Indonesia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,ID,Indonesia,Indonesia,Asia Pacific,,
-ind,1,India,India,India,india,India,NonOECD,100,India,Asia,Other Asia,Other Asia/Pacific/ME,,IN,India,India,India,,
-irl,1,Ireland,Western Europe,Ireland,,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,,,European Union,high-income,
-irl,1,Ireland,Western Europe,,,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,,,European Union,high-income,Duplicate line added to account for alternative country name used in latest version of BP energy data
-irn,1,Islamic Republic of Iran,Middle East,Iran,iran,Islamic Republic of Iran,NonOECD,102,Islamic Republic of Iran,Middle East,Middle East,Other Asia/Pacific/ME,,IR,Iran,Iran,Middle East,,
-irq,1,Iraq,Middle East,Other Middle East,iraq,Iraq,NonOECD,103,Iraq,Middle East,Middle East,Other Asia/Pacific/ME,,IQ,Iraq,Iraq,Middle East,,
-isl,1,Iceland,Western Europe,Iceland,,Iceland,OECD,99,Iceland,Western Europe,Western Europe,Europe,IS,IS,,,Europe,high-income,
-isr,1,Israel,Middle East,Israel,israel,Israel,OECD,105,Israel,Middle East,Middle East,Other Asia/Pacific/ME,,IL,,,Middle East,high-income,
-ita,1,Italy,Western Europe,Italy,italy,Italy,OECD,106,Italy,Western Europe,Western Europe,Europe,IT,IT,Italy,Italy,Europe,high-income,
-jam,1,Jamaica,Latin America,Other Caribbean,,Jamaica,NonOECD,109,Jamaica,Latin America,Central and South America,Latin America,,JM,,,S. & Cent. America,,
-jor,1,Jordan,Middle East,Other Middle East,,Jordan,NonOECD,112,Jordan,Middle East,Middle East,Other Asia/Pacific/ME,,JO,,,Middle East,,
-jpn,1,Japan,Other Asia,Japan,japan,Japan,OECD,110,Japan,OtherOECD90,Other Asia,Other Asia/Pacific/ME,,JP,,,Japan,high-income,
-kaz,1,Kazakhstan,CIS,Kazakhstan,,Kazakhstan,NonOECD,108,Kazakhstan,FSU,FSU,Former Soviet Union,,KZ,Kazakhstan,Kazakhstan,CIS,,
-kaz,1,Former Soviet Union (if no detail),CIS,,,Kazakhstan,NonOECD,108,Kazakhstan,FSU,FSU,Former Soviet Union,,KZ,,,CIS,,
-ken,1,Kenya,Africa,Eastern Africa,,Kenya,NonOECD,114,Kenya,Africa,Africa,Africa,,KE,,,Africa,,
-kgz,1,Kyrgyzstan,CIS,Other CIS,,Kyrgyzstan,NonOECD,113,Kyrgyzstan,FSU,FSU,Former Soviet Union,KG,KG,,,CIS,,
-kgz,1,Former Soviet Union (if no detail),CIS,,,Kyrgyzstan,NonOECD,113,Kyrgyzstan,FSU,FSU,Former Soviet Union,KG,KG,,,CIS,,
-khm,1,Cambodia,China,Other Asia Pacific,,Cambodia,NonOECD,115,Cambodia,Asia,Other Asia,Other Asia/Pacific/ME,,KH,,,Asia Pacific,,
-kir,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Kiribati,NonOECD,83,Kiribati,Asia,Other Asia,Other Asia/Pacific/ME,,KI,,,Asia Pacific,,
-kna,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Kitts and Nevis,NonOECD,188,Saint Kitts and Nevis,Latin America,Central and South America,Latin America,,KN,,,S. & Cent. America,high-income,
-kor,1,Korea,Other Asia,South Korea,,Republic of Korea,OECD,117,Republic of Korea,Asia,Other Asia,Other Asia/Pacific/ME,,KR,,,Asia Pacific,high-income,
-kwt,1,Kuwait,Middle East,Kuwait,kuwait,Kuwait,NonOECD,118,Kuwait,Middle East,Middle East,Other Asia/Pacific/ME,,KW,Kuwait,Kuwait,Middle East,high-income,
-lao,1,Lao People's Democratic Republic,Other Asia,Other Asia Pacific,,Laos,NonOECD,120,Laos,Asia,Other Asia,Other Asia/Pacific/ME,,LA,,,Asia Pacific,,
-lbn,1,Lebanon,Middle East,Other Middle East,,Lebanon,NonOECD,121,Lebanon,Middle East,Middle East,Other Asia/Pacific/ME,,LB,,,Middle East,,
-lbr,1,Other Africa,Africa,Western Africa,,Liberia,NonOECD,123,Liberia,Africa,Africa,Africa,,LR,,,Africa,,
-lby,1,Libya,Africa,Other Northern Africa,libya,Libya,NonOECD,124,Libya,Africa,Africa,Africa,,LY,Libya,Libya,Africa,,
-lca,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Lucia,NonOECD,189,Saint Lucia,Latin America,Central and South America,Latin America,,LC,,,S. & Cent. America,,
-lie,1,,,,,Liechtenstein,NonOECD,125,Liechtenstein,Western Europe,Western Europe,Europe,LI,LI,,,Europe,high-income,
-lka,1,Sri Lanka,Other Asia,Other Asia Pacific,,Sri Lanka,NonOECD,38,Sri Lanka,Asia,Other Asia,Other Asia/Pacific/ME,,LK,,,Asia Pacific,,
-lso,1,Other Africa,Africa,Other Southern Africa,,Lesotho,NonOECD,122,Lesotho,Africa,Africa,Africa,,LS,,,Africa,,
-ltu,1,Lithuania,CIS,Lithuania,,Lithuania,NonOECD,126,Lithuania,FSU,FSU,Former Soviet Union,LT,LT,,,CIS,high-income,
-ltu,1,Former Soviet Union (if no detail),CIS,,,Lithuania,NonOECD,126,Lithuania,FSU,FSU,Former Soviet Union,LT,LT,,,CIS,high-income,
-lux,1,Luxembourg,Western Europe,Other Europe,,Luxembourg,OECD,256,Luxembourg,Western Europe,Western Europe,Europe,LU,LU,,,Europe,high-income,
-lva,1,Latvia,CIS,Latvia,,Latvia,NonOECD,119,Latvia,FSU,FSU,Former Soviet Union,LV,LV,,,CIS,high-income,
-lva,1,Former Soviet Union (if no detail),CIS,,,Latvia,NonOECD,119,Latvia,FSU,FSU,Former Soviet Union,LV,LV,,,CIS,high-income,
-mac,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Macao,NonOECD,128,Macao,Asia,Other Asia,Other Asia/Pacific/ME,,MO,,,Asia Pacific,high-income,
-mar,1,Morocco,Africa,Other Northern Africa,morocco,Morocco,NonOECD,143,Morocco,Africa,Africa,Africa,,MA,,,Africa,,
-mda,1,Republic of Moldova,CIS,Other CIS,,Moldova,NonOECD,146,Moldova,FSU,FSU,Former Soviet Union,MD,MD,,,CIS,,
-mda,1,Republic of Moldova,CIS,Other CIS,,Moldova,NonOECD,146,Moldova,FSU,FSU,Former Soviet Union,MD,MD,,,CIS,,
-mda,1,Former Soviet Union (if no detail),CIS,Other CIS,,Moldova,NonOECD,146,Moldova,FSU,FSU,Former Soviet Union,MD,MD,,,CIS,,
-mdg,1,Madagascar,Africa,Eastern Africa,,Madagascar,NonOECD,129,Madagascar,Africa,Africa,Africa,,MG,,,Africa,,
-mdv,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Maldives,NonOECD,132,Maldives,Islands,Other Asia,Other Asia/Pacific/ME,,MV,,,Asia Pacific,,
-mex,1,Mexico,Latin America,Mexico,mexico,Mexico,OECD,138,Mexico,Latin America,Central and South America,Latin America,,MX,Mexico,Mexico,S. & Cent. America,,
-mhl,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Marshall Islands,NonOECD,127,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-mkd,1,Republic of North Macedonia,Central European countries,Other Europe,,Macedonia,NonOECD,154,Former Yugoslav Republic of Macedonia,Eastern Europe,Eastern Europe,Europe,MK,MK,,,Europe,,
-mkd,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Macedonia,NonOECD,154,Macedonia,Eastern Europe,Eastern Europe,Europe,,MK,,,Europe,,
-mli,1,Other Africa,Africa,Middle Africa,,Mali,NonOECD,133,Mali,Africa,Africa,Africa,,ML,,,Africa,,
-mlt,1,Malta,Western Europe,Other Europe,,Malta,NonOECD,134,Malta,Western Europe,Western Europe,Europe,MT,MT,,,Europe,high-income,
-mmr,1,Myanmar,Other Asia,Other Asia Pacific,myanmar,Myanmar (Burma),NonOECD,28,Myanmar (Burma),Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,MM,,Myanmar,Asia Pacific,,
-mne,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Montenegro,NonOECD,273,Montenegro,Western Europe,Other Asia,Other Asia/Pacific/ME,ME,ME,,,Asia Pacific,,
-mne,1,Montenegro,Central European countries,Other Europe,,Montenegro,NonOECD,273,Montenegro,Western Europe,Other Asia,Other Asia/Pacific/ME,ME,ME,,,Asia Pacific,,
-mng,1,Mongolia,China,Other Asia Pacific,mongolia,Mongolia,NonOECD,141,Mongolia,Asia,Other Asia,Other Asia/Pacific/ME,,MN,,,Asia Pacific,,
-moz,1,Mozambique,Africa,Eastern Africa,,Mozambique,NonOECD,144,Mozambique,Africa,Africa,Africa,,MZ,,,Africa,,
-mrt,1,Other Africa,Africa,Western Africa,,Mauritania,NonOECD,136,Mauritania,Africa,Africa,Africa,,MR,,,Africa,,
-msr,1,Other non-OECD Americas,Latin America,Other Caribbean,,Montserrat,NonOECD,142,Montserrat,Latin America,Central and South America,Latin America,,MS,,,S. & Cent. America,,
-mtq,1,Other non-OECD Americas,Latin America,Other Caribbean,,Martinique,NonOECD,135,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,,
-mus,1,Mauritius,Africa,Eastern Africa,,Mauritius,NonOECD,137,Mauritius,Africa,Africa,Africa,,MU,,,Africa,,
-mwi,1,Other Africa,Africa,Other Southern Africa,,Malawi,NonOECD,130,Malawi,Africa,Africa,Africa,,MW,,,Africa,,
-mys,1,Malaysia,Other Asia,Malaysia,malaysia,Malaysia,NonOECD,131,Malaysia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,MY,Malaysia,Malaysia,Asia Pacific,,
-nam,1,Namibia,Africa,Western Africa,,Namibia,NonOECD,147,Namibia,Africa,Africa,Africa,,NA,,,Africa,,
-ncl,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,New Caledonia,NonOECD,153,New Caledonia,Asia,Other Asia,Other Asia/Pacific/ME,,NC,,,Asia Pacific,high-income,
-ner,1,Niger,Africa,Middle Africa,,Niger,NonOECD,158,Niger,Africa,Africa,Africa,,NE,,,Africa,,
-nga,1,Nigeria,Africa,Western Africa,nigeria,Nigeria,NonOECD,159,Nigeria,Africa,Africa,Africa,,NG,Nigeria,Nigeria,Africa,,
-nic,1,Nicaragua,Latin America,Other Caribbean,,Nicaragua,NonOECD,157,Nicaragua,Latin America,Central and South America,Latin America,,NI,,,S. & Cent. America,,
-niu,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Niue,NonOECD,160,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-nld,1,Netherlands,Western Europe,Netherlands,netherl.,Netherlands,OECD,150,Netherlands,Western Europe,Western Europe,Europe,NL,NL,,Netherlands,Europe,high-income,
-nor,1,Norway,Western Europe,Norway,norway,Norway,OECD,162,Norway,Western Europe,Western Europe,Europe,NO,NO,Norway,Norway,Europe,high-income,
-npl,1,Nepal,Other Asia,Other Asia Pacific,,Nepal,NonOECD,149,Nepal,Asia,Other Asia,Other Asia/Pacific/ME,,NP,,,Asia Pacific,,
-nzl,1,New Zealand,Oceania,New Zealand,new zeal.,New Zealand,OECD,156,New Zealand,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,NZ,,,Asia Pacific,high-income,
-omn,1,Oman,Middle East,Other Middle East,oman,Oman,NonOECD,221,Oman,Middle East,Middle East,Other Asia/Pacific/ME,,OM,Oman,Oman,Middle East,high-income,
-pak,1,Pakistan,Other Asia,Pakistan,pakistan,Pakistan,NonOECD,165,Pakistan,Asia,Other Asia,Other Asia/Pacific/ME,,PK,,Pakistan,Asia Pacific,,
-pan,1,Panama,Latin America,Other Caribbean,,Panama,NonOECD,166,Panama,Latin America,Central and South America,Latin America,,PA,,,S. & Cent. America,,
-per,1,Peru,Latin America,Peru,peru,Peru,NonOECD,170,Peru,Latin America,Central and South America,Latin America,,PE,Peru,Peru,S. & Cent. America,,
-phl,1,Philippines,Other Asia,Philippines,philippines,Philippines,NonOECD,171,Philippines,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,PH,,,Asia Pacific,,
-plw,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Palau,NonOECD,180,Palau,Asia,Other Asia,Other Asia/Pacific/ME,,PW,,,Asia Pacific,,
-png,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Papua New Guinea,NonOECD,168,Papua New Guinea,Asia,Other Asia,Other Asia/Pacific/ME,,PG,,,Asia Pacific,,
-pol,1,Poland,Central European countries,Poland,poland,Poland,OECD,173,Poland,Eastern Europe,Eastern Europe,Europe,PL,PL,,Poland,European Union,high-income,
-pri,1,Other non-OECD Americas,Latin America,Other Caribbean,,Puerto Rico,NonOECD,177,Puerto Rico,OtherOECD90,North America,North America,,,,,S. & Cent. America,high-income,
-prk,1,Democratic People's Republic of Korea,China,Other Asia Pacific,,Democratic Peoples Republic of Korea,OECD,116,Democratic Peoples Republic of Korea,Asia,Other Asia,Other Asia/Pacific/ME,,KP,,,Asia Pacific,,
-prt,1,Portugal,Western Europe,Portugal,,Portugal,OECD,174,Portugal,Western Europe,Western Europe,Europe,PT,PT,,,Europe,high-income,
-pry,1,Paraguay,Latin America,Other South America,,Paraguay,NonOECD,169,Paraguay,Latin America,Central and South America,Latin America,,PY,,,S. & Cent. America,,
-pse,1,,,,,Palestine,NonOECD,299,,Middle East,Middle East,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-pyf,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,French Polynesia,NonOECD,70,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,high-income,
-qat,1,Qatar,Middle East,Qatar,qatar,Qatar,NonOECD,179,Qatar,Middle East,Middle East,Other Asia/Pacific/ME,,QA,Qatar,Qatar,Middle East,high-income,
-reu,1,Other Africa,Africa,Eastern Africa,,Reunion,NonOECD,182,Reunion,Africa,Africa,Africa,,RE,,,Africa,,
-rou,1,Romania,Central European countries,Romania,rumania,Romania,NonOECD,183,Romania,Eastern Europe,Eastern Europe,Europe,RO,RO,Romania,Romania,European Union,,
-rus,1,Russian Federation,CIS,Russian Federation,,Russia,NonOECD,185,Russian Federation,FSU,FSU,Former Soviet Union,RU,RU,Russian Federation,Russian Federation,CIS,,
-rus,1,Former Soviet Union (if no detail),CIS,,,Russia,NonOECD,185,Russian Federation,FSU,FSU,Former Soviet Union,,RU,,,CIS,,
-rwa,1,Rwanda,Africa,Middle Africa,,Rwanda,NonOECD,184,Rwanda,Africa,Africa,Africa,,RW,,,Africa,,
-sau,1,Saudi Arabia,Middle East,Saudi Arabia,saudi arab.,Saudi Arabia,NonOECD,194,Saudi Arabia,Middle East,Middle East,Other Asia/Pacific/ME,,SA,Saudi Arabia,Saudi Arabia,Middle East,high-income,
-scg,0,Serbia and Montenegro,Central European countries,Other Europe,,Serbia and Montenegro,NonOECD,186,Serbia and Montenegro,Eastern Europe,Eastern Europe,Europe,CS,,,,Europe,,historical
-sdn,1,Sudan,Africa,Eastern Africa,,Sudan,NonOECD,206,Sudan,Africa,Africa,Africa,,SD,Sudan,,Africa,,
-sen,1,Senegal,Africa,Western Africa,,Senegal,NonOECD,195,Senegal,Africa,Africa,Africa,,SN,,,Africa,,
-sgp,1,Singapore,Other Asia,Singapore,,Singapore,NonOECD,200,Singapore,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,SG,,,Asia Pacific,high-income,
-slb,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Soloman Islands,NonOECD,25,Soloman Islands,Asia,Other Asia,Other Asia/Pacific/ME,,SB,,,Asia Pacific,,
-sle,1,Other Africa,Africa,Western Africa,,Sierra Leone,NonOECD,197,Sierra Leone,Africa,Africa,Africa,,SL,,,Africa,,
-slv,1,El Salvador,Latin America,Other Caribbean,,El Salvador,NonOECD,60,El Salvador,Latin America,Central and South America,Latin America,,SV,,,S. & Cent. America,,
-som,1,Other Africa,Africa,Eastern Africa,,Somalia,NonOECD,201,Somalia,Africa,Africa,Africa,,SO,,,Africa,,
-spm,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Pierre and Miquelon,NonOECD,190,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,,
-srb,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Serbia,NonOECD,272,Serbia,Eastern Europe,Eastern Europe,Europe,RS,RS,,,Europe,,
-srb,1,Serbia,Central European countries,Other Europe,,Serbia,NonOECD,272,Serbia,Eastern Europe,Eastern Europe,Europe,RS,RS,,,Europe,,
-srb (kosovo),0,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Kosovo,NonOECD,,Kosovo,Eastern Europe,Eastern Europe,Europe,,,,,Europe,,
-srb (kosovo),0,Kosovo,Central European countries,Other Europe,,Kosovo,NonOECD,,Kosovo,Eastern Europe,Eastern Europe,Europe,,,,,Europe,,
-ssd,1,South Sudan,,Eastern Africa,,South Sudan,NonOECD,277,,Africa,Africa,Africa,,,South Sudan,,Africa,,
-stp,1,Other Africa,Africa,Western Africa,,Sao Tome and Principe,NonOECD,193,Sao Tome and Principe,Africa,Africa,Africa,,ST,,,Africa,,
-sur,1,Suriname,Latin America,Other Caribbean,surinam,Suriname,NonOECD,207,Suriname,Latin America,Central and South America,Latin America,,SR,,,S. & Cent. America,,
-svk,1,Slovak Republic,Central European countries,Slovakia,,Slovakia,OECD,199,Slovakia,Eastern Europe,Eastern Europe,Europe,SK,SK,,,Europe,high-income,
-svn,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Slovenia,OECD,198,Slovenia,Eastern Europe,Eastern Europe,Europe,SI,SI,,,European Union,high-income,
-svn,1,Slovenia,Central European countries,Other Europe,,Slovenia,OECD,198,Slovenia,Eastern Europe,Eastern Europe,Europe,SI,SI,,,European Union,high-income,
-swe,1,Sweden,Western Europe,Sweden,sweden,Sweden,OECD,210,Sweden,Western Europe,Western Europe,Europe,SE,SE,,,Europe,high-income,
-swz,1,Kingdom of Eswatini,Africa,Other Southern Africa,,Swaziland,NonOECD,209,Swaziland,Africa,Africa,Africa,,SZ,,,Africa,,
-sxm,1,Other non-OECD Americas,Latin America,Other Caribbean,,Sint Maarten,NonOECD,,,Latin America,Central and South America,Latin America,,,,,S. & Cent. America,high-income,separated from Netherlands Antilles in 2010
-syc,1,Other Africa,Africa,Eastern Africa,,Seychelles,NonOECD,196,Seychelles,Africa,Africa,Africa,,SC,,,Africa,high-income,
-syr,1,Syrian Arab Republic,Middle East,Other Middle East,syria,Syria,NonOECD,212,Syria,Middle East,Middle East,Other Asia/Pacific/ME,,SY,Syria,Syria,Middle East,,
-tca,1,Other non-OECD Americas,Latin America,Other Caribbean,,Turks and Caicos Islands,NonOECD,224,Turks and Caicos Islands,Latin America,Central and South America,Latin America,,TC,,,S. & Cent. America,high-income,
-tcd,1,Other Africa,Africa,Western Africa,,Chad,NonOECD,39,Chad,Africa,Africa,Africa,,TD,Chad,,Africa,,
-tgo,1,Togo,Africa,Western Africa,,Togo,NonOECD,217,Togo,Africa,Africa,Africa,,TG,,,Africa,,
-tha,1,Thailand,Other Asia,Thailand,thailand,Thailand,NonOECD,216,Thailand,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,TH,Thailand,Thailand,Asia Pacific,,
-tjk,1,Tajikistan,CIS,Other CIS,,Tajikistan,NonOECD,208,Tajikistan,FSU,FSU,Former Soviet Union,TJ,TJ,,,CIS,,
-tjk,1,Former Soviet Union (if no detail),CIS,,,Tajikistan,NonOECD,208,Tajikistan,FSU,FSU,Former Soviet Union,TJ,TJ,,,CIS,,
-tkl,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Tokelau,NonOECD,218,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-tkm,1,Turkmenistan,CIS,Turkmenistan,,Turkmenistan,NonOECD,213,Turkmenistan,FSU,FSU,Former Soviet Union,,TM,Turkmenistan,Turkmenistan,CIS,,
-tkm,1,Former Soviet Union (if no detail),CIS,,,Turkmenistan,NonOECD,213,Turkmenistan,FSU,FSU,Former Soviet Union,,TM,,,CIS,,
-tls,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Timor-Leste,NonOECD,176,Timor-Leste,Asia,Other Asia,Other Asia/Pacific/ME,,TL,,,Asia Pacific,,Also known as East Timor
-ton,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Tonga,NonOECD,219,Tonga,Asia,Other Asia,Other Asia/Pacific/ME,,TO,,,Asia Pacific,,
-tto,1,Trinidad and Tobago,Latin America,Trinidad & Tobago,trinidad,Trinidad and Tobago,NonOECD,220,Trinidad and Tobago,Latin America,Central and South America,Latin America,,TT,Trinidad & Tobago,Trinidad & Tobago,S. & Cent. America,high-income,
-tun,1,Tunisia,Africa,Other Northern Africa,tunesia,Tunisia,NonOECD,222,Tunisia,Africa,Africa,Africa,,TN,Tunisia,,Africa,,
-tur,1,Republic of Turkiye,Western Europe,Turkey,turkey,Turkey,OECD,223,Turkey,Western Europe,Western Europe,Europe,TR,TR,,,Europe,,
-twn,1,Chinese Taipei,Other Asia,Taiwan,taiwan,Chinese Taipei,NonOECD,214,Chinese Taipei,Asia,Other Asia,Other Asia/Pacific/ME,,TW,,,Asia Pacific,,
-tza,1,United Republic of Tanzania,Africa,Eastern Africa,,Tanzania,NonOECD,215,Tanzania,Africa,Africa,Africa,,TZ,,,Africa,,
-tza,1,United Republic of Tanzania,Africa,Eastern Africa,,Tanzania,NonOECD,215,Tanzania,Africa,Africa,Africa,,TZ,,,Africa,,
-uga,1,Uganda,Africa,Middle Africa,,Uganda,NonOECD,226,Uganda,Africa,Africa,Africa,,UG,,,Africa,,
-ukr,1,Ukraine,CIS,Ukraine,,Ukraine,NonOECD,230,Ukraine,FSU,FSU,Former Soviet Union,UA,UA,,Ukraine,CIS,,
-ukr,1,Former Soviet Union (if no detail),CIS,,,Ukraine,NonOECD,230,Ukraine,FSU,FSU,Former Soviet Union,UA,UA,,,CIS,,
-ury,1,Uruguay,Latin America,Other South America,,Uruguay,NonOECD,234,Uruguay,Latin America,Central and South America,Latin America,,UY,,,S. & Cent. America,high-income,
-usa,1,United States,North America,US,usa,United States,OECD,231,United States of America,OtherOECD90,North America,North America,US,US,US,US,US,high-income,
-ussr,0,,,Former Soviet Union,ussr,Soviet Union,NonOECD,228,,FSU,FSU,Former Soviet Union,,,USSR,USSR,CIS,,historical - used as tag in oil production processing to assist in summing ussr oil production data
-uzb,1,Uzbekistan,CIS,Uzbekistan,,Uzbekistan,NonOECD,235,Uzbekistan,FSU,FSU,Former Soviet Union,,UZ,Uzbekistan,Uzbekistan,CIS,,
-uzb,1,Former Soviet Union (if no detail),CIS,,,Uzbekistan,NonOECD,235,Uzbekistan,FSU,FSU,Former Soviet Union,,UZ,,,CIS,,
-vct,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Vincent And Grenadines,NonOECD,191,Saint Vincent And Grenadines,Latin America,Central and South America,Latin America,,VC,,,S. & Cent. America,,
-ven,1,Bolivarian Republic of Venezuela,Latin America,Venezuela,venezuela,Venezuela,NonOECD,236,Venezuela,Latin America,Central and South America,Latin America,,VE,Venezuela,Venezuela,S. & Cent. America,,
-vgb,1,Other non-OECD Americas,Latin America,Other Caribbean,,British Virgin Islands,NonOECD,239,British Virgin Islands,Latin America,Central and South America,Latin America,,VG,,,S. & Cent. America,high-income,
-vir,1,Other non-OECD Americas,Latin America,Other Caribbean,,United States Virgin Islands,NonOECD,240,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,high-income,
-vnm,1,Viet Nam,China,Vietnam,,Vietnam,NonOECD,237,Vietnam,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,VN,,,Asia Pacific,,
-vnm,1,Viet Nam,China,Vietnam,,Vietnam,NonOECD,237,Vietnam,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,VN,Vietnam,Vietnam,Asia Pacific,,
-vut,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Vanuatu,NonOECD,155,Vanuatu,Asia,Other Asia,Other Asia/Pacific/ME,,VU,,,Asia Pacific,,
-wlf,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Wallis and Futuna Islands,NonOECD,243,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,
-wsm,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Samoa,NonOECD,244,Samoa,Asia,Other Asia,Other Asia/Pacific/ME,,WS,,,Asia Pacific,,
-yem,1,Yemen,Middle East,Other Middle East,,Yemen,NonOECD,249,Yemen,Middle East,Middle East,Other Asia/Pacific/ME,,YE,Yemen,Yemen,Middle East,,
-yug,0,,,,yugosl.,Yugoslavia,NonOECD,248,,Other Asia,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,historical
-zaf,1,South Africa,Africa,South Africa,,South Africa,NonOECD,202,South Africa,Africa,Africa,Africa,,ZA,,,Africa,,
-zmb,1,Zambia,Africa,Other Southern Africa,,Zambia,NonOECD,251,Zambia,Africa,Africa,Africa,,ZM,,,Africa,,
-zwe,1,Zimbabwe,Africa,Other Southern Africa,,Zimbabwe,NonOECD,181,Zimbabwe,Africa,Africa,Africa,,ZW,,,Africa,,
+iso,final_data_flag,IEAName,IEA_Fert_reg,BPName,HydeName,Country_Name,OECD_flag,FAO_Country_Code,UNFCCC,Region,Figure_Region,Paper_Figure_Region,EMEP,WorldBank,BPName_Oil_production,BPName_Gas_production,BP_Oil_product,WB_income_level,note,FAO_Country_Code_2021
+abw,1,Other non-OECD Americas,Latin America,Other Caribbean,,Aruba,NonOECD,22,Aruba,Latin America,Central and South America,Latin America,,AW,,,S. & Cent. America,high-income,separated from Netherlands Antilles in 1986,
+afg,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Afghanistan,NonOECD,2,Afghanistan,Asia,Other Asia,Other Asia/Pacific/ME,,AF,,,Asia Pacific,,,4
+ago,1,Angola,Africa,Western Africa,angola,Angola,NonOECD,7,Angola,Africa,Africa,Africa,,AO,Angola,,Africa,,,24
+alb,1,Albania,Central European countries,Other Europe,albania,Albania,NonOECD,3,Albania,Eastern Europe,Eastern Europe,Europe,AL,AL,,,Europe,,,8
+ant,0,Netherlands Antilles,Latin America,Other Caribbean,,Netherlands Antilles,NonOECD,151,Netherlands Antilles,Latin America,Central and South America,Latin America,,AN,,,S. & Cent. America,,historical,
+are,1,United Arab Emirates,Middle East,United Arab Emirates,U.A.E.,United Arab Emirates,NonOECD,225,United Arab Emirates,Middle East,Middle East,Other Asia/Pacific/ME,,AE,United Arab Emirates,United Arab Emirates,Middle East,high-income,,784
+arg,1,Argentina,Latin America,Argentina,argentina,Argentina,NonOECD,9,Argentina,Latin America,Central and South America,Latin America,,AR,Argentina,Argentina,S. & Cent. America,,,32
+arm,1,Armenia,CIS,Other CIS,,Armenia,NonOECD,1,Armenia,FSU,FSU,Former Soviet Union,AM,AM,,,CIS,,,51
+arm,1,Former Soviet Union (if no detail),CIS,,,Armenia,NonOECD,1,Armenia,FSU,FSU,Former Soviet Union,AM,AM,,,CIS,,,51
+asm,1,Other non-OECD Americas,Latin America,Other Caribbean,,American Samoa,NonOECD,5,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,S. & Cent. America,,,
+atg,1,Other non-OECD Americas,Latin America,Other Caribbean,,Antigua and Barbuda,NonOECD,8,Antigua and Barbuda,Latin America,Central and South America,Latin America,,AG,,,S. & Cent. America,high-income,,28
+aus,1,Australia,Oceania,Australia,australia,Australia,OECD,10,Australia,OtherOECD90,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,AU,Australia,Australia,Asia Pacific,high-income,,36
+aut,1,Austria,Western Europe,Austria,austria,Austria,OECD,11,Austria,Western Europe,Western Europe,Europe,AT,AT,,,European Union,high-income,,40
+aze,1,Azerbaijan,CIS,Azerbaijan,,Azerbaijan,NonOECD,52,Azerbaijan,FSU,FSU,Former Soviet Union,AZ,AZ,Azerbaijan,Azerbaijan,CIS,,,31
+aze,1,Former Soviet Union (if no detail),CIS,,,Azerbaijan,NonOECD,52,Azerbaijan,FSU,FSU,Former Soviet Union,AZ,AZ,,,CIS,,,31
+bdi,1,Other Africa,Africa,Middle Africa,,Burundi,NonOECD,29,Burundi,Africa,Africa,Africa,,BI,,,Africa,,,108
+bel,1,Belgium,Western Europe,Belgium,,Belgium,OECD,255,Belgium,Western Europe,Western Europe,Europe,BE,BE,,,Europe,high-income,,56
+ben,1,Benin,Africa,Western Africa,,Benin,NonOECD,53,Benin,Africa,Africa,Africa,,BJ,,,Africa,,,204
+bfa,1,Other Africa,Africa,Middle Africa,,Burkina Faso,NonOECD,233,Burkina Faso,Africa,Africa,Africa,,BF,,,Africa,,,854
+bgd,1,Bangladesh,Other Asia,Bangladesh,banglad.,Bangladesh,NonOECD,16,Bangladesh,Asia,Other Asia,Other Asia/Pacific/ME,,BD,,Bangladesh,Asia Pacific,,,50
+bgr,1,Bulgaria,Central European countries,Bulgaria,bulgaria,Bulgaria,NonOECD,27,Bulgaria,Eastern Europe,Eastern Europe,Europe,BG,BG,,,European Union,,,100
+bhr,1,Bahrain,Middle East,Other Middle East,bahrain,Bahrain,NonOECD,13,Bahrain,Middle East,Middle East,Other Asia/Pacific/ME,,BH,,Bahrain,Middle East,high-income,,48
+bhs,1,Other non-OECD Americas,Latin America,Other Caribbean,,Bahamas,NonOECD,12,Bahamas,Latin America,Central and South America,Latin America,,BS,,,S. & Cent. America,high-income,,44
+bih,1,Bosnia and Herzegovina,Central European countries,Other Europe,,Bosnia and Herzegovina,NonOECD,80,Bosnia and Herzegovina,Eastern Europe,Eastern Europe,Europe,BA,BA,,,Europe,,,70
+bih,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Bosnia and Herzegovina,NonOECD,80,Bosnia and Herzegovina,Eastern Europe,Eastern Europe,Europe,BA,BA,,,Europe,,,70
+blr,1,Belarus,CIS,Belarus,,Belarus,NonOECD,57,Belarus,FSU,FSU,Former Soviet Union,BY,BY,,,CIS,,,112
+blr,1,Former Soviet Union (if no detail),CIS,,,Belarus,NonOECD,57,Belarus,FSU,FSU,Former Soviet Union,BY,BY,,,CIS,,,112
+blx,0,,,,,Belgium-Luxembourg ,OECD,15,,Western Europe,Western Europe,Europe,,,,,Europe,,historical,
+blz,1,Other non-OECD Americas,Latin America,Other Caribbean,,Belize,NonOECD,23,Belize,Latin America,Central and South America,Latin America,,BZ,,,S. & Cent. America,,,84
+bmu,1,Other non-OECD Americas,Western Europe,Other Caribbean,,Bermuda,NonOECD,17,Bermuda,Latin America,Central and South America,Latin America,,BM,,,Europe,high-income,,
+bol,1,Plurinational State of Bolivia,Latin America,Other South America,bolivia,Bolivia,NonOECD,19,Bolivia,Latin America,Central and South America,Latin America,,BO,,Bolivia,S. & Cent. America,,,68
+bra,1,Brazil,Latin America,Brazil,brazil,Brazil,NonOECD,21,Brazil,Latin America,Central and South America,Latin America,,BR,Brazil,Brazil,Brazil,,,76
+brb,1,Other non-OECD Americas,Latin America,Other Caribbean,barbados,Barbados,NonOECD,14,Barbados,Latin America,Central and South America,Latin America,,BB,,,S. & Cent. America,high-income,,52
+brn,1,Brunei Darussalam,Other Asia,Other Asia Pacific,brunei,Brunei Darussalam,NonOECD,26,Brunei Darussalam,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,BN,Brunei,Brunei,Asia Pacific,high-income,,96
+btn,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Bhutan,NonOECD,18,Bhutan,Asia,Other Asia,Other Asia/Pacific/ME,,BT,,,Asia Pacific,,,64
+bwa,1,Botswana,Africa,Other Southern Africa,,Botswana,NonOECD,20,Botswana,Africa,Africa,Africa,,BW,,,Africa,,,72
+caf,1,Other Africa,Africa,Middle Africa,,Central African Republic,NonOECD,37,Central African Republic,Africa,Africa,Africa,,CF,,,Africa,,,140
+can,1,Canada,North America,Canada,canada,Canada,OECD,33,Canada,OtherOECD90,North America,North America,CA,CA,Canada,Canada,North America,high-income,,124
+che,1,Switzerland,Western Europe,Switzerland,,Switzerland,OECD,211,Switzerland,Western Europe,Western Europe,Europe,CH,CH,,,Europe,high-income,,756
+chl,1,Chile,Latin America,Chile,chili,Chile,OECD,40,Chile,Latin America,Central and South America,Latin America,,CL,,,S. & Cent. America,high-income,,152
+chn,1,People's Republic of China,China,China,china,China,NonOECD,41,China,Asia,China,China,,CN,China,China,China,,,159
+civ,1,Cote dIvoire,Africa,Western Africa,ivory coast,Cote dIvoire,NonOECD,107,Cote dIvoire,Africa,Africa,Africa,,CI,,,Africa,,,384
+cmr,1,Cameroon,Africa,Western Africa,cameroon,Cameroon,NonOECD,32,Cameroon,Africa,Africa,Africa,,CM,,,Africa,,,120
+cod,1,Democratic Republic of the Congo,Africa,Western Africa,zaire,Democratic Republic of Congo,NonOECD,250,Democratic Republic of Congo,Africa,Africa,Africa,,CD,Republic of Congo ,,Africa,,,180
+cod,1,Democratic Republic of the Congo,Africa,Western Africa,,Democratic Republic of Congo,NonOECD,250,Democratic Republic of Congo,Africa,Africa,Africa,,CD,,,Africa,,,180
+cog,1,Republic of the Congo,Africa,Western Africa,congo,Congo,NonOECD,46,Congo,Africa,Africa,Africa,,CG,,,Africa,,,178
+cok,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Cook Islands,NonOECD,47,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,,184
+col,1,Colombia,Latin America,Colombia,colombia,Colombia,NonOECD,44,Colombia,Latin America,Central and South America,Latin America,,CO,Colombia,Colombia,S. & Cent. America,,,170
+com,1,Other Africa,Africa,Eastern Africa,,Comoros,NonOECD,45,Comoros,Africa,Africa,Africa,,KM,,,Africa,,,174
+cpv,1,Other Africa,Africa,Western Africa,,Cape Verde,NonOECD,35,Cape Verde,Africa,Africa,Africa,,CV,,,Africa,,,
+cri,1,Costa Rica,Latin America,Other Caribbean,,Costa Rica,NonOECD,48,Costa Rica,Latin America,Central and South America,Latin America,,CR,,,S. & Cent. America,,,188
+csk,0,,,,czechosl.,Czechoslovakia,OECD,51,Czechoslovakia,Eastern Europe,Eastern Europe,Europe,,,,,Europe,,historical,200
+cub,1,Cuba,Latin America,Other Caribbean,cuba,Cuba,NonOECD,49,Cuba,Latin America,Central and South America,Latin America,,CU,,,S. & Cent. America,,,192
+cuw,1,Curacao/Netherlands Antilles,Latin America,Other Caribbean,,Curacao,NonOECD,,,Latin America,Central and South America,Latin America,,,,,S. & Cent. America,high-income,separated from Netherlands Antilles in 2010,
+cym,1,Other non-OECD Americas,Latin America,Other Caribbean,,Cayman Islands,NonOECD,36,Cayman Islands,Latin America,Central and South America,Latin America,,KY,,,S. & Cent. America,high-income,,
+cyp,1,Cyprus,Western Europe,Other Europe,,Cyprus,NonOECD,50,Cyprus,Western Europe,Western Europe,Europe,CY,CY,,,Europe,high-income,,196
+cze,1,Czech Republic,Central European countries,Czech Republic,,Czech Republic,OECD,167,Czech Republic,Eastern Europe,Eastern Europe,Europe,CZ,CZ,,,European Union,high-income,,203
+deu,1,Germany,Western Europe,Germany,germany,Germany,OECD,79,Germany,Western Europe,Western Europe,Europe,DE,DE,,Germany,Europe,high-income,,276
+dji,1,Other Africa,Africa,Eastern Africa,,Djibouti,NonOECD,72,Djibouti,Africa,Africa,Africa,,DJ,,,Africa,,,262
+dma,1,Other non-OECD Americas,Latin America,Other Caribbean,,Dominica,NonOECD,55,Dominica,Latin America,Central and South America,Latin America,,DM,,,S. & Cent. America,,,212
+dnk,1,Denmark,Western Europe,Denmark,denmark,Denmark,OECD,54,Denmark,Western Europe,Western Europe,Europe,DK,DK,Denmark,Denmark,Europe,high-income,,208
+dom,1,Dominican Republic,Latin America,Other Caribbean,,Dominican Republic,NonOECD,56,Dominican Republic,Latin America,Central and South America,Latin America,,DO,,,S. & Cent. America,,,214
+dza,1,Algeria,Africa,Algeria,algeria,Algeria,NonOECD,4,Algeria,Africa,Africa,Africa,,DZ,Algeria,Algeria,Africa,,,12
+ecu,1,Ecuador,Latin America,Ecuador,ecuador,Ecuador,NonOECD,58,Ecuador,Latin America,Central and South America,Latin America,,EC,Ecuador,,S. & Cent. America,,,218
+egy,1,Egypt,Africa,Egypt,egypt,Egypt,NonOECD,59,Egypt,Africa,Africa,Africa,,EG,Egypt,Egypt,Africa,,,818
+eri,1,Eritrea,Africa,Eastern Africa,,Eritrea,NonOECD,178,Eritrea,Africa,Africa,Africa,,ER,,,Africa,,,232
+esh,1,Other Africa,Africa,Other Northern Africa,,Western Sahara,NonOECD,205,Western Sahara,Africa,Africa,Africa,,EH,,,Africa,,,
+esp,1,Spain,Western Europe,Spain,spain,Spain,OECD,203,Spain,Western Europe,Western Europe,Europe,ES,ES,,,Europe,high-income,,724
+est,1,Estonia,CIS,Estonia,,Estonia,OECD,63,Estonia,FSU,FSU,Former Soviet Union,EE,EE,,,CIS,high-income,,233
+est,1,Former Soviet Union (if no detail),CIS,,,Estonia,OECD,63,Estonia,FSU,FSU,Former Soviet Union,EE,EE,,,CIS,high-income,,233
+eth,1,Ethiopia,Africa,Eastern Africa,,Ethiopia,NonOECD,62,Ethiopia,Africa,Africa,Africa,,ET,,,Africa,,,231
+fin,1,Finland,Western Europe,Finland,,Finland,OECD,67,Finland,Western Europe,Western Europe,Europe,FI,FI,,,Europe,high-income,,246
+fji,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Fiji,NonOECD,66,Fiji,Asia,Other Asia,Other Asia/Pacific/ME,,FJ,,,Asia Pacific,,,242
+flk,1,Other non-OECD Americas,Latin America,Other South America,,Falkland Islands,NonOECD,65,Falkland Islands,Latin America,Central and South America,Latin America,,,,,S. & Cent. America,,,
+fra,1,France,Western Europe,France,france,France,OECD,68,France,Western Europe,Western Europe,Europe,FR,FR,,,Europe,high-income,,250
+fro,1,,,,,Faeroe Islands,NonOECD,,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,high-income,,
+fsm,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Federated States of Micronesia,NonOECD,145,Federated States of Micronesia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,,,,Asia Pacific,,,583
+gab,1,Gabon,Africa,Western Africa,gabon,Gabon,NonOECD,74,Gabon,Africa,Africa,Africa,,GA,Gabon,,Africa,,,266
+gbr,1,United Kingdom,Western Europe,United Kingdom,uk,United Kingdom,OECD,229,United Kingdom of Great Britain and Northern Ireland,Western Europe,Western Europe,Europe,GB,GB,United Kingdom,United Kingdom,Europe,high-income,,826
+geo,1,Georgia,CIS,Other CIS,,Georgia,NonOECD,73,Georgia,FSU,FSU,Former Soviet Union,GE,GE,,,CIS,,,268
+geo,1,Former Soviet Union (if no detail),CIS,,,Georgia,NonOECD,73,Georgia,FSU,FSU,Former Soviet Union,GE,GE,,,CIS,,,268
+gha,1,Ghana,Africa,Western Africa,ghana,Ghana,NonOECD,81,Ghana,Africa,Africa,Africa,,GH,,,Africa,,,288
+gib,1,Gibraltar,Western Europe,Other Europe,,Gibraltar,NonOECD,82,Gibraltar,Western Europe,Western Europe,Europe,,GI,,,Europe,high-income,,
+gin,1,Other Africa,Africa,Western Africa,,Guinea,NonOECD,90,Guinea,Africa,Africa,Africa,,GN,,,Africa,,,324
+global,1,,,None,,Global,Neither,,,Global,Global,International,,,,,,,,
+glp,1,Other non-OECD Americas,Latin America,Other Caribbean,,Guadeloupe,NonOECD,87,Guadeloupe,Latin America,Central and South America,Latin America,,GP,,,S. & Cent. America,,,312
+gmb,1,Other Africa,Africa,Western Africa,,Gambia,NonOECD,75,Gambia,Africa,Africa,Africa,,GN,,,Africa,,,270
+gnb,1,Other Africa,Africa,Western Africa,,Guinea-Bissau,NonOECD,175,Guinea-Bissau,Africa,Africa,Africa,,GW,,,Africa,,,624
+gnq,1,Other Africa,Africa,Western Africa,,Equatorial Guinea,NonOECD,61,Equatorial Guinea,Africa,Africa,Africa,,GQ,Equatorial Guinea,,Africa,,,226
+grc,1,Greece,Western Europe,Greece,greece,Greece,OECD,84,Greece,Western Europe,Western Europe,Europe,GR,GR,,,Europe,high-income,,300
+grd,1,Other non-OECD Americas,Latin America,Other Caribbean,,Grenada,NonOECD,86,Grenada,Latin America,Central and South America,Latin America,,GD,,,S. & Cent. America,,,308
+grl,1,,,,,Greenland,OECD,85,,Western Europe,Western Europe,Europe,,,,,Europe,high-income,,
+gtm,1,Guatemala,Latin America,Other Caribbean,guatemala,Guatemala,NonOECD,89,Guatemala,Latin America,Central and South America,Latin America,,GT,,,S. & Cent. America,,,320
+guf,1,Other non-OECD Americas,Latin America,Other South America,,French Guiana,NonOECD,69,French Guiana,Latin America,Central and South America,Latin America,,GF,,,S. & Cent. America,,,
+gum,,,,,,Guam,NonOECD,88,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,high-income,,
+guy,1,Guyana,Latin America,Other South America,,Guyana,NonOECD,91,Guyana,Latin America,Central and South America,Latin America,,GY,,,S. & Cent. America,,,328
+hkg,1,Hong Kong (China),Other Asia,China Hong Kong SAR,,"Hong Kong, China",NonOECD,96,"Hong Kong, China",Asia,Other Asia,Other Asia/Pacific/ME,,HK,,,Asia Pacific,high-income,,344
+hnd,1,Honduras,Latin America,Other Caribbean,,Honduras,NonOECD,95,Honduras,Latin America,Central and South America,Latin America,,HN,,,S. & Cent. America,,,340
+hrv,1,Croatia,Central European countries,Other Europe,,Croatia,NonOECD,98,Croatia,Eastern Europe,Eastern Europe,Europe,HR,HR,,,European Union,high-income,,191
+hrv,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Croatia,NonOECD,98,Croatia,Eastern Europe,Eastern Europe,Europe,HR,HR,,,European Union,high-income,,191
+hti,1,Haiti,Latin America,Other Caribbean,,Haiti,NonOECD,93,Haiti,Latin America,Central and South America,Latin America,,HT,,,S. & Cent. America,,,332
+hun,1,Hungary,Central European countries,Hungary,hungary,Hungary,OECD,97,Hungary,Eastern Europe,Eastern Europe,Europe,HU,HU,,,European Union,high-income,,348
+idn,1,Indonesia,Other Asia,Indonesia,indonesia,Indonesia,NonOECD,101,Indonesia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,ID,Indonesia,Indonesia,Asia Pacific,,,360
+ind,1,India,India,India,india,India,NonOECD,100,India,Asia,Other Asia,Other Asia/Pacific/ME,,IN,India,India,India,,,356
+irl,1,Ireland,Western Europe,Ireland,,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,,,European Union,high-income,,372
+irl,1,Ireland,Western Europe,,,Ireland,OECD,104,Ireland,Western Europe,Western Europe,Europe,IE,IE,,,European Union,high-income,Duplicate line added to account for alternative country name used in latest version of BP energy data,372
+irn,1,Islamic Republic of Iran,Middle East,Iran,iran,Islamic Republic of Iran,NonOECD,102,Islamic Republic of Iran,Middle East,Middle East,Other Asia/Pacific/ME,,IR,Iran,Iran,Middle East,,,364
+irq,1,Iraq,Middle East,Other Middle East,iraq,Iraq,NonOECD,103,Iraq,Middle East,Middle East,Other Asia/Pacific/ME,,IQ,Iraq,Iraq,Middle East,,,368
+isl,1,Iceland,Western Europe,Iceland,,Iceland,OECD,99,Iceland,Western Europe,Western Europe,Europe,IS,IS,,,Europe,high-income,,352
+isr,1,Israel,Middle East,Israel,israel,Israel,OECD,105,Israel,Middle East,Middle East,Other Asia/Pacific/ME,,IL,,,Middle East,high-income,,376
+ita,1,Italy,Western Europe,Italy,italy,Italy,OECD,106,Italy,Western Europe,Western Europe,Europe,IT,IT,Italy,Italy,Europe,high-income,,380
+jam,1,Jamaica,Latin America,Other Caribbean,,Jamaica,NonOECD,109,Jamaica,Latin America,Central and South America,Latin America,,JM,,,S. & Cent. America,,,388
+jor,1,Jordan,Middle East,Other Middle East,,Jordan,NonOECD,112,Jordan,Middle East,Middle East,Other Asia/Pacific/ME,,JO,,,Middle East,,,400
+jpn,1,Japan,Other Asia,Japan,japan,Japan,OECD,110,Japan,OtherOECD90,Other Asia,Other Asia/Pacific/ME,,JP,,,Japan,high-income,,392
+kaz,1,Kazakhstan,CIS,Kazakhstan,,Kazakhstan,NonOECD,108,Kazakhstan,FSU,FSU,Former Soviet Union,,KZ,Kazakhstan,Kazakhstan,CIS,,,398
+kaz,1,Former Soviet Union (if no detail),CIS,,,Kazakhstan,NonOECD,108,Kazakhstan,FSU,FSU,Former Soviet Union,,KZ,,,CIS,,,398
+ken,1,Kenya,Africa,Eastern Africa,,Kenya,NonOECD,114,Kenya,Africa,Africa,Africa,,KE,,,Africa,,,404
+kgz,1,Kyrgyzstan,CIS,Other CIS,,Kyrgyzstan,NonOECD,113,Kyrgyzstan,FSU,FSU,Former Soviet Union,KG,KG,,,CIS,,,417
+kgz,1,Former Soviet Union (if no detail),CIS,,,Kyrgyzstan,NonOECD,113,Kyrgyzstan,FSU,FSU,Former Soviet Union,KG,KG,,,CIS,,,417
+khm,1,Cambodia,China,Other Asia Pacific,,Cambodia,NonOECD,115,Cambodia,Asia,Other Asia,Other Asia/Pacific/ME,,KH,,,Asia Pacific,,,116
+kir,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Kiribati,NonOECD,83,Kiribati,Asia,Other Asia,Other Asia/Pacific/ME,,KI,,,Asia Pacific,,,296
+kna,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Kitts and Nevis,NonOECD,188,Saint Kitts and Nevis,Latin America,Central and South America,Latin America,,KN,,,S. & Cent. America,high-income,,659
+kor,1,Korea,Other Asia,South Korea,,Republic of Korea,OECD,117,Republic of Korea,Asia,Other Asia,Other Asia/Pacific/ME,,KR,,,Asia Pacific,high-income,,410
+kwt,1,Kuwait,Middle East,Kuwait,kuwait,Kuwait,NonOECD,118,Kuwait,Middle East,Middle East,Other Asia/Pacific/ME,,KW,Kuwait,Kuwait,Middle East,high-income,,414
+lao,1,Lao People's Democratic Republic,Other Asia,Other Asia Pacific,,Laos,NonOECD,120,Laos,Asia,Other Asia,Other Asia/Pacific/ME,,LA,,,Asia Pacific,,,418
+lbn,1,Lebanon,Middle East,Other Middle East,,Lebanon,NonOECD,121,Lebanon,Middle East,Middle East,Other Asia/Pacific/ME,,LB,,,Middle East,,,422
+lbr,1,Other Africa,Africa,Western Africa,,Liberia,NonOECD,123,Liberia,Africa,Africa,Africa,,LR,,,Africa,,,430
+lby,1,Libya,Africa,Other Northern Africa,libya,Libya,NonOECD,124,Libya,Africa,Africa,Africa,,LY,Libya,Libya,Africa,,,434
+lca,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Lucia,NonOECD,189,Saint Lucia,Latin America,Central and South America,Latin America,,LC,,,S. & Cent. America,,,662
+lie,1,,,,,Liechtenstein,NonOECD,125,Liechtenstein,Western Europe,Western Europe,Europe,LI,LI,,,Europe,high-income,,
+lka,1,Sri Lanka,Other Asia,Other Asia Pacific,,Sri Lanka,NonOECD,38,Sri Lanka,Asia,Other Asia,Other Asia/Pacific/ME,,LK,,,Asia Pacific,,,144
+lso,1,Other Africa,Africa,Other Southern Africa,,Lesotho,NonOECD,122,Lesotho,Africa,Africa,Africa,,LS,,,Africa,,,426
+ltu,1,Lithuania,CIS,Lithuania,,Lithuania,NonOECD,126,Lithuania,FSU,FSU,Former Soviet Union,LT,LT,,,CIS,high-income,,440
+ltu,1,Former Soviet Union (if no detail),CIS,,,Lithuania,NonOECD,126,Lithuania,FSU,FSU,Former Soviet Union,LT,LT,,,CIS,high-income,,440
+lux,1,Luxembourg,Western Europe,Other Europe,,Luxembourg,OECD,256,Luxembourg,Western Europe,Western Europe,Europe,LU,LU,,,Europe,high-income,,442
+lva,1,Latvia,CIS,Latvia,,Latvia,NonOECD,119,Latvia,FSU,FSU,Former Soviet Union,LV,LV,,,CIS,high-income,,428
+lva,1,Former Soviet Union (if no detail),CIS,,,Latvia,NonOECD,119,Latvia,FSU,FSU,Former Soviet Union,LV,LV,,,CIS,high-income,,428
+mac,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Macao,NonOECD,128,Macao,Asia,Other Asia,Other Asia/Pacific/ME,,MO,,,Asia Pacific,high-income,,446
+mar,1,Morocco,Africa,Other Northern Africa,morocco,Morocco,NonOECD,143,Morocco,Africa,Africa,Africa,,MA,,,Africa,,,504
+mda,1,Republic of Moldova,CIS,Other CIS,,Moldova,NonOECD,146,Moldova,FSU,FSU,Former Soviet Union,MD,MD,,,CIS,,,498
+mda,1,Republic of Moldova,CIS,Other CIS,,Moldova,NonOECD,146,Moldova,FSU,FSU,Former Soviet Union,MD,MD,,,CIS,,,498
+mda,1,Former Soviet Union (if no detail),CIS,Other CIS,,Moldova,NonOECD,146,Moldova,FSU,FSU,Former Soviet Union,MD,MD,,,CIS,,,498
+mdg,1,Madagascar,Africa,Eastern Africa,,Madagascar,NonOECD,129,Madagascar,Africa,Africa,Africa,,MG,,,Africa,,,450
+mdv,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Maldives,NonOECD,132,Maldives,Islands,Other Asia,Other Asia/Pacific/ME,,MV,,,Asia Pacific,,,
+mex,1,Mexico,Latin America,Mexico,mexico,Mexico,OECD,138,Mexico,Latin America,Central and South America,Latin America,,MX,Mexico,Mexico,S. & Cent. America,,,484
+mhl,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Marshall Islands,NonOECD,127,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,,
+mkd,1,Republic of North Macedonia,Central European countries,Other Europe,,Macedonia,NonOECD,154,Former Yugoslav Republic of Macedonia,Eastern Europe,Eastern Europe,Europe,MK,MK,,,Europe,,,807
+mkd,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Macedonia,NonOECD,154,Macedonia,Eastern Europe,Eastern Europe,Europe,,MK,,,Europe,,,807
+mli,1,Other Africa,Africa,Middle Africa,,Mali,NonOECD,133,Mali,Africa,Africa,Africa,,ML,,,Africa,,,466
+mlt,1,Malta,Western Europe,Other Europe,,Malta,NonOECD,134,Malta,Western Europe,Western Europe,Europe,MT,MT,,,Europe,high-income,,470
+mmr,1,Myanmar,Other Asia,Other Asia Pacific,myanmar,Myanmar (Burma),NonOECD,28,Myanmar (Burma),Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,MM,,Myanmar,Asia Pacific,,,104
+mne,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Montenegro,NonOECD,273,Montenegro,Western Europe,Other Asia,Other Asia/Pacific/ME,ME,ME,,,Asia Pacific,,,499
+mne,1,Montenegro,Central European countries,Other Europe,,Montenegro,NonOECD,273,Montenegro,Western Europe,Other Asia,Other Asia/Pacific/ME,ME,ME,,,Asia Pacific,,,499
+mng,1,Mongolia,China,Other Asia Pacific,mongolia,Mongolia,NonOECD,141,Mongolia,Asia,Other Asia,Other Asia/Pacific/ME,,MN,,,Asia Pacific,,,496
+moz,1,Mozambique,Africa,Eastern Africa,,Mozambique,NonOECD,144,Mozambique,Africa,Africa,Africa,,MZ,,,Africa,,,508
+mrt,1,Other Africa,Africa,Western Africa,,Mauritania,NonOECD,136,Mauritania,Africa,Africa,Africa,,MR,,,Africa,,,478
+msr,1,Other non-OECD Americas,Latin America,Other Caribbean,,Montserrat,NonOECD,142,Montserrat,Latin America,Central and South America,Latin America,,MS,,,S. & Cent. America,,,
+mtq,1,Other non-OECD Americas,Latin America,Other Caribbean,,Martinique,NonOECD,135,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,,,474
+mus,1,Mauritius,Africa,Eastern Africa,,Mauritius,NonOECD,137,Mauritius,Africa,Africa,Africa,,MU,,,Africa,,,480
+mwi,1,Other Africa,Africa,Other Southern Africa,,Malawi,NonOECD,130,Malawi,Africa,Africa,Africa,,MW,,,Africa,,,454
+mys,1,Malaysia,Other Asia,Malaysia,malaysia,Malaysia,NonOECD,131,Malaysia,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,MY,Malaysia,Malaysia,Asia Pacific,,,458
+nam,1,Namibia,Africa,Western Africa,,Namibia,NonOECD,147,Namibia,Africa,Africa,Africa,,NA,,,Africa,,,516
+ncl,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,New Caledonia,NonOECD,153,New Caledonia,Asia,Other Asia,Other Asia/Pacific/ME,,NC,,,Asia Pacific,high-income,,540
+ner,1,Niger,Africa,Middle Africa,,Niger,NonOECD,158,Niger,Africa,Africa,Africa,,NE,,,Africa,,,562
+nga,1,Nigeria,Africa,Western Africa,nigeria,Nigeria,NonOECD,159,Nigeria,Africa,Africa,Africa,,NG,Nigeria,Nigeria,Africa,,,566
+nic,1,Nicaragua,Latin America,Other Caribbean,,Nicaragua,NonOECD,157,Nicaragua,Latin America,Central and South America,Latin America,,NI,,,S. & Cent. America,,,558
+niu,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Niue,NonOECD,160,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,,570
+nld,1,Netherlands,Western Europe,Netherlands,netherl.,Netherlands,OECD,150,Netherlands,Western Europe,Western Europe,Europe,NL,NL,,Netherlands,Europe,high-income,,528
+nor,1,Norway,Western Europe,Norway,norway,Norway,OECD,162,Norway,Western Europe,Western Europe,Europe,NO,NO,Norway,Norway,Europe,high-income,,578
+npl,1,Nepal,Other Asia,Other Asia Pacific,,Nepal,NonOECD,149,Nepal,Asia,Other Asia,Other Asia/Pacific/ME,,NP,,,Asia Pacific,,,524
+nzl,1,New Zealand,Oceania,New Zealand,new zeal.,New Zealand,OECD,156,New Zealand,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,NZ,,,Asia Pacific,high-income,,554
+omn,1,Oman,Middle East,Other Middle East,oman,Oman,NonOECD,221,Oman,Middle East,Middle East,Other Asia/Pacific/ME,,OM,Oman,Oman,Middle East,high-income,,512
+pak,1,Pakistan,Other Asia,Pakistan,pakistan,Pakistan,NonOECD,165,Pakistan,Asia,Other Asia,Other Asia/Pacific/ME,,PK,,Pakistan,Asia Pacific,,,586
+pan,1,Panama,Latin America,Other Caribbean,,Panama,NonOECD,166,Panama,Latin America,Central and South America,Latin America,,PA,,,S. & Cent. America,,,591
+per,1,Peru,Latin America,Peru,peru,Peru,NonOECD,170,Peru,Latin America,Central and South America,Latin America,,PE,Peru,Peru,S. & Cent. America,,,604
+phl,1,Philippines,Other Asia,Philippines,philippines,Philippines,NonOECD,171,Philippines,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,PH,,,Asia Pacific,,,608
+plw,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Palau,NonOECD,180,Palau,Asia,Other Asia,Other Asia/Pacific/ME,,PW,,,Asia Pacific,,,
+png,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Papua New Guinea,NonOECD,168,Papua New Guinea,Asia,Other Asia,Other Asia/Pacific/ME,,PG,,,Asia Pacific,,,598
+pol,1,Poland,Central European countries,Poland,poland,Poland,OECD,173,Poland,Eastern Europe,Eastern Europe,Europe,PL,PL,,Poland,European Union,high-income,,616
+pri,1,Other non-OECD Americas,Latin America,Other Caribbean,,Puerto Rico,NonOECD,177,Puerto Rico,OtherOECD90,North America,North America,,,,,S. & Cent. America,high-income,,630
+prk,1,Democratic People's Republic of Korea,China,Other Asia Pacific,,Democratic Peoples Republic of Korea,OECD,116,Democratic Peoples Republic of Korea,Asia,Other Asia,Other Asia/Pacific/ME,,KP,,,Asia Pacific,,,408
+prt,1,Portugal,Western Europe,Portugal,,Portugal,OECD,174,Portugal,Western Europe,Western Europe,Europe,PT,PT,,,Europe,high-income,,620
+pry,1,Paraguay,Latin America,Other South America,,Paraguay,NonOECD,169,Paraguay,Latin America,Central and South America,Latin America,,PY,,,S. & Cent. America,,,600
+pse,1,,,,,Palestine,NonOECD,299,,Middle East,Middle East,Other Asia/Pacific/ME,,,,,Asia Pacific,,,275
+pyf,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,French Polynesia,NonOECD,70,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,high-income,,258
+qat,1,Qatar,Middle East,Qatar,qatar,Qatar,NonOECD,179,Qatar,Middle East,Middle East,Other Asia/Pacific/ME,,QA,Qatar,Qatar,Middle East,high-income,,634
+reu,1,Other Africa,Africa,Eastern Africa,,Reunion,NonOECD,182,Reunion,Africa,Africa,Africa,,RE,,,Africa,,,
+rou,1,Romania,Central European countries,Romania,rumania,Romania,NonOECD,183,Romania,Eastern Europe,Eastern Europe,Europe,RO,RO,Romania,Romania,European Union,,,642
+rus,1,Russian Federation,CIS,Russian Federation,,Russia,NonOECD,185,Russian Federation,FSU,FSU,Former Soviet Union,RU,RU,Russian Federation,Russian Federation,CIS,,,643
+rus,1,Former Soviet Union (if no detail),CIS,,,Russia,NonOECD,185,Russian Federation,FSU,FSU,Former Soviet Union,,RU,,,CIS,,,643
+rwa,1,Rwanda,Africa,Middle Africa,,Rwanda,NonOECD,184,Rwanda,Africa,Africa,Africa,,RW,,,Africa,,,646
+sau,1,Saudi Arabia,Middle East,Saudi Arabia,saudi arab.,Saudi Arabia,NonOECD,194,Saudi Arabia,Middle East,Middle East,Other Asia/Pacific/ME,,SA,Saudi Arabia,Saudi Arabia,Middle East,high-income,,682
+scg,0,Serbia and Montenegro,Central European countries,Other Europe,,Serbia and Montenegro,NonOECD,186,Serbia and Montenegro,Eastern Europe,Eastern Europe,Europe,CS,,,,Europe,,historical,891
+sdn,1,Sudan,Africa,Eastern Africa,,Sudan,NonOECD,206,Sudan,Africa,Africa,Africa,,SD,Sudan,,Africa,,,729
+sen,1,Senegal,Africa,Western Africa,,Senegal,NonOECD,195,Senegal,Africa,Africa,Africa,,SN,,,Africa,,,686
+sgp,1,Singapore,Other Asia,Singapore,,Singapore,NonOECD,200,Singapore,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,SG,,,Asia Pacific,high-income,,702
+slb,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Soloman Islands,NonOECD,25,Soloman Islands,Asia,Other Asia,Other Asia/Pacific/ME,,SB,,,Asia Pacific,,,
+sle,1,Other Africa,Africa,Western Africa,,Sierra Leone,NonOECD,197,Sierra Leone,Africa,Africa,Africa,,SL,,,Africa,,,694
+slv,1,El Salvador,Latin America,Other Caribbean,,El Salvador,NonOECD,60,El Salvador,Latin America,Central and South America,Latin America,,SV,,,S. & Cent. America,,,222
+som,1,Other Africa,Africa,Eastern Africa,,Somalia,NonOECD,201,Somalia,Africa,Africa,Africa,,SO,,,Africa,,,706
+spm,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Pierre and Miquelon,NonOECD,190,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,,,
+srb,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Serbia,NonOECD,272,Serbia,Eastern Europe,Eastern Europe,Europe,RS,RS,,,Europe,,,688
+srb,1,Serbia,Central European countries,Other Europe,,Serbia,NonOECD,272,Serbia,Eastern Europe,Eastern Europe,Europe,RS,RS,,,Europe,,,688
+srb (kosovo),0,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Kosovo,NonOECD,,Kosovo,Eastern Europe,Eastern Europe,Europe,,,,,Europe,,,
+srb (kosovo),0,Kosovo,Central European countries,Other Europe,,Kosovo,NonOECD,,Kosovo,Eastern Europe,Eastern Europe,Europe,,,,,Europe,,,
+ssd,1,South Sudan,,Eastern Africa,,South Sudan,NonOECD,277,,Africa,Africa,Africa,,,South Sudan,,Africa,,,728
+stp,1,Other Africa,Africa,Western Africa,,Sao Tome and Principe,NonOECD,193,Sao Tome and Principe,Africa,Africa,Africa,,ST,,,Africa,,,678
+sur,1,Suriname,Latin America,Other Caribbean,surinam,Suriname,NonOECD,207,Suriname,Latin America,Central and South America,Latin America,,SR,,,S. & Cent. America,,,740
+svk,1,Slovak Republic,Central European countries,Slovakia,,Slovakia,OECD,199,Slovakia,Eastern Europe,Eastern Europe,Europe,SK,SK,,,Europe,high-income,,703
+svn,1,Former Yugoslavia (if no detail),Central European countries,Other Europe,,Slovenia,OECD,198,Slovenia,Eastern Europe,Eastern Europe,Europe,SI,SI,,,European Union,high-income,,705
+svn,1,Slovenia,Central European countries,Other Europe,,Slovenia,OECD,198,Slovenia,Eastern Europe,Eastern Europe,Europe,SI,SI,,,European Union,high-income,,705
+swe,1,Sweden,Western Europe,Sweden,sweden,Sweden,OECD,210,Sweden,Western Europe,Western Europe,Europe,SE,SE,,,Europe,high-income,,752
+swz,1,Kingdom of Eswatini,Africa,Other Southern Africa,,Swaziland,NonOECD,209,Swaziland,Africa,Africa,Africa,,SZ,,,Africa,,,
+sxm,1,Other non-OECD Americas,Latin America,Other Caribbean,,Sint Maarten,NonOECD,,,Latin America,Central and South America,Latin America,,,,,S. & Cent. America,high-income,separated from Netherlands Antilles in 2010,
+syc,1,Other Africa,Africa,Eastern Africa,,Seychelles,NonOECD,196,Seychelles,Africa,Africa,Africa,,SC,,,Africa,high-income,,690
+syr,1,Syrian Arab Republic,Middle East,Other Middle East,syria,Syria,NonOECD,212,Syria,Middle East,Middle East,Other Asia/Pacific/ME,,SY,Syria,Syria,Middle East,,,760
+tca,1,Other non-OECD Americas,Latin America,Other Caribbean,,Turks and Caicos Islands,NonOECD,224,Turks and Caicos Islands,Latin America,Central and South America,Latin America,,TC,,,S. & Cent. America,high-income,,
+tcd,1,Other Africa,Africa,Western Africa,,Chad,NonOECD,39,Chad,Africa,Africa,Africa,,TD,Chad,,Africa,,,148
+tgo,1,Togo,Africa,Western Africa,,Togo,NonOECD,217,Togo,Africa,Africa,Africa,,TG,,,Africa,,,768
+tha,1,Thailand,Other Asia,Thailand,thailand,Thailand,NonOECD,216,Thailand,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,TH,Thailand,Thailand,Asia Pacific,,,764
+tjk,1,Tajikistan,CIS,Other CIS,,Tajikistan,NonOECD,208,Tajikistan,FSU,FSU,Former Soviet Union,TJ,TJ,,,CIS,,,762
+tjk,1,Former Soviet Union (if no detail),CIS,,,Tajikistan,NonOECD,208,Tajikistan,FSU,FSU,Former Soviet Union,TJ,TJ,,,CIS,,,762
+tkl,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Tokelau,NonOECD,218,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,,772
+tkm,1,Turkmenistan,CIS,Turkmenistan,,Turkmenistan,NonOECD,213,Turkmenistan,FSU,FSU,Former Soviet Union,,TM,Turkmenistan,Turkmenistan,CIS,,,795
+tkm,1,Former Soviet Union (if no detail),CIS,,,Turkmenistan,NonOECD,213,Turkmenistan,FSU,FSU,Former Soviet Union,,TM,,,CIS,,,795
+tls,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Timor-Leste,NonOECD,176,Timor-Leste,Asia,Other Asia,Other Asia/Pacific/ME,,TL,,,Asia Pacific,,Also known as East Timor,626
+ton,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Tonga,NonOECD,219,Tonga,Asia,Other Asia,Other Asia/Pacific/ME,,TO,,,Asia Pacific,,,776
+tto,1,Trinidad and Tobago,Latin America,Trinidad & Tobago,trinidad,Trinidad and Tobago,NonOECD,220,Trinidad and Tobago,Latin America,Central and South America,Latin America,,TT,Trinidad & Tobago,Trinidad & Tobago,S. & Cent. America,high-income,,780
+tun,1,Tunisia,Africa,Other Northern Africa,tunesia,Tunisia,NonOECD,222,Tunisia,Africa,Africa,Africa,,TN,Tunisia,,Africa,,,788
+tur,1,Republic of Turkiye,Western Europe,Turkey,turkey,Turkey,OECD,223,Turkey,Western Europe,Western Europe,Europe,TR,TR,,,Europe,,,
+twn,1,Chinese Taipei,Other Asia,Taiwan,taiwan,Chinese Taipei,NonOECD,214,Chinese Taipei,Asia,Other Asia,Other Asia/Pacific/ME,,TW,,,Asia Pacific,,,158
+tza,1,United Republic of Tanzania,Africa,Eastern Africa,,Tanzania,NonOECD,215,Tanzania,Africa,Africa,Africa,,TZ,,,Africa,,,834
+tza,1,United Republic of Tanzania,Africa,Eastern Africa,,Tanzania,NonOECD,215,Tanzania,Africa,Africa,Africa,,TZ,,,Africa,,,834
+uga,1,Uganda,Africa,Middle Africa,,Uganda,NonOECD,226,Uganda,Africa,Africa,Africa,,UG,,,Africa,,,800
+ukr,1,Ukraine,CIS,Ukraine,,Ukraine,NonOECD,230,Ukraine,FSU,FSU,Former Soviet Union,UA,UA,,Ukraine,CIS,,,804
+ukr,1,Former Soviet Union (if no detail),CIS,,,Ukraine,NonOECD,230,Ukraine,FSU,FSU,Former Soviet Union,UA,UA,,,CIS,,,804
+ury,1,Uruguay,Latin America,Other South America,,Uruguay,NonOECD,234,Uruguay,Latin America,Central and South America,Latin America,,UY,,,S. & Cent. America,high-income,,858
+usa,1,United States,North America,US,usa,United States,OECD,231,United States of America,OtherOECD90,North America,North America,US,US,US,US,US,high-income,,840
+ussr,0,,,Former Soviet Union,ussr,Soviet Union,NonOECD,228,,FSU,FSU,Former Soviet Union,,,USSR,USSR,CIS,,historical - used as tag in oil production processing to assist in summing ussr oil production data,810
+uzb,1,Uzbekistan,CIS,Uzbekistan,,Uzbekistan,NonOECD,235,Uzbekistan,FSU,FSU,Former Soviet Union,,UZ,Uzbekistan,Uzbekistan,CIS,,,860
+uzb,1,Former Soviet Union (if no detail),CIS,,,Uzbekistan,NonOECD,235,Uzbekistan,FSU,FSU,Former Soviet Union,,UZ,,,CIS,,,860
+vct,1,Other non-OECD Americas,Latin America,Other Caribbean,,Saint Vincent And Grenadines,NonOECD,191,Saint Vincent And Grenadines,Latin America,Central and South America,Latin America,,VC,,,S. & Cent. America,,,670
+ven,1,Bolivarian Republic of Venezuela,Latin America,Venezuela,venezuela,Venezuela,NonOECD,236,Venezuela,Latin America,Central and South America,Latin America,,VE,Venezuela,Venezuela,S. & Cent. America,,,862
+vgb,1,Other non-OECD Americas,Latin America,Other Caribbean,,British Virgin Islands,NonOECD,239,British Virgin Islands,Latin America,Central and South America,Latin America,,VG,,,S. & Cent. America,high-income,,
+vir,1,Other non-OECD Americas,Latin America,Other Caribbean,,United States Virgin Islands,NonOECD,240,,Islands,Central and South America,Latin America,,,,,S. & Cent. America,high-income,,
+vnm,1,Viet Nam,China,Vietnam,,Vietnam,NonOECD,237,Vietnam,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,VN,,,Asia Pacific,,,704
+vnm,1,Viet Nam,China,Vietnam,,Vietnam,NonOECD,237,Vietnam,Asia,South East Asia and Aust/NZ,Other Asia/Pacific/ME,,VN,Vietnam,Vietnam,Asia Pacific,,,704
+vut,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Vanuatu,NonOECD,155,Vanuatu,Asia,Other Asia,Other Asia/Pacific/ME,,VU,,,Asia Pacific,,,548
+wlf,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Wallis and Futuna Islands,NonOECD,243,,Islands,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,,
+wsm,1,Other non-OECD Asia,Other Asia,Other Asia Pacific,,Samoa,NonOECD,244,Samoa,Asia,Other Asia,Other Asia/Pacific/ME,,WS,,,Asia Pacific,,,882
+yem,1,Yemen,Middle East,Other Middle East,,Yemen,NonOECD,249,Yemen,Middle East,Middle East,Other Asia/Pacific/ME,,YE,Yemen,Yemen,Middle East,,,887
+yug,0,,,,yugosl.,Yugoslavia,NonOECD,248,,Other Asia,Other Asia,Other Asia/Pacific/ME,,,,,Asia Pacific,,historical,890
+zaf,1,South Africa,Africa,South Africa,,South Africa,NonOECD,202,South Africa,Africa,Africa,Africa,,ZA,,,Africa,,,710
+zmb,1,Zambia,Africa,Other Southern Africa,,Zambia,NonOECD,251,Zambia,Africa,Africa,Africa,,ZM,,,Africa,,,894
+zwe,1,Zimbabwe,Africa,Other Southern Africa,,Zimbabwe,NonOECD,181,Zimbabwe,Africa,Africa,Africa,,ZW,,,Africa,,,716
