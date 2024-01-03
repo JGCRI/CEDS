@@ -1,14 +1,14 @@
 # _____________________________________________________________________________
 # Program Name: F1.1.Taiwan_scaling.R
 # Authors' Names: Leyang Feng
-# Date Last Modified: April 30, 2020
+# Date Last Modified: November 3, 2023
 # Program Purpose: To create scaling factors and update emissions estimate for
 #                  the Taiwan region from latest emissions working copy by using
 #                  Taiwan emission inventory data.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
 #              F.[em]_scaled_emissions.csv, Taiwan_scaling_mapping.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
-# Notes: This data only contains data from 2003,2006,2010.
+# Notes: This data  contains data from 2003, 2006, 2010, 2016, 2019, 2021.
 # TODO:
 # _____________________________________________________________________________
 # 0. Read in global settings and headers ####
@@ -50,7 +50,7 @@ inv_name <- 'TWN' #for naming diagnostic files
 region <- c( "twn" )
 
 # Don't use 2010 data by sector since sector categories not not compatible with other years.
-inv_years <- c( 2003, 2006, 2013, 2016 )
+inv_years <- c( 2003, 2006, 2013, 2016, 2019, 2021 )
 inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
 
 

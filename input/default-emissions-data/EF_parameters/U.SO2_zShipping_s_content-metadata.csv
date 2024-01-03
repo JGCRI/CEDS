@@ -1,2 +1,2 @@
 Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
-Sulfur content,SO2,all,Shipping,2000,2017,Third IMO GHG Study 2014 (MEPC-67-6-INF3-2014); IMO - Sulphur monitoring - various years; Fourth IMO GHG Study 2020 (MEPC 75-7-15)
+Sulfur content,SO2,all,Shipping,2000,2017,Third IMO GHG Study 2014 (MEPC-67-6-INF3-2014); IMO - Sulphur monitoring - various years; Fourth IMO GHG Study 2020 (MEPC 75-7-15); IMO Sulphur monitoring. Heavy oil S% adjusted before 2009 for mass/sample weighted bias. Distillate S% assumed to linearly approach 5000 ppm by 1990, ramping down to IMO estimated levels after 2911. 2020 forward estimates based on fraction of fuel oil reported to be in compliance (as reported by Diamond et al. 2023, in press).

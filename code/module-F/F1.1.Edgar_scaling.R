@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "CO"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -50,10 +50,9 @@
 #   Provide the inventory and mapping file names, the mapping
 #   method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-    vn <- "5.0"  # EDGAR data version number
+
     inv_data_folder <- "EM_INV"
     inv_name <- 'EDGAR' #for naming diagnostic files
-
 
     sector_fuel_mapping <- "Edgar"
     mapping_method <- 'sector'
@@ -136,7 +135,7 @@ if ( em == "N2O") {
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
-   inventory_data_file <- paste0( "E.", em, "_EDGAR_v5" )
+   inventory_data_file <- paste0( "E.", em, "_EDGAR" )
    scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                       'MED_OUT',
                                       mapping = sector_fuel_mapping,

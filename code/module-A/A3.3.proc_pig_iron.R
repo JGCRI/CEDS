@@ -53,8 +53,18 @@
 
     worldSteel_3 <- worldSteel_3 %>% select(-Countries)
 
+    # data from 2017 - 2021 from USGS minerals yearbook
+    usgs <- readData( "ACTIVITY_IN", "USGS_Pig_Iron_Production_2017-2021", ".xlsx",
+                              domain_extension = "metals/", skip = 2)
+
+    # remove overlapping years with worldsteel dataset and combine
+    usgs <- select(usgs, !c("Country","2017","2018","2019"))
+
+    worldSteel_usgs <- left_join(worldSteel_3, usgs, by = "iso")
+
+
     # TODO: Change variable names from here on, since this is no longer spew data
-    spew <-  full_join(spew_1_plus_2, worldSteel_3, by = c("iso"))
+    spew <-  full_join(spew_1_plus_2, worldSteel_usgs, by = c("iso"))
 
     # arrange alphabetically
     spew <- spew[order(spew$iso),]
@@ -166,11 +176,12 @@
 # 2) add NA's for extra years without data then extend_and_interpolate below will work properly.
 
 # Define years to interpolate NAs for the world steel data (interpolate through the World Steel data, then extend constant forward)
-    WS_max <- worldSteel_3 %>% names %>% as.numeric %>% max(na.rm = T)
+    WS_max <- worldSteel_usgs %>% names %>% as.numeric %>% max(na.rm = T)
     if(is.na(WS_max)) stop('World Steel data in unexpted format, extention needs to be adressed')
     if(WS_max < 2019) stop('World Steel data in unexpted format, extention needs to be adressed')
     X_WS_extended_years <- paste0('X',extended_years[extended_years<= WS_max ])
-    X_WS_extended_years_add <- paste0('X',extended_years[extended_years > WS_max ])
+    if(max(extended_years) > WS_max)
+        {X_WS_extended_years_add <- paste0('X',extended_years[extended_years > WS_max ])}
 
 # Format World Steel data
     all <- data.frame( year = X_WS_extended_years ) %>%
@@ -202,8 +213,9 @@
 # Interpolate NAs
   if (!all_equal(interpolate_NAs(  all_wide[ X_WS_extended_years ]), interpolate_NAs2( all_wide[ X_WS_extended_years ]))) stop()
     all_wide[ X_WS_extended_years ] <- interpolate_NAs( all_wide[ X_WS_extended_years ] )
-# Replace remaining NAs with zero for all extended years, except years after the world steel data
-    all_wide[ is.na( all_wide ) ] <- 0
+# Replace remaining NAs with zero for all extended years, except years after the world steel data (currently ends in 2019)
+    all_wide <- all_wide %>%
+        mutate_at(vars("X1750":"X2019"), ~replace_na(.,0))
 
 # Disaggregate countries
     # Czechoslovakia
@@ -233,7 +245,8 @@
 
     # Extend data forward
     # Add NA columns for the years after World Steel data but in the extension data (will extend constant forward later)
-    all_wide_out[X_WS_extended_years_add] <- as.numeric(NA)
+    if(max(extended_years) > WS_max)
+        {all_wide_out[X_WS_extended_years_add] <- as.numeric(NA)}
 
     end_year <- BP_last_year
     start_year <- 1950

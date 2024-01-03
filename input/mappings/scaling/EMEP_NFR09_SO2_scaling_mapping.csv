@@ -44,7 +44,7 @@ C_SmallComb,Other,1A5_Other-unspecified
 ,Other,1A4a_Commercial-institutional
 ,Other,1A4b_Residential
 ,,
-L_OtherWasteDisp,OtherWasteDisp,5A_Solid-waste-disposal
+I_OtherWasteDisp,OtherWasteDisp,5A_Solid-waste-disposal
 ,OtherWasteDisp,5E_Other-waste-handling
 N_WasteIncin,WasteIncin,5C_Waste-incineration
 M_WasteWater,WasteWater,5D_Wastewater-handling
