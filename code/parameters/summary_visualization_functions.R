@@ -64,12 +64,12 @@ last_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( EM, "_last-run/",
                                               meta = F )
 
 current_Em_by_Country_Sector  <-  readData( "FIN_OUT", paste0("current-Versions/",
-                                              list.files( paste0( "../final-emissions/current-versions" ),
+                                              list.files( paste0( "../final-emissions/current-Versions" ),
                                               pattern = paste0('CEDS_',EM,'_emissions_by_country_sector') ) ),
                                               meta = F )
 
 current_Em_by_Country_Fuel  <-  readData( "FIN_OUT", paste0( "current-Versions/",
-                                              list.files( paste0( "../final-emissions/current-versions" ),
+                                              list.files( paste0( "../final-emissions/current-Versions" ),
                                               pattern = paste0('CEDS_',EM,'_emissions_by_country_fuel') ) ),
                                        meta = F )
 
