@@ -49,7 +49,7 @@
 
 # Remove ISO, UN code, and 2022 columns
     Andrew_read <- Andrew_read %>%
-      dplyr::select(-"UN code", -"2022", -"ISO")
+      dplyr::select(-"UN code", -"ISO")
 
 # Find all Andrew's countries that aren't mapped to ISOs
     unmatched_Andrew_countries <- dplyr::filter( Andrew_country_map, is.na( iso ) ) %>%
