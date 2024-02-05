@@ -1,9 +1,11 @@
 #!/bin/bash
 # Submit all CEDS species to run in parallel.
 
+
 # Run activity first, get the ID of that job and have all
 # other species run only if activity completed successfully.
 actid=$(sbatch --parsable make-activity.sh)
+
 
 # Wait for activity to finish, then run all species as their own jobs
 SO2id=$(sbatch --parsable --dependency=afterok:$actid make-SO2.sh)

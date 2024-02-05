@@ -58,20 +58,6 @@
       "Repository": "CRAN",
       "Hash": "50c838a310445e954bc13f26f26a6ecf"
     },
-    "bindr": {
-      "Package": "bindr",
-      "Version": "0.1.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "12981fbe55fe3df82fd6d249fcf8bb06"
-    },
-    "bindrcpp": {
-      "Package": "bindrcpp",
-      "Version": "0.2.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c1835e06daacf34f97ba8e9ff0ef1804"
-    },
     "cellranger": {
       "Package": "cellranger",
       "Version": "1.1.0",
@@ -112,7 +98,7 @@
       "Version": "0.8.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "86bcce10492ca033b7727d97f15bd377"
+      "Hash": "9d531c10b2c5d5a48f1197f2efac266b"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -221,10 +207,7 @@
     },
     "ncdf4": {
       "Package": "ncdf4",
-      "Version": "1.17",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "5c1c0231b12b3d54cf619a3e5e36d229"
+      "Source": "Repository"
     },
     "nlme": {
       "Package": "nlme",
@@ -275,6 +258,13 @@
       "Repository": "CRAN",
       "Hash": "22aca7d1181718e927d403a8c2d69d62"
     },
+    "raster": {
+      "Package": "raster",
+      "Version": "2.8-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "1f6d02d11ab88b9de3ca53da6b88167a"
+    },
     "readxl": {
       "Package": "readxl",
       "Version": "1.0.0",
@@ -295,11 +285,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "5181d5f316c7a6589219866d640e004c"
-    },
-    "reshape": {
-      "Package": "reshape",
-      "Version": "0.8.6",
-      "Source": "Repository"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -391,6 +376,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "aa57ed55ff2df4bea697a07df528993d"
+    },
+    "yaml": {
+      "Package": "yaml",
+      "Version": "2.3.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "458bb38374d73bf83b1bb85e353da200"
     },
     "zoo": {
       "Package": "zoo",

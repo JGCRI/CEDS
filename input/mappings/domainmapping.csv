@@ -29,3 +29,5 @@ FIN_OUT,../final-emissions
 DIAG_OUT,../diagnostic-output
 DOCUMENTATION,../documentation
 TEST_FILES,../tests/
+PROX_OUT,../intermediate-output/final_generated_proxy
+EDGAR_GRIDS,../input/gridding/grid_data/EDGAR/v5.0

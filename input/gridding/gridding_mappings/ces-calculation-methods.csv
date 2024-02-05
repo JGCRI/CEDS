@@ -1,0 +1,13 @@
+species,sector,iso,fuel,preference_order
+SO2,,,,"capacity, CO2, NOx, none"
+CO2,,,,"capacity, SO2, NOx, none"
+CO,,,,none
+BC,,,,none
+OC,,,,none
+NOx,,,,"capacity, SO2, CO2, none"
+CH4,,,,none
+NMVOC,,,,none
+NH3,,,,none
+N2O,,,,"CO2, NH3, any"
+SO2,2C4_Non-Ferrous-other-metals,,,"NOx, CO2, none"
+CO2,2C4_Non-Ferrous-other-metals,can,,"SO2, NOx, none"

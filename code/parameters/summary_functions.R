@@ -214,3 +214,161 @@ update_readme_sheet <- function( workbook ) {
 
   return(workbook)
 }
+
+
+# -----------------------------------------------------------------------------------
+# write_emissions_by_country_CEDS_sector
+# Brief: This functions creates emissions file by country and CEDS sector from
+#        the CEDS totals inventory (with or without point sources). Essentially aggregating
+#        by fuel.
+# Details: The README Sheet contains the version number of the latest run and CEDS url website
+# Dependencies: None
+# Author(s): Noah Prime
+# Params: totals_file - path to CEDS total emissions file
+# Return: None
+# Input Files: The CEDS totals for a specific emission species
+# Output Files: The CEDS estimates by country and CEDS sector
+write_emissions_by_country_CEDS_sector <- function( totals_file,
+                                                    em, write_years,
+                                                    Master_Sector_Level_map,
+                                                    out_file, out_location,
+                                                    out_extension = '',
+                                                    save_bunker = FALSE,
+                                                    return_em = TRUE ){
+
+    # load CEDS inventory, should be saved in intermediate-output
+    total_emissions_all_years <- readData( 'MED_OUT', totals_file )
+
+    # ---------------------------------------------------------------------------
+    # Data processing
+
+    # Get desired years and specifiy emissions species
+    X_write_years <- paste0('X',write_years)
+    total_emissions <- total_emissions_all_years[,c('iso','sector','fuel','units',X_write_years)]
+    total_emissions$em <- em
+
+    # Remove sectors that are not supplied in CEDS
+    empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
+    total_emissions <- total_emissions[ -which( total_emissions$sector %in% empty_sectors ) , ]
+
+    # Save shipping and aviation emissions
+    shp_av_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation",
+                         "1A3ai_International-aviation" )
+    bunker_emissions <- total_emissions[ total_emissions$sector %in% shp_av_sectors, ]
+
+    # Remove international shipping and aviation emissions
+    total_emissions <- total_emissions[ total_emissions$sector %!in% shp_av_sectors, ]
+
+    # Add summary sectors
+    total_emissions$summary_sector <- Master_Sector_Level_map[match(total_emissions$sector,
+                                                                    Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+    bunker_emissions$summary_sector <- Master_Sector_Level_map[match(bunker_emissions$sector,
+                                                                     Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+
+    # Simplify units
+    # This assumes units are correct. Need to add a more comprehensive unit conversion function (since drivers will come in various units)
+    total_emissions$units <- 'kt'
+    bunker_emissions$units <- 'kt'
+
+    # Sum bunker emissions to global values
+    Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
+                                by=list( em = bunker_emissions$em,
+                                         fuel = bunker_emissions$fuel,
+                                         summary_sector = bunker_emissions$summary_sector,
+                                         sector = bunker_emissions$sector,
+                                         units = bunker_emissions$units ), sum )
+    Bunker_global$iso <- "global"
+
+    # Reorder columns
+    total_emissions <- total_emissions[,c("iso", "summary_sector", "sector", "fuel","em","units",X_write_years)]
+    total_emissions <- rbind( total_emissions, Bunker_global )
+
+    # Save bunker emissions
+    if( save_bunker ){
+        # Order columns
+        bunker_emissions <- bunker_emissions[,c("iso", "summary_sector","sector", "fuel","em","units",X_write_years)]
+        # Save output
+        writeData( bunker_emissions, "MED_OUT", paste0( "S.", em, "_bunker_emissions" ),  meta = F )
+    }
+
+    # Aggregate emissions by CEDS sector, country, and species total
+    Em_by_Country_CEDS_Sector <- total_emissions %>%
+        dplyr::group_by( iso, sector, em, units ) %>%
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum ) %>%
+        dplyr::arrange( iso, sector )
+
+    # Name file and write to intermediate output
+    writeData( Em_by_Country_CEDS_Sector, out_location, out_file, meta = F, domain_extension = out_extension )
+
+    # return total emissions to be potentially used further
+    if( return_em ){
+        return( total_emissions )
+    }
+
+}
+
+# -----------------------------------------------------------------------------------
+# write_emissions_by_country_CEDS_sector
+# Brief: This functions formats CEDS emissions to be used in summary script S1.1
+# Details: The README Sheet contains the version number of the latest run and CEDS url website
+# Dependencies: None
+# Author(s): Noah Prime
+# Params: totals_file - path to CEDS total emissions file
+# Return: CEDS emissions formatted to use in summary script
+# Input Files: The CEDS totals for a specific emission species
+# Output Files: None
+get_final_emissions <- function( totals_file,
+                                 em, write_years,
+                                 Master_Sector_Level_map){
+
+    # load CEDS inventory, should be saved in intermediate-output
+    total_emissions_all_years <- readData( 'MED_OUT', totals_file )
+
+    # ---------------------------------------------------------------------------
+    # Data processing
+
+    # Get desired years and specifiy emissions species
+    X_write_years <- paste0('X',write_years)
+    total_emissions <- total_emissions_all_years[,c('iso','sector','fuel','units',X_write_years)]
+    total_emissions$em <- em
+
+    # Remove sectors that are not supplied in CEDS
+    empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
+    total_emissions <- total_emissions[ -which( total_emissions$sector %in% empty_sectors ) , ]
+
+    # Save shipping and aviation emissions
+    shp_av_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation",
+                         "1A3ai_International-aviation" )
+    bunker_emissions <- total_emissions[ total_emissions$sector %in% shp_av_sectors, ]
+
+    # Remove international shipping and aviation emissions
+    total_emissions <- total_emissions[ total_emissions$sector %!in% shp_av_sectors, ]
+
+    # Add summary sectors
+    total_emissions$summary_sector <- Master_Sector_Level_map[match(total_emissions$sector,
+                                                                    Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+    bunker_emissions$summary_sector <- Master_Sector_Level_map[match(bunker_emissions$sector,
+                                                                     Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+
+    # Simplify units
+    # This assumes units are correct. Need to add a more comprehensive unit conversion function (since drivers will come in various units)
+    total_emissions$units <- 'kt'
+    bunker_emissions$units <- 'kt'
+
+    # Sum bunker emissions to global values
+    Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
+                                by=list( em = bunker_emissions$em,
+                                         fuel = bunker_emissions$fuel,
+                                         summary_sector = bunker_emissions$summary_sector,
+                                         sector = bunker_emissions$sector,
+                                         units = bunker_emissions$units ), sum )
+    Bunker_global$iso <- "global"
+
+    # Reorder columns
+    total_emissions <- total_emissions[,c("iso", "summary_sector", "sector", "fuel","em","units",X_write_years)]
+    total_emissions <- rbind( total_emissions, Bunker_global )
+
+    # return total emissions to be potentially used further
+    return( total_emissions )
+
+}

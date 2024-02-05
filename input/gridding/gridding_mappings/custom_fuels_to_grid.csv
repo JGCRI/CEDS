@@ -1,0 +1,10 @@
+CEDS_fuel,file_description
+process,
+biomass,
+brown_coal,all_coal
+coal_coke,all_coal
+diesel_oil,
+hard_coal,all_coal
+heavy_oil,
+natural_gas,
+light_oil,

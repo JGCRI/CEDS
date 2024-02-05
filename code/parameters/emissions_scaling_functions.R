@@ -143,7 +143,7 @@ F.readScalingData <- function( inventory = inventory_data_file, inv_data_folder,
   # Write diagnostic files that list:
   #     1) any inventory sectors (from module E output) that are not mapped to a scaling sector and
   #     2) CEDS sectors that are not mapped to scaling sectors
-  diagnosticsMappingFile( scaling_map, inv_data_full)
+  # diagnosticsMappingFile( scaling_map, inv_data_full)
 
 
   # Determine if scaling instructions exist as csv

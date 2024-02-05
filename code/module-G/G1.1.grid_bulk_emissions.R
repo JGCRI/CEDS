@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: G1.1.grid_bulk_emissions.R
-# Authors: Leyang Feng, Caleb Braun
-# Date Last Updated: Feb 7, 2019
+# Authors: Leyang Feng, Caleb Braun, Noah Prime
+# Date Last Updated: June 22, 2023
 # Program Purpose: Grid aggregated emissions into NetCDF grids for bulk emissions (excluding AIR)
 # Input Files:  MED_OUT:    CEDS_[em]_emissions_by_country_CEDS_sector_[CEDS_version].csv OR
 #                           subregional/CEDS_[em]_emissions_by_country_CEDS_sector_[CEDS_version].csv
@@ -23,7 +23,8 @@
 PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Read in universal header files, support scripts, and start logging
-headers <- c( 'data_functions.R', 'gridding_functions.R', 'nc_generation_functions.R' )
+headers <- c( 'data_functions.R', 'gridding_functions.R', 'nc_generation_functions.R',
+              'point_source_util_functions.R' )
 log_msg <- "Gridding anthropogenic emissions (excluding AIR) "
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( "G1.1.grid_bulk_emissions.R", log_msg, headers )
@@ -35,19 +36,30 @@ if ( grid_remove_iso != "" ) printLog( paste("Gridding will exclude",grid_remove
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+res <- as.numeric( args_from_makefile[ 2 ] ) # introducing second command line argument as gridding resolution
+if ( is.na( em ) ) em <- "CO2"
+if ( is.na( res ) ) res <- 0.5 # default gridding resolution of 0.5
+
+# Set tolerance for a warning and/or error if checksum differences are too large
+# This works on the percentage difference checksums, so set a threshold where if there are
+# percent differences which exceeds the threshold, we will give warning or error.
+warning_tol <- 0.05     # 0.05% i.e. 0.0005
+error_tol <- 1          # 1% i.e. 0.01
 
 # Set up directories
 output_dir          <- filePath( "MED_OUT",  "gridded-emissions/",     extension = "" )
 total_grid_dir      <- filePath( "DIAG_OUT", "total-emissions-grids/", extension = "" )
-proxy_dir           <- filePath( "GRIDDING", "proxy/",                 extension = "" )
+# SHP, AIR, and TANK sectors proxy pre-installed in different location
+SAT_proxy_dir       <- filePath( "GRIDDING", "proxy/",                 extension = "" )
+proxy_dir           <- filePath( "MED_OUT",  "final_generated_proxy/", extension = "" )
 proxy_backup_dir    <- filePath( "GRIDDING", "proxy-backup/",          extension = "" )
 mask_dir            <- filePath( "GRIDDING", "mask/",                  extension = "" )
 seasonality_dir     <- filePath( "GRIDDING", "seasonality/",           extension = "" )
-final_emissions_dir <- filePath( "FIN_OUT",  "current-versions/",      extension = "" )
-
+final_emissions_dir <- filePath( "FIN_OUT",  'current-versions',       extension = "" )
+intermediate_output <- filePath( "MED_OUT",  '',                       extension = "" )
+point_source_dir    <- filePath( 'MED_OUT', 'full_point_source_scaled_yml', extension = "" )
 # Initialize the gridding parameters
-gridding_initialize( grid_resolution = 0.5,
+gridding_initialize( grid_resolution = res,
                      start_year = 1750,
                      end_year = end_year,
                      load_masks = T,
@@ -68,25 +80,65 @@ if ( GRID_SUBREGIONS ) {
 target_filename <- list.files( final_emissions_dir, pattern )
 target_filename <- tools::file_path_sans_ext( target_filename )
 stopifnot( length( target_filename ) == 1 )
-emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
+# Need total emissions for checksums
+total_emissions <- readData( "FIN_OUT", domain_extension = "current-versions/", target_filename )
+# Need emissions without point source for gridding
+target_filename <- list.files( intermediate_output, pattern )
+target_filename <- tools::file_path_sans_ext( target_filename )
+stopifnot( length( target_filename ) == 1 )
+emissions <- readData( "MED_OUT", domain_extension = "", target_filename )
 
 # If defined, remove emissions from one iso from gridding
 if ( grid_remove_iso != "" ) {
   emissions <- dplyr::mutate_at( emissions, vars( all_of(X_extended_years) ),
                                  list( ~ifelse( iso == grid_remove_iso, 0, . )))
+
+  total_emissions <- dplyr::mutate_at( total_emissions, vars( all_of(X_extended_years) ),
+                                       list( ~ifelse( iso == grid_remove_iso, 0, . )))
 }
 
 # Read in mapping files
 # the location index indicates the location of each region mask in the 'world' matrix
 # TODO: fix metadata readin so that works again for these
-location_index             <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05', meta = FALSE )
-ceds_gridding_mapping      <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping', meta = FALSE )
-proxy_mapping              <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping', meta = FALSE )
-seasonality_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = FALSE )
-proxy_substitution_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping', meta = FALSE )
-sector_name_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors', meta = FALSE )
-sector_name_mapping        <- unique( sector_name_mapping[ , c( 'CEDS_fin_sector', 'CEDS_fin_sector_short' ) ] )
+location_index               <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'country_location_index_05', meta = FALSE )
+ceds_gridding_mapping        <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_sector_to_gridding_sector_mapping', meta = FALSE )
+proxy_mapping                <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping', meta = FALSE )
+seasonality_mapping          <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = FALSE )
+# proxy_substitution_mapping   <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_subsititution_mapping', meta = FALSE )
+proxy_substitution_mapping   <- readData( 'MED_OUT', paste0( em, '_proxy_substitution_mapping'), meta = FALSE )
+sector_name_mapping          <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'CEDS_gridding_sectors', meta = FALSE )
+sector_name_mapping          <- unique( sector_name_mapping[ , c( 'CEDS_fin_sector', 'CEDS_fin_sector_short' ) ] )
+edgar_sector_replace_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'EDGAR_sector_replace_mapping', meta = F )
+expanded_sectors_map         <- readData( domain = 'MAPPINGS', file_name = 'old_to_new_sectors', extension = '.csv', meta = FALSE )
+checksum_tols                <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'checksums_error_tolerance', meta = FALSE )
 
+# Update CEDS gridding mapping with new expanded sectors
+ceds_gridding_mapping <- ceds_gridding_mapping %>%
+  dplyr::left_join(expanded_sectors_map, by = c('CEDS_working_sector' = 'ceds_sector')) %>%
+  dplyr::mutate( CEDS_working_sector = ifelse(is.na(new_sector), CEDS_working_sector, new_sector) ) %>%
+  dplyr::select( -new_sector)
+
+# Read in point source yml files
+
+# point source yml files
+point_source_files <- list.files( paste0(point_source_dir, '/', em ), '*.yml' )
+
+if(length(point_source_files) == 0 ){
+  cols <- c('id', 'name', 'location', 'longitude', 'latitude', 'units', 'CEDS_sector',
+            'EDGAR_sector', 'fuel', 'iso', 'build_year', 'description', 'date', 'species',
+            'data_source', paste0('X', 1750:2019))
+  point_source_df <- data.frame(matrix(ncol = length(cols), nrow = 0))
+  colnames(point_source_df) <- cols
+} else{
+  # List of point source data frames
+  point_source_list <- lapply( point_source_files, read_yml_all_ems,
+                                paste0(point_source_dir, '/', em ) )
+
+  # As data frame
+  point_source_df <- do.call( rbind, point_source_list )
+  point_source_df <- point_source_df %>%
+      dplyr::mutate_at( vars(latitude, longitude, X1750:X2019), as.numeric )
+}
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
@@ -108,6 +160,25 @@ gridding_emissions <- ceds_gridding_mapping %>%
   dplyr::arrange( sector, iso ) %>%
   as.data.frame()
 
+checksum_emissions <- ceds_gridding_mapping %>%
+    dplyr::select( CEDS_working_sector, CEDS_int_gridding_sector_short ) %>%
+    dplyr::inner_join( total_emissions, by = c( 'CEDS_working_sector' = 'sector' ) ) %>%
+    dplyr::filter( !is.na( CEDS_int_gridding_sector_short ) ) %>%
+    dplyr::group_by( iso, CEDS_int_gridding_sector_short ) %>%
+    dplyr::summarise_at( paste0( 'X', year_list ), sum ) %>%
+    dplyr::ungroup() %>%
+    dplyr::rename( sector = CEDS_int_gridding_sector_short ) %>%
+    dplyr::filter( sector != 'AIR' ) %>%
+    dplyr::arrange( sector, iso ) %>%
+    as.data.frame()
+
+# Move pre-installed proxy to final_proxy folder (no overwriting)
+pre_installed <- list.files(SAT_proxy_dir)
+file.copy( from = paste0(SAT_proxy_dir, pre_installed),
+           to = paste0(proxy_dir, pre_installed), 
+           overwrite = FALSE )
+
+# List of proxy files
 proxy_files <- list( primary = list.files( proxy_dir ), backup = list.files( proxy_backup_dir ) )
 
 #Extend to last year
@@ -117,8 +188,13 @@ seasonality_mapping <- extendSeasonalityMapping( seasonality_mapping )
 # ------------------------------------------------------------------------------
 # 3. Gridding and writing output data
 
+# Create directory in intermediate-output for grids without point sources to be saved
+incomplete_grid_dir <- '../intermediate-output/incomplete-grids/'
+dir.create( incomplete_grid_dir, showWarnings = FALSE)
+
 # For now, the gridding routine uses nested for loops to go through every years
 # gases and sectors. Future work could parallelize the year loop.
+
 
 printLog( paste( 'Gridding', em, 'emissions for each year...' ) )
 
@@ -135,16 +211,22 @@ for ( year in year_list ) {
   # a checksum file is also generated along with the nc file
   # which summarize the emissions in mass by sector by month.
   generate_final_grids_nc( int_grids_list, output_dir, grid_resolution, year,
-                           em, sector_name_mapping, seasonality_mapping )
+                           em, sector_name_mapping, seasonality_mapping,
+                           ceds_gridding_mapping, edgar_sector_replace_mapping,
+                           incomplete_grid_dir, point_source_df )
 
+  # TODO: Return int_grids_list, with point sources so that we can pass it in here
   # diagnostic: generate total emissions grid for one year
-  generate_annual_total_emissions_grids_nc( total_grid_dir, int_grids_list,
-                                            grid_resolution, year, em )
+  generate_annual_total_emissions_grids_nc( total_grid_dir, int_grids_list, grid_resolution, 
+                                            year, em, seasoanlity_mapping, ceds_gridding_mapping,
+                                            edgar_sector_replace_mapping, point_source_df )
 
+  # TODO: Return int_grids_list, with point sources so that we can pass it in here
   # diagnostic: generate total emissions grid for one year monthly
   generate_monthly_total_emissions_grids_nc( total_grid_dir, int_grids_list,
                                              grid_resolution, year, em,
-                                             seasonality_mapping )
+                                             seasonality_mapping, ceds_gridding_mapping,
+                                             edgar_sector_replace_mapping, point_source_df )
 }
 
 close(pb)
@@ -164,7 +246,7 @@ printLog( 'Start checksum check' )
 gridding_emissions_fin <- ceds_gridding_mapping %>%
     dplyr::select( CEDS_int_gridding_sector_short, CEDS_final_gridding_sector_short ) %>%
     dplyr::distinct() %>%
-    dplyr::right_join( gridding_emissions, by = c( 'CEDS_int_gridding_sector_short' = 'sector' ) ) %>%
+    dplyr::right_join( checksum_emissions, by = c( 'CEDS_int_gridding_sector_short' = 'sector' ) ) %>%
     dplyr::group_by( CEDS_final_gridding_sector_short ) %>%
     dplyr::summarise_at( vars( starts_with( 'X' ) ), sum ) %>%
     dplyr::ungroup() %>%
@@ -187,14 +269,54 @@ X_year_list <- paste0( 'X', year_list )
 diag_diff_df <- cbind( checksum_df$sector, abs( gridding_emissions_fin[ X_year_list ] - checksum_df[ X_year_list ] ) )
 diag_per_df <- cbind( checksum_df$sector, ( diag_diff_df[ X_year_list ] / gridding_emissions_fin[ X_year_list ] ) * 100 )
 diag_per_df[ is.nan.df( diag_per_df ) ] <- NA
+colnames(diag_per_df)[1] <- 'sector' 
+colnames(diag_diff_df)[1] <- 'sector' 
 
 
 # -----------------------------------------------------------------------------
-# 5. Write-out and Stop
+# 5. Write-out
 
 out_name <- paste0( 'G.', em, '_bulk_emissions_checksum_comparison_diff' )
 writeData( diag_diff_df, "DIAG_OUT", out_name )
 out_name <- paste0( 'G.', em, '_bulk_emissions_checksum_comparison_per' )
 writeData( diag_per_df, "DIAG_OUT", out_name )
 
+
+# -----------------------------------------------------------------------------
+# 6. Checksum warnings
+# Get max deviation per sector, and combine that with user defined tolerance mapping file
+error_check_df <- diag_per_df %>%
+  tidyr::gather('year', 'em', X_year_list) %>%
+  dplyr::group_by(sector) %>%
+  na.omit() %>%
+  dplyr::summarise( M = max(em) ) %>%
+  dplyr::left_join(checksum_tols, by = 'sector')
+
+{
+print('===============================================================================')
+print('===============================================================================')
+# Warn / Error for any sectors that warrant it
+throw_error <- FALSE
+for(i in 1:dim(error_check_df)[1]){
+  if(error_check_df[i, 'M'] > error_check_df[i, 'warning_tol']){
+    print(paste0('Warning: Checksum diagnostics have found deviations in the ', error_check_df[i, 'sector'], ' sector beyond ', error_check_df[i, 'warning_tol'], '%.'))
+  }
+  if(error_check_df[i, 'M'] > error_check_df[i, 'error_tol']){
+    print(paste0('ERROR: Checksum diagnostics have found deviations in the ', error_check_df[i, 'sector'], ' sector beyond ', error_check_df[i, 'error_tol'], '%.'))
+    throw_error <- TRUE
+  }
+}
+if(throw_error){
+  print('===============================================================================')
+  print('===============================================================================')
+  stop('Checksum Deviation Error')
+}
+
+print('No checksum deviations above the set error thresholds.')
+print('===============================================================================')
+print('===============================================================================')
+}
+
+# -----------------------------------------------------------------------------
+# 6. END
 logStop()
