@@ -1,10 +1,8 @@
 #------------------------------------------------------------------------------
-# Program Name: E.South_korea_emissions.R
-# Authors' Names: Steve Smith, Ryan Bolt
+# Program Name: E.South_Korea_emissions.R
+# Authors' Names: Rachel Hoesly
 # Program Purpose: Read emissions estimate South Korea inventory file
-# Note: This file is not in git due to size. This utility file should not be in makefile.
-# This extracts data from 1999 - 2012
-# Units are initially in Mg or Metric Tonnes
+# Note:
 # Input Files: Air pollutants_South Korea_1999_2012_Korean font.xlsx
 # Output Files: F.[em]Korea_inventory.csv
 # Notes:
@@ -28,103 +26,109 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SOx"
+    if ( is.na( em ) ) em <- "SO2"
 
 # ------------------------------------------------------------------------------
 # 0.5. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ) {
+    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) {
       stop( paste( 'SKorea scaling is not supported for emission species', em,
                    'remove from script list in F1.1.inventory_scaling.R' ) )
     }
-# Variable to use for interacting with emissions file
+# There are PM emissions to estimate OC emissions - but currently not scaling so need to
+# finish the estimates below later
     em_temp = em
-# South Korea only reports SOx which is similiar to SO2.
+# South Korea only reports SOx which is similar to SO2.
     if ( em_temp == "SO2" ) {
         em_temp <- "SOx"
     }
-
     if ( em_temp == "NMVOC" ) {
-        em_temp <- "VOC"
+        em_temp <- "VOCs"
     }
-
+    if ( em_temp == "NMVOC" ) {
+        em_temp <- "VOCs"
+    }
+    if(em %in% c ('OC')) {
+        em_temp <- "PM-10"
+    }
     inv_name <- 'SKorea' # For naming diagnostic files
-
-
 
 # ------------------------------------------------------------------------------
 # 1. Read in initial input
 
 # Inventory-specific parameters
     inv_data_folder <- "EM_INV"
-    inv_years <- c( 1999:2012 )
-    inventory_filename <- 'Air pollutants_South Korea_1999_2012_Korean font'
+    inv_years <- c( 1999:2018 )
+    inventory_filename <- 'Korea_CAPSS_Emissions'
+    translation_filename <- 'Korea_CAPSS_Emissions_Translation'
     subfolder_name <- 'Korea/'
-    sheet_name2 <- "1999"
+
+
+    if ( em_temp == "BC" ) {
+        inv_years <- c( 2014:2018 ) }
+
+# Translation Map
+    translation_map <- readData( inv_data_folder, domain_extension =
+                                     subfolder_name, translation_filename , ".xlsx",
+                                 sheet_selection = "Translation")
 
 # Read in inventory data
-    Inventory_data <- readData( inv_data_folder, domain_extension =
-                                                   subfolder_name,
-                                inventory_filename , ".xlsx",
-                                sheet_selection = sheet_name2, skip = 3 )
+    read_inventory_list <- list()
+    for (i in seq_along(inv_years)){
+        read_in_data <- readData( inv_data_folder, domain_extension =
+                                                       subfolder_name,
+                                    inventory_filename , ".xlsx", to_numeric = TRUE,
+                                    sheet_selection =  as.character(inv_years[i]))
+        names(read_in_data) <- read_in_data[1,]
+        read_in_data <- read_in_data[-1,]
 
-# Seat headers
-    colnames( Inventory_data ) <- c( paste0( "X", 1:10 ),
-                                     colnames( Inventory_data[
-                                          11:ncol( Inventory_data ) ] ) )
-# Get the
-    inv_data_sheet <- Inventory_data[ , c( paste0( "X", 1:10 ), em_temp ) ]
+    read_inventory_list[[i]]  <- read_in_data %>%
+        mutate(year = inv_years[i]) %>%
+        left_join(translation_map) %>%
+        select(sector, year, em_temp) %>%
+        dplyr::rename(value = any_of(em_temp)) %>%
+        filter(!is.na(sector))
 
-# Set years
-    specie_years <- c( paste0( "X", 1:10 ), "X1999" )
-    colnames( inv_data_sheet ) <- specie_years
+    }
+# create list for na replacement
+    na_correction <- as.list(rep(0, length(inv_years)) )
+    names(na_correction) <- inv_years
+# final process data
+    inv_data <- do.call(bind_rows, read_inventory_list) %>%
+        mutate(iso = 'kor') %>%
+        spread(year, value)  %>%
+        replace_na(na_correction) %>%
+        select(iso, sector, everything())
 
-# ------------------------------------------------------------------------------
-# 2. Read in Emissions
 
-    for( year in 2000:2012 ) {
-    	old_names <- colnames( inv_data_sheet )
-    	sheet_name2 <- as.character( year )
-    	Inventory_data <- readData( inv_data_folder, inventory_filename , ".xlsx",
-    						                  domain_extension = subfolder_name,
-    						                  sheet_selection = sheet_name2, skip = 3 )
+# Process OC
+# This currently doesn't work - need to fix later
+    if (em %in% c ('OC') ) {
 
-    	colnames( Inventory_data ) <- c( paste0( "X", 1:10 ),
-    	                                 colnames( Inventory_data[
-    	                                           11:ncol( Inventory_data ) ] ) )
-    	Inventory_data <- Inventory_data[ , c( paste0( "X", 1:10 ), em_temp ) ]
+        # Define parameters for BC and OC specific script
 
-    	inv_data_sheet <- merge( inv_data_sheet, Inventory_data,
-    	                         by = c( paste0( "X", 1:10 ) ),
-    	                         all.x = T, all.y = F)
+        ceds_sector <- "1A3b_Road"
+        inv_iso <- "kor"
+        PM <- "PM10"
 
-    	colnames( inv_data_sheet ) <- c( old_names, paste0( "X", year ) )
+        # Read in scaling mapping file and filter transportation sectors
+        mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv") %>%
+            filter(str_detect(road_flag,"Road"))
+        inv_sector_name <- mapping_file$inv_sector
+
+        # Match formatting from PM2.5 inventory to BC/OC script
+        X_inv_years <- paste0("X",inv_years)
+        inv_data_sheet <- inv_data
+
+        # Calculate BC and OC emissions
+
+        inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+        inv_data <- inv_data_sheet
     }
 
-# Changing NA's to 0
-    inv_data_sheet[ is.na( inv_data_sheet ) ] <- 0
-
-# Make numeric and convert from kg to kt
-    inv_data_sheet[ , paste0( 'X', inv_years ) ] <-
-             sapply( inv_data_sheet[ , paste0( 'X', inv_years ) ], as.numeric )
-    inv_data_sheet[ , paste0( 'X', inv_years ) ] <-
-        as.matrix( inv_data_sheet[ , paste0( 'X', inv_years ) ] ) / 1000 / 1000
-
-# We need to get an iso column in and also decide which columns are most important for scaling.
-# I believe column 6 is the only one we really need.All the categories will go to the scaling sector
-# and then into the CEDS sector.
-
-#names(df)[names(df) == 'old.var.name'] <- 'new.var.name'
-    colnames( inv_data_sheet )[ colnames( inv_data_sheet ) == 'X6' ] <- "sector"
-    inv_data_sheet <- inv_data_sheet[ , c( 'sector',
-                                           paste0( 'X', inv_years ) ) ]
-    inv_data_sheet$iso <- 'kor'
-    inv_data_sheet <- inv_data_sheet[ , c( 'iso', 'sector', paste0( 'X', inv_years ) ) ]
-
-
 # write standard form inventory
-    writeData( inv_data_sheet, domain = "MED_OUT",
+    writeData( inv_data, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
