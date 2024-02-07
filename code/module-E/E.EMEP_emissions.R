@@ -94,7 +94,7 @@
 
 # -----------------------------------------------------------------------------------------------------------
 # 2. Formatting Data
-    
+
     # NFR09 does not have Road Transport broken out, so don't go through BC/OC estimation routine
     continue_process <- (length(EMEP) > 0) & !((em.read == 'PM25') & (Em_Format == 'NFR09'))
 
