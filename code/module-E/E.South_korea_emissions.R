@@ -19,23 +19,18 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R" ) # Additional function files required.
     log_msg <- "test inventory data" # First message to be printed to the log
-    script_name <- "E.South_korea_emissions.R"
+    script_name <- "E.South_Korea_emissions.R"
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NMVOC"
+    if ( is.na( em ) ) em <- "NOx"
 
 # ------------------------------------------------------------------------------
 # 0.5. Define parameters for inventory specific script
 
-# Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) {
-      stop( paste( 'SKorea scaling is not supported for emission species', em,
-                   'remove from script list in F1.1.inventory_scaling.R' ) )
-    }
 # There are PM emissions to estimate OC emissions - but currently not scaling so need to
 # finish the estimates below later
     em_temp = em
@@ -77,6 +72,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # 2. Read in inventory data
 
 # Read in inventory data
+    if ( em %in% em_list ) {
+
     read_inventory_list <- list()
     for (i in seq_along(inv_years)){
         read_in_data <- readData( inv_data_folder, domain_extension =
@@ -177,6 +174,11 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
             bind_rows(new_road_nonroad)
 
     }
+
+    }else{
+        # Output a blank df for unsupported species
+        inv_data <- data.frame( )
+ }
 
 # write standard form inventory
     writeData( inv_data, domain = "MED_OUT",

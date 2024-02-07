@@ -103,7 +103,7 @@
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
 
- # CAN - Newer data must run last
+# CAN - Newer data must run last
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
 
@@ -139,8 +139,8 @@
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3','BC','OC' ) ){ scripts <-
         c(scripts, 'F1.1.Japan_scaling.R' ) }
 
-# South Korea 2017
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC','OC' ) ) { scripts <-
+# South Korea
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) { scripts <-
         c( scripts, 'F1.1.South_Korea_scaling.R' ) }
 
 # Taiwan

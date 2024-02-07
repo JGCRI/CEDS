@@ -38,7 +38,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC','OC' ) ) {
+    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) {
       stop( paste( 'KOR scaling is not supported for emission species ',
                     em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
     }
