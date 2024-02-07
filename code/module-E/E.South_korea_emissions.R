@@ -26,7 +26,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "NMVOC"
 
 # ------------------------------------------------------------------------------
 # 0.5. Define parameters for inventory specific script
@@ -52,7 +52,6 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     if(em %in% c ('OC')) {
         em_temp <- "PM-10"
     }
-    inv_name <- 'SKorea' # For naming diagnostic files
 
 # ------------------------------------------------------------------------------
 # 1. Read in initial input
@@ -63,7 +62,9 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inventory_filename <- 'Korea_CAPSS_Emissions'
     translation_filename <- 'Korea_CAPSS_Emissions_Translation'
     subfolder_name <- 'Korea/'
+    inv_name <- 'KOR'  # For naming diagnostic files
 
+    # inventory is in metric tons
 
     if ( em_temp == "BC" ) {
         inv_years <- c( 2014:2018 ) }
@@ -72,6 +73,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     translation_map <- readData( inv_data_folder, domain_extension =
                                      subfolder_name, translation_filename , ".xlsx",
                                  sheet_selection = "Translation")
+# ------------------------------------------------------------------------------
+# 2. Read in inventory data
 
 # Read in inventory data
     read_inventory_list <- list()
@@ -88,19 +91,30 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         left_join(translation_map) %>%
         select(sector, year, em_temp) %>%
         dplyr::rename(value = any_of(em_temp)) %>%
+        mutate(value = as.numeric(value)) %>%
         filter(!is.na(sector))
 
     }
+
+# ------------------------------------------------------------------------------
+# 3. Process Inventory Data
+
 # create list for na replacement
     na_correction <- as.list(rep(0, length(inv_years)) )
     names(na_correction) <- inv_years
+
 # final process data
     inv_data <- do.call(bind_rows, read_inventory_list) %>%
+        as_tibble() %>%
         mutate(iso = 'kor') %>%
+        mutate(unit = 'kt') %>%
+        mutate(value = as.numeric(value)/1000) %>% #convert from ton to kt
         spread(year, value)  %>%
         replace_na(na_correction) %>%
         select(iso, sector, everything())
 
+# ------------------------------------------------------------------------------
+# 4. Emission Specific corrections
 
 # Process OC
 # This currently doesn't work - need to fix later
@@ -125,6 +139,43 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
         inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
         inv_data <- inv_data_sheet
+    }
+
+# VOC energy transport and storage correction
+# Split "Energy transport and storage" between road and non road proportionally
+    if(em == 'NMVOC'){
+        #calculate road percent of Energy transport and storage
+        road_nonroad_ratio <- inv_data %>%
+            filter(sector %in% c('Road transportation','Non Road transportation')) %>%
+            gather(year, value,-iso,-sector,-unit) %>%
+            spread(sector, value) %>%
+            mutate(road_percent = `Road transportation`/(`Non Road transportation`+`Road transportation`)) %>%
+            select(iso, year, road_percent)
+
+        #calculation share of energy transport to be added to road and non road
+        split_energy_transport <- road_nonroad_ratio %>%
+            left_join(inv_data %>% filter(sector == "Energy transport and storage") %>%
+                          gather(year, value,-iso,-sector,-unit) %>%
+                          select(year, value) ) %>%
+            mutate(`Road transportation` = value*road_percent) %>%
+            mutate(`Non Road transportation` = value*(1-road_percent)) %>%
+            select(year, `Road transportation`, `Non Road transportation`) %>%
+            gather(sector, energy_split,-year)
+
+        #add energy transport share to road and non road sectors
+        new_road_nonroad <- inv_data %>%
+            filter(sector %in% c('Road transportation','Non Road transportation')) %>%
+            gather(year, value,-iso,-sector,-unit) %>%
+            left_join(split_energy_transport) %>%
+            mutate(new_value = value+energy_split) %>%
+            select(iso, sector, year, unit, new_value) %>%
+            spread(year, new_value)
+
+        #replace old road and non road with new values that include energy transport and storage
+        inv_data <- inv_data %>%
+            filter(sector %!in% c('Road transportation','Non Road transportation')) %>%
+            bind_rows(new_road_nonroad)
+
     }
 
 # write standard form inventory

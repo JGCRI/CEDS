@@ -772,7 +772,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
-	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS32_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
@@ -913,8 +913,8 @@ $(MED_OUT)/E.$(EM)_Japan_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv: \
-	$(MOD_E)/E.SKorea_emissions_2017.R
+$(MED_OUT)/E.$(EM)_KOR_inventory.csv: \
+	$(MOD_E)/E.South_Korea_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -957,7 +957,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Japan_scaling.R \
 	$(MOD_F)/F1.1.REAS_scaling.R \
 	$(MOD_F)/F1.1.REAS32_scaling.R \
-	$(MOD_F)/F1.1.South_korea_scaling_2017.R \
+	$(MOD_F)/F1.1.South_Korea_scaling.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.US-EPA_scaling.R \
@@ -973,7 +973,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
-	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS32_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
@@ -1004,7 +1004,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/jpn_scaling_mapping.csv \
 	$(SC_MAPPINGS)/REAS_scaling_mapping.csv \
 	$(SC_MAPPINGS)/REAS32_scaling_mapping.csv \
-	$(SC_MAPPINGS)/S_Korea_scaling_mapping.csv \
+	$(SC_MAPPINGS)/South_Korea_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_year.csv \
 	$(SC_MAPPINGS)/UNFCCC_GHG_scaling_mapping.csv \

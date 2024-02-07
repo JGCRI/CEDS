@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.South_korea_scaling_2017.R
+# Program Name: F1.1.South_Korea_scaling_2017.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt, Andrea Mott
 # Date Last Modified: January 22, 2021
 # Program Purpose: To create scaling factors and update emissions estimate for
@@ -7,7 +7,7 @@
 #                  aggregate inventory data.
 # Input Files: emissions_scaling_functions.R, F.[em]_scaled_EF.csv,
 #              F.[em]_scaled_emissions.csv, S_Korea_scaling_mapping.csv,
-#              E.[em]_Korea_inventory_2017.csv
+#              E.[em]_Korea_inventory.csv
 # Output Files: F.[em]_total_scaled_EF.csv, F.[em]_total_scaled_emissions.csv
 # Notes: (1) This uses data from 2013-2017.
 #        (2( Units are initially in Mg or Metric Tonnes
@@ -22,14 +22,14 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NMVOC"
+    if ( is.na( em ) ) em <- "SO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( 'common_data.R', "data_functions.R",
                   "emissions_scaling_functions.R", "analysis_functions.R" ) # Additional function files required.
     log_msg <- "South Korea inventory scaling..." # First message to be printed to the log
-    script_name <- paste0( em, "-F1.1.South_korea_scaling_2017.R" )
+    script_name <- paste0( em, "-F1.1.South_Korea_scaling.R" )
 
     source( paste0( PARAM_DIR, "header.R" ) )
     initialize( script_name, log_msg, headers )
@@ -47,11 +47,14 @@
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-    sector_fuel_mapping <- 'S_Korea'
+    sector_fuel_mapping <- 'South_Korea'
     mapping_method <- 'sector'
-    inv_name <- 'KOR2017' #for naming diagnostic files
+    inv_name <- 'KOR' #for naming diagnostic files
     region <- c( "kor" )
     inv_years <- c( 1999 : 2017 )
+
+    if ( em == "BC" ) {
+        inv_years <- c( 2014:2018 ) }
 
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
@@ -94,7 +97,7 @@
     scaled <- F.applyScale( scaling_factors )
     scaled_ef <- scaled[[ 1 ]]
     scaled_em <- scaled[[ 2 ]]
-
+stop('here')
 # ------------------------------------------------------------------------------
 # 5. Encorporate scaled em and EF
 

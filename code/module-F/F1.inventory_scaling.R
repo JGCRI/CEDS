@@ -141,7 +141,7 @@
 
 # South Korea 2017
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC','OC' ) ) { scripts <-
-        c( scripts, 'F1.1.South_korea_scaling_2017.R' ) }
+        c( scripts, 'F1.1.South_Korea_scaling.R' ) }
 
 # Taiwan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'BC', 'OC' ) ){ scripts <-
