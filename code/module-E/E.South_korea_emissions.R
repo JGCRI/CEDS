@@ -26,7 +26,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "NMVOC"
 
 # ------------------------------------------------------------------------------
 # 0.5. Define parameters for inventory specific script
@@ -51,18 +51,21 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # ------------------------------------------------------------------------------
 # 1. Read in initial input
 
+   em_list <- c('SO2','NOx','NMVOC','NH3','CO','BC')
+
+    # Read in inventory data
+    if ( em %in% em_list ) {
+
 # Inventory-specific parameters
     inv_data_folder <- "EM_INV"
-    inv_years <- c( 1999:2018 )
+    inv_years <- c( 1999:2021 )
     inventory_filename <- 'Korea_CAPSS_Emissions'
     translation_filename <- 'Korea_CAPSS_Emissions_Translation'
     subfolder_name <- 'Korea/'
     inv_name <- 'KOR'  # For naming diagnostic files
 
-    # inventory is in metric tons
+    # inventory is in metric tons, need to convert to kt below
 
-    if ( em_temp == "BC" ) {
-        inv_years <- c( 2014:2018 ) }
 
 # Translation Map
     translation_map <- readData( inv_data_folder, domain_extension =
@@ -70,9 +73,6 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                                  sheet_selection = "Translation")
 # ------------------------------------------------------------------------------
 # 2. Read in inventory data
-
-# Read in inventory data
-    if ( em %in% em_list ) {
 
     read_inventory_list <- list()
     for (i in seq_along(inv_years)){
@@ -105,10 +105,19 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         as_tibble() %>%
         mutate(iso = 'kor') %>%
         mutate(unit = 'kt') %>%
-        mutate(value = as.numeric(value)/1000) %>% #convert from ton to kt
+        mutate(value = as.numeric(value)/1000) %>% #convert from metric ton to kt
         spread(year, value)  %>%
         replace_na(na_correction) %>%
         select(iso, sector, everything())
+
+    # print out country total
+    country_total <- inv_data %>%
+        select(-sector)%>%
+        group_by(iso, unit) %>%
+        summarize_each(funs(sum))
+
+    writeData( country_total, domain = "MED_OUT",
+               paste0('E.',em,'_', inv_name, '_inventory_country_total'))
 
 # ------------------------------------------------------------------------------
 # 4. Emission Specific corrections
@@ -172,7 +181,6 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         inv_data <- inv_data %>%
             filter(sector %!in% c('Road transportation','Non Road transportation')) %>%
             bind_rows(new_road_nonroad)
-
     }
 
     }else{
@@ -186,7 +194,30 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
 
+    # ###### from china
+    # # ------------------------------------------------------------------------------
+    # # 3. Write out standard form inventory
+    # writeData( Edgar_HTAPv3, domain = "MED_OUT",
+    #            paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+    #
+    # # Create inventory total
+    # # no sectors removed in module F. Write out sector and iso data.
+    # writeData( inv_data_species, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+    #            paste0('inventory_',em,'_', inv_name))
+    #
+    #
+    # inv_data_species <- na.omit(inv_data_species)
+    # if (em %!in% c("BC","OC","CH4","N2O","CO2")){
+    #     country_total <- inv_data_species %>%
+    #         select(-sector)%>%
+    #         group_by(iso) %>%
+    #         summarize_each(funs(sum))
+    #
+    #     writeData( country_total, domain = "MED_OUT",
+    #                paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+    # }
 
-# Every script should finish with this line
     logStop()
-# END
+    # END
+
+

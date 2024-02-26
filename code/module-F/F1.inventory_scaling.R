@@ -20,7 +20,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "SO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -74,82 +74,95 @@
     if ( em %in% c( 'CH4', 'CO', 'N2O', 'NH3', 'NMVOC', 'NOx' ) ){ scripts <-
               c( scripts, 'F1.1.Edgar_scaling.R' ) }
 
-# EMEP NFR09 (older data - use because has more sectors and goes back further)
-    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
-        c( scripts,'F1.1.EMEP_NFR09_scaling.R' ) }
+# # EMEP NFR09 (older data - use because has more sectors and goes back further)
+#     if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
+#         c( scripts,'F1.1.EMEP_NFR09_scaling.R' ) }
+#
+# # EMEP NFR14
+# # Note 1: While EMEP has BC, there is no OC, so retain consistent BC & OC estimates by not
+# #         scaling to EMEP for these ems
+# # Note 2: While CEDS does not include EMEP BC scaling, CEDS-GBD does include BC EMEP scaling
+# # Note 3: Below, added BC and OC using PM2.5 data and BC/PM2.5 and OC/PM2.5 default ratios
+#
+#     if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2','BC','OC' ) ){ scripts <-
+#         c( scripts, 'F1.1.EMEP_NFR14_scaling.R' ) }
+#
+# # UNFCCC
+#     if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O' ) ){ scripts <-
+#         c( scripts, 'F1.1.UNFCCC_scaling.R' ) }
+#
+# # REAS
+#     if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
+#         c( scripts, 'F1.1.REAS_scaling.R' ) }
+#
+# # REAS 3.2
+#     if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
+#         c( scripts, 'F1.1.REAS32_scaling.R' ) }
+#
+# # CAN
+#     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
+#         c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
+#
+# # CAN - Newer data must run last
+#     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','BC','OC' ) ){ scripts <-
+#         c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
+#
+# # USA
+#     # removed scaling of BC and OC due to discrepancy in US PM2.5 data
+#     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ){ scripts <-
+#         c( scripts, 'F1.1.US_scaling.R' ) }
+#
+# # US EPA (remove - use updated UNFCCC to scale non-combustion emissions instead)
+#     if ( em %in% c( 'CO2xx' ) ){ scripts <-
+#         c( scripts, 'F1.1.US-EPA_scaling.R' ) }
+#
+# # US GHG
+#     if ( em %in% c( 'CH4', 'N2O' ) ){ scripts <-
+#         c( scripts, 'F1.1.US-GHG_scaling.R' ) }
+#
+# # China
+#     # OLD MEIC:
+#     # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
+#     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
+#         c( scripts, 'F1.1.China_scaling.R' ) }
+#
+#     # New MEIC:
+#     # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
+#     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ){ scripts <-
+#         c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
+#
+# # Argentina
+#     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
+#         c( scripts, 'F1.1.Argentina_scaling.R' ) }
+#
+# # Japan
+#     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3','BC','OC' ) ){ scripts <-
+#         c(scripts, 'F1.1.Japan_scaling.R' ) }
+#
+# # South Korea
+#     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) { scripts <-
+#         c( scripts, 'F1.1.South_Korea_scaling.R' ) }
+#
+# # South Korea EDGAR-HTAPv3
+#     if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
+#         c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3_scaling.R' ) }
+#
+# # Taiwan
+#     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'BC', 'OC' ) ){ scripts <-
+#         c( scripts, 'F1.1.Taiwan_scaling.R' ) }
+#
+# # Australia
+#     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ){ scripts <-
+#         c( scripts, 'F1.1.Australia_scaling.R' ) }
 
-# EMEP NFR14
-# Note 1: While EMEP has BC, there is no OC, so retain consistent BC & OC estimates by not
-#         scaling to EMEP for these ems
-# Note 2: While CEDS does not include EMEP BC scaling, CEDS-GBD does include BC EMEP scaling
-# Note 3: Below, added BC and OC using PM2.5 data and BC/PM2.5 and OC/PM2.5 default ratios
 
-    if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2','BC','OC' ) ){ scripts <-
-        c( scripts, 'F1.1.EMEP_NFR14_scaling.R' ) }
-
-# UNFCCC
-    if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O' ) ){ scripts <-
-        c( scripts, 'F1.1.UNFCCC_scaling.R' ) }
-
-# REAS
-    if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
-        c( scripts, 'F1.1.REAS_scaling.R' ) }
-
-# REAS 3.2
-    if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
-        c( scripts, 'F1.1.REAS32_scaling.R' ) }
-
-# CAN
-    if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
-
-# CAN - Newer data must run last
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','BC','OC' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
-
-# USA
-    # removed scaling of BC and OC due to discrepancy in US PM2.5 data
-    if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ){ scripts <-
-        c( scripts, 'F1.1.US_scaling.R' ) }
-
-# US EPA (remove - use updated UNFCCC to scale non-combustion emissions instead)
-    if ( em %in% c( 'CO2xx' ) ){ scripts <-
-        c( scripts, 'F1.1.US-EPA_scaling.R' ) }
-
-# US GHG
-    if ( em %in% c( 'CH4', 'N2O' ) ){ scripts <-
-        c( scripts, 'F1.1.US-GHG_scaling.R' ) }
-
-# China
-    # OLD MEIC:
-    # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
-    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO' ) ){ scripts <-
-        c( scripts, 'F1.1.China_scaling.R' ) }
-
-    # New MEIC:
-    # GBD settings: if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ) scripts <-
-    if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ){ scripts <-
-        c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
-
-# Argentina
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
-        c( scripts, 'F1.1.Argentina_scaling.R' ) }
-
-# Japan
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3','BC','OC' ) ){ scripts <-
-        c(scripts, 'F1.1.Japan_scaling.R' ) }
-
-# South Korea
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) { scripts <-
+    # South Korea
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3' ) ) { scripts <-
         c( scripts, 'F1.1.South_Korea_scaling.R' ) }
 
-# Taiwan
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'BC', 'OC' ) ){ scripts <-
-        c( scripts, 'F1.1.Taiwan_scaling.R' ) }
-
-# Australia
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ){ scripts <-
-        c( scripts, 'F1.1.Australia_scaling.R' ) }
+    # South Korea EDGAR-HTAPv3
+    if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
+        c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3_scaling.R' ) }
 
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type

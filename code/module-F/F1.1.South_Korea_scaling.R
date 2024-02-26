@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: F1.1.South_Korea_scaling_2017.R
+# Program Name: F1.1.South_Korea_scaling.R
 # Authors' Names: Tyler Pitkanen, Jon Seibert, Rachel Hoesly, Steve Smith, Ryan Bolt, Andrea Mott
 # Date Last Modified: January 22, 2021
 # Program Purpose: To create scaling factors and update emissions estimate for
@@ -51,10 +51,7 @@
     mapping_method <- 'sector'
     inv_name <- 'KOR' #for naming diagnostic files
     region <- c( "kor" )
-    inv_years <- c( 1999 : 2017 )
-
-    if ( em == "BC" ) {
-        inv_years <- c( 2014:2018 ) }
+    inv_years <- c( 1999 : 2021 )
 
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
@@ -97,7 +94,7 @@
     scaled <- F.applyScale( scaling_factors )
     scaled_ef <- scaled[[ 1 ]]
     scaled_em <- scaled[[ 2 ]]
-stop('here')
+
 # ------------------------------------------------------------------------------
 # 5. Encorporate scaled em and EF
 
