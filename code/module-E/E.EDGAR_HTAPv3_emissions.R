@@ -25,7 +25,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NMVOC"
 
 # -------------------------------------------------------
 # 1. Define parameters for inventory-specific script
@@ -89,11 +89,3 @@ writeData( inv_data_kor, domain = "MED_OUT",
 
 logStop()
 # END
-
-
-
-
-
-
-
-

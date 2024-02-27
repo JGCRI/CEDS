@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "NMVOC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
