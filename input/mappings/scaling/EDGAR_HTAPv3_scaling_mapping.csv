@@ -1,8 +1,8 @@
 ﻿inv_sector,scaling_sector,ceds_sector,road_flag,,
 HTAPv3_3_Energy,energy,1A1a_Electricity-public,,,"Note: The modE script uses this file to determine which inventory sectors correspond to the Road scaling sector (""1A3b_Road"")."
-,,1A1a_Electricity-autoproducer,,,maybe
-,,1A1a_Heat-production,,,
-,,1A1bc_Other-transformation,,,
+,energy,1A1a_Electricity-autoproducer,,,maybe
+,energy,1A1a_Heat-production,,,
+,energy,1A1bc_Other-transformation,,,
 ,,1A1bc_Other-feedstocks,,,
 HTAPv3_4.1_Industry,res-industry-other,1A2a_Ind-Comb-Iron-steel,,,
 ,res-industry-other,1A2b_Ind-Comb-Non-ferrous-metals,,,
