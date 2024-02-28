@@ -74,6 +74,18 @@
     if ( em %in% c( 'CH4', 'CO', 'N2O', 'NH3', 'NMVOC', 'NOx' ) ){ scripts <-
               c( scripts, 'F1.1.Edgar_scaling.R' ) }
 
+# South Korea
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) { scripts <-
+        c( scripts, 'F1.1.South_Korea_scaling.R' ) }
+
+# South Korea EDGAR-HTAPv3
+    if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
+        c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3_scaling.R' ) }
+
+# Argentina
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
+        c( scripts, 'F1.1.Argentina_scaling.R' ) }
+
 # EMEP NFR09 (older data - use because has more sectors and goes back further)
     if ( em %in% c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ){ scripts <-
         c( scripts,'F1.1.EMEP_NFR09_scaling.R' ) }
@@ -131,21 +143,9 @@
     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
 
-# Argentina
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
-        c( scripts, 'F1.1.Argentina_scaling.R' ) }
-
 # Japan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3','BC','OC' ) ){ scripts <-
         c(scripts, 'F1.1.Japan_scaling.R' ) }
-
-# South Korea
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) { scripts <-
-        c( scripts, 'F1.1.South_Korea_scaling.R' ) }
-
-# South Korea EDGAR-HTAPv3
-    if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
-        c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3_scaling.R' ) }
 
 # Taiwan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'BC', 'OC' ) ){ scripts <-

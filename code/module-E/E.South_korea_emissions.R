@@ -59,6 +59,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Inventory-specific parameters
     inv_data_folder <- "EM_INV"
     inv_years <- c( 1999:2021 )
+    if(em == 'BC')     inv_years <- c( 2014:2021 )
     inventory_filename <- 'Korea_CAPSS_Emissions'
     translation_filename <- 'Korea_CAPSS_Emissions_Translation'
     subfolder_name <- 'Korea/'

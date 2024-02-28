@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "SO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -38,7 +38,7 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) {
+    if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3' ) ) {
       stop( paste( 'KOR scaling is not supported for emission species ',
                     em, '. Remove from script list in F1.1.inventory_scaling.R...' ) )
     }

@@ -998,7 +998,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
-	$(SC_MAPPINGS)/EDGAR_HTAP_v3_kor_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EDGAR_HTAPv3_kor_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_year.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_mapping.csv \
