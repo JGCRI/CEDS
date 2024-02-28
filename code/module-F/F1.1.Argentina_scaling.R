@@ -43,11 +43,6 @@
                      em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
 
-    em_temp = em  # Variable to use for interacting with emissions file
-    if ( em_temp == "NMVOC" ) {
-        em_temp <- "COVNM"
-    }
-
 # For each Module E script, define inventory parameters.
 # Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
@@ -56,9 +51,10 @@
     mapping_method <- 'sector'
     inv_name <- 'ARG' #for naming diagnostic files
     region <- c( "arg" )
-    inv_years <- c( 1990 : 1999, 2001 : 2009, 2011 )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
+
+    inv_years <- c( 1990 : 2020 )
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
