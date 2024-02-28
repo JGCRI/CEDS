@@ -19,7 +19,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "NOx"
+if ( is.na( em ) ) em <- "CO"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -74,7 +74,7 @@ inv_data <- inv_data_in %>%
         mutate(unit = 'kt') %>%
         mutate(sector = `IPCC category`) %>%
         mutate(year = paste0('X',Year)) %>%
-        select(iso, sector, unit, year, matches(em_temp)) %>%
+        select('iso', 'sector', 'unit', 'year', em_temp) %>%
         dplyr::rename(value = matches(em_temp)) %>%
         mutate(value = as.numeric(value)) %>%
         group_by(iso, sector, unit, year) %>%

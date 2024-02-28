@@ -26,7 +26,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "BC"
+    if ( is.na( em ) ) em <- "OC"
 
 # ------------------------------------------------------------------------------
 # 0.5. Define parameters for inventory specific script
@@ -51,10 +51,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # ------------------------------------------------------------------------------
 # 1. Read in initial input
 
-   em_list <- c('SO2','NOx','NMVOC','NH3','CO','BC')
-
-    # Read in inventory data
-    if ( em %in% em_list ) {
+    em_list <- c('SO2','NOx','NMVOC','NH3','CO','BC')
 
 # Inventory-specific parameters
     inv_data_folder <- "EM_INV"
@@ -64,9 +61,10 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     translation_filename <- 'Korea_CAPSS_Emissions_Translation'
     subfolder_name <- 'Korea/'
     inv_name <- 'KOR'  # For naming diagnostic files
-
     # inventory is in metric tons, need to convert to kt below
 
+# Read in inventory data
+    if ( em %in% em_list ) {
 
 # Translation Map
     translation_map <- readData( inv_data_folder, domain_extension =
