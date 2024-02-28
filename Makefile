@@ -941,6 +941,11 @@ $(MED_OUT)/E.$(EM)_AUS_inventory.csv: \
 $(MED_OUT)/E.$(EM)_TWN_inventory.csv: \
 	$(MOD_E)/E.Taiwan_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
+	
+# ee1-2
+$(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv: \
+	$(MOD_E)/E.EDGAR_HTAPv3_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
 
 # ff1-1a
 # Creates scaled emissions and emissions factors
@@ -958,6 +963,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.REAS_scaling.R \
 	$(MOD_F)/F1.1.REAS32_scaling.R \
 	$(MOD_F)/F1.1.South_Korea_scaling.R \
+	$(MOD_F)/F1.1.South_Korea_EDGAR-HTAPv3_scaling.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.US-EPA_scaling.R \
@@ -970,6 +976,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
+	$(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
@@ -991,6 +998,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
+	$(SC_MAPPINGS)/EDGAR_HTAP_v3_kor_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_year.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_mapping.csv \

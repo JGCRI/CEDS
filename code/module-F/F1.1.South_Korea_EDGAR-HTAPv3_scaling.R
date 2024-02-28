@@ -47,7 +47,7 @@ if ( em %!in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) {
 # Inventory parameters. Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-sector_fuel_mapping <- 'EDGAR_HTAPv3'
+sector_fuel_mapping <- 'EDGAR_HTAPv3_kor'
 mapping_method <- 'sector'
 inv_name <- 'EDGAR_HTAPv3_kor' #for naming diagnostic files
 region <- c( "kor" )

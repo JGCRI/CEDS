@@ -26,7 +26,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NMVOC"
+    if ( is.na( em ) ) em <- "BC"
 
 # ------------------------------------------------------------------------------
 # 0.5. Define parameters for inventory specific script
@@ -122,30 +122,30 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # ------------------------------------------------------------------------------
 # 4. Emission Specific corrections
 
-# Process OC
-# This currently doesn't work - need to fix later
-    if (em %in% c ('OC') ) {
-
-        # Define parameters for BC and OC specific script
-
-        ceds_sector <- "1A3b_Road"
-        inv_iso <- "kor"
-        PM <- "PM10"
-
-        # Read in scaling mapping file and filter transportation sectors
-        mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv") %>%
-            filter(str_detect(road_flag,"Road"))
-        inv_sector_name <- mapping_file$inv_sector
-
-        # Match formatting from PM2.5 inventory to BC/OC script
-        X_inv_years <- paste0("X",inv_years)
-        inv_data_sheet <- inv_data
-
-        # Calculate BC and OC emissions
-
-        inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
-        inv_data <- inv_data_sheet
-    }
+# # Process OC
+# # This currently doesn't work - need to fix later
+#     if (em %in% c ('OC') ) {
+#
+#         # Define parameters for BC and OC specific script
+#
+#         ceds_sector <- "1A3b_Road"
+#         inv_iso <- "kor"
+#         PM <- "PM10"
+#
+#         # Read in scaling mapping file and filter transportation sectors
+#         mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv") %>%
+#             filter(str_detect(road_flag,"Road"))
+#         inv_sector_name <- mapping_file$inv_sector
+#
+#         # Match formatting from PM2.5 inventory to BC/OC script
+#         X_inv_years <- paste0("X",inv_years)
+#         inv_data_sheet <- inv_data
+#
+#         # Calculate BC and OC emissions
+#
+#         inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+#         inv_data <- inv_data_sheet
+#     }
 
 # VOC energy transport and storage correction
 # Split "Energy transport and storage" between road and non road proportionally
@@ -193,29 +193,6 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
-
-    # ###### from china
-    # # ------------------------------------------------------------------------------
-    # # 3. Write out standard form inventory
-    # writeData( Edgar_HTAPv3, domain = "MED_OUT",
-    #            paste0( 'E.', em, '_', inv_name, '_inventory' ) )
-    #
-    # # Create inventory total
-    # # no sectors removed in module F. Write out sector and iso data.
-    # writeData( inv_data_species, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
-    #            paste0('inventory_',em,'_', inv_name))
-    #
-    #
-    # inv_data_species <- na.omit(inv_data_species)
-    # if (em %!in% c("BC","OC","CH4","N2O","CO2")){
-    #     country_total <- inv_data_species %>%
-    #         select(-sector)%>%
-    #         group_by(iso) %>%
-    #         summarize_each(funs(sum))
-    #
-    #     writeData( country_total, domain = "MED_OUT",
-    #                paste0('E.',em,'_', inv_name, '_inventory_country_total'))
-    # }
 
     logStop()
     # END
