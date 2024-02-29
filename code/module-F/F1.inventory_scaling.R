@@ -148,7 +148,7 @@
         c( scripts, 'F1.1.Argentina_scaling.R' ) }
 
 # South Korea
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC' ) ) { scripts <-
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3' ) ) { scripts <-
         c( scripts, 'F1.1.South_Korea_scaling.R' ) }
 
 # South Korea EDGAR-HTAPv3
