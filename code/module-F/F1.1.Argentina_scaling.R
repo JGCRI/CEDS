@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "NMVOC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -55,6 +55,12 @@
     inv_data_folder <- 'MED_OUT'
 
     inv_years <- c( 1990 : 2020 )
+
+    # Scaling for specific species
+
+    if ( em %in% c("NMVOC") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NMVOC')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions

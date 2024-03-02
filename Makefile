@@ -155,7 +155,7 @@ clean-diagnostic:
 clean-final:
 	rm -fv $(FINAL_OUT)/diagnostics/*.csv
 	rm -fv $(FINAL_OUT)/diagnostics/*.pdf
-	rm -fv $(FINAL_OUT)/diagnostics/*.Rdata
+	rm -fv $(FINAL_OUT)/diagnostics/*.RData
 	rm -fv $(FINAL_OUT)/diagnostics/*.Rd
 	rm -fv $(FINAL_OUT)/previous-versions/*.csv
 
@@ -710,6 +710,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv: \
 	$(PARAMS)/analysis_functions.R \
 	$(PARAMS)/interpolation_extension_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
+	$(EF_DATA)/Diesel_transport_S_trend.xlsx \
 	$(MED_OUT)/A.final_comb_activity_modern.csv \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
@@ -763,8 +764,10 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MAPPINGS)/Master_Country_List.csv \
+	$(EF_DATA)/non-combustion-emissions/add_inventory_instructions.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
+	$(MED_OUT)/E.$(EM)_ARG_2012_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
@@ -885,6 +888,11 @@ $(MED_OUT)/E.$(EM)_REAS32_inventory.csv: \
 # ee1-2
 $(MED_OUT)/E.$(EM)_ARG_inventory.csv: \
 	$(MOD_E)/E.Argentina_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
+$(MED_OUT)/E.$(EM)_ARG_2012_inventory.csv: \
+	$(MOD_E)/E.Argentina_2012_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2

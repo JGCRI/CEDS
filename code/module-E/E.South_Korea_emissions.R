@@ -45,18 +45,23 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         em_temp <- "VOCs"
     }
     if(em %in% c ('OC')) {
-        em_temp <- "PM-10"
+        em_temp <- "PM-2.5"
+    }
+    if(em %in% c ('BC')) {
+        em_temp <- "PM-2.5"
     }
 
 # ------------------------------------------------------------------------------
 # 1. Read in initial input
 
-    em_list <- c('SO2','NOx','NMVOC','NH3','CO','BC')
+    em_list <- c('SO2','NOx','NMVOC','NH3','CO','BC','OC')
 
 # Inventory-specific parameters
     inv_data_folder <- "EM_INV"
+
     inv_years <- c( 1999:2021 )
-    if(em == 'BC')     inv_years <- c( 2014:2021 )
+    if(em %in% c( 'OC', 'BC') )    inv_years <- c( 2011:2021 )
+
     inventory_filename <- 'Korea_CAPSS_Emissions'
     translation_filename <- 'Korea_CAPSS_Emissions_Translation'
     subfolder_name <- 'Korea/'
@@ -89,21 +94,42 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         dplyr::rename(value = any_of(em_temp)) %>%
         mutate(value = as.numeric(value)) %>%
         filter(!is.na(sector))
-
     }
+
+# If BC - also read in actual BC emissions
+    if (em == 'BC'){
+    read_inventory_list_BC <- list()
+    BC_inv_years <- c( 2014:2021 )
+    for (i in seq_along(BC_inv_years)){
+        read_in_data <- readData( inv_data_folder, domain_extension =
+                                      subfolder_name,
+                                  inventory_filename , ".xlsx", to_numeric = TRUE,
+                                  sheet_selection =  as.character(BC_inv_years[i]))
+        names(read_in_data) <- read_in_data[1,]
+        read_in_data <- read_in_data[-1,]
+
+        read_inventory_list_BC[[i]]  <- read_in_data %>%
+            mutate(year = BC_inv_years[i]) %>%
+            left_join(translation_map) %>%
+            select(sector, year, em) %>%
+            dplyr::rename(value = any_of(em)) %>%
+            mutate(value = as.numeric(value)) %>%
+            filter(!is.na(sector))
+    }}
 
 # ------------------------------------------------------------------------------
 # 3. Process Inventory Data
 
 # create list for na replacement
     na_correction <- as.list(rep(0, length(inv_years)) )
-    names(na_correction) <- inv_years
+    names(na_correction) <- paste0('X',inv_years)
 
 # final process data
     inv_data <- do.call(bind_rows, read_inventory_list) %>%
         as_tibble() %>%
         mutate(iso = 'kor') %>%
         mutate(unit = 'kt') %>%
+        mutate(year = paste0('X',year)) %>%
         mutate(value = as.numeric(value)/1000) %>% #convert from metric ton to kt
         spread(year, value)  %>%
         replace_na(na_correction) %>%
@@ -115,36 +141,62 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
         group_by(iso, unit) %>%
         summarize_each(funs(sum))
 
+    #Print out country total for emissions other than BC/OC (this is in PM2.5 now)
+    if(em %!in% c('BC','OC')){
     writeData( country_total, domain = "MED_OUT",
                paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+    }
 
+# If BC Process actual BC data (not PM2.5) - and print out total
+    if (em == 'BC'){
+    BC_inv_data <- do.call(bind_rows, read_inventory_list_BC) %>%
+        as_tibble() %>%
+        mutate(iso = 'kor') %>%
+        mutate(unit = 'kt') %>%
+        mutate(year = paste0('X',year)) %>%
+        mutate(value = as.numeric(value)/1000) %>% #convert from metric ton to kt
+        spread(year, value)  %>%
+        replace_na(na_correction) %>%
+        select(iso, sector, everything())
+
+    # print out country total
+    country_total <- BC_inv_data %>%
+        select(-sector)%>%
+        group_by(iso, unit) %>%
+        summarize_each(funs(sum))
+
+    writeData( country_total, domain = "MED_OUT",
+               paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+    }
 # ------------------------------------------------------------------------------
 # 4. Emission Specific corrections
 
-# # Process OC
-# # This currently doesn't work - need to fix later
-#     if (em %in% c ('OC') ) {
-#
-#         # Define parameters for BC and OC specific script
-#
-#         ceds_sector <- "1A3b_Road"
-#         inv_iso <- "kor"
-#         PM <- "PM10"
-#
-#         # Read in scaling mapping file and filter transportation sectors
-#         mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv") %>%
-#             filter(str_detect(road_flag,"Road"))
-#         inv_sector_name <- mapping_file$inv_sector
-#
-#         # Match formatting from PM2.5 inventory to BC/OC script
-#         X_inv_years <- paste0("X",inv_years)
-#         inv_data_sheet <- inv_data
-#
-#         # Calculate BC and OC emissions
-#
-#         inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
-#         inv_data <- inv_data_sheet
-#     }
+# Process BC/OC
+# This currently doesn't work - need to fix later
+    if (em %in% c ('OC','BC') ) {
+
+        # Define parameters for BC and OC specific script
+
+        ceds_sector <- "1A3b_Road"
+        inv_iso <- "kor"
+        PM <- "PM25"
+
+        # Read in scaling mapping file and filter transportation sectors
+        mapping_file <- readData("SCALE_MAPPINGS", "South_Korea_scaling_mapping.csv") %>%
+            filter(str_detect(road_flag,"Road"))
+        inv_sector_name <- mapping_file$inv_sector
+
+        # Match formatting from PM2.5 inventory to BC/OC script
+        X_inv_years <- paste0("X",inv_years)
+        inv_data_sheet <- inv_data %>% select(-unit)
+        inv_data_sheet[is.na(inv_data_sheet)] = 0
+
+
+        # Calculate BC and OC emissions
+
+        inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+        inv_data <- inv_data_sheet
+    }
 
 # VOC energy transport and storage correction
 # Split "Energy transport and storage" between road and non road proportionally
