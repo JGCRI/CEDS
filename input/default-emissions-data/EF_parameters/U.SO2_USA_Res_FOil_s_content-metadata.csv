@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+S content,SO2,usa,1A4b_Residential,1960,2020,"Complied from state-level heating oil standards, historical data, and national mass balance. (see: Distillate Fuel Oil Residential S Content by State.xlsx in data archive)"

@@ -1,0 +1,4 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Mapping,NA,All,NA,NA,NA,Mapping between country names used in SO2 metal smelting data and iso.
+Mapping,NA,srb,NA,NA,NA,Note that SERBMONT maps to serbia
+Mapping,NA,mne,NA,NA,NA,MONTENEGRO should be used for any data specific to that country

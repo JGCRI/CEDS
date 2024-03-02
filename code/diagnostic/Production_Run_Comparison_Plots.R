@@ -30,7 +30,7 @@ initialize( script_name, log_msg, headers )
 
 em_list <- c('BC','CO','NH3','NMVOC','OC','NOx','SO2','CH4','CO2','N2O')
 if( any(sapply(em_list,function(EM) !file.exists(
-    paste0('../final-emissions/diagnostics/Comparison_Plots_',EM,'.Rdata'))))){
+    paste0('../final-emissions/diagnostics/Comparison_Plots_',EM,'.RData'))))){
     stop('Not all comparison plot files exist. Must complete production run.
          Comparison plot R data files are created in the S1.1.write_summary_data.R')
 }
@@ -39,25 +39,25 @@ if( any(sapply(em_list,function(EM) !file.exists(
 # Need to load the RData file first, then rename the list from
 # "summary_plot_output" to emissions specific name
 
-load('../final-emissions/diagnostics/Comparison_Plots_BC.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_BC.RData')
     BC_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_CO.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_CO.RData')
     CO_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_OC.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_OC.RData')
     OC_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_NH3.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_NH3.RData')
     NH3_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_NMVOC.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_NMVOC.RData')
     NMVOC_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_NOx.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_NOx.RData')
     NOx_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_SO2.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_SO2.RData')
     SO2_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_CH4.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_CH4.RData')
     CH4_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_CO2.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_CO2.RData')
     CO2_plots <- summary_plot_output
-load('../final-emissions/diagnostics/Comparison_Plots_N2O.Rdata')
+load('../final-emissions/diagnostics/Comparison_Plots_N2O.RData')
     N2O_plots <- summary_plot_output
 all_plot_lists  <- list(BC_plots,
                      CO_plots,

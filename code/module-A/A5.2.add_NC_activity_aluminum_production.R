@@ -85,12 +85,23 @@
               addToActivityDb( results )
         }
 
-        # historically extend, filling in 0s. Extend aluminum forward
+        # Detect last year in activity data
+        activity_end_year <- as.numeric(sub('.', '', tail(names(results), 1)))
+
+        # Historically extend, filling in 0s, then reorder years
         results[ paste0('X', historical_pre_extension_year: 1849)] <- 0
-        results[ paste0('X', 2018:end_year)] <- NA
-        results[ paste0('X', 2018:end_year)] <- as.numeric(as.character(results[ paste0('X', 2018:end_year)]))
-        results <- results[ c( 'iso' , 'activity' , 'units' , X_extended_years ) ]
-        results_test <- extend_and_interpolate(results, paste0('X', 2017:end_year))
+        results <- results[ c( 'iso' , 'activity' , 'units' , paste0('X', historical_pre_extension_year:activity_end_year) ) ]
+
+        # If last year of activity data ≥ last CEDS year, truncate to last CEDS year,
+        # otherwise extend to last CEDS year
+        if (activity_end_year >= end_year) {
+            results <- results[ c( 'iso' , 'activity' , 'units' , X_extended_years ) ]
+        } else {
+            # Extend aluminum forward
+            results[ paste0('X', (activity_end_year + 1):end_year)] <- NA
+            results[ paste0('X', (activity_end_year + 1):end_year)] <- as.numeric(as.character(results[ paste0('X', (activity_end_year + 1):end_year)]))
+            results <- extend_and_interpolate(results, paste0('X', activity_end_year:end_year))
+        }
 
         # write results
         writeData( results, "MED_OUT", "A.Aluminum_production", meta = F )
