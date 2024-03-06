@@ -1,5 +1,7 @@
 inv,em,iso,inv_sector,ceds_sector,Notes
 E.SO2_ARG_2012_inventory,SO2,arg,Fugitive emissions from fuel production,1B2_Fugitive-petr,
+E.NOx_ARG_2012_inventory,NOx,arg,Natural gas and oil,1B2b_Fugitive-NG-prod,
+E.NOx_ARG_2012_inventory,NOx,arg,Oil/petroleum,1B2_Fugitive-petr,
 E.NOx_ARG_inventory,NOx,arg,1B1ci,1B1_Fugitive-solid-fuels,
 E.SO2_EMEP_NFR14_inventory,SO2,rou,D_Fugitive,1B2_Fugitive-petr,
 E.SO2_EMEP_NFR09_inventory,SO2,aut,E_Fugitive,1B2_Fugitive-petr,
@@ -261,3 +263,4 @@ E.CO2_UNFCCC_update_inventory,CO2,tur,1.B.2.c.ii.1,1B2_Fugitive-petr,
 E.CO2_UNFCCC_update_inventory,CO2,ukr,1.B.2.c.ii.1,1B2_Fugitive-petr,
 E.CO2_UNFCCC_update_inventory,CO2,usa,1.B.2.a,1B2_Fugitive-petr,
 E.NH3_KOR_inventory,NH3,kor,Waste disposal,5D_Wastewater-handling,
+E.NH3_KOR2017_inventory,NH3,kor,Other waste processing,5D_Wastewater-handling,

@@ -61,6 +61,9 @@
     if ( em %in% c("NMVOC") ) {
         sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NMVOC')
     }
+    if ( em %in% c("NOx") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
