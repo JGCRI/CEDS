@@ -3,7 +3,8 @@
 # Author: Andrea Mott, Harrison Suchyta
 # Date Last Updated: February 4, 2021
 # Program Purpose: Generate comparisons between inventory country totals and
-#               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS.
+#               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS. Removes internaltional
+#               shipping and air/forrest fires etc
 # Input Files: [em]_total_CEDS_emissions.csv
 #              'E.', em,'_',inv,'_inventory_country_total'
 #              Master_Country_List.csv, emf-30_ctry_map.csv,
@@ -31,7 +32,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "SO2"
 
 #flag for whether or not to include HTAP in comparisons
 add_HTAP <- TRUE
@@ -70,6 +71,7 @@ if (em %in% em_list) {
         can_em_flag <- em %in% em_list_can
         can_old_em_flag <- em %in% em_list_can
         kor_em_flag <- em %in% em_list_kor
+        kor_old_em_flag <- em %in% em_list_kor
         EMEP_em_flag <- em %in% em_list_EMEP
         twn_em_flag <- em %in% em_list_twn
         MEIC_em_flag <- em %in% em_list_MEIC
@@ -177,6 +179,12 @@ printLog("Load old inventory data")
     } else {
         printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
         inv_emissions_chn_old <- data.frame( iso = "chn_old")
+    }
+    if ( kor_old_em_flag == T ) {
+        inv_emissions_kor_old <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"KOR2017",'_inventory_country_total'))
+    } else {
+        printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
+        inv_emissions_chn_old <- data.frame( iso = "kor_old")
     }
 
     old_inv_total <- bind_rows(inv_emissions_can_old, inv_emissions_chn_old)
@@ -429,56 +437,57 @@ printLog("Load old inventory data")
 # 7. EDGAR-HTAPv3
 
 if(add_HTAP == TRUE){
-    #Read in the EDGAR_HTAP files
-    emission_file <- paste0("EDGAR_HTAPv3_", em)
-    inventory_data_file <- "../emissions-inventories"
-    Edgar_HTAP <- readData(domain = "EM_INV",
-                           domain_extension = "HTAPv3_TIMESERIES/",
-                           file_name = emission_file,
-                           extension = ".csv")
-    Edgar_HTAP %>% subset(select = c(Data_provider,Substance,Year,Country,Sector,Annual)) %>%
-                   group_by(Year,Country) %>%
-                   summarize_if(is.numeric,sum,na.rm = TRUE) %>%
-                   mutate(Country = str_replace(Country,'CHN_HKG_MAC','CHN'))%>%
-                   mutate(Country = str_replace(Country,'USA_PRI_VIR','USA')) %>%
-                   mutate(Country = str_replace(Country,'SRB_MNE_KOS','SRB')) -> EDGAR_HTAP_long
-    #NOTE: Serbia, Montenegro, and Kosovo are lumped into one country, for the
-    #       for the purposes of this script they are all changed to just Serbia
-    #       since there is not
+    EDGAR_HTAP_in <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.',em,'_EDGAR_HTAPv3_inventory' ) )
 
+    # Combine European isos into eastern and western Europe.
+    EDGAR_HTAP_all_isos <- EDGAR_HTAP_in %>%
+        left_join(master_country, by = c("iso")) %>%
+        filter(sector %!in% c('HTAPv3_2.2_International_Aviation','HTAPv3_1_International_Shipping')) %>%
+        filter(Region != "Eastern Europe" | Region != "Western Europe") %>%
+        group_by(iso, Region) %>%
+        summarize_if(is.numeric, sum, na.rm = TRUE)
+    EDGAR_HTAP_europe <- EDGAR_HTAP_all_isos %>%
+        filter(Region %in% c("Eastern Europe","Western Europe")) %>%
+        select(-iso) %>%
+        group_by(Region) %>%
+        summarize_if(is.numeric, sum, na.rm = TRUE) %>%
+        ungroup() %>%
+        dplyr::rename(iso = Region)
+    EDGAR_HTAP <- EDGAR_HTAP_all_isos %>%
+        select(-Region) %>%
+        bind_rows(edgar_europe)
 
-    #Get rid of unnecessary columns, rearrange and rename the remaining columns,
-    #and convert country names to lowercase
-   # EDGAR_HTAP_long <- subset(Edgar_HTAP, select = -c(Data_provider))
-    EDGAR_HTAP_long %>% select(Country,Year,Annual)
-    colnames(EDGAR_HTAP_long) <- c("year","iso","EDGAR_HTAPv3")
-    EDGAR_HTAP_long$iso <- tolower(EDGAR_HTAP_long$iso)
-    EDGAR_HTAP_long$EDGAR_HTAPv3 <- as.numeric(as.character(EDGAR_HTAP_long$EDGAR_HTAPv3)) / 1000
+    # Make long
+    EDGAR_HTAP_long <- EDGAR_HTAP %>%
+        gather( year, EDGAR_HTAP, -iso) %>%
+        mutate(year = str_replace(year, "X","") %>% as.numeric)
 
-    Edgar_for_world_unprocessed <- EDGAR_HTAP_long
+    #---
+    #World data
+    EDGAR_HTAP_world <- EDGAR_HTAP_in %>%
+        filter(sector %!in% c('HTAPv3_2.2_International_Aviation','HTAPv3_1_International_Shipping')) %>%
+        filter(iso %!in% c('sea','air')) %>%
+        left_join(master_country, by = c("iso")) %>%
+        mutate(Region = ifelse(iso == 'aia','Latin America',Region)) %>%
+        mutate(Region = ifelse(iso == 'myt','Western Europe',Region)) %>%
+        mutate(Region = ifelse(iso == 'shn','Western Europe',Region)) %>%
+        group_by(Region) %>%
+        dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)%>%
+        select(Region,everything()) %>%
+        gather(year, EDGAR_HTAP, -c(Region))%>%
+        mutate(year = str_replace(year, "X","") %>% as.numeric)
 
-    EDGAR_HTAP_long <- EDGAR_HTAP_long %>%
-        left_join(MCL, by = 'iso')
+    unmatched_EDGAR_HTAP_isos <- EDGAR_HTAP_long %>%
+        left_join(master_country, by = c("iso"))%>%
+        group_by(Region) %>%
+        filter(is.na(Region)) %>%
+        filter(iso %!in% c('Eastern Europe','Western Europe')) %>%
+        pull(iso)
 
-    EDGAR_HTAP_long$iso[EDGAR_HTAP_long$Region == 'Eastern Europe'] <- 'Eastern Europe'
-    EDGAR_HTAP_long$iso[EDGAR_HTAP_long$Region == 'Western Europe'] <- 'Western Europe'
-
-    #sum so there are no repeat isos (especially for Western and Eastern Europr)
-    EDGAR_HTAP_long <- EDGAR_HTAP_long %>%
-                       group_by(year,iso) %>%
-                       dplyr::summarise(EDGAR_HTAPv3 = sum(EDGAR_HTAPv3))
-
-    #------
-    #world data
-    Edgar_HTAP_long_for_world <- Edgar_for_world_unprocessed
-
-    Edgar_HTAP_world <- Edgar_HTAP_long_for_world %>%
-                        left_join(MCL, by = 'iso') %>%
-                        subset(select =-c(iso)) %>%
-                        select(Region,everything())
-    Edgar_HTAP_world <- Edgar_HTAP_world[!is.na(Edgar_HTAP_world$Region),] %>%
-                        group_by(Region,year) %>%
-                        dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)
+    if(length(unmatched_EDGAR_HTAP_isos)>0){
+        stop(paste0('Unmapped countries to regions in EDGAR_HTAP inventory.
+                    Check mapping or corrections. ',unmatched_EDGAR_HTAP_isos))
+    }
 }
 # ---------------------------------------------------------------------------
 # 8. Prepare country inventories for plotting
@@ -492,9 +501,9 @@ if(add_HTAP == TRUE){
     combined_w_oldinv <- left_join(combined_w_REAS, old_inventory_long, by = c("iso", "year"))
 
     if(add_HTAP == TRUE){
-        combined_w_edgar_htap <- left_join(combined_w_oldinv, EDGAR_HTAP_long, by = c("iso","year"))
+        combined_w_EDGAR_HTAP <- left_join(combined_w_oldinv, EDGAR_HTAP_long, by = c("iso","year"))
         # Make long
-        combined_long <- gather(combined_w_edgar_htap, Inventory, value, -c(iso,year))
+        combined_long <- gather(combined_w_EDGAR_HTAP, Inventory, value, -c(iso,year))
     }else{
         # Make long
         combined_long <- gather(combined_w_oldinv, Inventory, value, -c(iso,year))
@@ -530,9 +539,9 @@ if(add_HTAP == TRUE){
 
         #add HTAP data if present
         if(add_HTAP == TRUE){
-            global_combined_w_edgar_htap <- left_join(global_combined_w_reas, Edgar_HTAP_world, by = c("Region","year"))
+            global_combined_w_EDGAR_HTAP <- left_join(global_combined_w_reas, EDGAR_HTAP_world, by = c("Region","year"))
             #make long
-            global_combined_long <- global_combined_w_edgar_htap %>% gather(Inventory,value,-c(Region,year)) %>% dplyr::rename(total_emissions = value)
+            global_combined_long <- global_combined_w_EDGAR_HTAP %>% gather(Inventory,value,-c(Region,year)) %>% dplyr::rename(total_emissions = value)
         } else{
             #make long
             global_combined_long <- global_combined_w_reas %>% gather(Inventory,value,-c(Region,year)) %>% dplyr::rename(total_emissions = value)
@@ -564,7 +573,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
     geom_point(data = subset(combined_long, Inventory == "Country_inventory"), size = 1) +
     geom_point(data = subset(combined_long, Inventory == "Old_Inventory"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "CEDS_v_2021_04_21"), size = 1) +
-    geom_line(data = subset(combined_long, Inventory == "EDGAR_5.0"), size = 1) +
+    geom_line(data = subset(combined_long, Inventory == "EDGAR_6.0"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_HTAPv3"), size = 1) +
     geom_point(data = subset(combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1) +
     geom_line(data = subset(combined_long, Inventory =='REAS_32'), size = 1) +
@@ -580,7 +589,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                        values = c('Country_inventory'= "#0066ff",
                                   'Old_Inventory'= "#0066ff",
                                   'CEDS_v_2021_04_21'= "#f75f55",
-                                  'EDGAR_5.0'= "#73e600",
+                                  'EDGAR_6.0'= "#73e600",
                                   'EDGAR_HTAPv3'='#000000',
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#00dee6",
                                   'REAS_32'= "#C77CFF")) +
@@ -588,14 +597,14 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
                           values = c('Country_inventory' = 0,
                                      'Old_Inventory' = 0,
                                      'CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 1,
+                                     'EDGAR_6.0'= 1,
                                      'EDGAR_HTAPv3'= 1,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
                        values = c("CEDS_v_2021_04_21" = 32,
                                   "Country_inventory" = 16,
-                                  "EDGAR_5.0" = 32,
+                                  "EDGAR_6.0" = 32,
                                   "EDGAR_HTAPv3" = 32,
                                   "GAINS_(ECLIPSE_V6b_CLE)" = 16,
                                   "Old_Inventory" = 1,
@@ -604,7 +613,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
 
 plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, color = Inventory, linetype = Inventory, shape = Inventory)) +
     geom_line(data = subset(global_combined_long, Inventory == "CEDS_v_2021_04_21"), size = 1) +
-    geom_line(data = subset(global_combined_long, Inventory == "EDGAR_5.0"), size = 1) +
+    geom_line(data = subset(global_combined_long, Inventory == "EDGAR_6.0"), size = 1) +
     geom_point(data = subset(global_combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1.5) +
     geom_line(data = subset(global_combined_long, Inventory == 'EDGAR_HTAPv3'), size = 1) +
     geom_line(data = subset(global_combined_long, Inventory =='REAS_32'), size = 1) +
