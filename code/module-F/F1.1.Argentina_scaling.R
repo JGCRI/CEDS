@@ -61,8 +61,8 @@
     if ( em %in% c("NMVOC") ) {
         sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NMVOC')
     }
-    if ( em %in% c("NOx") ) {
-        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
+    if ( em %in% c("SO2") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_SO2')
     }
 
 # ------------------------------------------------------------------------------

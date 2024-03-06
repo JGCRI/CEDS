@@ -18,12 +18,12 @@ inv_sector,scaling_sector,ceds_sector,Notes1,Notes2
 ,industrial-combustion,1A2g_Ind-Comb-other,,
 1A3ai,,1A3aii_Domestic-aviation,1.A.3.a  Domestic Aviation,
 1A3aii,,1A3ai_International-aviation,1A3ai(ii),International-aviation-cruise-(Civil)
-1A3biii,road-rail-other,,,
-1A3bvii,road-rail-other,1A3b_Road,1A3bii,Road-transport:Light-duty-vehicles
-1A3c,road-rail-other,1A3c_Rail,1.A.3.c  Railways,
+1A3biii,,,,
+1A3bvii,,1A3b_Road,1A3bii,Road-transport:Light-duty-vehicles
+1A3c,,1A3c_Rail,1.A.3.c  Railways,
 1A3di,,1A3dii_Domestic-navigation,,
 1A3dii,,1A3di_International-shipping,1A3di(ii),International-inland-waterways
-1A3ei,road-rail-other,1A3eii_Other-transp,1A3ei,Pipeline-transport-
+1A3ei,,1A3eii_Other-transp,1A3ei,Pipeline-transport-
 1A4ai,resiential-commertial-other,1A4a_Commercial-institutional,1A4ai,Commercial-/-institutional:-Stationary
 1A4aii,resiential-commertial-other,,1A4aii,Commercial-/-institutional:-Mobile
 1A4aiii,resiential-commertial-other,,,
