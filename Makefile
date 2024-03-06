@@ -776,6 +776,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
 	$(MED_OUT)/E.$(EM)_KOR_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS32_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
@@ -923,6 +924,10 @@ $(MED_OUT)/E.$(EM)_Japan_inventory.csv: \
 # ee1-2
 $(MED_OUT)/E.$(EM)_KOR_inventory.csv: \
 	$(MOD_E)/E.South_Korea_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+	
+$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv: \
+	$(MOD_E)/E.South_Korea_emissions_2017.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
