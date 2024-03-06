@@ -24,7 +24,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -47,6 +47,9 @@ if ( is.na( em ) ) em <- "BC"
 # ---------------------------------------------------------------------------
 # 2. Expand EF pathway to all years
 if( length( fl ) > 0 ){
+
+# TODO - Move extension here before binding. Otherwise, unexpected results can occur.
+#      - Or write warning if final year of pathways differ
 
 # Bind all EF pathways into one df
     pathway <- do.call( rbind.fill, fl )
@@ -87,6 +90,8 @@ if( length( fl ) > 0 ){
     names( pathway_full_long )[ names( pathway_full_long ) %in% c( "value", "variable" ) ] <- c( "year", "pathway_val" )
     pathway_id_cols <- select( pathway_full_long, -pathway_type, -pathway_val ) %>% unique()
 
+    # TODO: With newer packages, the code below doesn't work (there is no "pathway_val" label so min_ef and max_ef end up in the wrong place)
+    # FIX THIS
     pathway_min <- filter( pathway_full_long, pathway_type == "minimum" )
     names( pathway_min )[ names( pathway_min ) == "pathway_val" ] <- "min_ef"
     pathway_max <- filter( pathway_full_long, pathway_type == "maximum")

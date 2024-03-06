@@ -555,6 +555,34 @@
         mutate_at(vars(starts_with("X")), funs(if_else(is.na(.),median(., na.rm = TRUE),.))) %>%
         ungroup()
 
+# TODO - implement a more general and transparanet way of changing our default EF extension values
+
+# India Adjustment
+# GAINS appears to incorporate the introduction of stricter transportation emission standards in India after 2020
+# Since Gajbhiye etal 2023 (doi: 10.1016/j.trd.2022.103603) indicate a very low fraction of trucks
+# adhering to the phast VI standards, revised diesel EF improvement downward to a nominal 2%/year after 2020
+
+    # Get 2020 EF value for road sector emissions from diesel combustion in India
+    ef_2020 <- gainsEMF30_comb %>%
+        dplyr::filter( iso == 'ind', sector == '1A3b_Road', fuel == 'diesel_oil' ) %>%
+        dplyr::select( X2020 ) %>%
+        dplyr::pull()
+
+    # Number of years from 2020 till end year (kept flexible)
+    num_years_after_2020 <- tail(ceds_years, 1) - 2020
+    # Repetitive multiplication of EF 2020 by 0.98 to get new EFs
+    new_efs <- ef_2020 * cumprod( rep(0.98, num_years_after_2020) )
+
+    # Replace the EF values for years after 2020
+    gainsEMF30_comb[(
+        # Get the row
+        gainsEMF30_comb$iso == 'ind' &
+        gainsEMF30_comb$sector == '1A3b_Road' &
+        gainsEMF30_comb$fuel == 'diesel_oil'),
+        # And the columns
+        tail(X_ceds_years, num_years_after_2020)] <- new_efs # And substitute new values
+
+
 # ---------------------------------------------------------------------------
 # 8. Diagnostics
 
