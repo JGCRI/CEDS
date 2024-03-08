@@ -17,7 +17,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "OC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -164,11 +164,23 @@ for (LoopCounter in 1:MaxLoop) {
         #           "Miscellaneous without wildfires", "Stationary fuel combustion"
         #           "Industrial and other processes","Transportation", "Miscellaneous"?
 
-        if ( (em %!in% c("BC","OC")) || (LoopCounter == 2) ) {
+        if (em %!in% c("BC","OC")){
+            if (em %!in% c("NH3", "NMVOC")){
+
             country_total <- inv_data_sheet %>%
                 filter( !sector %in% c("Wildfires","Total","Total without wildfires",
                                        "Miscellaneous without wildfires", "Stationary fuel combustion", "Total without miscellaneous",
                                        "Industrial and other processes","Transportation", "Miscellaneous","Source Category","MISCELLANEOUS") )
+            } else {
+
+                country_total <- inv_data_sheet %>%
+                    filter( !sector %in% c("Wildfires","Total","Total without wildfires",
+                                           "Miscellaneous without wildfires", "Stationary fuel combustion",
+                                           "Industrial and other processes","Transportation", "Miscellaneous","Source Category") )
+            }
+
+
+
 
             writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
                        paste0('inventory_',em,'_', inv_name))
@@ -176,6 +188,7 @@ for (LoopCounter in 1:MaxLoop) {
             #     country_total <- country_total %>%
             #         filter( !sector %in% c("MISCELLANEOUS"))
             # }
+
 
             country_total <- country_total %>%
                 select(-sector)%>%

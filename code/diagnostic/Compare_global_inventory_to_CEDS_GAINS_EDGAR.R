@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
 # Program Name: Compare_inventory_totals_to_CEDS_GAINS_EDGAR.R
 # Author: Andrea Mott, Harrison Suchyta
-# Date Last Updated: January 4, 2023
+# Date Last Updated: February 4, 2021
 # Program Purpose: Generate comparisons between inventory country totals and
 #               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS.
 # Input Files: [em]_total_CEDS_emissions.csv
 #              'E.', em,'_',inv,'_inventory_country_total'
-#              MCL.csv, emf-30_ctry_map.csv,
+#              Master_Country_List.csv, emf-30_ctry_map.csv,
 #              emf-30_comparison_sector_map-comb_vs_process.csv
 # Output Files: Compare_inventory_to_CEDS_[em].pdf
 #               Compare_inventory_to_CEDS_[em].csv
@@ -33,25 +33,20 @@ args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 if ( is.na( em ) ) em <- "CO"
 
-
-# ---------------------------------------------------------------------------
 #flag for whether or not to include HTAP in comparisons
 add_HTAP <- TRUE
-# ---------------------------------------------------------------------------
-# 0. Input Files
-#read in mapping file to organize countries
 
-MCL <- readData( "MAPPINGS", "Master_Country_List" ) %>%
-    subset(select = c(iso,Region))
 # ---------------------------------------------------------------------------
 # 1. Run for relevant inventory emissions
 
 em_list <- c(  'SO2','NOx', 'NH3', 'NMVOC', 'CO')
-for (em in em_list){
+
 if (em %in% em_list) {
 
 # ---------------------------------------------------------------------------
 # 2. Inventory data
+
+    MCL <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
 
 # Load in country inventory totals
 
@@ -99,7 +94,7 @@ if (em %in% em_list) {
     }
 
     if ( can_em_flag == T ) {
-        inv_emissions_can <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CAN_2018",'_inventory_country_total'))
+        inv_emissions_can <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CAN_2021",'_inventory_country_total'))
     } else {
         printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
         inv_emissions_can <- data.frame( iso = "can")
@@ -145,7 +140,8 @@ if (em %in% em_list) {
     }
 
     # Map EMEP to East and West regions. Remove EMEP's non-Europe regions.
-    master_country <- MCL %>%
+    Master_Country_List <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
+    master_country <- Master_Country_List %>%
         select(c(iso, Region))
     inv_emissions_East_West_Europe <- inv_emissions_EMEP %>%
         left_join(master_country, by = c("iso")) %>%
@@ -161,23 +157,12 @@ if (em %in% em_list) {
     # Bind inventory rows together.
     inv_total <- bind_rows(inv_emissions_jpn, inv_emissions_US, inv_emissions_can, inv_emissions_kor,
                            inv_emissions_East_West_Europe,inv_emissions_MEIC,inv_emissions_twn, inv_emissions_aus)
-#,inv_emissions_aus
+#inv_emissions_aus
     # change to long
     inventory_long <- gather(inv_total,year, inventory, -c(iso))
-    inventory_long$year <- as.numeric(sub('X','',inventory_long$year))
-
-    if (add_HTAP == TRUE) {
-
-        #establish more specific rows to remove for HTAP plots
-        rows_to_remove <- which(inventory_long$iso == 'Eastern Europe' & inventory_long$year <= 1995,arr.ind=TRUE)
-        inventory_long <- inventory_long[-rows_to_remove,]
-        if(em == "NH3"){
-            rows_to_remove <- which(inventory_long$iso == 'usa' & inventory_long$year <= 2002)
-            inventory_long <- inventory_long[-rows_to_remove,] }
-    }
 
 # ---------------------------------------------------------------------------
-
+printLog("Load old inventory data")
     # Load in old inventory data
 
     if ( can_old_em_flag == T ) {
@@ -203,6 +188,7 @@ if (em %in% em_list) {
 
 # ---------------------------------------------------------------------------
 # 3. CEDS
+    printLog("Load CEDS data")
     # Load in CEDS country totals
     ceds_emissions <- readData( domain = 'MED_OUT', file_name =  paste0( em,'_total_CEDS_emissions' ) )
 
@@ -275,7 +261,6 @@ if (em %in% em_list) {
 
     # Make long format
     ceds_long <- gather(ceds,year, CEDS_v_2021_04_21, -c(iso))
-    ceds_long$year <- as.numeric(sub('X','',ceds_long$year))
 
     #------------
     #world data
@@ -289,7 +274,7 @@ if (em %in% em_list) {
 
 # ---------------------------------------------------------------------------
 # 4. GAINS
-
+    printLog("Load GAINS data")
 # Load in GAINS emissions
     # Define em string to use for GAINS data
     em_use <- em
@@ -345,7 +330,7 @@ if (em %in% em_list) {
              select(-Region)
 
     # Make long format
-         gains_long <- gather(gains,year, 'GAINS_(ECLIPSE_V6b_CLE)', -c(iso))
+         gains_long <- gather(gains,year, GAINS_(ECLIPSE_V6b_CLE), -c(iso))
          gains_long$year <- as.numeric(sub('X','',gains_long$year))
          gains_long$iso <- as.character(gains_long$iso)
 
@@ -368,170 +353,52 @@ if (em %in% em_list) {
                          select(Region,everything()) %>%
                          group_by(Region) %>%
                          dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)%>%
-                         gather(year,'GAINS_(ECLIPSE_V6b_CLE)', -c(Region))
+                         gather(year,GAINS_(ECLIPSE_V6b_CLE), -c(Region))
     #sub out the X's and filter to before 2020
     gains_global_data$year <- as.numeric(sub('X','',gains_global_data$year))
     gains_global_data <- filter(gains_global_data,gains_global_data$year <= 2020)
 
 # ---------------------------------------------------------------------------
-# 5. EDGAR 5.0
+# 5. EDGAR
+    printLog("Load EDGAR data")
+# 1.2 Read in and load files for EDGAR
 
-# 1.2 Read in and load files for EDGAR 5.0
-
-    # Construct sheet name, for BC and OC the sheet name is slightly different
-    edgar_sheet_name <- paste0( "v5.0_EM_" ,em, "_IPCC2006" )
-    edgar_file_name <- paste0( "v50_" ,em, "_1970_2015" )
-    if ( em %in% c( 'CO2' ) ) { edgar_file_name <- "v50_CO2_excl_short-cycle_org_C_1970_2018" }
-
-    # Read in the edgar data
-    edgar_emissions <- readData( domain = "EM_INV",
-                                 domain_extension = "EDGAR_5.0/",
-                                 file_name = edgar_file_name,
-                                 extension = ".xls",
-                                 sheet_selection = edgar_sheet_name,
-                                 skip = 8 )
-    edgar_emissions[edgar_emissions == "NULL"] <- 0
-
-    # Edgar sectors to remove
-    edgar_remove_sectors <- c( '1.A.3.a', #domestic aviation
-                               '4.F', #agricultural waste
-                               '1.C.1', #international aviation,
-                               '1.C.2', #international shipping,
-                               '7.A') # fossil fuel fires
-
-    # Remove domestic navigation for usa and can
-        # edgar_emissions <- edgar_emissions %>%
-        #     filter(!ISO_A3 %in% c("USA","CAN") | !IPCC == "1.A.3.d")
-
-# 4.3 process EDGAR data
-
-    # Clean rows and columns to standard format.
-    edgar <- edgar_emissions %>%
-        select(-c(`IPCC-Annex`,`World Region`,Name,IPCC_description))
-
-    # Drop sectors
-    edgar <- edgar[ -which( edgar$IPCC %in% edgar_remove_sectors ), ]
-    edgar <- edgar %>% dplyr::select(-IPCC)
-
-    # Make numeric
-    edgar[,2:ncol(edgar)] <- lapply(2:ncol(edgar),function(x) as.numeric(edgar[[x]]))
-
-    # Sum across isos, filter by relevant isos
-    edgar_sum <- edgar %>%
-        group_by(ISO_A3) %>%
-        summarize_each(funs(sum)) %>%
-        dplyr::rename(iso = ISO_A3)
-    edgar_sum$iso <- tolower( edgar_sum$iso )
+    edgar_in <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.',em,'_EDGAR' ) )
 
     # Combine European isos into eastern and western Europe.
-    edgar_all_isos <- edgar_sum %>%
-        left_join(master_country, by = c("iso"))
+    edgar_all_isos <- edgar_in %>%
+        left_join(master_country, by = c("iso")) %>%
+        filter(Region != "Eastern Europe" | Region != "Western Europe") %>%
+        group_by(iso, Region) %>%
+        summarize_if(is.numeric, sum)
     edgar_europe <- edgar_all_isos %>%
         filter(Region %in% c("Eastern Europe","Western Europe")) %>%
-        select(-iso)%>%
+        select(-iso) %>%
         group_by(Region) %>%
-        summarize_each(funs(sum)) %>%
+        summarize_if(is.numeric, sum) %>%
+        ungroup() %>%
         dplyr::rename(iso = Region)
     edgar <- edgar_all_isos %>%
-        filter(Region != "Eastern Europe" | Region != "Western Europe") %>%
+        select(-Region) %>%
         bind_rows(edgar_europe)
 
     # Make long
-    edgar_long <- gather(edgar, year, EDGAR_5.0, -c(iso))
-    edgar_long$year <- as.numeric(edgar_long$year)
-    edgar_long$EDGAR_5.0 <- as.numeric(edgar_long$EDGAR_5.0)
+    edgar_long <- edgar %>% gather( year, EDGAR_6.0, -iso) %>%
+        mutate(year = str_replace(year, "X","") %>% as.numeric)
 
     #---
     #World data
-    edgar_world <- edgar %>%
+    edgar_world <- edgar_in %>%
+        left_join(master_country, by = c("iso"))%>%
                    group_by(Region) %>%
                    dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)%>%
                    select(Region,everything()) %>%
-                   gather(year,EDGAR_5.0, -c(Region))
-# ---------------------------------------------------------------------------
-# 6. EDGAR 6.1
-
-    # read in the files for EDGAR 6.1
-    # Construct sheet name, for BC and OC the sheet name is slightly different
-    edgar_v6_sheet_name <- paste0( em, "_IPCC2006" )
-    edgar_v6_file_name <- paste0( em, "_1970_2018" )
-
-    # Read in the edgar data
-    edgar_v6_emissions <- readData( domain = "EM_INV",
-                                 domain_extension = "EDGAR/",
-                                 file_name = edgar_v6_file_name,
-                                 extension = ".xlsx",
-                                 sheet_selection = edgar_v6_sheet_name,
-                                 skip = 9 ) %>%
-                         replace(is.na(.),0)
-    edgar_v6_emissions[edgar_v6_emissions == "NULL"] <- 0
-
-    # Edgar sectors to remove
-    edgar_v6_remove_sectors <- c( '1.A.3.a', #domestic aviation
-                               '3.C.1', #agricultural waste
-                               # '1.C.1', #international aviation,
-                               # '1.C.2', #international navigation,
-                               '5.B') # fossil fuel fires
-    # 4.3 process EDGAR data
-
-    # Clean rows and columns to standard format.
-    edgar_v6 <- edgar_v6_emissions %>%
-        select(-c(C_group_IM24_sh,Name,IPCC_annex,ipcc_code_2006_for_standard_report_name,Substance,fossil_bio)) %>%
-        dplyr::rename(IPCC = ipcc_code_2006_for_standard_report)
-
-    # Drop sectors
-    edgar_v6 <- edgar_v6[ -which( edgar_v6$IPCC %in% edgar_v6_remove_sectors ), ]
-    edgar_v6 <- edgar_v6 %>% dplyr::select(-IPCC)
-
-    # Make numeric
-    edgar_v6[,2:ncol(edgar_v6)] <- lapply(2:ncol(edgar_v6),function(x) as.numeric(edgar_v6[[x]]))
-
-    #Remove "_Y" and add "X" to year numbers
-    names( edgar_v6 ) <- sub("Y_", "", names( edgar_v6 ))
-    names( edgar_v6 ) <- c( names( edgar_v6[ 1 ] ), paste0( "X", names( edgar_v6[ 2 : ncol(edgar_v6) ] ) ) )
-
-    # Sum across isos, filter by relevant isos
-    edgar_v6_sum <- edgar_v6 %>%
-        group_by(Country_code_A3) %>%
-        summarize_each(funs(sum)) %>%
-        dplyr::rename(iso = Country_code_A3)
-    edgar_v6_sum$iso <- tolower( edgar_v6_sum$iso )
-
-    # Combine European isos into eastern and western Europe.
-    edgar_v6_all_isos <- edgar_v6_sum %>%
-        left_join(master_country, by = c("iso"))
-    edgar_v6_europe <- edgar_v6_all_isos %>%
-        filter(Region %in% c("Eastern Europe","Western Europe")) %>%
-        select(-iso)%>%
-        group_by(Region) %>%
-        summarize_each(funs(sum)) %>%
-        dplyr::rename(iso = Region)
-    edgar_v6 <- edgar_v6_all_isos %>%
-        filter(Region != "Eastern Europe" | Region != "Western Europe") %>%
-        bind_rows(edgar_v6_europe)
-
-    #get rid of X's before years
-    names( edgar_v6 ) <- sub("X", "", names( edgar_v6 ))
-
-    # Make long
-    edgar_v6_long <- gather(edgar_v6, year, EDGAR_6.1, -c(iso))
-    edgar_v6_long$year <- as.numeric(edgar_v6_long$year)
-    edgar_v6_long$EDGAR_6.1 <- as.numeric(edgar_v6_long$EDGAR_6.1)
-
-    #world data
-    edgar_v6_world <- edgar_v6 %>%
-        group_by(Region) %>%
-        dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)%>%
-        select(Region,everything()) %>%
-        gather(year,EDGAR_6.1, -c(Region))
-
-    #make the year column a double
-    edgar_v6_world$year <- as.double(edgar_v6_world$year)
+                   gather(year, EDGAR_6.0, -c(Region))
 
 
 # ---------------------------------------------------------------------------
-# 7. REAS
-
+# 6. REAS
+    printLog("Load REAS data")
     # Load in REAS_32 inventory data
     REAS_emissions <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.',em,'_REAS32_inventory' ) )
 
@@ -559,24 +426,16 @@ if (em %in% em_list) {
                   filter(Region == 'Asia')
 
 # ---------------------------------------------------------------------------
-# 8. EDGAR-HTAPv3
+# 7. EDGAR-HTAPv3
 
 if(add_HTAP == TRUE){
-    #HTAP sectors to remove
-    remove_HTAP_sectors <- c('HTAPv3_8.1_Agricultural_waste_burning',
-                             'HTAPv3_1_International_Shipping',
-                             'HTAPv3_2.1_Domestic_Aviation',
-                             'HTAPv3_2.2_International_Aviation')
-
     #Read in the EDGAR_HTAP files
     emission_file <- paste0("EDGAR_HTAPv3_", em)
     inventory_data_file <- "../emissions-inventories"
     Edgar_HTAP <- readData(domain = "EM_INV",
-                           domain_extension = "EDGAR_HTAPv3/",
+                           domain_extension = "HTAPv3_TIMESERIES/",
                            file_name = emission_file,
-                           extension = ".xlsx",
-                           sheet_selection = emission_file) %>%
-                           filter(!Sector %in% remove_HTAP_sectors)
+                           extension = ".csv")
     Edgar_HTAP %>% subset(select = c(Data_provider,Substance,Year,Country,Sector,Annual)) %>%
                    group_by(Year,Country) %>%
                    summarize_if(is.numeric,sum,na.rm = TRUE) %>%
@@ -622,31 +481,23 @@ if(add_HTAP == TRUE){
                         dplyr::summarize_if(is.numeric,sum,na.rm = TRUE)
 }
 # ---------------------------------------------------------------------------
-# 9. Prepare country inventories for plotting
-
-    #list of isos to include in the final combined_long
-    iso_to_include <- c('jpn','can','kor','Western Europe','chn','twn','aus','Eastern Europe','usa')
-
+# 8. Prepare country inventories for plotting
+    printLog("Process data for plotting.")
     # Combine all inventories into one data frame
-    combined <- left_join(ceds_long,inventory_long, by = c("iso","year")) %>%
-        filter(iso %in% iso_to_include)
+    combined <- left_join(inventory_long, ceds_long, by = c("iso","year"))
+    combined$year <- as.numeric(sub('X','',combined$year))
     combined_w_edgar <- left_join(combined, edgar_long, by = c("iso","year"))
     combined_w_GAINS <- left_join(combined_w_edgar, gains_long, by = c("iso","year"))
     combined_w_REAS <- left_join(combined_w_GAINS, REAS_long, by = c("iso","year"))
-    combined_w_edgar_6 <- left_join(combined_w_REAS, edgar_v6_long, by = c("iso","year"))
-    combined_w_oldinv <- left_join(combined_w_edgar_6, old_inventory_long, by = c("iso", "year"))
+    combined_w_oldinv <- left_join(combined_w_REAS, old_inventory_long, by = c("iso", "year"))
 
     if(add_HTAP == TRUE){
         combined_w_edgar_htap <- left_join(combined_w_oldinv, EDGAR_HTAP_long, by = c("iso","year"))
         # Make long
-        combined_long <- gather(combined_w_edgar_htap, Inventory, value, -c(iso,year)) %>%
-            filter(year >= 1990) %>%
-            unique() #get rid of repeats
-
+        combined_long <- gather(combined_w_edgar_htap, Inventory, value, -c(iso,year))
     }else{
         # Make long
-        combined_long <- gather(combined_w_oldinv, Inventory, value, -c(iso,year)) %>%
-            unique() #get rid of repeats
+        combined_long <- gather(combined_w_oldinv, Inventory, value, -c(iso,year))
     }
 
 
@@ -664,7 +515,7 @@ if(add_HTAP == TRUE){
                    paste0("Compare_inventory_to_CEDS_", em ) )
 
 #-------------------------------------------------------------------------------
-# 10. Prepare global inventories for plotting
+# 9. Prepare global inventories for plotting
 
         #Removes the X's in the years
         edgar_world$year <- as.numeric(sub('X','',edgar_world$year))
@@ -675,26 +526,21 @@ if(add_HTAP == TRUE){
         #combines all the data into one dtaframe
         global_combined <- left_join(ceds_world_regions, gains_global_data, by = c("Region","year"))
         global_combined_w_edgar <- left_join(global_combined, edgar_world, by = c("Region","year"))
-        global_combined_w_edgar_6 <- left_join(global_combined_w_edgar, edgar_v6_world, by = c("Region","year"))
-        global_combined_w_reas <- left_join(global_combined_w_edgar_6, REAS_world, by = c("Region","year"))
+        global_combined_w_reas <- left_join(global_combined_w_edgar, REAS_world, by = c("Region","year"))
 
         #add HTAP data if present
         if(add_HTAP == TRUE){
             global_combined_w_edgar_htap <- left_join(global_combined_w_reas, Edgar_HTAP_world, by = c("Region","year"))
             #make long
-            global_combined_long <- global_combined_w_edgar_htap %>%
-                gather(Inventory,value,-c(Region,year)) %>%
-                dplyr::rename(total_emissions = value) %>%
-                filter(year >= 1990)
-
+            global_combined_long <- global_combined_w_edgar_htap %>% gather(Inventory,value,-c(Region,year)) %>% dplyr::rename(total_emissions = value)
         } else{
             #make long
             global_combined_long <- global_combined_w_reas %>% gather(Inventory,value,-c(Region,year)) %>% dplyr::rename(total_emissions = value)
         }
 
 # -------------------------------------------------------------------
-# 11. plotting
-
+# 10. plotting
+        printLog("Plot Comparisons")
 # rename isos for cleaner graphs
     combined_long$iso <- gsub("aus", "Australia", combined_long$iso)
     combined_long$iso <- gsub("can", "Canada", combined_long$iso)
@@ -710,7 +556,7 @@ if(add_HTAP == TRUE){
     combined_long <- combined_long %>% dplyr::filter(iso != 'Australia' | Inventory != 'Country_inventory')
 
 # Plot
-pdf(paste0('../diagnostic-output/country-inventory-compare/Compare_inventory_to_CEDS_',em,'.pdf'),height = 11,width = 9.5,paper='special', onefile=TRUE)
+pdf(paste0('../diagnostic-output/country-inventory-compare/Compare_inventory_to_CEDS_',em,'.pdf'),width=11,height=9.5,paper='special', onefile=TRUE)
 
 
 #original script
@@ -720,104 +566,82 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
     geom_line(data = subset(combined_long, Inventory == "CEDS_v_2021_04_21"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_5.0"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_HTAPv3"), size = 1) +
-    geom_line(data = subset(combined_long, Inventory == "EDGAR_6.1"), size = 1) +
     geom_point(data = subset(combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1) +
     geom_line(data = subset(combined_long, Inventory =='REAS_32'), size = 1) +
     scale_y_continuous(limits=c(0,max(combined_long$total_emissions)), labels = scales::comma) +
     labs(x= "" , y= paste(em ,'Emissions [Gg/yr]') )+
-    facet_wrap(~iso, scales = "free", nrow = 3) +
+    facet_wrap(~iso, scales = "free", nrow = 2) +
     ggtitle( paste(em)) +
     theme(panel.background=element_blank(),
           panel.grid.minor = element_line(colour="gray95"),
           panel.grid.major = element_line(colour="gray88")) +
-    theme(text = element_text(size = 13)) +
-    theme(strip.text.x = element_text(size = 15)) +
-    geom_point(size=1.5) +
 
     scale_color_manual(name = 'Inventory',
-                       values = c('Country_inventory'= "#1E88E5",
-                                  'Old_Inventory'= "#1E88E5",
-                                  'CEDS_v_2021_04_21'= "#D81B60",
-                                  'EDGAR_5.0'= "#BF7618",
+                       values = c('Country_inventory'= "#0066ff",
+                                  'Old_Inventory'= "#0066ff",
+                                  'CEDS_v_2021_04_21'= "#f75f55",
+                                  'EDGAR_5.0'= "#73e600",
                                   'EDGAR_HTAPv3'='#000000',
-                                  'EDGAR_6.1' = '#FFC107',
-                                  'GAINS_(ECLIPSE_V6b_CLE)'= "#000000",
-                                  'REAS_32'= "#7A2884")) +
+                                  'GAINS_(ECLIPSE_V6b_CLE)'= "#00dee6",
+                                  'REAS_32'= "#C77CFF")) +
     scale_linetype_manual(name= 'Inventory',
                           values = c('Country_inventory' = 0,
                                      'Old_Inventory' = 0,
                                      'CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 3,
+                                     'EDGAR_5.0'= 1,
                                      'EDGAR_HTAPv3'= 1,
-                                     'EDGAR_6.1' = 5,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
-                       values = c("Country_inventory" = 16,
-                                  "Old_Inventory" = 1,
-                                  "CEDS_v_2021_04_21" = 32,
+                       values = c("CEDS_v_2021_04_21" = 32,
+                                  "Country_inventory" = 16,
                                   "EDGAR_5.0" = 32,
                                   "EDGAR_HTAPv3" = 32,
-                                  'EDGAR_6.1' = 32,
-                                  "GAINS_(ECLIPSE_V6b_CLE)" = 3,
+                                  "GAINS_(ECLIPSE_V6b_CLE)" = 16,
+                                  "Old_Inventory" = 1,
                                   "REAS_32" = 32 ))+
-    theme(legend.position = "bottom") +
-    theme(plot.margin = margin(t = 10,
-                               b = 10,
-                               l = 15,
-                               r = 15))
+    theme(legend.position = "bottom")
 
 plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, color = Inventory, linetype = Inventory, shape = Inventory)) +
     geom_line(data = subset(global_combined_long, Inventory == "CEDS_v_2021_04_21"), size = 1) +
     geom_line(data = subset(global_combined_long, Inventory == "EDGAR_5.0"), size = 1) +
     geom_point(data = subset(global_combined_long, Inventory =='GAINS_(ECLIPSE_V6b_CLE)'), size = 1.5) +
     geom_line(data = subset(global_combined_long, Inventory == 'EDGAR_HTAPv3'), size = 1) +
-    geom_line(data = subset(global_combined_long, Inventory == "EDGAR_6.1"), size = 1) +
     geom_line(data = subset(global_combined_long, Inventory =='REAS_32'), size = 1) +
     scale_y_continuous(limits=c(0,max(global_combined_long$total_emissions)), labels = scales::comma) +
     labs(x= "" , y= paste(em ,'Emissions [Gg/yr]') )+
-    facet_wrap(~Region, scales = "free", nrow = 3) +
+    facet_wrap(~Region, scales = "free", nrow = 2) +
     ggtitle( paste(em)) +
     theme(panel.background=element_blank(),
           panel.grid.minor = element_line(colour="gray95"),
           panel.grid.major = element_line(colour="gray88")) +
-    theme(text = element_text(size = 13)) +
-    theme(strip.text.x = element_text(size = 15)) +
-    geom_point(size=1.5) +
 
     scale_color_manual(name = 'Inventory',
-                       values = c('CEDS_v_2021_04_21'= "#D81B60",
-                                  'EDGAR_5.0'= "#BF7618",
+                       values = c('CEDS_v_2021_04_21'= "#f75f55",
+                                  'EDGAR_5.0'= "#73e600",
                                   'GAINS_(ECLIPSE_V6b_CLE)'= "#00dee6",
                                   'EDGAR_HTAPv3'='#000000',
-                                  'EDGAR_6.1' = '#FFC107',
-                                  'REAS_32'= "#7A2884")) +
+                                  'REAS_32'= "#C77CFF")) +
     scale_linetype_manual(name= 'Inventory',
                           values = c('CEDS_v_2021_04_21' = 1,
-                                     'EDGAR_5.0'= 3,
+                                     'EDGAR_5.0'= 1,
                                      'GAINS_(ECLIPSE_V6b_CLE)'= 0,
                                      'EDGAR_HTAPv3'= 1,
-                                     'EDGAR_6.1' = 5,
                                      'REAS_32'= 1)) +
     scale_shape_manual(name = "Inventory",
                        values = c("CEDS_v_2021_04_21" = 32,
                                   "EDGAR_5.0" = 32,
                                   "GAINS_(ECLIPSE_V6b_CLE)" = 16,
                                   "EDGAR_HTAPv3" = 32,
-                                  'EDGAR_6.1' = 32,
                                   "REAS_32" = 32 ))+
-    theme(legend.position = "bottom") +
-    theme(plot.margin = margin(t = 10,
-                               b = 10,
-                               l = 15,
-                               r = 15))
+    theme(legend.position = "bottom")
 
 plot(plot)
 plot(plot_world)
 dev.off()
 
 } else {printLog( paste0( em, ' is not in invenotry to CEDS comparison. ' ) )}
-print(paste0(em,' done'))}
+
 logStop()
 
 # END

@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "NMVOC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -43,11 +43,6 @@
                      em, '. Remove from script list in F1.1.inventory_scaling.R' ) )
     }
 
-    em_temp = em  # Variable to use for interacting with emissions file
-    if ( em_temp == "NMVOC" ) {
-        em_temp <- "COVNM"
-    }
-
 # For each Module E script, define inventory parameters.
 # Provide the inventory and mapping file names, the
 #   mapping method (by sector, fuel, or both), and the regions covered by
@@ -56,9 +51,19 @@
     mapping_method <- 'sector'
     inv_name <- 'ARG' #for naming diagnostic files
     region <- c( "arg" )
-    inv_years <- c( 1990 : 1999, 2001 : 2009, 2011 )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'
+
+    inv_years <- c( 1990 : 2020 )
+
+    # Scaling for specific species
+
+    if ( em %in% c("NMVOC") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NMVOC')
+    }
+    if ( em %in% c("SO2") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_SO2')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions

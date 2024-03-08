@@ -31,6 +31,12 @@ summary_comparison_plots <- function(
                           EM = em,
                           global_color = 'darkorchid'){
 
+    # MCL = Master_Country_List
+    # MSL = Master_Sector_Level_map
+    # CS = country_select
+    # EM = em
+    # global_color = 'darkorchid'
+
 printLog("Create Comparison plots for current vs previous data")
 # Plot options
 graph_start <- min(extended_years)
@@ -92,7 +98,7 @@ dfplot_global_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Cur
     filter(!is.na(value))
 
 dfplot_global_fuel <- current_Em_by_Country_Fuel %>% mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Fuel %>%  mutate(Version = 'Last')  ) %>%
     mutate(Fuel = fuel) %>%
     group_by(Fuel, Version) %>%
     summarize_if(is.numeric, sum) %>%
@@ -209,7 +215,7 @@ names(summary_plot_output) <- c("Global Sectors",'Global Fuel', 'Global Region',
 if(!is.na(country_select)){
 
     dfplot_all_countries <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-        rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+        bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
         filter(sector != "1A3_International-shipping",
                iso %in% country_select) %>%
         mutate(Country = iso) %>%
@@ -234,7 +240,7 @@ names(summary_plot_output)[(last_index+1)] <- "Selected Countries"
 
 #Plot individual country graphs by sector
 dfplot_countries_sectors <- current_Em_by_Country_Sector %>%  mutate(Version = 'Current') %>%
-    rbind( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
+    bind_rows( last_Em_by_Country_Sector %>%  mutate(Version = 'Last')  ) %>%
     left_join(MSL %>% select(aggregate_sectors,Figure_sector) %>% unique, by = c('sector' = "aggregate_sectors")) %>%
     mutate(Sector = Figure_sector) %>%
     filter(Sector != "Shipping") %>%
