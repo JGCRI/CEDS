@@ -17,7 +17,7 @@
 # Get emission species first so can name log appropriately
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[1]
-if ( is.na( em ) ) em <- "NH3"
+if ( is.na( em ) ) em <- "BC"
 
 em.read <- em
 if (em %in% c ('BC','OC')) em.read <- "PM10"
@@ -55,7 +55,7 @@ if (em %in% c ('BC','OC')) em.read <- "PM10"
 # ------------------------------------------------------------------------------
 # 2. Read in the inventory
 
-    if ( em.read %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','PM2.5','PM10','BC','OC' ) ) {
+    if ( em.read %!in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3' ) ) {
     # write out a dummy file for unsupported species
         inv_data_species <- data.frame( )
 
@@ -159,31 +159,31 @@ if (em %in% c ('BC','OC')) em.read <- "PM10"
 
 # ------------------------------------------------------------------------------
     # Find BC and OC emissions
-
-    if (em %in% c ('BC','OC') ) {
-
-    # Define parameters for BC and OC specific script
-
-    ceds_sector <- "1A3b_Road"
-    inv_iso <- "kor"
-    PM <- "PM10"
-
-    # Read in scaling mapping file and filter transportation sectors
-    mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv")
-    mapping_file <- mapping_file %>%
-        filter(str_detect(road_flag,"Road"))
-    inv_sector_name <- mapping_file$inv_sector
-
-    # Match formatting from PM2.5 inventory to BC/OC script
-    X_inv_years <- paste0("X",inv_years)
-    inv_data_sheet <- inv_data_species %>% select(-unit)
-    inv_data_sheet[is.na(inv_data_sheet)] = 0
-
-    # Calculate BC and OC emissions
-
-        inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
-        inv_data_species <- inv_data_sheet
-    }
+    # do not estiamtes BC and OC from PM - done in new inventory
+    # if (em %in% c ('BC','OC') ) {
+    #
+    # # Define parameters for BC and OC specific script
+    #
+    # ceds_sector <- "1A3b_Road"
+    # inv_iso <- "kor"
+    # PM <- "PM10"
+    #
+    # # Read in scaling mapping file and filter transportation sectors
+    # mapping_file <- readData("SCALE_MAPPINGS", "S_Korea_scaling_mapping.csv")
+    # mapping_file <- mapping_file %>%
+    #     filter(str_detect(road_flag,"Road"))
+    # inv_sector_name <- mapping_file$inv_sector
+    #
+    # # Match formatting from PM2.5 inventory to BC/OC script
+    # X_inv_years <- paste0("X",inv_years)
+    # inv_data_sheet <- inv_data_species %>% select(-unit)
+    # inv_data_sheet[is.na(inv_data_sheet)] = 0
+    #
+    # # Calculate BC and OC emissions
+    #
+    #     inv_data_sheet <- F.Estimate_BC_OC_emissions(em,PM,inv_iso,ceds_sector,inv_sector_name,X_inv_years)
+    #     inv_data_species <- inv_data_sheet
+    # }
 
 # ------------------------------------------------------------------------------
 # 4. Output
