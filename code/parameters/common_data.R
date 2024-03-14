@@ -125,7 +125,11 @@ future_pop_scenario <- "Medium fertility"
 # Define available CEDS releases
 # versions include:
 # 1) "v2016_07_26"    ---   CEDS Release 1 (CMIP release)
-available_CEDS_releases <- c( "v2016_07_26" )
+# 2)
+# 3) v_2021_02_05
+# 4) v_2021_04_21
+#
+available_CEDS_releases <- c( "v2016_07_26" , "v_2021_04_20")
 
 # ---------------------------------
 # Country to remove from grid
