@@ -42,8 +42,8 @@ WRITE_CEDS_SECTORS = TRUE
 
 # Select individual country(ies) to plot in comparison graphs. If not selecting
 # a country for comparison graphs, define as NA
-country_select <- 'kor'
-# country_select <- c('usa','chn')
+
+ country_select <- c('usa','chn','kor','jpn','can','twn','aus','ind')
 
 # Option to print out comparison figures for current emission species
 WRITE_COMPARISON_PLOTS = TRUE
@@ -371,9 +371,9 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 # Source figure and comparison files to print figures
 # source('../code/diagnostic/Figures.R')
 
-  # source('../code/diagnostic/Compare_to_RCP.R')
-  # if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
-  # if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_inventory_to_CEDS_GAINS_EDGAR.R')
+  source('../code/diagnostic/Compare_to_RCP.R')
+  if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
+  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_Regional_National_inventory_to_CEDS_GAINS_EDGAR_HTAP_REAS.R')
 
 # Warn the user that if they are interested in N2O emissions and NH3 or NOx emissions
 # have changed since the last run for sectors 1 and 2, then H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R needs
