@@ -17,7 +17,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "NH3"
+    if ( is.na( em ) ) em <- "OC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -54,29 +54,47 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     if ( em == 'NMVOC' ) sheet_name <- 'VOC'
     if ( em == 'PM25' ) sheet_name <- 'PM25Primary'
     if ( em == 'PM10' ) sheet_name <- 'PM10Primary'
-    if (em %in% c ('BC','OC')) {sheet_name <- 'PM25Primary'}
 
-    inv_data_sheet <- readData( inv_data_folder, inventory_data_file , ".xlsx" )
+# Big loop to double process BC emissions so can write out new EPA BC
+# emissions in standard format. First pass write transportation as before
+# second pass write all sectors in the newer data
 
+MaxLoop = 1
+if ( ( em %in% c ('BC', 'OC') ) ) { MaxLoop = 2 }
+inv_data_workbook <- readData( inv_data_folder, inventory_data_file , ".xlsx" )
+
+for (LoopCounter in 1:MaxLoop) {
+
+    if ( ( em %in% c ('BC','OC')) && (LoopCounter == 1) ) {sheet_name <- 'PM25Primary'}
+    if ( LoopCounter == 2 ) {
+        if (em== 'BC') sheet_name <- "Black Carbon"
+        if (em== 'OC') sheet_name <- "Organic Carbon"
+    }
 
 # Process given emission if inventory data exists
-    if ( sheet_name %in% names( inv_data_sheet ) ) {
+    if ( sheet_name %in% names( inv_data_workbook ) ) {
     # Extract the data sheet corresponding to the emissions species
-        inv_data_sheet <- data.frame( inv_data_sheet[ sheet_name ] )
+        inv_data_sheet <- data.frame( inv_data_workbook[ sheet_name ] )
 
     # Clean rows and columns to standard format; different emissions species
     # require different columns and year ranges
-        if ( em %in% c('NH3','BC','OC')) {
+        if ( LoopCounter == 1 ) {
+            if ( em %in% c('NH3','BC','OC')) { # Emissions available only from 1990 onward
             inv_years <- c( 1990:last_year )
-            number_of_years <- last_year - 1988
+            number_of_years <- last_year - 1990 + 2
             inv_data_sheet <- inv_data_sheet[ -1:-3, 1:number_of_years ]
-        } else if ( em == 'NMVOC' ) {
+        } else if ( em == 'NMVOC' ) { # Available for entire time period, but different header
             number_of_years <- last_year - 1984
             inv_data_sheet <- inv_data_sheet[ -1:-3, 1:number_of_years ]
-        } else {
+        } else { # Available for entire time period
           number_of_years <- last_year - 1984
           inv_data_sheet <- inv_data_sheet[ -1:-4,  1:number_of_years ]
         }
+    } else {
+        inv_years <- c( 2002:last_year )
+        number_of_years <- last_year - 2002 + 2
+        inv_data_sheet <- inv_data_sheet[ -1:-3, 1:number_of_years ]
+    }
 
     # Name columns
         names( inv_data_sheet ) <- c( 'sector', paste0( 'X', inv_years ) )
@@ -151,7 +169,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
             country_total <- inv_data_sheet %>%
                 filter( !sector %in% c("Wildfires","Total","Total without wildfires",
-                                       "Miscellaneous without wildfires", "Stationary fuel combustion",
+                                       "Miscellaneous without wildfires", "Stationary fuel combustion", "Total without miscellaneous",
                                        "Industrial and other processes","Transportation", "Miscellaneous","Source Category","MISCELLANEOUS") )
             } else {
 
@@ -189,9 +207,11 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 
 # ------------------------------------------------------------------------------
-# Find BC and OC emissions
-# NOte: removed BC and OC scaling in mod F due to jump in US inv PM2.5 data in early 2000s.
-    # kept this for future BC,OC scaling.
+# Estimate BC and OC emissions from transportation
+# Note: removed BC and OC scaling in mod F due to jump in US inv PM2.5 data in early 2000s.
+    # kept this for potential future BC,OC scaling.
+
+ if (em %in% c ('BC','OC') &&  (LoopCounter == 1) ) {
 
     # Define parameters for BC and OC specific script
 
@@ -203,10 +223,9 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 # Calculate BC and OC emissions
 
- if (em %in% c ('BC','OC') ) {
+   inv_data_sheet <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
 
-         inv_data_sheet <- F.Estimate_BC_OC_emissions(em, PM, inv_iso,ceds_sector,inv_sector_name,X_inv_years)
-     }
+  }
 
 # ------------------------------------------------------------------------------
 
@@ -226,10 +245,17 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 
 # ------------------------------------------------------------------------------
 # 3. Write standard form inventory
-    writeData( inv_data_sheet, domain = "MED_OUT",
-               paste0( 'E.', em, '_', inv_name, '_inventory' ) )
+   writeoutName = inv_name
+   # use different name for BC inventory since we're not using that for scaling yet
+   # since we don't also have OC in the same format.
+   # Write out for convenience to be able to compare to CEDS values
+   # (and potentially use as defaults)
+   if ( LoopCounter == 2 ) writeoutName = paste0(writeoutName,"_full")
 
+   writeData( inv_data_sheet, domain = "MED_OUT",
+              paste0( 'E.', em, '_', writeoutName, '_inventory' ) )
 
+} # End of BC double loop
 
 # Every script should finish with this line
     logStop()
