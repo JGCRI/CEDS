@@ -162,6 +162,9 @@
                               recent_control )
     colnames( recent_controls ) <- c( 'iso', 'sector', 'fuel', recent_Xyears )
 
+    writeData( recent_controls, 'DIAG_OUT',
+               paste0( 'B1.2.add_SO2_controls_diagnostic' ) )
+
 # ------------------------------------------------------------------------------
 # 4. Replace the control percentage in control_db suing values in recent_control
 
