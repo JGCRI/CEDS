@@ -121,11 +121,10 @@ if ( em == "N2O") {
 # TODO: (Future): If CO2 is ever scaled to EDGAR v5 in the future, then confirm
 #        that this would work properly (as there are NAs for
 #        certain values from 2016-2018).
-  # if( vn == "5.0" & em == "CO2" ){
-  #
-  #   EDGAR_end_year <- 2018
-  #
-  # }
+
+if( em %in% c('CH4','N2O','CO2') ) {
+     EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
+}
 
   inv_years <- c( EDGAR_start_year : EDGAR_end_year )
 

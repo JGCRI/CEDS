@@ -47,12 +47,8 @@ domain_ext <- "EDGAR/"
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
-# Define EDGAR years
-# CO2 end year in v5 is 2018, else 2015
-if( em == "CO2" ){
-
-  EDGAR_end_year <- 2018
-
+if( em %in% c('CH4','N2O','CO2') ) {
+     EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
 }
 
 # Global constants defined in common_data.R
