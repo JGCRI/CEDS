@@ -52,6 +52,7 @@ BP_FSU_aggregate <- TRUE
 EDGAR_start_year <- 1970
 EDGAR_end_year <- 2018       # In the 2022 update the air pollutants go to 2018
 EDGAR_end_year_GHG <- 2022   # In the 2023 update, the GHGS go to 202s
+EDGAR_end_year_CO2 <- 2022   # IN case CO2 end year is different
 
 # The combined yearset for historical emission years
 emissions_years <- c( IEA_years,BP_years )

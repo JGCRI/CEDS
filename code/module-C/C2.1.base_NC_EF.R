@@ -187,6 +187,10 @@ if( length ( check ) > 0 ) {
    new_efs_excl <- dplyr::filter( new_efs, sector %in% excl_sectors )
    new_efs <- dplyr::filter( new_efs, sector %!in% excl_sectors )
 
+   if( em %in% c('CH4','N2O','CO2') ) {
+      EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
+   }
+
  # Define EDGAR years to fix (years which are in CEDS but not EDGAR)
    temp_EDGAR_end_year <- EDGAR_end_year
    if( EDGAR_version_number == "4.2" ){ temp_EDGAR_end_year <- 2008 }  # Re-set EDGAR end-year if are still using EDGAR 4.2
