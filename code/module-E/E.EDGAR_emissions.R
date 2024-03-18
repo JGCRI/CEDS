@@ -36,11 +36,14 @@ if ( is.na( em ) ) em <- "CO2"
 domain <- "EM_INV"
 domain_ext <- "EDGAR/"
 
+# --------------------------------------------------------------------------------
+# NOTE
+# If EDGAR emissions are updated, make sure constants are updated in common_data.R
+# --------------------------------------------------------------------------------
 if( em %in% c('CH4','N2O','CO2') ) {
      EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
 }
 
-# Global constants defined in common_data.R
 EDGAR_years <- EDGAR_start_year : EDGAR_end_year
 X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
