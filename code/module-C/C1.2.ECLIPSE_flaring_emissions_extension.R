@@ -1,10 +1,9 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.ECLIPSE_flaring_emissions_extension.R
 # Author: Leyang Feng, Patrick O'Rourke, Hamza Ahsan
-# Date Last Modified: December 21, 2020
-# Program Purpose: Extends ECLIPSE flaring emissions using Hyde (last year 1800)
-#                  and IEA crude oil production data
-# Input Files: [em]_eclipse_flr_emissions.csv, A.crude_oil_production_data,
+# Date Last Modified: March 18, 2024
+# Program Purpose: Extends ECLIPSE flaring emissions using flaring volume data
+# Input Files: [em]_eclipse_flr_emissions.csv, A.extended_flaring,
 #              Master_Country_List.csv, A.UN_pop_master.csv
 # Output Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
 # "             C.[em]_ECLIPSE_flaring_to_crude_oil_production_ratios.csv (for ems other than N2O)
@@ -46,7 +45,7 @@
     ECLIPSE_flaring <- readData( "EM_INV", domain_extension = "ECLIPSE-flaring/", file_name = paste0( em_use, '_eclipse_flr_emissions' ) )
 
 # read in crude oil production driver data (based off of IEA and Hyde oil production data)
-    oil_production <- readData( 'MED_OUT', file_name = 'A.crude_oil_production_data' )
+    flaring_volume <- readData( 'MED_OUT', file_name = 'A.extended_flaring' )
 
 # read in master country list
     MCL <- readData( 'MAPPINGS', 'Master_Country_List' )
@@ -70,7 +69,7 @@
 # 3. Pre-processing
 # 3.1. pre-processing of Hyde/IEA data
 
-    oil_production_iso <- oil_production$iso
+    flaring_volume_iso <- flaring_volume$iso
 
 # 3.2. pre-processing of ECLIPSE flaring data
     flaring <- ECLIPSE_flaring[ c( 'iso', 'X1990', 'X2000', 'X2010' ) ]
@@ -86,10 +85,10 @@
 
 # 3.3. combine countries in IEA/Hyde oil production and ECLIPSE_flaring
 # extract common countries between ECLIPSE flaring and IEA/Hyde crude oil production data
-    flr_IH_iso <- intersect( oil_production_iso, flaring_iso )
+    flr_IH_iso <- intersect( flaring_volume_iso, flaring_iso )
     flaring_flr_IH_iso <- flaring[ flaring$iso %in% flr_IH_iso, ]
     flaring_eclipse <- flaring_flr_IH_iso[ order( flaring_flr_IH_iso$iso ),  ]
-    IH_flr_IH_iso <- oil_production[ oil_production$iso %in% flr_IH_iso, ]
+    IH_flr_IH_iso <- flaring_volume[ flaring_volume$iso %in% flr_IH_iso, ]
     flaring_IH <- IH_flr_IH_iso[ order( IH_flr_IH_iso$iso ), ]
 
     extend_years <- 1800 : end_year
