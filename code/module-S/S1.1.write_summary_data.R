@@ -43,7 +43,7 @@ WRITE_CEDS_SECTORS = TRUE
 # Select individual country(ies) to plot in comparison graphs. If not selecting
 # a country for comparison graphs, define as NA
 
- country_select <- c('usa','chn','kor','jpn','can','twn','aus','ind')
+ country_select <- c('usa','chn','ind')
 
 # Option to print out comparison figures for current emission species
 WRITE_COMPARISON_PLOTS = TRUE
