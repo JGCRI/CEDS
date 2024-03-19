@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+SO2 content,SO2,Argentina,"1A3b_Road, 1A3c_Rail, 1A4c_Agriculture-forestry-fishing, 1A2, 1A3eii_Other-transp, 1A4b_Residential",1960,2021,SO2 content (fraction) converted from sulfur content (ppm).  https://dieselnet.com/standards/ar/fuel.php

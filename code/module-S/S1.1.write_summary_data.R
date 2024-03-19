@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "NMVOC"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -42,7 +42,7 @@ WRITE_CEDS_SECTORS = TRUE
 
 # Select individual country(ies) to plot in comparison graphs. If not selecting
 # a country for comparison graphs, define as NA
-country_select <- 'can'
+country_select <- 'kor'
 # country_select <- c('usa','chn')
 
 # Option to print out comparison figures for current emission species

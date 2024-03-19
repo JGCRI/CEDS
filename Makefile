@@ -155,7 +155,7 @@ clean-diagnostic:
 clean-final:
 	rm -fv $(FINAL_OUT)/diagnostics/*.csv
 	rm -fv $(FINAL_OUT)/diagnostics/*.pdf
-	rm -fv $(FINAL_OUT)/diagnostics/*.Rdata
+	rm -fv $(FINAL_OUT)/diagnostics/*.RData
 	rm -fv $(FINAL_OUT)/diagnostics/*.Rd
 	rm -fv $(FINAL_OUT)/previous-versions/*.csv
 
@@ -716,6 +716,7 @@ $(MED_OUT)/B.$(EM)_comb_EF_db.csv: \
 	$(PARAMS)/analysis_functions.R \
 	$(PARAMS)/interpolation_extension_functions.R \
 	$(EF_DATA)/SO2_base_EF.csv \
+	$(EF_DATA)/Diesel_transport_S_trend.xlsx \
 	$(MED_OUT)/A.final_comb_activity_modern.csv \
 	$(MAPPINGS)/Bond/Bond_country_map.csv \
 	$(MAPPINGS)/Bond/Bond_fuel_map.csv \
@@ -770,8 +771,10 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/C.$(EM)_NC_emissions_db.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
 	$(MAPPINGS)/Master_Country_List.csv \
+	$(EF_DATA)/non-combustion-emissions/add_inventory_instructions.csv \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
+	$(MED_OUT)/E.$(EM)_ARG_2012_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
@@ -779,6 +782,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR_inventory.csv \
 	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS32_inventory.csv \
@@ -895,6 +899,11 @@ $(MED_OUT)/E.$(EM)_ARG_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_ARG_2012_inventory.csv: \
+	$(MOD_E)/E.Argentina_2012_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+
+# ee1-2
 $(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv: \
 	$(MOD_E)/E.CAN_emissions_olderData.R
 	Rscript $< $(EM) --nosave --no-restore
@@ -920,8 +929,12 @@ $(MED_OUT)/E.$(EM)_Japan_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
+$(MED_OUT)/E.$(EM)_KOR_inventory.csv: \
+	$(MOD_E)/E.South_Korea_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
+	
 $(MED_OUT)/E.$(EM)_KOR2017_inventory.csv: \
-	$(MOD_E)/E.SKorea_emissions_2017.R
+	$(MOD_E)/E.South_Korea_emissions_2017.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -948,6 +961,11 @@ $(MED_OUT)/E.$(EM)_AUS_inventory.csv: \
 $(MED_OUT)/E.$(EM)_TWN_inventory.csv: \
 	$(MOD_E)/E.Taiwan_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
+	
+# ee1-2
+$(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv: \
+	$(MOD_E)/E.EDGAR_HTAPv3_emissions.R
+	Rscript $< $(EM) --nosave --no-restore
 
 # ff1-1a
 # Creates scaled emissions and emissions factors
@@ -964,7 +982,8 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Japan_scaling.R \
 	$(MOD_F)/F1.1.REAS_scaling.R \
 	$(MOD_F)/F1.1.REAS32_scaling.R \
-	$(MOD_F)/F1.1.South_korea_scaling_2017.R \
+	$(MOD_F)/F1.1.South_Korea_scaling.R \
+	$(MOD_F)/F1.1.South_Korea_EDGAR-HTAPv3_scaling.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.US-EPA_scaling.R \
@@ -977,10 +996,11 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
+	$(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
-	$(MED_OUT)/E.$(EM)_KOR2017_inventory.csv \
+	$(MED_OUT)/E.$(EM)_KOR_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_REAS32_inventory.csv \
 	$(MED_OUT)/E.$(EM)_UNFCCC_inventory.csv \
@@ -998,6 +1018,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
+	$(SC_MAPPINGS)/EDGAR_HTAPv3_kor_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_year.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_mapping.csv \
@@ -1011,7 +1032,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(SC_MAPPINGS)/jpn_scaling_mapping.csv \
 	$(SC_MAPPINGS)/REAS_scaling_mapping.csv \
 	$(SC_MAPPINGS)/REAS32_scaling_mapping.csv \
-	$(SC_MAPPINGS)/S_Korea_scaling_mapping.csv \
+	$(SC_MAPPINGS)/South_Korea_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_mapping.csv \
 	$(SC_MAPPINGS)/UNFCCC_scaling_year.csv \
 	$(SC_MAPPINGS)/UNFCCC_GHG_scaling_mapping.csv \

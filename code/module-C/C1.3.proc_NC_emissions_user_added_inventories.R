@@ -112,7 +112,7 @@ if ( is.na( em ) ) em <- "SO2"
 
 # Write out to process data folder
   writeData(replacement_data, 'DEFAULT_EF_IN', domain_extension = 'non-combustion-emissions/',
-            paste0('C.',em,'_NC_inventory_emissions_user_added'))
+            paste0('C.',em,'_NC_zinventory_emissions_user_added'))
 
   } # End logic if no user added inventory instructions
 
