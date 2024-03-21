@@ -43,7 +43,7 @@ edgar_sector,edgar_descr,scaling_sector,ceds_sector,type,units,Note: Current ced
 2A4,Soda ash production and use,2A6,2A6_Other-minerals,NC,kt,
 2A7,Production of other minerals,2A6,2A6_Other-minerals,NC,kt,
 2B,Production of chemicals,2B,2B_Chemical-industry,NC,kt,
-2C,Production of metals,2C,2C_Metal-production,NC,kt,
+2C,Production of metals,2C,2C1_Iron-steel-alloy-prod,NC,kt,This is an approximation. Zn Al and other processing also have CO2 emissions. We have the data to break this out. Do so later.
 2D,Production of pulp/paper/food/drink,2D,2H_Pulp-and-paper-food-beverage-wood,NC,kt,
 2E,Production of halocarbons and SF6,,,NC,kt,This sector is not included within EDGAR v5 data
 2F1,Refrigeration and Air Conditioning,,,NC,kt,This sector is not included within EDGAR v5 data
