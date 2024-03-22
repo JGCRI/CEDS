@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -157,6 +157,16 @@ Em_by_Country_Fuel <- aggregate(final_emissions[X_write_years],
 # Sort
 Em_by_Country_Fuel <- Em_by_Country_Fuel[ with( Em_by_Country_Fuel, order( iso , fuel ) ), ]
 
+# Total Emissions by Country and Fuel
+Em_by_Sector_Fuel <- aggregate(final_emissions[X_write_years],
+                                by=list(sector=final_emissions$sector,
+                                        fuel=final_emissions$fuel,
+                                        em= final_emissions$em,
+                                        units=final_emissions$units),sum )
+# Sort
+Em_by_Sector_Fuel <- Em_by_Sector_Fuel[ with( Em_by_Sector_Fuel, order( sector , fuel ) ), ]
+
+
 
 # Create files for emissions by country and CEDS sector
 if ( WRITE_CEDS_SECTORS ) {
@@ -208,6 +218,7 @@ if ( WRITE_CEDS_SECTORS ) {
   summary_fn3 <- paste( "CEDS", em , "emissions_by_country_CEDS_sector", version_stamp, sep = "_" )
   summary_fn4 <- paste( "CEDS", em , "global_emissions_by_CEDS_sector", version_stamp, sep = "_" )
   summary_fn5 <- paste( "CEDS", em , "emissions_by_country_fuel", version_stamp, sep = "_" )
+  summary_fn6 <- paste( "CEDS", em , "global_emissions_by_sector_fuel", version_stamp, sep = "_" )
   THRESHOLD_PERCENT <- 1
 
 # Define function to write summary files
@@ -217,6 +228,7 @@ if ( WRITE_CEDS_SECTORS ) {
     writeData( Em_by_Country, "FIN_OUT", summary_fn1, domain_extension = "current-versions/", meta = F )
     writeData( Summary_Emissions, "FIN_OUT", summary_fn2, domain_extension = "current-versions/", meta = F )
     writeData( Em_by_Country_Fuel, "FIN_OUT", summary_fn5, domain_extension = "current-versions/", meta = F )
+    writeData( Em_by_Sector_Fuel, "FIN_OUT", summary_fn6, domain_extension = "current-versions/", meta = F )
     if ( WRITE_CEDS_SECTORS ) {
       writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, domain_extension = "current-versions/", meta = F )
       writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, domain_extension = "current-versions/", meta = F )
@@ -373,7 +385,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   source('../code/diagnostic/Compare_to_RCP.R')
   if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
-  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_Regional_National_inventory_to_CEDS_GAINS_EDGAR_HTAP_REAS.R')
+  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3','BC' ) )  source('../code/diagnostic/Compare_Regional_National_inventory_to_CEDS_GAINS_EDGAR_HTAP_REAS.R')
 
 # Warn the user that if they are interested in N2O emissions and NH3 or NOx emissions
 # have changed since the last run for sectors 1 and 2, then H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R needs
