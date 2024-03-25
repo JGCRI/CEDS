@@ -197,6 +197,10 @@ if( length ( check ) > 0 ) {
    X_temp_EDGAR_end_year <- paste0( "X", temp_EDGAR_end_year )
 
    EDGAR_replace_years <- paste0( 'X',( temp_EDGAR_end_year + 1 ) : end_year )
+   # When EDGAR end year = CEDS last year, do nothing, so set replacement years to empty
+   if( temp_EDGAR_end_year == end_year ){
+    EDGAR_replace_years <- c()
+   }
 
 #  If an EF is 0 for a given EDGAR_replace_years but the temp_EDGAR_end_year is not zero,
 #  then extend the temp_EDGAR_end_year EF forward. This is done instead of
