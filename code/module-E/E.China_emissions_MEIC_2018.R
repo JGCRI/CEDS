@@ -76,9 +76,22 @@ if( em %!in% c("CH4", "N2O") ){
 
 # ------------------------------------------------------------------------------
 #  2.5 Find BC and OC emissions
-
-    # filter BC and OC to just transportation sector for now:
+    # aggregate and print out
+    #units are in Mg
+    #filter BC and OC to just transportation sector for now:
     if (em %in% c('BC','OC')) {
+
+    inv_data_species_agg <- inv_data_species %>%
+        gather(year, emissions, -iso, -sector) %>%
+        mutate(emissions = emissions/1000) %>% # convert to Gg = kt
+        mutate(units = 'kt') %>%
+        group_by(iso, year, units) %>%
+        dplyr::summarize(emissions = sum(emissions)) %>%
+        spread(year, emissions)
+
+    writeData( inv_data_species_agg, domain = "MED_OUT",
+               paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+
         inv_data_species <- inv_data_species %>% filter(sector == "Transportation")
     }
 

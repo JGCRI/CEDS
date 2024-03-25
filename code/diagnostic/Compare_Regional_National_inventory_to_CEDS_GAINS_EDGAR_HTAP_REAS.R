@@ -32,7 +32,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "BC"
 
 #flag for whether or not to include HTAP in comparisons
 add_HTAP <- TRUE
@@ -61,7 +61,7 @@ plot_start <- 1990
 # ---------------------------------------------------------------------------
 # 1. Run for relevant inventory emissions
 
-em_list <- c(  'SO2','NOx', 'NH3', 'NMVOC', 'CO')
+em_list <- c(  'SO2','NOx', 'NH3', 'NMVOC', 'CO', 'BC')
 
 if (em %in% em_list) {
 
@@ -77,10 +77,12 @@ if (em %in% em_list) {
         em_list_us <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO')
         em_list_jpn <- c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO')
         em_list_can <- c( 'SO2', 'NOx', 'NH3','NMVOC', 'CO', 'BC')
+        em_list_old_can <- c( 'SO2', 'NOx', 'NH3','NMVOC', 'CO')
         em_list_kor <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2', 'BC')
+        em_list_kor_old <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
         em_list_EMEP <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2', 'BC')
         em_list_twn <- c( 'CO', 'NMVOC', 'NOx', 'SO2', 'BC')  # Taiwan doesn't have NH3
-        em_list_MEIC <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
+        em_list_MEIC <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2','BC')
         em_list_aus <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
         em_list_old_chn <- c( 'CO', 'NH3', 'NMVOC', 'NOx', 'SO2')
 
@@ -90,9 +92,9 @@ if (em %in% em_list) {
         us_em_flag <- em %in% em_list_us
         jpn_em_flag <- em %in% em_list_jpn
         can_em_flag <- em %in% em_list_can
-        can_old_em_flag <- em %in% em_list_can
+        can_old_em_flag <- em %in% em_list_old_can
         kor_em_flag <- em %in% em_list_kor
-        kor_old_em_flag <- em %in% em_list_kor
+        kor_old_em_flag <- em %in% em_list_kor_old
         EMEP_em_flag <- em %in% em_list_EMEP
         twn_em_flag <- em %in% em_list_twn
         MEIC_em_flag <- em %in% em_list_MEIC
@@ -124,7 +126,7 @@ if (em %in% em_list) {
     }
 
     if ( kor_em_flag == T ) {
-        inv_emissions_kor <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"KOR2017",'_inventory_country_total'))
+        inv_emissions_kor <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"KOR",'_inventory_country_total'))
         inv_emissions_kor$X2009 <- NA
     } else {
         printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
@@ -166,23 +168,26 @@ if (em %in% em_list) {
     Master_Country_List <- readData( domain = 'MAPPINGS', file_name = 'Master_Country_List' )
     master_country <- Master_Country_List %>%
         select(c(iso, Region))
-    inv_emissions_East_West_Europe <- inv_emissions_EMEP %>%
-        left_join(master_country, by = c("iso")) %>%
+    # cut off years before 1990 since data becomes increasingly incomplete
+    inv_emissions_East_West_Europe <- inv_emissions_EMEP[c('iso','units',paste0('X',1990:2021))] %>%
+        left_join(master_country %>% unique(), by = c("iso")) %>%
+        filter(Region %in% c("Eastern Europe","Western Europe")) %>%
+        select(iso, Region, units, starts_with('X')) %>%
+        unique() %>%
         select(-iso) %>%
         dplyr::rename(iso = Region) %>%
         group_by(iso) %>%
-        summarize_each(funs(sum)) %>%
-        filter(iso %in% c("Eastern Europe","Western Europe"))
+        summarize_if(is.numeric, sum)
 
-    # cut off years before 1990 since data becomes increasingly incomplete
-    inv_emissions_East_West_Europe <- subset(inv_emissions_East_West_Europe, select = -c(2:11))
 
     # Bind inventory rows together.
     inv_total <- bind_rows(inv_emissions_jpn, inv_emissions_US, inv_emissions_can, inv_emissions_kor,
                            inv_emissions_East_West_Europe,inv_emissions_MEIC,inv_emissions_twn, inv_emissions_aus)
 #inv_emissions_aus
     # change to long
-    country_inventory_long <- gather(inv_total,year, inventory, -c(iso))
+    country_inventory_long <- inv_total %>%
+        select(iso, contains('X')) %>%
+        gather(year, inventory, -c(iso))
 
 # ---------------------------------------------------------------------------
 printLog("Load old inventory data")
@@ -192,7 +197,7 @@ printLog("Load old inventory data")
         inv_emissions_can_old <- readData( domain = 'MED_OUT', file_name =  paste0( 'E.', em,'_',"CAN_to2011",'_inventory_country_total'))
     } else {
         printLog( paste0( em, ' is not supported by CEDS, dummy data created. ' ) )
-        inv_emissions_can <- data.frame( iso = "can_old")
+        inv_emissions_can_old <- data.frame( iso = "can_old", X2010 = NA)
     }
 
     if ( chn_old_em_flag == T ) {
@@ -211,8 +216,10 @@ printLog("Load old inventory data")
     old_inv_total <- bind_rows(inv_emissions_can_old, inv_emissions_chn_old,inv_emissions_kor_old)
 
     # change to long
-    old_inventory_long <- gather(old_inv_total,year, Old_Inventory, -c(iso))
-    old_inventory_long$year <- as.numeric(sub('X','',old_inventory_long$year))
+    old_inventory_long <- old_inv_total %>%
+        gather(year, Old_Inventory, -c(iso)) %>%
+        mutate(year = as.numeric(sub('X','',year))) %>%
+        filter(!is.na(Old_Inventory))
 
 
 # ---------------------------------------------------------------------------
@@ -240,15 +247,23 @@ printLog("Load old inventory data")
     ceds_emissions <- ceds_emissions[ -which( ceds_emissions$sector %in% ceds_remove_sectors ), ]
 
     # filter sectors and isos of CEDS to East and Western European countries.
+    ceds_East_West_Europe_by_iso <- ceds_emissions %>%
+        left_join(master_country, by = c("iso")) %>%
+        filter(Region %in% c("Eastern Europe","Western Europe")) %>%
+        unique() %>%
+        group_by(iso,Region) %>%
+        summarize_if(is.numeric, sum, na.rm = TRUE)
+
     ceds_East_West_Europe <- ceds_emissions %>%
         left_join(master_country, by = c("iso")) %>%
+        filter(Region %in% c("Eastern Europe","Western Europe")) %>%
+        unique %>%
         select(-c(iso,fuel,units)) %>%
         dplyr::rename(iso = Region) %>%
         group_by(iso,sector) %>%
-        summarize_each(funs(sum)) %>%
-        filter(iso %in% c("Eastern Europe","Western Europe"))
+        summarize_each(funs(sum))
 
-        # ---
+     # ---
             # write out diagnostic of CEDS by iso and sector after sectors removed.
             ceds_by_iso_sector <- ceds_emissions %>%
                 select(-c(fuel,units)) %>%
@@ -542,6 +557,7 @@ if(add_HTAP == TRUE){
     # Diagnostics:
         # Print out plot csv
         combined_wide <- combined_long %>%
+            filter(!is.na(total_emissions)) %>%
             group_by(iso, Inventory) %>%
             tidyr::spread(year, total_emissions)
 
@@ -596,12 +612,12 @@ pdf(paste0('../diagnostic-output/country-inventory-compare/Compare_inventory_to_
 
 #original script
 plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Inventory, linetype = Inventory, shape = Inventory)) +
-    geom_point(data = subset(combined_long, Inventory == "Country_inventory"), size = 1) +
-    geom_point(data = subset(combined_long, Inventory == "Old_Inventory"), size = 1) +
+    geom_point(data = subset(combined_long, Inventory == "Country_inventory"), size = 2) +
+    geom_point(data = subset(combined_long, Inventory == "Old_Inventory"), size = 2) +
     geom_line(data = subset(combined_long, Inventory == "CEDS"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR"), size = 1) +
     geom_line(data = subset(combined_long, Inventory == "EDGAR_HTAP"), size = 1) +
-    geom_point(data = subset(combined_long, Inventory =='GAINS'), size = 1) +
+    geom_point(data = subset(combined_long, Inventory =='GAINS'), size = 2) +
     geom_line(data = subset(combined_long, Inventory =='REAS'), size = 1) +
     scale_y_continuous(limits=c(0,max(combined_long$total_emissions)), labels = scales::comma) +
     labs(x= "" , y= paste(em ,'Emissions [Gg/yr]') )+
@@ -661,7 +677,7 @@ plot <- ggplot(combined_long, aes(x = year, y = total_emissions, color = Invento
 plot_world <- ggplot(global_combined_long, aes(x = year, y = total_emissions, color = Inventory, linetype = Inventory, shape = Inventory)) +
     geom_line(data = subset(global_combined_long, Inventory == "CEDS"), size = 1) +
     geom_line(data = subset(global_combined_long, Inventory == "EDGAR"), size = 1) +
-    geom_point(data = subset(global_combined_long, Inventory =='GAINS'), size = 1.5) +
+    geom_point(data = subset(global_combined_long, Inventory =='GAINS'), size = 2) +
     geom_line(data = subset(global_combined_long, Inventory == 'EDGAR_HTAP'), size = 1) +
     geom_line(data = subset(global_combined_long, Inventory =='REAS'), size = 1) +
     scale_y_continuous(limits=c(0,max(global_combined_long$total_emissions)), labels = scales::comma) +
