@@ -188,7 +188,7 @@ FI_WB_ratio_long <- FI_WB_ratio %>%
     tidyr::gather(key="year", value="FI_ratio", "X2012":"X2022") %>%
     dplyr::mutate(FI_new_a = dplyr::case_when(FI_ratio > FI_threshold ~ FI_WB_median, TRUE ~ FI_ratio)) %>% # part a)
     dplyr::mutate(FI_new_b = dplyr::case_when(FI_ratio > FI_threshold ~ NA_real_, TRUE ~ FI_ratio)) %>% # part b)
-    group_by(iso) %>%
+    dplyr::group_by(iso) %>%
     dplyr::mutate(FI_new_c = dplyr::if_else(is.na(FI_new_b), max(FI_new_b, na.rm = TRUE), FI_new_b)) %>%
     dplyr::mutate(FI_new_c = FI_new_c * FI_WB_median) %>% # convert from FI ratio to FI
     dplyr::mutate(FI = dplyr::case_when(sum(FI_new_a) == 11*FI_WB_median ~ FI_WB_median, TRUE ~ FI_new_c)) %>%
@@ -196,7 +196,7 @@ FI_WB_ratio_long <- FI_WB_ratio %>%
     dplyr::select(iso, year, FI)
 
 FI_WB_new <- FI_WB_ratio_long %>%
-    spread(key=year, value=FI)
+    tidyr::spread(key=year, value=FI)
 
 
 # Replace original FI with updated WB FI
@@ -205,12 +205,21 @@ FI_new <- dplyr::left_join(FI_wide[c("iso", paste0("X", 1800:2011))], FI_WB_new,
 
 # If FI is zero for a country (in either WB or earlier data years) do one of the following
 # a) If there are some non-zero values in the FI time series, replace zeros with average value for that country
-# b) If there are no flaring data for a country, conservatively replace with 1/2 of WB median value. (Except for Estonia - their oil production is oil sands, no flaring has been detected there nor do we necessarily expect it. Leave that as zero.)
+#   --Average of non-zero values across the data years (1990-end of the data, that way we’re roughly equally
+#     weighing the world bank and non-world bank data)
+# b) If there are no flaring data for a country, conservatively replace with 1/2 of WB median value. (Except
+# for Estonia - their oil production is oil sands, no flaring has been detected there nor do we necessarily
+# expect it. Leave that as zero.)
 
 FI_new_long <- FI_new %>%
     tidyr::gather(key="year", value="FI", "X1800":"X2022") %>%
+    dplyr::mutate(year = as.numeric(sub('.', '',year))) %>%
+    dplyr::mutate(FI_filter = ifelse(year >= 1990, FI, NA)) %>%
+    dplyr::mutate(FI_filter = ifelse(FI == 0, NA, FI_filter)) %>%
     dplyr::group_by(iso) %>%
-    dplyr::mutate(FI_avg = mean(FI)) %>%
+    dplyr::mutate(FI_avg = mean(FI_filter, na.rm = TRUE)) %>%
+    replace(is.na(.), 0) %>%
+    dplyr::mutate(year = paste0("X", year))%>%
     dplyr::mutate(FI_a = dplyr::case_when(sum(FI) == 0 ~ 0.5*FI_WB_median, TRUE ~ FI)) %>%
     dplyr::mutate(FI_b = dplyr::case_when(FI == 0 ~ FI_avg, TRUE ~ FI)) %>%
     dplyr::mutate(FI_c = dplyr::case_when(FI == 0 ~ FI_a + FI_b, TRUE ~ FI_b)) %>%
@@ -232,9 +241,9 @@ x <- as.matrix(FI_final[-1])
 y <- as.matrix(oil_production_final[-1])
 
 flaring_extended <- cbind(FI_final[1], as.data.frame(x * y)) %>%
-    mutate(activity = "flaring_volume") %>%
-    mutate(units = "bcm") %>%
-    select(c("iso", "activity", "units", paste0("X", 1800:BP_last_year)))
+    dplyr::mutate(activity = "flaring_volume") %>%
+    dplyr::mutate(units = "bcm") %>%
+    dplyr::select(c("iso", "activity", "units", paste0("X", 1800:BP_last_year)))
 
 
 # ------------------------------------------------------------------------------
