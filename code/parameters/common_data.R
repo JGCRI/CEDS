@@ -50,9 +50,9 @@ BP_FSU_aggregate <- TRUE
 
 # Edgar year
 EDGAR_start_year <- 1970
-EDGAR_end_year <- 2018       # In the 2023 update, the GHGS go to 2021, but the pollutants go to 2018
-EDGAR_end_year_CO2 <- 2018   # Note that CO2 in v5 has an end year of 2018.
-EDGAR_end_year_GHG <- 2021   # In the 2023 update, the GHGS go to 2021, but the pollutants go to 2018
+EDGAR_end_year <- 2018       # In the 2022 update the air pollutants go to 2018
+EDGAR_end_year_GHG <- 2022   # In the 2023 update, the GHGS go to 202s
+EDGAR_end_year_CO2 <- 2022   # IN case CO2 end year is different
 
 # The combined yearset for historical emission years
 emissions_years <- c( IEA_years,BP_years )
@@ -125,7 +125,11 @@ future_pop_scenario <- "Medium fertility"
 # Define available CEDS releases
 # versions include:
 # 1) "v2016_07_26"    ---   CEDS Release 1 (CMIP release)
-available_CEDS_releases <- c( "v2016_07_26" )
+# 2)
+# 3) v_2021_02_05
+# 4) v_2021_04_21
+#
+available_CEDS_releases <- c( "v2016_07_26" , "v_2021_04_20")
 
 # ---------------------------------
 # Country to remove from grid

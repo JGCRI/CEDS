@@ -589,8 +589,8 @@
     gains_diagnostics <- gainsEMF30_all
 
 # Ratio of the emissions factors in the last CEDS year to the EF in the last
-# EDGAR inventory year (currently 2015 for all ems other than CO2, which has an
-# end year of 2018 - as of 6/12/20)
+# EDGAR inventory year (will not be correct for EDGAR GHGs which have later end-year,
+# but are not so relevant for this diagnostic.)
     gains_diagnostics$ratio <- gains_diagnostics[[X_end_year]] /
                                gains_diagnostics[ , paste0( "X", EDGAR_end_year ) ]
 

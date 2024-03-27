@@ -36,7 +36,14 @@ if ( is.na( em ) ) em <- "CO2"
 domain <- "EM_INV"
 domain_ext <- "EDGAR/"
 
-# Global constants defined in common_data.R
+# --------------------------------------------------------------------------------
+# NOTE
+# If EDGAR emissions are updated, make sure constants are updated in common_data.R
+# --------------------------------------------------------------------------------
+if( em %in% c('CH4','N2O','CO2') ) {
+     EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
+}
+
 EDGAR_years <- EDGAR_start_year : EDGAR_end_year
 X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
@@ -54,9 +61,9 @@ if( em == 'CO2') fn [1] <- "IEA_EDGAR_CO2_1970_2022"
 
 sheet_to_use <- paste0(em, "_IPCC1996" )
 
-if( em == 'CH4') sheet_to_use <- "IPCC 1996"
-if( em == 'N2O') sheet_to_use <- "IPCC 1996"
-if( em == 'CO2') sheet_to_use <- "IPCC 1996"
+if( em %in% c('CH4','N2O','CO2') ) {
+    sheet_to_use <- "IPCC 1996"
+}
 
 rows_to_skip <- 9
 
@@ -81,46 +88,48 @@ edgar$units <- 'kt'
 # Remove unnecessary columns and arrange (iso-sector-units-sector description-data)
 # select fossil emissions
 len <- ncol( edgar )
-edgar <- edgar %>%
-    filter(fossil_bio == 'fossil') %>%
-    select( iso, sector, units, sector_description, all_of(9: (len - 2)) ) %>%
-    arrange(iso,sector)
 
+# Combine fossil and bio emissions together
+# If CO2 we formally would not want to do this, but EDGAR CO2 we are using has no bio emissions
+edgar_long <-
+    tidyr::gather(edgar, year, value, all_of(9: (len - 2)) ) %>%
+    dplyr::select( iso, sector, units, fossil_bio, sector_description, year, value ) %>%
+    dplyr::group_by( iso, sector, units, sector_description, year ) %>%
+    dplyr::summarize(value = sum(value)) %>% dplyr::ungroup()
+
+edgar_wide <- edgar_long %>%
+    tidyr::spread(year, value)
 
 # Remove Y's and add X's to the column names of years
-len <- ncol ( edgar )
-names( edgar ) <- sub("Y_", "", names( edgar ))
-names( edgar ) <- c( names( edgar[ 1 : 4 ] ), paste0( "X", names( edgar[ 5 : len ] ) ) )
+len <- ncol ( edgar_wide )
+names( edgar_wide ) <- sub("Y_", "", names( edgar_wide ))
+names( edgar_wide ) <- c( names( edgar_wide[ 1 : 4 ] ), paste0( "X", names( edgar_wide[ 5 : len ] ) ) )
 
 
 # Convert data to class numeric, from class character
-edgar <- edgar %>%
+edgar_wide <- edgar_wide %>%
     dplyr::mutate_at( .vars =  X_EDGAR_years,
                       .funs = list( ~as.numeric( . ) ) )
 
 # Remove rows with all NA's
-edgar <- edgar[ apply( X = edgar[ , X_EDGAR_years ],
+edgar_wide <- edgar_wide[ apply( X = edgar_wide[ , X_EDGAR_years ],
                        MARGIN = 1, function( x ) ( !all.na( x ) ) ) ,]
 
 # Turn NAs to zeros
-edgar <- edgar %>%
+edgar_wide <- edgar_wide %>%
     mutate_at( X_EDGAR_years,  ~replace(., is.na(.), 0) )
 
-
 # Make negative emissions zero
-neg_rows <- apply( edgar[, X_EDGAR_years ], 1, function( row ) any( row < 0 ) )
-edgar_neg <- edgar[ neg_rows, ]
-edgar[ edgar < 0 ] <- 0
-
-
-
+neg_rows <- apply( edgar_wide[, X_EDGAR_years ], 1, function( row ) any( row < 0 ) )
+edgar_neg <- edgar_wide[ neg_rows, ]
+edgar_wide[ edgar_wide < 0 ] <- 0
 
 # ------------------------------------------------------------------------------
 
 # 12. Output
 
 # write formatted EDGAR data to intermediate-output
-writeData(edgar, domain = "MED_OUT", fn = paste0( "E.", em, "_EDGAR" ))
+writeData(edgar_wide, domain = "MED_OUT", fn = paste0( "E.", em, "_EDGAR" ))
 
 logStop( )
 
