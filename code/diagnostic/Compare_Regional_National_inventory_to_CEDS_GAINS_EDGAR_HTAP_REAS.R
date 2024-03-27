@@ -3,8 +3,8 @@
 # Author: Andrea Mott, Harrison Suchyta
 # Date Last Updated: February 4, 2021
 # Program Purpose: Generate comparisons between inventory country totals and
-#               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS. Removes internaltional
-#               shipping and air/forrest fires etc
+#               CEDS, GAINS, EDGAR, EDGAR-HTAPv3, and REAS. Removes international
+#               shipping and air/forest fires etc
 # Input Files: [em]_total_CEDS_emissions.csv
 #              'E.', em,'_',inv,'_inventory_country_total'
 #              Master_Country_List.csv, emf-30_ctry_map.csv,
@@ -169,10 +169,10 @@ if (em %in% em_list) {
     master_country <- Master_Country_List %>%
         select(c(iso, Region))
     # cut off years before 1990 since data becomes increasingly incomplete
-    inv_emissions_East_West_Europe <- inv_emissions_EMEP[c('iso','units',paste0('X',1990:2021))] %>%
+    inv_emissions_East_West_Europe <- inv_emissions_EMEP[c('iso',paste0('X',1990:2021))] %>%
         left_join(master_country %>% unique(), by = c("iso")) %>%
         filter(Region %in% c("Eastern Europe","Western Europe")) %>%
-        select(iso, Region, units, starts_with('X')) %>%
+        select(iso, Region, starts_with('X')) %>%
         unique() %>%
         select(-iso) %>%
         dplyr::rename(iso = Region) %>%
