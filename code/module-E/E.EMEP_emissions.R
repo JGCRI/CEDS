@@ -33,7 +33,7 @@
 # Describes which emission species is being analyzed
     args_from_makefile <- commandArgs( TRUE )
     em <<- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "NOx"
+    if ( is.na( em ) ) em <- "BC"
 
 #   TODO: When level 2 NFR14 data is used, this will need to include an if else statement - as level 2 NFR14
 #         data for SO2 is now labelled as SO2, not SOx. It will also need to be moved lower, so that
@@ -188,6 +188,105 @@
 
     }
 
+# ------------------------------------------------------------------------------
+# 3. Report BC totals (actual BC emissions not PM inferred emissions)
+
+    if( em == 'BC'){
+
+        # Create a List of EMEP Files
+        inv_file_name <- paste0( 'EMEP_', Em_Format, '_',
+                                 level, '_', em, ".txt" )
+
+        file_path <- filePath( 'EM_INV', inv_file_name, "", "EMEP/" )
+
+        if ( file.exists( file_path ) ) {
+
+            # Function used to read in list of txt files
+            inv <- read.table( paste0( './emissions-inventories/EMEP/',
+                                       inv_file_name ),
+                               skip = 0, header = FALSE, sep = ";",
+                               na.strings = c( "", " ", "NA" ) ) # Converts all blank spaces to 'NA'
+            names( inv ) <- c( 'ISO2', "year", "sector", "emission_species",
+                               "units", "emissions" )
+
+
+            # Writes each object as same format, but converted to a csv file
+            writeData( inv, 'EM_INV', domain_extension = "EMEP/",
+                       fn = paste0( 'EMEP_', Em_Format, '_', level, '_', em ),
+                       meta = FALSE ) # Don't write metadata, as it is provided as an input
+
+            # Now read back in
+
+            file_name <- paste0( 'EMEP_', Em_Format, '_', level, '_', em )
+            EMEP_BC <- readData( 'EM_INV', domain_extension = "EMEP/", file_name )
+
+            EMEP_BC_em <- EMEP_BC
+
+            # Reorder Columns of Interest
+            EMEP_BC_em <- EMEP_BC_em %>%
+                dplyr::select(ISO2, sector, units, year, emissions)
+
+            # Order By ISO2 & sector
+            EMEP_BC_em <- dplyr::mutate( EMEP_BC_em, ISO2 = as.character( ISO2 ) )
+            EMEP_BC_em <- EMEP_BC_em %>%
+                dplyr::arrange(ISO2, sector)
+
+            # Remove EU, EU 9, EU 12, EU 15, EU 27 Data (Interested in Countries not EU)
+            remove_ISO2 <- c( 'EU', 'EU09', 'EU12', 'EU15', 'EU27', 'EU28' )
+            EMEP_BC_em <- EMEP_BC_em %>%
+                dplyr::filter( !(ISO2 %in% remove_ISO2) )
+
+            # Mapping EMEP ISO2 to CEDS iso codes
+            EMEP_BC_em <- EMEP_BC_em %>%
+                left_join(MCL %>% dplyr::select(iso, EMEP), by = c('ISO2' = 'EMEP') ) %>%
+                dplyr::select(iso, sector, units, year, emissions) %>%
+                dplyr::distinct()
+
+            # Convert years to Xyears
+            EMEP_BC_em <- EMEP_BC_em %>%
+                dplyr::mutate( year = paste0('X', year))
+
+            # Convert emissions to numeric
+            EMEP_BC_em$emissions <- as.numeric( EMEP_BC_em$emissions )
+
+            # Remove any rows with NA values
+            EMEP_BC_em <- EMEP_em[ complete.cases( EMEP_BC_em ), ]
+
+            # NOTE THIS INTRODUCES NEW NA's (from "C, IE, NE, NO, NR" where:
+            # IE = Sources Included elsewhere, NE = Sources not Estimated
+            # NO = Not Occuring, NR = Not Reported)
+
+
+            # print out all BC inventory
+            EMEP_BC_emdf_sector <- EMEP_BC_em %>%
+                filter(!is.na(year)) %>%
+                group_by(iso, sector, year) %>%
+                dplyr::summarize(emissions = sum(emissions, na.rm = TRUE)) %>%
+                mutate(units = 'kt') %>%
+                tidyr::spread(key=year, value=emissions, fill = 0) %>%
+                arrange(iso, sector)
+            writeData( EMEP_BC_emdf_sector, domain = "MED_OUT",
+                       fn = paste0( "E.", em, "_EMEP_", Em_Format, "_inventory_country_sector_all" ),
+                       meta = TRUE )
+
+            # aggregate and Cast to wide format
+            EMEP_BC_emdf <- EMEP_BC_em %>%
+                filter(!is.na(year)) %>%
+                filter(sector %!in% c('z_Memo', 'P_IntShipping', 'N_Natural')) %>%
+                group_by(iso, year) %>%
+                dplyr::summarize(emissions = sum(emissions, na.rm = TRUE)) %>%
+                mutate(units = 'kt') %>%
+                tidyr::spread(key=year, value=emissions, fill = 0)
+            # Relabel units from Gg to kt (same numerical value, different label)
+            BC_filename <- paste0( "E.", em, "_EMEP_", Em_Format, "_inventory_country_total" )
+            writeData( EMEP_BC_emdf, domain = "MED_OUT",
+                       fn = BC_filename,
+                       meta = TRUE )
+
+        }
+
+
+    }
 
 # ------------------------------------------------------------------------------
 # 3. Output

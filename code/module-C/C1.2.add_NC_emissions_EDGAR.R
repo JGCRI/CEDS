@@ -47,12 +47,8 @@ domain_ext <- "EDGAR/"
 fuel <- "process"
 id_cols <- c( "iso", "sector", "fuel", "units" )
 
-# Define EDGAR years
-# CO2 end year in v5 is 2018, else 2015
-if( em == "CO2" ){
-
-  EDGAR_end_year <- 2018
-
+if( em %in% c('CH4','N2O','CO2') ) {
+     EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
 }
 
 # Global constants defined in common_data.R
@@ -481,10 +477,10 @@ if( em == 'CH4' & ( EDGAR_end_year < BP_last_year ) ){
 
 # Seperate fugitive solid fuels and other emissions
   fugitive_solid <- edgar %>%
-      dplyr::filter( sector == '1B1_Fugitive-solid-fuels' )
+    dplyr::filter( sector == '1B1_Fugitive-solid-fuels' )
 
   edgar <- edgar %>%
-      dplyr::filter( sector != '1B1_Fugitive-solid-fuels' )
+    dplyr::filter( sector != '1B1_Fugitive-solid-fuels' )
 
 # Process BP data for extension
   bp <- Master_Country_List %>%
@@ -515,6 +511,16 @@ if( em == 'CH4' & ( EDGAR_end_year < BP_last_year ) ){
   fugitive_solid_extended <- fugitive_solid_extended[ , c( 'iso','sector','fuel','units',
                                                            paste0( 'X', EDGAR_start_year : BP_last_year ) ) ]
 
+# This is the case when EDGAR end year >= BP last year, in which case no extension is needed so
+# we break out Fugitive solid fuels and do nothing else, besides re-ordering the columns
+}else if( em == 'CH4' ){
+    # Seperate fugitive solid fuels and other emissions
+    fugitive_solid_extended <- edgar %>%
+        dplyr::filter( sector == '1B1_Fugitive-solid-fuels' ) %>%
+        dplyr::select( iso, sector, fuel, units, paste0( 'X', EDGAR_start_year : BP_last_year ) )
+
+    edgar <- edgar %>%
+        dplyr::filter( sector != '1B1_Fugitive-solid-fuels' )
 }
 
 # ------------------------------------------------------------------------------

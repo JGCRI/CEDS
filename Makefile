@@ -584,6 +584,12 @@ $(MED_OUT)/A.other_biomass_extended.csv: \
 	$(MOD_A)/A6.3.extend_other_biomass.R \
 	$(MED_OUT)/A.default_comb_activity_with_other.csv
 	Rscript $< $(EM) --nosave --no-restore
+	
+$(MED_OUT)/A.extended_flaring.csv: \
+	$(MOD_A)/A6.3.extended_flaring.R \
+	$(MED_OUT)/A.crude_oil_production_data.csv \
+	$(ENERGY_DATA)/World_Bank_Gas_Flaring_Data_2012-2022.xlsx
+	Rscript $< $(EM) --nosave --no-restore
 
 # Combine all combustion extension data
 $(MED_OUT)/A.comb_default_activity_extended.csv: \
@@ -750,7 +756,8 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
 	$(MED_OUT)/E.$(EM)_EDGAR.csv \
 	$(MED_OUT)/E.CO2_Andrew_Cement.csv \
-	$(MED_OUT)/E.CO2_CDIAC_inventory.csv
+	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
+	$(MED_OUT)/A.extended_flaring.csv
 	Rscript $< $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 

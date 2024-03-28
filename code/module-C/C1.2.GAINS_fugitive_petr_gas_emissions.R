@@ -61,6 +61,10 @@
     if ( em == "NMVOC" ){ e_sheet <- "VOC" }
     if ( em == "N2O" ){ e_sheet <- "NOx" } # Use NOx for N2O (as no N2O GAINS data)
 
+    if( em %in% c('CH4','N2O','CO2') ) {
+      EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
+    }
+
 #   Define years of interest
 
 #       Years within GAINS emissions data, GAINS 1st year, and GAINS last year for extension and interpolation
