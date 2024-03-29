@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # Program Name: A6.3.extended_flaring.R
 # Authors Names: Hamza Ahsan
-# Date Last Modified: 27 March 2024
+# Date Last Modified: 29 March 2024
 # Program Purpose: Generates a composite time series of flaring volume using WB
 #                  (2012-2022) and EI (1975-2011) data and extends back to 1800 using
 #                  flaring intensity (based on average flaring and oil production
@@ -10,6 +10,8 @@
 #              Statistical_Review_of_World_Energy_2023.xlsx, Master_Country_List.csv,
 #              Master_Fuel_Sector_List.xlsx, A.crude_oil_production_data.csv
 # Output Files: A.extended_flaring.csv
+# TODO: Currently addressing dip in Russia flaring intensity (2002-2003) adhoc.
+#       May want to consider a more general approach.
 
 #-------------------------------------------------------------------------------
 
@@ -229,6 +231,17 @@ FI_new_long <- FI_new %>%
 
 # Set Estonia FI to zero
 FI_new_long$FI[FI_new_long$iso == "est"] <- 0
+
+# Fix dip in Russia in 2002-2003. If average FI is > 2.5*FI, replace FI with average
+FI_new_long_rus <- FI_new_long %>%
+    dplyr::filter(iso == "rus") %>%
+    dplyr::mutate(average = mean(FI)) %>%
+    dplyr::mutate(test = average/FI > 2.5) %>%
+    dplyr::mutate(FI_new = ifelse(test == TRUE, average, FI)) %>%
+    dplyr::select(iso, year, FI_new) %>%
+    dplyr::rename("FI" = "FI_new")
+
+FI_new_long[FI_new_long$iso == "rus", ] <- FI_new_long_rus
 
 # Re-calculate flaring volume using the adjusted FI * oil production
 FI_final <- FI_new_long %>%
