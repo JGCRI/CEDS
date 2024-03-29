@@ -30,7 +30,7 @@ initialize( script_name, log_msg, headers )
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO2"
+if ( is.na( em ) ) em <- "CO"
 
 # Input domain
 domain <- "EM_INV"
@@ -68,7 +68,7 @@ if( em %in% c('CH4','N2O','CO2') ) {
 rows_to_skip <- 9
 
 # Read in EDGAR data
-edgar <- readData( domain, domain_extension = domain_ext,
+edgar_in <- readData( domain, domain_extension = domain_ext,
                    file_name = fn[ 1 ], extension = fn[ 2 ],
                    sheet_selection = sheet_to_use, skip = rows_to_skip,
                    missing_value = c( "", "NULL" ) )
@@ -76,53 +76,38 @@ edgar <- readData( domain, domain_extension = domain_ext,
 # ------------------------------------------------------------------------------
 # 3. Reformatting
 
-# Add iso column and group sector column with it at the end
-edgar$iso <- tolower( edgar[ , "Country_code_A3" ] )
-edgar <- edgar %>%
+# Add iso, units, group by sector
+# combine fossil and bio emissions for each year/sector
+# convert to long form for processeing
+
+edgar_long <- edgar_in %>%
+    mutate(iso = tolower(Country_code_A3)) %>%
     dplyr::rename(sector = ipcc_code_1996_for_standard_report,
-                  sector_description = ipcc_code_1996_for_standard_report_name)
+                  sector_description = ipcc_code_1996_for_standard_report_name) %>%
+    mutate(units = 'kt') %>%   # Define units as kt (as EDGAR data is in Gg, which is the same as kt)
+    dplyr::select( iso, sector, units, fossil_bio, sector_description, starts_with("Y_")) %>%
+    tidyr::gather(year, value, -iso, -sector, -units, -fossil_bio, -sector_description) %>%
+    mutate(year = sub("Y_",'X',year)) %>%
+    mutate(value = as.numeric(value)) %>%
+    replace_na(list(value = 0)) %>%
+    dplyr::group_by( iso, sector, units, sector_description, year ) %>% # we want both bio and fossil emissions for most sectors
+    dplyr::summarize(value = sum(value, na.rm = TRUE)) %>%
+    dplyr::ungroup()
 
-# Define units as kt (as EDGAR data is in Gg, which is the same as kt)
-edgar$units <- 'kt'
-
-# Remove unnecessary columns and arrange (iso-sector-units-sector description-data)
-# select fossil emissions
-len <- ncol( edgar )
-
-# Combine fossil and bio emissions together
-# If CO2 we formally would not want to do this, but EDGAR CO2 we are using has no bio emissions
-edgar_long <-
-    tidyr::gather(edgar, year, value, all_of(9: (len - 2)) ) %>%
-    dplyr::select( iso, sector, units, fossil_bio, sector_description, year, value ) %>%
-    dplyr::group_by( iso, sector, units, sector_description, year ) %>%
-    dplyr::summarize(value = sum(value)) %>% dplyr::ungroup()
-
+# back to wide form
 edgar_wide <- edgar_long %>%
     tidyr::spread(year, value)
 
-# Remove Y's and add X's to the column names of years
-len <- ncol ( edgar_wide )
-names( edgar_wide ) <- sub("Y_", "", names( edgar_wide ))
-names( edgar_wide ) <- c( names( edgar_wide[ 1 : 4 ] ), paste0( "X", names( edgar_wide[ 5 : len ] ) ) )
-
-
-# Convert data to class numeric, from class character
-edgar_wide <- edgar_wide %>%
-    dplyr::mutate_at( .vars =  X_EDGAR_years,
-                      .funs = list( ~as.numeric( . ) ) )
-
 # Remove rows with all NA's
 edgar_wide <- edgar_wide[ apply( X = edgar_wide[ , X_EDGAR_years ],
-                       MARGIN = 1, function( x ) ( !all.na( x ) ) ) ,]
+                       MARGIN = 1, function( x ) ( !all( x == 0 ) ) ) ,]
 
-# Turn NAs to zeros
-edgar_wide <- edgar_wide %>%
-    mutate_at( X_EDGAR_years,  ~replace(., is.na(.), 0) )
+# Check for negative emissions
+check <- edgar_long %>%
+    filter(value < 0) %>%
+    pull(value)
 
-# Make negative emissions zero
-neg_rows <- apply( edgar_wide[, X_EDGAR_years ], 1, function( row ) any( row < 0 ) )
-edgar_neg <- edgar_wide[ neg_rows, ]
-edgar_wide[ edgar_wide < 0 ] <- 0
+if( length(check)>0 ) stop('Check negative emissions in EDGAR processing')
 
 # ------------------------------------------------------------------------------
 
