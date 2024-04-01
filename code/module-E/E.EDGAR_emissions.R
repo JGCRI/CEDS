@@ -30,7 +30,7 @@ initialize( script_name, log_msg, headers )
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO"
+if ( is.na( em ) ) em <- "CO2"
 
 # Input domain
 domain <- "EM_INV"
@@ -92,7 +92,8 @@ edgar_long <- edgar_in %>%
     replace_na(list(value = 0)) %>%
     dplyr::group_by( iso, sector, units, sector_description, year ) %>% # we want both bio and fossil emissions for most sectors
     dplyr::summarize(value = sum(value, na.rm = TRUE)) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    mutate(value = ifelse(value <0, 0, value)) # replace negative emissions with zero
 
 # back to wide form
 edgar_wide <- edgar_long %>%
