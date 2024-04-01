@@ -24,8 +24,8 @@ PARAM_DIR <- if( "input" %in% dir( ) ) "code/parameters/" else "../code/paramete
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
 headers <- c( "data_functions.R", 'common_data.R', 'IO_functions.R' ) # Additional function files may be required.
-log_msg <- "Comparing invenotry emissions to CEDS, GAINS, EDGAR, and REAS..." # First message to be printed to the log
-script_name <- "Compare_inventory_to_CEDS_GAINS_EDGAR.R"
+log_msg <- "Comparing invenotry emissions to CEDS, GAINS, EDGAR, HTAP, and REAS..." # First message to be printed to the log
+script_name <- "Compare_Regional_National_inventory_to_CEDS_GAINS_EDGAR_HTAP_REASR.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

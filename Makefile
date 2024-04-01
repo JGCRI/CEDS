@@ -121,6 +121,10 @@ clean-all: \
 	clean-intermediate clean-diagnostic clean-logs clean-io clean-modA clean-modB clean-modC \
 	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
 
+clean-all_but_activity: \
+	clean-intermediate clean-diagnostic clean-logs clean-io clean-modB clean-modC \
+	clean-modD clean-modE clean-modF clean-modH clean-gridding clean-user_defined_energy
+
 clean-user_defined_energy:
 # Deletes all CSVs in the directory except for:
 # 1) CEDS user-defined energy inputs, metadata, and instructions (U.*.csv)
