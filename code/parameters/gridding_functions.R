@@ -32,6 +32,8 @@
 library( 'ncdf4' )
 library( 'sp' )
 library( 'geosphere' )
+library( 'Matrix' )
+library( 'yaml' )
 
 # ==============================================================================
 # core gridding functions
@@ -95,9 +97,42 @@ grid_one_iso <- function( iso,
   norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
   norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
 
+  #======================================================
+  # # DEBUGGING
+  # if(sum(norm_weighted_proxy) == 0){
+  #   printLog(paste0('WARNING, UNFLAGGED ZERO PROXY: ', iso, ', ', sector, ', ', em))
+  #   printLog('USING PROXY BACKUP UNEXPECTEDLY')
+  #   proxy_cropped <- proxy_backup[ start_row : end_row, start_col : end_col ]
+  #   weighted_proxy <- proxy_cropped * mask
+  #   norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
+  #   norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
+  # }
+  #======================================================
+
   emissions_value <- gridding_emissions_sector[ gridding_emissions_sector$iso == iso, paste0( 'X', year ) ]
 
   iso_em_spatial <- emissions_value * norm_weighted_proxy
+
+  #======================================================
+  # # DEBUGGING
+  proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ]
+  weighted_proxy <- proxy_cropped * mask
+  norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
+  norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
+
+  proxy_cropped_backup <- proxy_backup[ start_row : end_row, start_col : end_col ]
+  weighted_proxy_backup <- proxy_cropped_backup * mask
+  norm_weighted_proxy_backup <- weighted_proxy_backup / sum( weighted_proxy_backup )
+  norm_weighted_proxy_backup[ is.nan( norm_weighted_proxy_backup ) ] <- 0
+
+  sum_spatial <- sum(iso_em_spatial)
+  if( typeof(all.equal(emissions_value, sum_spatial)) == 'character' ){
+    print(paste0(iso, ' ,', em, ' ,', sector, ' ,', year, ' has total emisions: ', emissions_value, ' but distributed emissions: ', sum(iso_em_spatial), 
+                '. Normalized proxy sum: ', sum(norm_weighted_proxy), ', and normalized proxy-backup sum: ', sum(norm_weighted_proxy_backup)))
+  }
+  #======================================================
+  
+
 
   return( iso_em_spatial )
 }
@@ -204,7 +239,7 @@ grid_one_sector <- function( sector,
     emissions_value <- sum( gridding_emissions_sector[ , paste0( 'X', year ) ] )
 
     mask <- global_mask
-	proxy_weighted <- proxy * mask
+	  proxy_weighted <- proxy * mask
     proxy_normlized <- proxy_weighted / sum( proxy_weighted )
     proxy_normlized[ is.na( proxy_normlized ) ] <- 0
     global_em_spatial <- proxy_normlized * emissions_value
@@ -216,6 +251,13 @@ grid_one_sector <- function( sector,
     # TANK emissions only exist in iso global
     emissions_value <- gridding_emissions_sector[ gridding_emissions_sector$iso == 'global', paste0( 'X', year ) ]
 
+    #========================================================
+    # DEBUGGING
+    # temp <- gridding_emissions %>%
+    #   dplyr::filter(sector == 'TANK') %>%
+    #   dplyr::mutate(sum_all_years = rowSums(paste0('X', year_list)))
+    #========================================================
+
     mask <- global_mask
 	  proxy_weighted <- proxy * mask
     proxy_normlized <- proxy_weighted / sum( proxy_weighted )
@@ -225,31 +267,8 @@ grid_one_sector <- function( sector,
     # convert into flux
     global_em_spatial <- global_em_spatial * flux_factor
 
-  } else if ( sector == 'WST' ) {
-    # special treatment for proxy used for WST -- see wiki for more information
-    pop_density_cutoff <- 1000 / 2.59e+6
-    proxy <- proxy / global_grid_area
-    proxy <- ifelse( proxy > pop_density_cutoff, pop_density_cutoff, proxy )
-    proxy <- proxy * global_grid_area
-
-    iso_list <- gridding_emissions_sector$iso
-
-    iso_em_spatial_list <- lapply( iso_list,
-                                   grid_one_iso,
-                                   em,
-                                   sector,
-                                   year,
-                                   gridding_emissions_sector,
-                                   location_index,
-                                   proxy_substitution_mapping,
-                                   proxy,
-                                   proxy_backup )
-    names( iso_em_spatial_list ) <- iso_list
-
-    global_em_spatial <- aggregate_all_isos( iso_list, iso_em_spatial_list, location_index, grid_resolution, flux_factor )
-
-  } else {
-    stopifnot(sector %in% c( 'AGR', 'ELEC', 'ETRN', 'FFFI', 'FLR', 'INDC', 'INPU', 'NRTR', 'RCOO', 'RCORC', 'ROAD', 'SLV' ) )
+  }else {
+    stopifnot(sector %in% c( 'AGR', 'ELEC', 'ETRN', 'FFFI', 'FLR', 'INDC', 'INPU', 'NRTR', 'RCOO', 'RCORC', 'ROAD', 'SLV', 'WST' ) )
     iso_list <- gridding_emissions_sector$iso
 
     iso_em_spatial_list <- lapply( iso_list,
@@ -496,12 +515,34 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
     load( paste0( seasonality_dir, file_name ) )
   }
 
+  # Seasonality profile at 0.5 deg resolution
   sea_fracs <- get( sea_frac_var_name )
 
+  #rm(list = sea_frac_var_name, envir = .GlobalEnv)
 
+  # Dimensions of output grid
   month_list <- 1 : 12
   common_dim <- c( 180 / grid_resolution, 360 / grid_resolution, length( month_list ) )
 
+  # Ratio of output grid to seasonality grid
+  norm_dim <- common_dim[1] / dim(sea_fracs)[1]
+
+  # If ratio not 1-1, need to create seasonality grid at correct resolution
+  if( norm_dim != 1 ){
+      sea_fracs_adj <- array( dim = common_dim )
+      for( i in 1:common_dim[1] ){
+          for( j in 1:common_dim[2] ){
+              for( k in 1:common_dim[3] ){
+                  sea_fracs_adj[i,j,k] <- sea_fracs[ceiling(i/norm_dim),ceiling(j/norm_dim),k]
+              }
+          }
+      }
+
+      # Replace seasonality profile with adjusted resolution grid
+      sea_fracs <- sea_fracs_adj
+  }
+
+  # Empty output grid
   storage_array <- array( dim = common_dim )
 
   if ( sector == 'SHP' ) {
@@ -811,3 +852,526 @@ extendSeasonalityMapping <- function( a_seasonality_mapping ) {
 
   return( a_seasonality_mapping )
 }
+
+
+# ------------------------------------------------------------------------------
+# generate_rural_population_proxy
+# Brief: Extend pre-existing seasonality mapping to last year needed by copying last year of data
+# Dependencies: Population proxy file population_<year>.Rd
+# Author: Noah Prime
+# parameters: year - year for which to generate capped rural population proxy
+#             global_grid_area - matrix defined by the gridding resolution
+# return: null
+# input files: null
+# output files: saves capped_rural_population_<year>.Rd to proxy directory
+# NOTE: Code assumes that population proxy already exists for the given year
+generate_rural_population_proxy <- function( year, global_grid_area, proxy_dir, backup_proxy_dir ){
+    # loading population proxy files
+    population_proxy_file <- paste0('population_',year,'.Rd')
+    population_proxy <- get( load( paste0( backup_proxy_dir,population_proxy_file ) ) )
+
+    # altering population proxy to be rural population proxy
+    pop_density_cutoff <- 1000 / 2.59e+6 # Rural population density as defined by U.S. Department of Health and Human Services (see wiki)
+    population_proxy <- population_proxy / global_grid_area # Note: global_grid_area defined in nc_generation_functions.R
+    population_proxy <- ifelse( population_proxy > pop_density_cutoff, pop_density_cutoff, population_proxy )
+    population_proxy <- population_proxy * global_grid_area
+
+    # write new proxy files into proxy and backup-proxy
+    save( population_proxy, file = paste0( proxy_dir, 'capped_rural_population_', year, '.Rd') )
+
+}
+
+
+
+# ------------------------------------------------------------------------------
+# coordinates_to_index
+# Brief: Converts lat,lon coordinates to the row an column of a grid of given
+#        resolution
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - lat - latitude
+#   - lon - longitude
+#   - res - grid resolution
+# return: row and column index
+# input files: Null
+# output files: Null
+coordinates_to_index <- function( lat, lon, res = 0.1 ){
+    # Check that lat, lon are within correct range
+    if( !((lat >= -90) & (lat <= 90) & (lon >= -180) & (lon <= 180)) ){
+        stop( 'Latitude must be between -90,90 and Longitude between -180,180' )
+    }
+
+    # List of possible decimal values at this resolution
+    dec_list <- seq( res/2, 1, res )
+
+    # Max row and column at given res
+    max_row <- 180 / res
+    max_col <- 360 / res
+
+    # Decimal places of input lat, lon
+    lat_dec <- abs( lat - trunc(lat) )
+    lon_dec <- abs( lon - trunc(lon) )
+
+    # Robust way of comparing floating points rather than using '=='
+    elementwise.all.equal <- Vectorize(function(x, y) {isTRUE(all.equal(x, y))})
+
+    # Get closest decimal values (could be tied if on border)
+    lat_opts <- which( elementwise.all.equal( min(abs(dec_list-lat_dec)), abs(dec_list-lat_dec) ) )
+    lon_opts <- which( elementwise.all.equal( min(abs(dec_list-lon_dec)), abs(dec_list-lon_dec) ) )
+
+    # If on edge of latitude, take cell above
+    if( lat < 0 ){
+        lat_dec_new <- dec_list[ min(lat_opts) ]
+    }else{
+        lat_dec_new <- dec_list[ max(lat_opts) ]
+    }
+
+    # If on edge of longitude, take cell to the right
+    if( lon < 0 ){
+        lon_dec_new <- dec_list[ min(lon_opts) ]
+    }else{
+        lon_dec_new <- dec_list[ max(lon_opts) ]
+    }
+
+    # Final Latitude
+    lat_fin <- sign( lat ) * ( abs( trunc( lat ) ) + lat_dec_new )
+
+    # Final Longitude
+    lon_fin <- sign( lon ) * ( abs( trunc( lon ) ) + lon_dec_new )
+
+    # First cell lat for given res
+    first_lat <- 90 - res/2
+
+    # First cell lon for given res
+    first_lon <- -180 + res/2
+
+    # Cell row
+    row <- ( ( first_lat - lat_fin ) / res + 1 ) %% max_row
+    if( row == 0 ){
+        row <- max_row
+    }
+
+    # Cell column
+    col <- ( ( lon_fin - first_lon ) / res + 1 ) %% max_col
+    if( col == 0 ){
+        col <- max_col
+    }
+
+    return( c( round(row), round(col) ) )
+}
+
+
+# ------------------------------------------------------------------------------
+# TODO:
+#   Either add a new function: add_point_sources_subVOC, or alter this function
+#   so to add NMVOC point source data to a grid at the ratio of a given subVOC
+#   species.
+# add_point_sources
+# Brief: Add point sources to grid for given gridding sector, year,
+# emission species, and gridding resolution
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - grid - Grid to add point source emission to
+#   - em - Emission species
+#   - sector - CEDS final gridding sector
+#   - year
+#   - grid_resolution
+# return: Grid with point sources added
+# input files: Point source files if found.
+# output files: Null
+add_point_sources <- function( grid, em, sector, year, grid_resolution,
+                               CEDS_sector_mapping, CEDS_EDGAR_sector_mapping, ps_df ){
+
+    # If no sources, return grid
+    if(nrow(ps_df) == 0){ return(grid) }
+
+    # Get list of CEDS sectors included in this gridding sector
+    ceds_sectors <- CEDS_sector_mapping %>%
+        dplyr::filter( CEDS_final_gridding_sector_short == sector ) %>%
+        dplyr::select( CEDS_working_sector ) %>%
+        unique() %>%
+        pull()
+
+    # Get every point source in this gridding sector. Take just the lat,lon and emission
+    # for the given year
+    emissions <- ps_df %>%
+        dplyr::filter( CEDS_sector %in% ceds_sectors ) %>%
+        dplyr::select( latitude, longitude, paste0('X',year) )
+
+
+    # Return if no relevant point sources
+    if(nrow(emissions) == 0){ return(grid) }
+
+    # get global grid area object for given resolution
+    global_grid_area <- grid_area( grid_resolution )
+
+    # row, col of each emission
+    coords <- t( apply(emissions, 1, function(x){coordinates_to_index(x[1],x[2],grid_resolution)}) )
+
+    # emission converted to flux
+    flux <- ( emissions[,paste0('X',year)]  * 1000000 ) / ( global_grid_area[coords[,1]] * 365 * 24 * 60 * 60 )
+
+    # Create sparse matrix of point sources
+    sparseMat <- sparseMatrix( i = coords[,1], j = coords[,2], x = flux, dims = dim(grid) )
+
+    # Add sources to grid
+    grid <- grid + as.matrix( sparseMat )
+
+    return( grid )
+}
+
+
+# ------------------------------------------------------------------------------
+# load_point_source_attributes
+# Brief: Load in yml files for all point sources from specified species
+#        but does not load time-series emissions. Returns empty data frame
+#        if no sources present
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - source_path - path to where the yml files are saved
+#   - em - emission species
+# return: data frame of point sources with attributes
+# input files: yml files
+# output files: Null
+load_point_source_attributes <- function( source_path, em ){
+
+    # list of yml file names
+    target_filename <- list.files( paste0( source_path, em ), "*.yml", full.names = TRUE )
+
+    # Return empty dataframe if no sources
+    if( length( target_filename ) == 0 ){
+        return( data.frame( name = character(),
+                            location = character(),
+                            iso = character(),
+                            emission = double(),
+                            CEDS_sector = character(),
+                            EDGAR_sector = character(),
+                            latitude = double(),
+                            longitude = double() ) )
+    }
+
+    # reading in
+    yml_input <- lapply(target_filename, read_yaml)
+    # convert to data frame
+    source_data <- do.call( bind_rows,
+                            lapply( yml_input, function( x ){
+                                return( as.data.frame( x$attributes ) )
+                            } ) )
+    return( source_data )
+}
+
+
+# ------------------------------------------------------------------------------
+# load_point_source_attributes
+# Brief: Load in yml files for all point sources from specified species
+#        including the time-series of emissions.
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - source_path - path to where the yml files are saved
+#   - em - emission species
+# return: data frame of point sources with attributes and time series
+# input files: yml files
+# output files: Null
+load_point_sources <- function( source_path, em ){
+
+    # list of yml file names
+    target_filename <- list.files( paste0( source_path, em ), "*.yml", full.names = TRUE )
+
+    # Return if no sources
+    if( length( target_filename ) == 0 ){
+        # Empty dataframe of attributes
+        df <- data.frame( descirption = character(),
+                          name = character(),
+                          location = character(),
+                          latitude = double(),
+                          longitude = double(),
+                          emission = double(),
+                          units = character(),
+                          CEDS_sector = character(),
+                          EDGAR_sector = character(),
+                          fuel = character(),
+                          iso = character(),
+                          build_year = integer()
+                        )
+
+        # Empty dataframe of time series
+        Xyears <- paste0('X',1750:2019)
+        Xyears_df <- data.frame( matrix(ncol = length(Xyears), nrow = 0) ) %>%
+            dplyr::mutate_all(as.numeric)
+
+        # Combine dataframes
+        df <- cbind(df,Xyears_df)
+
+        # Rename columns
+        x <- c('description', 'name', 'location', 'longitude', 'latitude', 'emission',
+               'units', 'CEDS_sector', 'EDGAR_sector', 'fuel', 'iso', 'build_year',
+               paste0('X',1750:2019) )
+        colnames( df ) <- x
+
+        return( df )
+    }
+
+    # reading in
+    yml_input <- lapply(target_filename, read_yaml)
+    # convert to data frame
+    source_data <- do.call( bind_rows,
+                            lapply( yml_input, function( x ){
+                                df.a <- as.data.frame( x$attributes )
+                                colnames( df.a ) <- gsub( 'value.', 'X', colnames( df.a ) )
+                                df.b <- as.data.frame( x$documentation )
+                                df <- cbind( df.a, df.b )
+                                df <- df %>%
+                                    dplyr::select( description, name, location, longitude,
+                                                   latitude, emission, units, CEDS_sector,
+                                                   EDGAR_sector, fuel, iso, build_year,
+                                                   X1750:X2019 )
+                                return( df )
+                            } ) )
+
+    return( source_data )
+}
+
+# ------------------------------------------------------------------------------
+# match_sources
+# Brief: Finds matches between sources in the proxy grid, and the yml files
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - proxy - list of sources in proxy grid
+#   - ymls  - list of sources in yml files
+#   - params - data frame that contains parameters. This is read in from a file
+# return: data frame of point sources with attributes appended with matching
+#         coordinates in proxy grid
+# input files: Null
+# output files: Null
+match_sources <- function( proxy, ymls, params, sector ){
+    # Get only point sources from given sector
+    ymls <- ymls %>%
+        dplyr::filter( EDGAR_sector == sector)
+
+    # Number of point sources input
+    num_sources <- nrow( ymls )
+
+    if( num_sources == 0 ){ return( ymls ) }
+
+    # Empty vectors of corresponding latitudes, longitudes of EDGAR data
+    # and column to indicate if a match is found, and if the source sector
+    # is set to zero out surrounding cells
+    proxy_lat <- numeric( num_sources )
+    proxy_lon <- numeric( num_sources )
+    match_found <- numeric( num_sources )
+    to_zero <- numeric( num_sources )
+
+    # Area for which a cell is considered a match
+    if( nrow(params) == 0){
+        search_buffer <- 0.5
+    }else{
+        search_buffer <- as.numeric( params$search_buffer )
+    }
+
+    # Loop through each point sources to find matches
+    for( i in 1:num_sources ){
+
+        # Source latitude, longitude, sector and emission species
+        source_lat <- as.numeric( ymls$latitude[i] )
+        source_lon <- as.numeric( ymls$longitude[i] )
+        source_sector <- ymls$EDGAR_sector[i]
+
+        # Whether or not this source is in a sector which is set to zero surrounding cells
+        to_zero[i] <- params$zero_surrounding
+
+        # Looking for a cell in EDGAR near enough to the source to be considered a match
+        matching_coords <- proxy %>%
+            dplyr::filter( lat <= source_lat + search_buffer, lat >= source_lat - search_buffer,
+                           lon <= source_lon + search_buffer, lon >= source_lon - search_buffer ) %>%
+            dplyr::arrange( dplyr::desc(em) ) %>%
+            dplyr::select( lat, lon ) %>%
+            as.matrix()
+
+        # If a match not found, use the source lat/lon and set match found to FALSE
+        # Otherwise use the matched cell coordinates with largest emissions
+        # and set match found to TRUE
+        if( is.na( matching_coords[1] ) ){
+            proxy_lat[i] <- source_lat
+            proxy_lon[i] <- source_lon
+            match_found[i] <- FALSE
+        }else{
+            proxy_lat[i] <- matching_coords[1,1]
+            proxy_lon[i] <- matching_coords[1,2]
+            match_found[i] <- TRUE
+        }
+
+    }
+
+    # Amending the results to the data frame
+    ymls$proxy_lat <- proxy_lat
+    ymls$proxy_lon <- proxy_lon
+    ymls$match_found <- match_found
+
+    return( ymls )
+
+}
+
+
+# ------------------------------------------------------------------------------
+# zero_cells
+# Brief: Zeros cells in a grid based on supplied point sources
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - grid - grid of emissions
+#   - source_data  - data frame of sources with locations in grid, and whether to zero nearby cells
+#   - em - emission species
+#   - sector - EDGAR sector or FLR
+# return: grid with desired cells set to zero
+# input files: Null
+# output files: Null
+zero_cells <- function( grid, matched_sources, params, em, sector, res ){
+
+    # Return grid if no matched sources
+    if( nrow(matched_sources) == 0 ){ return(grid) }
+
+    # coordinates of point sources in EDGAR grid for this emission and sector
+    coords <- matched_sources %>%
+        dplyr::filter( EDGAR_sector == sector ) %>%
+        dplyr::select( proxy_lat, proxy_lon )
+
+    # Possible that no point sources exist for given species/sector
+    if( nrow(coords) == 0 ){ return( grid ) }
+
+    # converting coordinates to cell index
+    center_cells <- t( apply(coords, 1, function(x){ coordinates_to_index( x[1], x[2], res ) } ) )
+
+    # zero out cells
+    for( i in 1:nrow(center_cells) ){
+        grid[ center_cells[i,1], center_cells[i,2] ] <- 0
+    }
+
+    # If not a sector to zero surroundings, return
+    if( nrow(params) != 0 ){
+        if( params$zero_surrounding == 0 ){
+            return( grid )
+        }else{
+            # Specified buffer
+            zero_cell_buffer = params$zero_buffer / res
+        }
+    }else{
+        # Default buffer
+        zero_cell_buffer = 1
+    }
+
+    # zeroing out surrounding cells
+    for( i in 1:nrow(center_cells) ){
+        center_lat <- center_cells[i,1]
+        center_lon <- center_cells[i,2]
+
+        for( r in (center_lat - zero_cell_buffer):(center_lat + zero_cell_buffer) ){
+            for( c in (center_lon - zero_cell_buffer):(center_lon + zero_cell_buffer) ){
+                grid[(r%%1800),(c%%3600)] <- 0
+            }
+        }
+    }
+
+    # return grid with sources removed
+    return( grid )
+}
+
+
+# ------------------------------------------------------------------------------
+# get_grid_point_source
+# Brief: Finds the largest X cells in a grid
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - grid - global grid of values, presumably emission flux
+#   - X - number of cells wanted to return ( 100 default
+#   - res - resolution of global grid
+# return: data frame of coordinates of largest cells and values
+# input files: Null
+# output files: Null
+get_grid_point_source <- function( grid, X = 100, res ){
+
+    # largest X cell emissions
+    ems <- tail(sort(as.matrix( grid )), X)
+
+    # indices of largest X cells emissions as vector
+    indvec <- tail(order( grid ), X)
+    # row
+    row <- mod( indvec, 1800 )
+    # column
+    col <- ceiling( indvec / 1800 )
+    # coordinates of largest X cell emissions
+    coords <- index_to_coordinates( cbind(row,col), res )
+
+
+    return( data.frame( em = ems, lat = coords[,1], lon = coords[,2]) )
+}
+
+
+# ------------------------------------------------------------------------------
+# index_to_coordinates
+# Brief: Returns the coordinates at the center of input cell
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - inds - vector of indexes, c( row, col )
+#   - res - resolution of the global grid
+# return: coordinates on -90,90 lat and -180,180 lon
+# input files: Null
+# output files: Null
+index_to_coordinates <- function( inds, res ){
+    row <- inds[,1]
+    col <- inds[,2]
+
+    # coordinates are given at middle of the cell. this is inline with
+    # EDGAR procedure, although here we have lon on rang -180 to 180
+    lat <- ( 90 + res / 2 ) - res * row
+    lon <- -( 180 + res / 2 ) + res * col
+
+    return( cbind(lat,lon) )
+}
+
+
+# ------------------------------------------------------------------------------
+# remove_point_sources
+# Brief: Match CEDS point source time series to proxy grid and zero cells of matches
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+#   - grid - proxy grid to remove sources from
+#   - sources - dataframe of point sources
+#   - params - extra details by sector
+#   - sector - sector of the proxy grid
+#   - res - grid resolution
+# return: coordinates on -90,90 lat and -180,180 lon
+# input files: Null
+# output files: Null
+remove_point_sources <- function( grid, sources, params, sector, res ){
+    if(nrow(sources) == 0){ return( grid ) }
+    if(nrow(params) == 0){
+        num <- 500
+    }else{
+        num <- params$num_sources
+    }
+    proxy_sources <- get_grid_point_source( grid, num, res )
+    matched_sources <- match_sources( proxy_sources, sources, params, sector )
+    new_grid <- zero_cells( grid, matched_sources, params, em, sector, res )
+    return( new_grid )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

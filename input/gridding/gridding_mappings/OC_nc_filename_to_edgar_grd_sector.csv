@@ -1,0 +1,16 @@
+EDGAR_nc_last_part,EDGAR_gridding_shortname
+_ENE.0.1x0.1.nc,ene
+_REF_TRF.0.1x0.1.nc,ref_trf
+_IND.0.1x0.1.nc,ind
+_TNR_Aviation_SPS.0.1x0.1.nc,tnr_aviation_sps
+_TNR_Aviation_CDS.0.1x0.1.nc,tnr_aviation_cds
+_TNR_Aviation_CRS.0.1x0.1.nc,tnr_aviation_crs
+_TNR_Aviation_LTO.0.1x0.1.nc,tnr_aviation_lto
+_TRO_noRES.0.1x0.1.nc,tro
+_TNR_Other.0.1x0.1.nc,tnr_other
+_TNR_Ship.0.1x0.1.nc,tnr_ship
+_RCO.0.1x0.1.nc,rco
+_PRO.0.1x0.1.nc,pro
+_AWB.0.1x0.1.nc,awb
+_SWD_INC.0.1x0.1.nc,swd_inc
+_FFF.0.1x0.1.nc,fff
