@@ -1,11 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.Taiwan_emission.R
 # Author(s): Leyang Feng
-# Date Last Updated: March 16, 2016
+# Date Last Updated: November 3, 2023
 # Program Purpose: To read in and reformat Taiwan emissions data.
 # Input Files: Taiwan_emissions.xlsx
 # Output Files: E.[EM]_TWN_inventory.csv
-# Notes: Taiwan emission data are only available for year 2003, 2006, 2010
+# Notes: Taiwan emission data are available for years 2003, 2006, 2010, 2016, 2019, 2021
 # TODO:
 # ------------------------------------------------------------------------------
 # 0. Read in global settings and headers
@@ -50,9 +50,7 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
     mapping_method <- 'sector'
     inv_name <- 'TWN' #for naming diagnostic files
     region <- c( "twn" )
-    inv_years<-c( 2003, 2006, 2010, 2013, 2016 )
-
-
+    inv_years<-c( 2003, 2006, 2010, 2013, 2016, 2019, 2021 )
 
 # ------------------------------------------------------------------------------
 # 2. Read in the inventory
@@ -63,7 +61,7 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
         inv_data_species <- data.frame( )
 
     } else {
-    # Import Sheets containing 2003, 2006, 2010, 2013, 2016 data.
+    # Import Sheets containing 2003, 2006, 2010, 2013, 2016, 2019, 2021 data.
 
         sheet_name <- "2003"
         inv_data_sheet_two <- readData( inv_data_folder, inventory_data_file, ### Why two, three, four, not 1,2,3?
@@ -93,6 +91,18 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
                                          sheet_selection = sheet_name,
                                          domain_extension = subfolder_name )
 
+        sheet_name <- "2019"
+        inv_data_sheet_seven <- readData( inv_data_folder, inventory_data_file,
+                                        ".xlsx", skip = 4,
+                                        sheet_selection = sheet_name,
+                                        domain_extension = subfolder_name )
+
+        sheet_name <- "2021"
+        inv_data_sheet_eight <- readData( inv_data_folder, inventory_data_file,
+                                        ".xlsx", skip = 4,
+                                        sheet_selection = sheet_name,
+                                        domain_extension = subfolder_name )
+
     # Combine rows with different emission types
         id_cols <- c( "source type", "sector", "sub-sector1", "sub-sector2" )
         inv_data_sheet_five <- inv_data_sheet_five %>%
@@ -107,7 +117,17 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
             dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # aggregate
             dplyr::ungroup( ) # ungroup
 
+        inv_data_sheet_seven <- inv_data_sheet_seven %>%
+            dplyr::select( -"emission-type" ) %>% # remove id column not using, as it won't be able to aggregate over this, as it won't be included in the group_by()
+            dplyr::group_by_at( id_cols )  %>% # group by columns in the id _col object
+            dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # aggregate
+            dplyr::ungroup( ) # ungroup
 
+        inv_data_sheet_eight <- inv_data_sheet_eight %>%
+            dplyr::select( -"emission-type" ) %>% # remove id column not using, as it won't be able to aggregate over this, as it won't be included in the group_by()
+            dplyr::group_by_at( id_cols )  %>% # group by columns in the id _col object
+            dplyr::summarise_all( funs( sum(., na.rm = T ) ) ) %>% # aggregate
+            dplyr::ungroup( ) # ungroup
 
 # ------------------------------------------------------------------------------
 # 3. Convert to standard format
@@ -130,6 +150,12 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
         df2016 <- subset( inv_data_sheet_six, select = keep_columns )
         colnames( df2016 ) <- col_names
         df2016 <- df2016[ !is.na( df2016$sector ), ]
+        df2019 <- subset( inv_data_sheet_seven, select = keep_columns )
+        colnames( df2019 ) <- col_names
+        df2019 <- df2019[ !is.na( df2019$sector ), ]
+        df2021 <- subset( inv_data_sheet_eight, select = keep_columns )
+        colnames( df2021 ) <- col_names
+        df2021 <- df2021[ !is.na( df2021$sector ), ]
 
     # construct unified sector names by combining l1 and l2 names
         df2003$sector <- paste( df2003$sector, df2003$subsector_l1,
@@ -162,15 +188,30 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
         df2016 <- df2016[ , !( colnames( df2016 ) %in% c( 'subsector_l1',
                                                           'subsector_l2' ) ) ]
 
+        df2019$sector <- paste( df2019$sector, df2019$subsector_l1,
+                                df2019$subsector_l2, sep = '_' )
+        df2019$sector <- gsub( '_NA', '', df2019$sector )
+        df2019 <- df2019[ , !( colnames( df2019 ) %in% c( 'subsector_l1',
+                                                          'subsector_l2' ) ) ]
+
+        df2021$sector <- paste( df2021$sector, df2021$subsector_l1,
+                                df2021$subsector_l2, sep = '_' )
+        df2021$sector <- gsub( '_NA', '', df2021$sector )
+        df2021 <- df2021[ , !( colnames( df2021 ) %in% c( 'subsector_l1',
+                                                          'subsector_l2' ) ) ]
+
     # Make sure each df contains all sectors, even those with 0 emissions for
     # that year. 2010 is the outlier which is "by sector" instead of "by source"
         df2003 <- merge( df2003, df2006[ 'sector' ], by = 'sector', all = T )
         df2003 <- merge( df2003, df2010[ 'sector' ], by = 'sector', all = T )
         df2003 <- merge( df2003, df2016[ 'sector' ], by = 'sector', all = T )
+        df2003 <- merge( df2003, df2021[ 'sector' ], by = 'sector', all = T )
         df2006 <- merge( df2006, df2003[ 'sector' ], by = 'sector', all = T )
         df2010 <- merge( df2010, df2003[ 'sector' ], by = 'sector', all = T )
         df2013 <- merge( df2013, df2003[ 'sector' ], by = 'sector', all = T )
         df2016 <- merge( df2016, df2003[ 'sector' ], by = 'sector', all = T )
+        df2019 <- merge( df2019, df2003[ 'sector' ], by = 'sector', all = T )
+        df2021 <- merge( df2021, df2003[ 'sector' ], by = 'sector', all = T )
 
     # Keep only data for the given emissions species
         sector <- df2003$sector
@@ -179,8 +220,10 @@ if (em %in% c ('BC','OC')) em.read <- "PM2.5"
         X2010 <- df2010[ , em.read ]
         X2013 <- df2013[ , em.read ]
         X2016 <- df2016[ , em.read ]
+        X2019 <- df2019[ , em.read ]
+        X2021 <- df2021[ , em.read ]
 
-        inv_data_species <- data.frame( sector, X2003, X2006, X2010, X2013, X2016 )
+        inv_data_species <- data.frame( sector, X2003, X2006, X2010, X2013, X2016, X2019, X2021 )
 
     # Convert from tonnes to kt
         inv_data_species[ , paste0( 'X', inv_years ) ] <-

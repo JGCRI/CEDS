@@ -56,7 +56,7 @@
     if ( em %in% c('CH4','N2O', 'CO2') ) {
         sector_fuel_mapping <- 'UNFCCC_GHG'
         inv_name <- 'UNFCCC_update'
-        inv_years <- c( 1990 : 2018 )
+        inv_years <- c( 1990 : 2020 )
     }
     # For CO2 scale only CEDS process sectors
     if ( em == c( 'CO2') ) sector_fuel_mapping <- 'UNFCCC_CO2'

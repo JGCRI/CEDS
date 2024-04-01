@@ -1,20 +1,22 @@
+
 # ------------------------------------------------------------------------------
 # Program Name: S1.1.write_summary_data.R
 # Authors: Rachel Hoesly, Steve Smith, Linh Vu, Presley Muwan, Leyang Feng,
-#          Caleb Braun, Patrick O'Rourke, Noah Prime
-# Date Last Updated: 9/12/2022
+#          Caleb Braun, Patrick O'Rourke
+# Date Last Updated: April 26, 2021
 # Program Purpose: Produces summary output
 # Input Files: Master_Country_List.csv
 #              [em]_total_CEDS_emissions.csv
 #              Master_Sector_Level_map.csv
 # Output Files: Data in final-emissions folder
+# TODO:
 # ---------------------------------------------------------------------------
 
-# 0.) Read in global settings and headers
+# 0. Read in global settings and headers
 
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+  PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -29,22 +31,26 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "BC"
 
 # ---------------------------------------------------------------------------
-# 0.5.) Script Options
-
-# Years to write out data
+# 0.5. Script Options
 write_years <- 1750:end_year
-X_write_years <- paste0('X',write_years)
+
+# Option to also write out data by CEDS sectors
+WRITE_CEDS_SECTORS = TRUE
 
 # Select individual country(ies) to plot in comparison graphs. If not selecting
 # a country for comparison graphs, define as NA
-country_select <- NA
-# country_select <- c('usa','chn')
+
+ country_select <- c('usa','chn','ind','idn')
 
 # Option to print out comparison figures for current emission species
 WRITE_COMPARISON_PLOTS = TRUE
+# Option to print out the individual figures, rather than just the pdf
+WRITE_INDIVIDUAL_COMPARISON_PLOTS = FALSE
+# Define individual country color
+color = 'darkorchid'
 
 # Define functions to move a list of files (full path name)
 moveFile <- function( fn, new_dir ) {
@@ -57,99 +63,146 @@ moveFileList <- function( fn_list, new_dir ) {
 }
 
 # ---------------------------------------------------------------------------
-# 1.) Load files/paths
+# 1. Load files
 
 Master_Country_List <- readData( "MAPPINGS", "Master_Country_List")
 final_emissions_read <- readData ( "MED_OUT" , paste0(em,'_total_CEDS_emissions') )
 Master_Sector_Level_map <- readData(domain = 'MAPPINGS', file_name = 'Master_Sector_Level_map')
-total_CEDS_emissions_file <- paste0(em,'_total_CEDS_emissions')
-out_file1 <- paste( "CEDS", em , "emissions_by_country_CEDS_sector", version_stamp, sep = "_" )
 
 # ---------------------------------------------------------------------------
-# 1.5.) Process and save data
+# Data processing
 
-# Save emissions by country and CEDS sector, and bunker emissions.
-# Also returns the pre-processed data for separate aggregation/summary tasks
-final_emissions <- get_final_emissions( total_CEDS_emissions_file,
-                                        em,
-                                        write_years,
-                                        Master_Sector_Level_map )
+X_write_years <- paste0('X',write_years)
+final_emissions <- final_emissions_read[,c('iso','sector','fuel','units',X_write_years)]
+final_emissions$em <- em
 
+# Remove sectors that are not supplied in CEDS
+empty_sectors <- c( "11A_Volcanoes", "11B_Forest-fires", "11C_Other-natural" )
+final_emissions <- final_emissions[ -which( final_emissions$sector %in% empty_sectors ) , ]
+
+# Save shipping and aviation emissions
+shp_av_sectors <- c( "1A3di_International-shipping", "1A3aii_Domestic-aviation",
+                     "1A3ai_International-aviation" )
+bunker_emissions <- final_emissions[ final_emissions$sector %in% shp_av_sectors, ]
+
+# Remove international shipping and aviation emissions
+final_emissions <- final_emissions[ final_emissions$sector %!in% shp_av_sectors, ]
+
+# Add summary sectors
+final_emissions$summary_sector <- Master_Sector_Level_map[match(final_emissions$sector,
+                                  Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+bunker_emissions$summary_sector <- Master_Sector_Level_map[match(bunker_emissions$sector,
+                                  Master_Sector_Level_map$working_sectors_v1),'aggregate_sectors']
+
+# Simplify units
+# This assumes units are correct. Need to add a more comprehensive unit conversion function (since drivers will come in various units)
+final_emissions$units <- 'kt'
+bunker_emissions$units <- 'kt'
+
+# Sum bunker emissions to global values
+Bunker_global <- aggregate( bunker_emissions[ X_write_years ],
+                            by=list( em = bunker_emissions$em,
+                                     fuel = bunker_emissions$fuel,
+                                     summary_sector = bunker_emissions$summary_sector,
+                                     sector = bunker_emissions$sector,
+                                     units = bunker_emissions$units ), sum )
+Bunker_global$iso <- "global"
+
+# Reorder columns
+final_emissions <- final_emissions[,c("iso", "summary_sector", "sector", "fuel","em","units",X_write_years)]
+bunker_emissions <- bunker_emissions[,c("iso", "summary_sector","sector", "fuel","em","units",X_write_years)]
+
+writeData( bunker_emissions, "MED_OUT", paste0( "S.", em, "_bunker_emissions" ),  meta = F )
+
+final_emissions <- rbind( final_emissions, Bunker_global )
 
 # ---------------------------------------------------------------------------
-# 2.) Produce summary outputs
+# 2. Produce summary outputs
+# NOTE: This block should not write any summary outputs. Put any writeData()
+# in function writeSummary() in block 3.
 
 # Total emissions by Country
-Em_by_Country <- final_emissions %>%
-    dplyr::group_by(iso, em, units) %>%
-    dplyr::summarise_at(X_write_years, sum) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange( iso )
+Em_by_Country<-aggregate(final_emissions[X_write_years],
+                         by=list(iso=final_emissions$iso,
+                                 em= final_emissions$em,
+                                 units=final_emissions$units),sum )
 
+# Sort
+Em_by_Country <- Em_by_Country[ with( Em_by_Country, order( iso ) ), ]
 
 # Total emissions by fuel
-Em_by_fuel <- final_emissions %>%
-    dplyr::group_by(fuel, em, units) %>%
-    dplyr::summarise_at(X_write_years, sum) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange( fuel )
+Summary_Emissions <- aggregate(final_emissions[X_write_years],
+                               by=list(fuel=final_emissions$fuel,
+                                       em= final_emissions$em,
+                                       units=final_emissions$units),sum )
 
+# Sort
+Summary_Emissions <- Summary_Emissions[ with( Summary_Emissions, order( fuel ) ), ]
 
 # Total Emissions by Sector and Country
-Em_by_Country_Sector <- final_emissions %>%
-    dplyr::group_by(iso, sector = summary_sector, em, units) %>%
-    dplyr::summarise_at(X_write_years, sum) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange( iso, sector )
-
+Em_by_Country_Sector <- aggregate(final_emissions[X_write_years],
+                               by=list(iso=final_emissions$iso,
+                                       sector=final_emissions$summary_sector,
+                                       em= final_emissions$em,
+                                       units=final_emissions$units),sum )
+# Sort
+Em_by_Country_Sector <- Em_by_Country_Sector[ with( Em_by_Country_Sector, order( iso , sector ) ), ]
 
 # Total Emissions by Country and Fuel
-Em_by_Country_Fuel <- final_emissions %>%
-    dplyr::group_by(iso, fuel, em, units) %>%
-    dplyr::summarise_at(X_write_years, sum) %>%
-    dplyr::ungroup() %>%
-    dplyr::arrange( iso, fuel )
+Em_by_Country_Fuel <- aggregate(final_emissions[X_write_years],
+                               by=list(iso=final_emissions$iso,
+                                       fuel=final_emissions$fuel,
+                                       em= final_emissions$em,
+                                       units=final_emissions$units),sum )
+# Sort
+Em_by_Country_Fuel <- Em_by_Country_Fuel[ with( Em_by_Country_Fuel, order( iso , fuel ) ), ]
+
+# Total Emissions by Country and Fuel
+Em_by_Sector_Fuel <- aggregate(final_emissions[X_write_years],
+                                by=list(sector=final_emissions$sector,
+                                        fuel=final_emissions$fuel,
+                                        em= final_emissions$em,
+                                        units=final_emissions$units),sum )
+# Sort
+Em_by_Sector_Fuel <- Em_by_Sector_Fuel[ with( Em_by_Sector_Fuel, order( sector , fuel ) ), ]
 
 
-# Total Emissions by Country and CEDS_sector
-Em_by_Country_CEDS_Sector <- final_emissions %>%
-    dplyr::group_by( iso, sector, em, units ) %>%
-    dplyr::summarise_at( vars( all_of(X_write_years) ), sum ) %>%
-    dplyr::arrange( iso, sector )
 
-# Total Emissions CEDS sector
-Em_by_CEDS_Sector <- Em_by_Country_CEDS_Sector %>%
-    dplyr::group_by( sector, em, units ) %>%
-    dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
+# Create files for emissions by country and CEDS sector
+if ( WRITE_CEDS_SECTORS ) {
 
-# Total global emissions
-Em_global_total <- Em_by_CEDS_Sector %>%
-    dplyr::group_by( em, units ) %>%
-    dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
+	# Aggregate emissions by CEDS sector, country, and species total
+    Em_by_Country_CEDS_Sector <- final_emissions %>%
+        dplyr::group_by( iso, sector, em, units ) %>%
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum ) %>%
+        dplyr::arrange( iso, sector )
 
+    Em_by_CEDS_Sector <- Em_by_Country_CEDS_Sector %>%
+        dplyr::group_by( sector, em, units ) %>%
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
+
+    Em_global_total <- Em_by_CEDS_Sector %>%
+        dplyr::group_by( em, units ) %>%
+        dplyr::summarise_at( vars( all_of(X_write_years) ), sum )
+
+	# Define the interval years
+	global_sector_years <- paste0( "X", c( seq( 1750, 1950, 50 ),
+	                                       seq( 1960, 2010, 10 ), end_year ) )
+
+	# Create global_EM_emissions_by_CEDS_sector files
+	fname <- paste0( "diagnostics/global_", em, "_emissions_by_CEDS_sector" )
+	tidyr::gather( Em_by_CEDS_Sector, "year", "value", X_write_years ) %>%
+	dplyr::filter( year %in% global_sector_years ) %>%
+	writeData( "FIN_OUT", fname, meta = F )
+
+	# Create global_total_emissions_for_EM files
+	fname <- paste0( "../final-emissions/diagnostics/global_total_emissions_for_", em, ".Rd" )
+	names( Em_global_total ) <- sub( "X", "", names( Em_global_total) )
+    saveRDS( Em_global_total, file = fname ) # Save as R data object
+}
 
 # ---------------------------------------------------------------------------
-# 3.) Saving global total and global totals by CEDS sector
-
-# Define the interval years
-global_sector_years <- paste0( "X", c( seq( 1750, 1950, 50 ),
-                                       seq( 1960, 2010, 10 ), end_year ) )
-
-# Create global_EM_emissions_by_CEDS_sector files
-fname <- paste0( "diagnostics/global_", em, "_emissions_by_CEDS_sector" )
-tidyr::gather( Em_by_CEDS_Sector, "year", "value", X_write_years ) %>%
-dplyr::filter( year %in% global_sector_years ) %>%
-writeData( "FIN_OUT", fname, meta = F )
-
-# Create global_total_emissions_for_EM files
-fname <- paste0( "../final-emissions/diagnostics/global_total_emissions_for_", em, ".Rd" )
-names( Em_global_total ) <- sub( "X", "", names( Em_global_total) )
-saveRDS( Em_global_total, file = fname ) # Save as R data object
-
-
-# ---------------------------------------------------------------------------
-# 4.) Write summary and diagnostics outputs
-
+# 3. Write summary and diagnostics outputs
 # Compare emissions summary from the current run and the last run. If values
 # change over a threshold, move last-run files to previous-versions, write out
 # current-run files, and write out comparison diagnostics.
@@ -162,8 +215,10 @@ saveRDS( Em_global_total, file = fname ) # Save as R data object
   summary_fn <- paste( "CEDS", em , "emissions_by_country_sector", version_stamp, sep = "_" )
   summary_fn1 <- paste( "CEDS", em , "emissions_by_country", version_stamp, sep = "_" )
   summary_fn2 <- paste( "CEDS", em , "global_emissions_by_fuel", version_stamp, sep = "_" )
+  summary_fn3 <- paste( "CEDS", em , "emissions_by_country_CEDS_sector", version_stamp, sep = "_" )
   summary_fn4 <- paste( "CEDS", em , "global_emissions_by_CEDS_sector", version_stamp, sep = "_" )
   summary_fn5 <- paste( "CEDS", em , "emissions_by_country_fuel", version_stamp, sep = "_" )
+  summary_fn6 <- paste( "CEDS", em , "global_emissions_by_sector_fuel", version_stamp, sep = "_" )
   THRESHOLD_PERCENT <- 1
 
 # Define function to write summary files
@@ -171,18 +226,13 @@ saveRDS( Em_global_total, file = fname ) # Save as R data object
     printLog( "Write emissions summary" )
     writeData( Em_by_Country_Sector, "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
     writeData( Em_by_Country, "FIN_OUT", summary_fn1, domain_extension = "current-versions/", meta = F )
-    writeData( Em_by_fuel, "FIN_OUT", summary_fn2, domain_extension = "current-versions/", meta = F )
+    writeData( Summary_Emissions, "FIN_OUT", summary_fn2, domain_extension = "current-versions/", meta = F )
     writeData( Em_by_Country_Fuel, "FIN_OUT", summary_fn5, domain_extension = "current-versions/", meta = F )
-    writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, domain_extension = "current-versions/", meta = F )
-    # Save emissions by country and CEDS sector, and bunker emissions.
-    write_emissions_by_country_CEDS_sector( total_CEDS_emissions_file,
-                                            em,
-                                            write_years,
-                                            Master_Sector_Level_map,
-                                            out_file1,
-                                            'FIN_OUT',
-                                            'current-versions/',
-                                            TRUE, FALSE )
+    writeData( Em_by_Sector_Fuel, "FIN_OUT", summary_fn6, domain_extension = "current-versions/", meta = F )
+    if ( WRITE_CEDS_SECTORS ) {
+      writeData( Em_by_Country_CEDS_Sector, "FIN_OUT", summary_fn3, domain_extension = "current-versions/", meta = F )
+      writeData( Em_by_CEDS_Sector, "FIN_OUT", summary_fn4, domain_extension = "current-versions/", meta = F )
+    }
   }
 
 # If no summary file exists, write out current-run files and exit
@@ -202,10 +252,11 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   writeSummary()
 
   #Comparison Figures - plot and write Rdata object
-  comparison_plots <- summary_comparison_plots()
+  comparison_plots <- summary_comparison_plots(global_color = color )
 
   #Print comparison plots to PDF if option chosen
   if(WRITE_COMPARISON_PLOTS == TRUE) print_single_em_comparison_plots()
+  if(WRITE_INDIVIDUAL_COMPARISON_PLOTS == TRUE) print_summary_graphs(print_regions = FALSE)
 
   # Read current-run and last-run emissions summary
   em_current <- readData( "FIN_OUT", summary_fn, domain_extension = "current-versions/", meta = F )
@@ -334,7 +385,7 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
 
   source('../code/diagnostic/Compare_to_RCP.R')
   if( em %!in% c( 'CO2', 'N2O', 'NH3' ) )  source('../code/diagnostic/Compare_to_GAINS.R')
-  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3' ) )  source('../code/diagnostic/Compare_inventory_to_CEDS_GAINS_EDGAR.R')
+  if( em %in% c( 'CO', 'NOx', 'SO2', 'NMVOC', 'NH3','BC' ) )  source('../code/diagnostic/Compare_Regional_National_inventory_to_CEDS_GAINS_EDGAR_HTAP_REAS.R')
 
 # Warn the user that if they are interested in N2O emissions and NH3 or NOx emissions
 # have changed since the last run for sectors 1 and 2, then H1.1a.Aggregate_NH3_NOx_for_N2O_7BC_ext.R needs
@@ -362,8 +413,6 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
       warning( "CEDS emissions are only strictly valid, therefore, after 1970 for these species.")
       warning( "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" )
   }
-
-
 
 logStop()
 

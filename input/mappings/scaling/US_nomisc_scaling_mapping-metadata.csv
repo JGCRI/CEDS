@@ -1,2 +1,3 @@
 Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
 Mapping,All,USA,All,NA,NA,Emission sector mapping for USA emission scaling. For species without significant miscellaneous tier1 emissions (other than AWB on fields).
+Mapping,All,USA,1A3b_Road,NA,NA,Use FIVE emission factors instead of inventory for road (and off-road mobile) to avoid discontinuity in EPA trends data

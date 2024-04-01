@@ -1,10 +1,11 @@
 # ------------------------------------------------------------------------------
 # Program Name:E.EDGAR_emissions.R
-# Author(s): Noah Prime
-# Date Last Modified: June 21, 2021
+# Author(s): Noah Prime, Harrison Suchyta, Rachel Hoesly
+# Date Last Modified: May 3, 2023
 # Program Purpose: Intended to reformat EDGAR default emissions data and add it to
 #                  the data base for the relevant emissions species
-# Input Files: relevant EDGAR emissions data ( EDGAR v5 = v50_[em]_1970_[edgar_end_year].xls )
+# Input Files: relevant EDGAR emissions data ( EDGAR = [em]_1970_[edgar_end_year].xls )
+#           This script processes EDGARv6.1 data.
 # Output Files: E.EDGAR_Emissions_[em].csv
 # TODO:
 #
@@ -29,26 +30,20 @@ initialize( script_name, log_msg, headers )
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "N2O"
-
-
-# EDGAR data version number
-vn <- "5.0"
+if ( is.na( em ) ) em <- "CO2"
 
 # Input domain
 domain <- "EM_INV"
 domain_ext <- "EDGAR/"
 
-
-# Define EDGAR years
-# CO2 end year in v5 is 2018, else 2015
-if( em == "CO2" ){
-
-    EDGAR_end_year <- EDGAR_end_year_CO2
-
+# --------------------------------------------------------------------------------
+# NOTE
+# If EDGAR emissions are updated, make sure constants are updated in common_data.R
+# --------------------------------------------------------------------------------
+if( em %in% c('CH4','N2O','CO2') ) {
+     EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
 }
 
-# Global constants defined in common_data.R
 EDGAR_years <- EDGAR_start_year : EDGAR_end_year
 X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
@@ -56,85 +51,71 @@ X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 # ------------------------------------------------------------------------------
 # 2. Input
 
-# File settings for EDGAR v5
-fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", EDGAR_start_year, "_",
-                 EDGAR_end_year ), ".xls")
-sheet_to_use <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
-rows_to_skip <- 9
+# File settings for EDGARv6.1 Air pollutants and EDGARv8 GHG
+fn <- c( paste0( em, "_", EDGAR_start_year, "_",
+                 EDGAR_end_year ), ".xlsx")
 
-# EDGAR v5 has a special file naming convention for CO2
-if( em == "CO2" ){
+if( em == 'CH4') fn [1] <- "EDGAR_CH4_1970_2022"
+if( em == 'N2O') fn [1] <- "EDGAR_N2O_1970_2022"
+if( em == 'CO2') fn [1] <- "IEA_EDGAR_CO2_1970_2022"
 
-    fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", "excl_short-cycle_org_C_",
-                     EDGAR_start_year, "_", EDGAR_end_year ), ".xls")
+sheet_to_use <- paste0(em, "_IPCC1996" )
 
+if( em %in% c('CH4','N2O','CO2') ) {
+    sheet_to_use <- "IPCC 1996"
 }
 
-
+rows_to_skip <- 9
 
 # Read in EDGAR data
-edgar <- readData( domain, domain_extension = domain_ext,
+edgar_in <- readData( domain, domain_extension = domain_ext,
                    file_name = fn[ 1 ], extension = fn[ 2 ],
                    sheet_selection = sheet_to_use, skip = rows_to_skip,
                    missing_value = c( "", "NULL" ) )
 
-
-
-
 # ------------------------------------------------------------------------------
 # 3. Reformatting
 
-# Add iso column and group sector column with it at the end
-edgar$iso <- tolower( edgar[ , "ISO_A3" ] )
-edgar <- edgar %>%
-            dplyr::rename(sector = IPCC,
-                          sector_description = IPCC_description)
+# Add iso, units, group by sector
+# combine fossil and bio emissions for each year/sector
+# convert to long form for processeing
 
-# Define units as kt (as EDGAR data is in Gg, which is the same as kt)
-edgar$units <- 'kt'
+edgar_long <- edgar_in %>%
+    mutate(iso = tolower(Country_code_A3)) %>%
+    dplyr::rename(sector = ipcc_code_1996_for_standard_report,
+                  sector_description = ipcc_code_1996_for_standard_report_name) %>%
+    mutate(units = 'kt') %>%   # Define units as kt (as EDGAR data is in Gg, which is the same as kt)
+    dplyr::select( iso, sector, units, fossil_bio, sector_description, starts_with("Y_")) %>%
+    tidyr::gather(year, value, -iso, -sector, -units, -fossil_bio, -sector_description) %>%
+    mutate(year = sub("Y_",'X',year)) %>%
+    mutate(value = as.numeric(value)) %>%
+    replace_na(list(value = 0)) %>%
+    dplyr::group_by( iso, sector, units, sector_description, year ) %>% # we want both bio and fossil emissions for most sectors
+    dplyr::summarize(value = sum(value, na.rm = TRUE)) %>%
+    dplyr::ungroup() %>%
+    mutate(value = ifelse(value <0, 0, value)) # replace negative emissions with zero
 
-
-# Remove unnecessary columns and arrange (iso-sector-units-sector description-data)
-len <- ncol( edgar )
-edgar <- edgar %>%
-    select( iso, sector, units, sector_description, all_of(7: (len - 2)) ) %>%
-    arrange(iso,sector)
-
-
-# Add X's to the column names of years
-len <- ncol ( edgar )
-names( edgar ) <- c( names( edgar[ 1 : 4 ] ), paste0( "X", names( edgar[ 5 : len ] ) ) )
-
-
-# Convert data to class numeric, from class character
-edgar <- edgar %>%
-    dplyr::mutate_at( .vars =  X_EDGAR_years,
-                      .funs = list( ~as.numeric( . ) ) )
-
+# back to wide form
+edgar_wide <- edgar_long %>%
+    tidyr::spread(year, value)
 
 # Remove rows with all NA's
-edgar <- edgar[ apply( X = edgar[ , X_EDGAR_years ],
-                       MARGIN = 1, function( x ) ( !all.na( x ) ) ) ,]
+edgar_wide <- edgar_wide[ apply( X = edgar_wide[ , X_EDGAR_years ],
+                       MARGIN = 1, function( x ) ( !all( x == 0 ) ) ) ,]
 
-# Turn NAs to zeros
-edgar <- edgar %>%
-            mutate_at( X_EDGAR_years,  ~replace(., is.na(.), 0) )
+# Check for negative emissions
+check <- edgar_long %>%
+    filter(value < 0) %>%
+    pull(value)
 
-
-# Make negative emissions zero
-neg_rows <- apply( edgar[, X_EDGAR_years ], 1, function( row ) any( row < 0 ) )
-edgar_neg <- edgar[ neg_rows, ]
-edgar[ edgar < 0 ] <- 0
-
-
-
+if( length(check)>0 ) stop('Check negative emissions in EDGAR processing')
 
 # ------------------------------------------------------------------------------
 
 # 12. Output
 
 # write formatted EDGAR data to intermediate-output
-writeData(edgar, domain = "MED_OUT", fn = paste0( "E.", em, "_EDGAR_v5" ))
+writeData(edgar_wide, domain = "MED_OUT", fn = paste0( "E.", em, "_EDGAR" ))
 
 logStop( )
 

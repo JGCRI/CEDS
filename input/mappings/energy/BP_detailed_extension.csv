@@ -1,0 +1,83 @@
+﻿fuel,sector,Product
+diesel_oil,1A1a_Electricity-autoproducer,    of which: diesel/gasoil
+diesel_oil,1A1a_Electricity-public,    of which: diesel/gasoil
+diesel_oil,1A1a_Heat-production,    of which: diesel/gasoil
+diesel_oil,1A2a_Ind-Comb-Iron-steel,    of which: diesel/gasoil
+diesel_oil,1A2b_Ind-Comb-Non-ferrous-metals,    of which: diesel/gasoil
+diesel_oil,1A2c_Ind-Comb-Chemicals,    of which: diesel/gasoil
+diesel_oil,1A2d_Ind-Comb-Pulp-paper,    of which: diesel/gasoil
+diesel_oil,1A2e_Ind-Comb-Food-tobacco,    of which: diesel/gasoil
+diesel_oil,1A2f_Ind-Comb-Non-metalic-minerals,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-Construction,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-machinery,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-mining-quarying,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-other,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-textile-leather,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-transpequip,    of which: diesel/gasoil
+diesel_oil,1A2g_Ind-Comb-wood-products,    of which: diesel/gasoil
+diesel_oil,1A3ai_International-aviation,    of which: diesel/gasoil
+diesel_oil,1A3aii_Domestic-aviation,    of which: diesel/gasoil
+diesel_oil,1A3b_Road,    of which: diesel/gasoil
+diesel_oil,1A3c_Rail,    of which: diesel/gasoil
+diesel_oil,1A3di_International-shipping,    of which: diesel/gasoil
+diesel_oil,1A3dii_Domestic-navigation,    of which: diesel/gasoil
+diesel_oil,1A3eii_Other-transp,    of which: diesel/gasoil
+diesel_oil,1A4a_Commercial-institutional,    of which: diesel/gasoil
+diesel_oil,1A4b_Residential,    of which: diesel/gasoil
+diesel_oil,1A4c_Agriculture-forestry-fishing,    of which: diesel/gasoil
+diesel_oil,1A5_Other-unspecified,    of which: diesel/gasoil
+heavy_oil,1A1a_Electricity-autoproducer,Fuel oil
+heavy_oil,1A1a_Electricity-public,Fuel oil
+heavy_oil,1A1a_Heat-production,Fuel oil
+heavy_oil,1A1bc_Other-feedstocks,Fuel oil
+heavy_oil,1A2a_Ind-Comb-Iron-steel,Fuel oil
+heavy_oil,1A2b_Ind-Comb-Non-ferrous-metals,Fuel oil
+heavy_oil,1A2c_Ind-Comb-Chemicals,Fuel oil
+heavy_oil,1A2d_Ind-Comb-Pulp-paper,Fuel oil
+heavy_oil,1A2e_Ind-Comb-Food-tobacco,Fuel oil
+heavy_oil,1A2f_Ind-Comb-Non-metalic-minerals,Fuel oil
+heavy_oil,1A2g_Ind-Comb-Construction,Fuel oil
+heavy_oil,1A2g_Ind-Comb-machinery,Fuel oil
+heavy_oil,1A2g_Ind-Comb-mining-quarying,Fuel oil
+heavy_oil,1A2g_Ind-Comb-other,Fuel oil
+heavy_oil,1A2g_Ind-Comb-textile-leather,Fuel oil
+heavy_oil,1A2g_Ind-Comb-transpequip,Fuel oil
+heavy_oil,1A2g_Ind-Comb-wood-products,Fuel oil
+heavy_oil,1A3ai_International-aviation,Fuel oil
+heavy_oil,1A3aii_Domestic-aviation,Fuel oil
+heavy_oil,1A3b_Road,Fuel oil
+heavy_oil,1A3c_Rail,Fuel oil
+heavy_oil,1A3di_International-shipping,Fuel oil
+heavy_oil,1A3dii_Domestic-navigation,Fuel oil
+heavy_oil,1A3eii_Other-transp,Fuel oil
+heavy_oil,1A4a_Commercial-institutional,Fuel oil
+heavy_oil,1A4b_Residential,Fuel oil
+heavy_oil,1A4c_Agriculture-forestry-fishing,Fuel oil
+heavy_oil,1A5_Other-unspecified,Fuel oil
+light_oil,1A1a_Electricity-autoproducer,Light distillates
+light_oil,1A1a_Electricity-public,Light distillates
+light_oil,1A1a_Heat-production,Light distillates
+light_oil,1A2a_Ind-Comb-Iron-steel,Light distillates
+light_oil,1A2b_Ind-Comb-Non-ferrous-metals,Light distillates
+light_oil,1A2c_Ind-Comb-Chemicals,Light distillates
+light_oil,1A2d_Ind-Comb-Pulp-paper,Light distillates
+light_oil,1A2e_Ind-Comb-Food-tobacco,Light distillates
+light_oil,1A2f_Ind-Comb-Non-metalic-minerals,Light distillates
+light_oil,1A2g_Ind-Comb-Construction,Light distillates
+light_oil,1A2g_Ind-Comb-machinery,Light distillates
+light_oil,1A2g_Ind-Comb-mining-quarying,Light distillates
+light_oil,1A2g_Ind-Comb-other,Light distillates
+light_oil,1A2g_Ind-Comb-textile-leather,Light distillates
+light_oil,1A2g_Ind-Comb-transpequip,Light distillates
+light_oil,1A2g_Ind-Comb-wood-products,Light distillates
+light_oil,1A3ai_International-aviation,    of which: jet/kerosene
+light_oil,1A3aii_Domestic-aviation,    of which: jet/kerosene
+light_oil,1A3b_Road,    of which: gasoline
+light_oil,1A3c_Rail,Light distillates
+light_oil,1A3di_International-shipping,Light distillates
+light_oil,1A3dii_Domestic-navigation,Light distillates
+light_oil,1A3eii_Other-transp,Light distillates
+light_oil,1A4a_Commercial-institutional,Light distillates
+light_oil,1A4b_Residential,Light distillates
+light_oil,1A4c_Agriculture-forestry-fishing,Light distillates
+light_oil,1A5_Other-unspecified,Light distillates

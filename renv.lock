@@ -25,7 +25,7 @@
     },
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.2-12",
+      "Version": "1.2-18",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "2451d6490ec017b18b6eff460c65fd85"
@@ -193,7 +193,7 @@
     },
     "mgcv": {
       "Package": "mgcv",
-      "Version": "1.8-23",
+      "Version": "1.8-38",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "b1a3bba86e45ddea6b66e67623f587ee"
@@ -211,7 +211,7 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-131",
+      "Version": "3.1-155",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "215a901b25abf4077a8e7d2d6ce2b211"

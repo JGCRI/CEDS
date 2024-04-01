@@ -260,7 +260,7 @@ merge_extend_UN_CEDS_data <- function(     a.CEDS_data,
 # Fuel_break_down
 #
 # Brief:        This function splits aggregated fuel data into disaggregated fuels.
-# Details:      The fucntion computes the fuel breakdown ratio for each fuel types
+# Details:      The function computes the fuel breakdown ratio for each fuel types
 #               The breakdown ratio for each fuel types is multiplied by the aggregate
 #               Value the individual fuel types.
 #
@@ -289,16 +289,27 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
                              a.UN_start = 1950,
                              a.iea_start_years = iea_start_year){
 
+
     # a.UN_data = UNSD_Energy_Final_Consumption
     # a.CEDS_UN_aggregate = ceds_un_extended_data$un_ceds
     # a.CEDS_only_aggregate = ceds_un_extended_data$ceds_only
-    # a.CEDS_comb_with_other = A.comb_activity_with_other
+    # a.CEDS_comb_with_other = A.default_comb_activity_with_other
     # a.ceds_extension_fuels = ceds_extension_fuels
     # a.extension_start_year = 1750
     # a.aggregate_fuel = aggregate_fuel_name
     # a.default_fuel_share = default_fuel_share
     # a.UN_start = 1950
     # a.iea_start_years = iea_start_year
+    #
+    # a.CEDS_data = A.default_comb_activity_with_other
+    # a.CDIAC_data = cdiac_fuel
+    # a.UN_data = UNSD_Energy_Final_Consumption
+    # a.ceds_extension_fuels = ceds_extension_fuels
+    # a.extension_start_year = cdiac_start_year
+    # a.iea_start_years = iea_start_year
+    # a.iea_end_year = end_year
+    # a.aggregate_fuel = aggregate_fuel_name
+    # a.CDIAC_fuel = cdiac_fuel_name
 
     #-------------------
     # Disaggregate to CEDS fuels for countries with UN data
@@ -438,7 +449,8 @@ fuel_breakdown <- function(  a.UN_data = UNSD_Energy_Final_Consumption,
     all_fuel_breakdown <- rbind.fill( un_ceds_fuel_breakdown, ceds_fuel_breakdown)
 
     # Check that all countries have data
-    if (length(unique(all_fuel_breakdown$iso)) != length(unique(a.iea_start_years$iso))){ stop( 'Not all countries have data in fuel_breakdown(), please check.' )}
+    if (length(unique(all_fuel_breakdown$iso)) != length(unique(a.iea_start_years$iso))){
+        stop( 'Not all countries have data in fuel_breakdown(), please check.' )}
     # Check for na's (There will be na's between 1960 and 1971)
     if( anyNA(all_fuel_breakdown[ paste0('X',a.extension_start_year:min(a.iea_start_years$start_year - 1)) ] )) stop( "Data have NA's in fuel_breakdown(), please check.")
 

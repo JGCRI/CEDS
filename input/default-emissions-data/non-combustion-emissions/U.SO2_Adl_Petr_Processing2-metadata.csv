@@ -1,0 +1,4 @@
+﻿Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,SO2,omn,1B2_Fugitive-petr,1960,2022,"2005-2022 oil and gas emissions from NASA's combined OMI catalogue (Fioletov et al., 2016) extended using flaring volume and oil production, subtracing CEDS default 1A1bc"
+Emissions,SO2,tkm,1B2_Fugitive-petr,1960,2022,"2005-2022 oil and gas emissions from NASA's combined OMI catalogue (Fioletov et al., 2016) extended using flaring volume and oil production, subtracing CEDS default 1A1bc"
+Emissions,SO2,tto,1B2_Fugitive-petr,1960,2022,"2005-2022 oil and gas emissions from NASA's combined OMI catalogue (Fioletov et al., 2016) extended using flaring volume and oil production, subtracing CEDS default 1A1bc"

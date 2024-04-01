@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "CO"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -50,10 +50,9 @@
 #   Provide the inventory and mapping file names, the mapping
 #   method (by sector, fuel, or both), and the regions covered by
 #   the inventory (as a vector of iso codes)
-    vn <- "5.0"  # EDGAR data version number
+
     inv_data_folder <- "EM_INV"
     inv_name <- 'EDGAR' #for naming diagnostic files
-
 
     sector_fuel_mapping <- "Edgar"
     mapping_method <- 'sector'
@@ -122,11 +121,10 @@ if ( em == "N2O") {
 # TODO: (Future): If CO2 is ever scaled to EDGAR v5 in the future, then confirm
 #        that this would work properly (as there are NAs for
 #        certain values from 2016-2018).
-  # if( vn == "5.0" & em == "CO2" ){
-  #
-  #   EDGAR_end_year <- 2018
-  #
-  # }
+
+if( em %in% c('CH4','N2O','CO2') ) {
+     EDGAR_end_year = EDGAR_end_year_GHG # GHG Emissions are provided for more years than air pollutants
+}
 
   inv_years <- c( EDGAR_start_year : EDGAR_end_year )
 
@@ -136,7 +134,7 @@ if ( em == "N2O") {
 
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
-   inventory_data_file <- paste0( "E.", em, "_EDGAR_v5" )
+   inventory_data_file <- paste0( "E.", em, "_EDGAR" )
    scaling_data <- F.readScalingData( inventory = inventory_data_file,
                                       'MED_OUT',
                                       mapping = sector_fuel_mapping,
