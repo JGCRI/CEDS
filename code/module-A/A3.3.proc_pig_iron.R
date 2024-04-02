@@ -1,10 +1,13 @@
 # ------------------------------------------------------------------------------
 # Program Name: A3.3.proc_pig_iron.R
 # TODO: This file could have a more informative name
-# Author: Linh Vu
-# Date Last Updated: 14 April 2016
+# Author: Linh Vu, Andrea Mott
+# Date Last Updated: 5 November 2021
 # Program Purpose: Process pig iron production
 # Input Files:  Blast_furnace_iron_production_1850-2014.xlsx,
+#               Blast_furnace_iron_production_1890-1980.xlsx,
+#               Blast_furnace_iron_production_1980-2014.xlsx,
+#               worldsteel_Pig_Iron_Production_2010-2019.xlsx,
 #               Pig_Iron_Production_US.csv, Pig_Iron_Production_Mitchell.csv,
 #               A.UN_pop_master.csv
 # Output Files: A.Pig_Iron_Production.csv, A.Pig_Iron_Production_full.csv
@@ -20,7 +23,7 @@
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
     headers <- c( "common_data.R", "data_functions.R","interpolation_extension_functions.R",
-                  "analysis_functions.R","process_db_functions.R" ) # Additional function files may be required.
+                  "analysis_functions.R","process_db_functions.R", "timeframe_functions.R" , "IO_functions.R")
     log_msg <- "Process pig iron production"
     script_name <- "A3.3.proc_pig_iron.R"
 
@@ -44,13 +47,25 @@
     spew_2 <- spew_2[-c(30:34)]  # remove years that are repeated in newest dataset (spew_3)
     spew_1_plus_2 = cbind(spew_1, spew_2)
 
-    # newest dataset produced by worldsteel ranges 2010-2017.
-    spew_3 <- readData( "ACTIVITY_IN", "worldsteel_Pig_Iron_Production_2010-2019", ".xlsx",
+    # newest dataset produced by worldsteel
+    worldSteel_3 <- readData( "ACTIVITY_IN", "worldsteel_Pig_Iron_Production_2010-2019", ".xlsx",
                         domain_extension = "metals/", skip = 2)[ 3:46, 1:12 ]
 
-    spew_3 <- spew_3 %>% select(-Countries)
+    worldSteel_3 <- worldSteel_3 %>% select(-Countries)
 
-    spew <-  full_join(spew_1_plus_2, spew_3, by = c("iso"))
+    # data from 2017 - 2021 from USGS minerals yearbook
+    usgs <- readData( "ACTIVITY_IN", "USGS_Pig_Iron_Production_2017-2021", ".xlsx",
+                              domain_extension = "metals/", skip = 2)
+
+    # remove overlapping years with worldsteel dataset and combine
+    usgs <- select(usgs, !c("Country","2017","2018","2019"))
+
+    worldSteel_usgs <- left_join(worldSteel_3, usgs, by = "iso")
+
+
+    # TODO: Change variable names from here on, since this is no longer spew data
+    spew <-  full_join(spew_1_plus_2, worldSteel_usgs, by = c("iso"))
+
     # arrange alphabetically
     spew <- spew[order(spew$iso),]
 
@@ -62,7 +77,6 @@
 
 # Define values
     SHORT_TO_METRIC <- .9072  # short ton to metric ton (for US)
-
 
 
 # Define functions
@@ -156,7 +170,21 @@
     names( us_long ) <- c( "iso", "year", "us_en" )
 
 # Combine all data with priority mitchell > spew > spew_pre (except US where spew > spew_pre > us > mitchell)
-    all <- data.frame( year = X_extended_years ) %>%
+# SJS TODO
+# Problem is here - using X_extended_years puts zero's if there is no data. I think we want to use only years that are up to worldsteel
+# Perhaps if we 1) identify last year in worldsteel data somewhere above, and then
+# 2) add NA's for extra years without data then extend_and_interpolate below will work properly.
+
+# Define years to interpolate NAs for the world steel data (interpolate through the World Steel data, then extend constant forward)
+    WS_max <- worldSteel_usgs %>% names %>% as.numeric %>% max(na.rm = T)
+    if(is.na(WS_max)) stop('World Steel data in unexpted format, extention needs to be adressed')
+    if(WS_max < 2019) stop('World Steel data in unexpted format, extention needs to be adressed')
+    X_WS_extended_years <- paste0('X',extended_years[extended_years<= WS_max ])
+    if(max(extended_years) > WS_max)
+        {X_WS_extended_years_add <- paste0('X',extended_years[extended_years > WS_max ])}
+
+# Format World Steel data
+    all <- data.frame( year = X_WS_extended_years ) %>%
       merge( data.frame( iso = unique(
         c( us_long$iso, mitchell_long$iso, spew_long$iso, spew_pre_long$iso ) ) ), all = T ) %>%
                                                                    merge( us_long, all = T ) %>%
@@ -180,10 +208,14 @@
     all_wide <- cast( all, iso + sector + fuel + units ~ year, value = "en" )
     all_wide$iso <- as.character( all_wide$iso )
 
+# Define years to interpolate over -
+# interpolate through the last year of world steel data, then
 # Interpolate NAs
-  if (!all_equal(interpolate_NAs(  all_wide[ X_extended_years ]), interpolate_NAs2( all_wide[ X_extended_years ]))) stop()
-    all_wide[ X_extended_years ] <- interpolate_NAs( all_wide[ X_extended_years ] )
-    all_wide[ is.na( all_wide ) ] <- 0
+  if (!all_equal(interpolate_NAs(  all_wide[ X_WS_extended_years ]), interpolate_NAs2( all_wide[ X_WS_extended_years ]))) stop()
+    all_wide[ X_WS_extended_years ] <- interpolate_NAs( all_wide[ X_WS_extended_years ] )
+# Replace remaining NAs with zero for all extended years, except years after the world steel data (currently ends in 2019)
+    all_wide <- all_wide %>%
+        mutate_at(vars("X1750":"X2019"), ~replace_na(.,0))
 
 # Disaggregate countries
     # Czechoslovakia
@@ -211,15 +243,17 @@
                                             id_cols = c( 'iso', 'sector', 'fuel', 'units' ), population )
     all_wide_out <- all_wide_yug
 
-
-
     # Extend data forward
-    end_year <- 2019
+    # Add NA columns for the years after World Steel data but in the extension data (will extend constant forward later)
+    if(max(extended_years) > WS_max)
+        {all_wide_out[X_WS_extended_years_add] <- as.numeric(NA)}
+
+    end_year <- BP_last_year
     start_year <- 1950
     disaggregate_years <- paste0( 'X', start_year:end_year )
     all_wide_out <- extend_and_interpolate(all_wide_out,disaggregate_years)
     all_wide_out[ is.na( all_wide_out ) ] <- 0
-
+    print('made it here')
     # Remove countries that are all zeroes from full dataset
     Xyears <- names( all_wide_out )[ grepl( "X", names( all_wide_out ) ) ]
     all_wide_out <- subset( all_wide_out, rowSums( all_wide_out[ Xyears ] ) > 0 )
@@ -227,8 +261,29 @@
     all_wide_out <- all_wide_out[order(all_wide_out$iso),]
 
 # ---------------------------------------------------------------------------
+
 # 3. Output
     writeData( all_wide_out, "EXT_IN", "A.Pig_Iron_Production", domain_extension = "extension-data/" )
     writeData( all_wide_out, "DIAG_OUT", "A.Pig_Iron_Production_full", meta = F )
+
+# ------------------------------------------------------------------------------
+# 4. Turn data into driver data
+
+    act_input <- readData( "MAPPINGS", "activity_input_mapping")
+    MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx",
+                     sheet_selection = "Sectors" )
+
+    # Make into driver format
+    activity_data <- dplyr::rename( all_wide_out, activity = sector)
+    activity_data <- dplyr::select(activity_data, -fuel)
+    activity_data$activity <- "pig_iron"
+
+    # Add reformatted activity_data to the activity database, extending or truncating it as necessary.
+    # By default, it will be extended forward to the common end year, but not backwards.
+    # Only do this if the activityCheck header function determines that the activities in
+    # the reformatted activity_data are all present in the Master List.
+        if ( activityCheck( activity_data, check_all = FALSE ) ) {
+            addToActivityDb( activity_data )
+        }
 
 logStop()

@@ -24,6 +24,16 @@ input/energy/OECD_and_NonOECD_E_Stat.csv
 input/energy/OECD_and_NonOECD_Conversion_Factors.csv
 input/energy/OECD_and_NonOECD_Conversion_Factors_Full.csv
 
+#Large data for gridding
+input/gridding/grid_data/global_power_plant_database.csv
+input/gridding/grid_data/raw_point_source/
+input/gridding/grid_data/EDGAR/v5.0/*
+input/gridding/grid_data/ECLIPSE/ECLIPSE*
+
+#Proxy files for 0.1 degree downscaling
+input/gridding/proxy-backup-01/*
+
+
 .Rproj.user
 
 #Other

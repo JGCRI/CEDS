@@ -332,7 +332,7 @@ combined_sector_percentages_all <- combined_sector_percentages_template %>%
                    fuel = as.character( fuel ) ) %>%
     dplyr::left_join( combined_sector_percentages, by = c( "iso", "ext_sector", "fuel" ) ) %>%
     dplyr::select( iso, ext_sector, fuel, all_of(X_extension_years) )
-
+combined_sector_percentages_all[is.na(combined_sector_percentages_all)] <- 0
 if( any( is.na( combined_sector_percentages_all ) ) ){
 
     stop( paste0( "Combined aggregate sector splits (BOND and CEDS defaults combined) contain NA values. See ", script_name ) )

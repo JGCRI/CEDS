@@ -20,7 +20,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "NMVOC"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -103,7 +103,7 @@
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
 
- # CAN - Newer data must run last
+# CAN - Newer data must run last
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
 
@@ -131,17 +131,9 @@
     if ( em %in% c( 'SO2', 'NOx', 'NH3', 'NMVOC', 'CO','BC','OC' ) ){ scripts <-
         c( scripts, 'F1.1.China_MEIC_2018_scaling.R' ) }
 
-# Argentina
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
-        c( scripts, 'F1.1.Argentina_scaling.R' ) }
-
 # Japan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3','BC','OC' ) ){ scripts <-
         c(scripts, 'F1.1.Japan_scaling.R' ) }
-
-# South Korea 2017
-    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3','BC','OC' ) ) { scripts <-
-        c( scripts, 'F1.1.South_korea_scaling_2017.R' ) }
 
 # Taiwan
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'BC', 'OC' ) ){ scripts <-
@@ -150,6 +142,18 @@
 # Australia
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3' ) ){ scripts <-
         c( scripts, 'F1.1.Australia_scaling.R' ) }
+
+# Argentina
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC' ) ){ scripts <-
+        c( scripts, 'F1.1.Argentina_scaling.R' ) }
+
+# South Korea
+    if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3', 'BC','OC' ) ) { scripts <-
+        c( scripts, 'F1.1.South_Korea_scaling.R' ) }
+
+# South Korea EDGAR-HTAPv3
+    if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
+        c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3_scaling.R' ) }
 
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type

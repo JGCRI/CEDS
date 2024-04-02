@@ -34,7 +34,6 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inventory_data_file <- 'USA/US_GHG_inventory'
     inv_data_folder <- "EM_INV"
     inv_name <- 'US_GHG' #for naming diagnostic files
-    inv_years<-c( 1990:2018 )
 
 # ------------------------------------------------------------------------------
 # 2. Inventory in Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
@@ -52,8 +51,10 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                                     2:ncol( inv_data_sheet ) ]
         names( inv_data ) <- inv_data_sheet[ 2, 2:ncol( inv_data_sheet ) ]
         names( inv_data )[ 1 ] <- 'Source'
-        inv_data <- inv_data[ -grep( "Does not exceed",
-                                     inv_data[ , 1 ] ):-nrow( inv_data_sheet ), ]
+        inv_data <- inv_data[ -(grep( "Does not exceed",
+                                     inv_data[ , 1 ] )-4):-nrow( inv_data_sheet ), ]
+
+        inv_years <- colnames(inv_data %>% dplyr::select(-Source))
 
     # Define emission species
         inv_data$EM <- NA
@@ -61,14 +62,14 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                   inv_data[ inv_data$Source %in% ghg_em, 'Source' ]
         inv_data <- fill( inv_data, EM )
 
-    # remove totals
+    # remove totals and select current emission species
         inv_data <- filter( inv_data, Source %!in% ghg_em, EM %in% em )
 
     # add X to year columns
         inv_data <- inv_data[ c( 'Source', paste( inv_years ) ) ]
         names( inv_data ) <- c( 'sector', paste0( 'X', inv_years ) )
 
-    # convert to numeric
+    # convert to numeric (remove commas from numbers for thousands, etc)
         inv_data[ paste0( 'X', inv_years ) ] <-
                   apply( X = inv_data[ paste0( 'X', inv_years ) ],
                          2, FUN = gsub, pattern = ',', replacement = '' )

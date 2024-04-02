@@ -56,11 +56,11 @@
 #   the inventory (as a vector of iso codes)
     sector_fuel_mapping <- 'CAN_2018' #_scaling_mapping'
     mapping_method <- 'sector'
-    inv_name <- 'CAN_2018' #for naming diagnostic files
+    inv_name <- 'CAN_2021' #for naming diagnostic files
     region <- c( "can" )
-    inv_years<-c( 1990:2018 )
+    inv_years<-c( 1990:2021 )
 # Because this data comes read in as reversed.
-    inv_years_reversed<-c( 2018:1990 )
+    inv_years_reversed<-c( 2021:1990 )
 
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
     inv_data_folder <- 'MED_OUT'

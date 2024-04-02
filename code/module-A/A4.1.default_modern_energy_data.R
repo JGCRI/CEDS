@@ -4,7 +4,7 @@
 # Date Last Modified: December 9, 2019
 # Program Purpose: To expand IEA_BP energy data to include entries for all possible
 #                  id combinations.
-# Input Files: A.IEA_BP_energy_ext.csv, Master_Fuel_Sector_List.xlsx,
+# Input Files: A.IEA_BP_energy_ext_detailed.csv, Master_Fuel_Sector_List.xlsx,
 #              Master_Country_List.csv,
 # Output Files: A.default_comb_activity_with_other.csv, A.Other_transformation_fuel.csv,
 #               A.total_agg_fuel.csv, A.other_IEA_energy_values.csv
@@ -28,7 +28,7 @@
 # ------------------------------------------------------------------------------
 # 1. Read in files
 
-    energy_data <- readData( "MED_OUT", "A.IEA_BP_energy_ext" )
+    energy_data <- readData( "MED_OUT", "A.IEA_BP_energy_ext_detailed" )
 
     MFL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Fuels" )
     MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )

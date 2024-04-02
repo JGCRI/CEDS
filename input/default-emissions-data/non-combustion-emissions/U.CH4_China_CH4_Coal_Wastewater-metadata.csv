@@ -1,0 +1,3 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,CH4,chn,1B1_Fugitive-solid-fuels,1970,2022,EDGAR v8 estimates reduced by 25% to better match regional literature estimates
+Emissions,CH4,chn,5D_Wastewater-handling,1970,2022,EDGAR v8 estimates reduced by 50% to better match regional literature estimates

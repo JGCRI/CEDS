@@ -28,10 +28,11 @@
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
 # Define emissions species variable
-
   args_from_makefile <- commandArgs( TRUE )
   em <- args_from_makefile[ 1 ]
+  res <- as.numeric( args_from_makefile[ 2 ] ) # introducing second command line argument as gridding resolution
   if ( is.na( em ) ) em <- "CH4"
+  if ( is.na( res ) ) res <- 0.5 # default gridding resolution of 0.5
 
 # Set up directories
 
@@ -44,7 +45,7 @@
 
 # Initialize the gridding parameters
 
-  gridding_initialize( grid_resolution = 0.5,
+  gridding_initialize( grid_resolution = res,
                        start_year = 1750,
                        end_year = end_year,
                        load_masks = T,

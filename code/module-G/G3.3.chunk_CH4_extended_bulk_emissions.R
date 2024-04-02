@@ -24,10 +24,17 @@
   source( paste0( PARAM_DIR, "header.R" ) )
   initialize( script_name, log_msg, headers )
 
+  # Define emissions species variable
+  args_from_makefile <- commandArgs( TRUE )
+  em <- args_from_makefile[ 1 ]
+  res <- as.numeric( args_from_makefile[ 2 ] ) # introducing second command line argument as gridding resolution
+  if ( is.na( em ) ) em <- "CH4"
+  if ( is.na( res ) ) res <- 0.5 # default gridding resolution of 0.5
+
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
 
-  grid_resolution <- 0.5
+  grid_resolution <- res
   start_year <- 1850
   end_year <- 1960
   chunk_density <- 10
@@ -52,10 +59,6 @@
 # ------------------------------------------------------------------------------
 # 1. Chunking
 
-# Define e+missions species variable
-  args_from_makefile <- commandArgs( TRUE )
-  em <- args_from_makefile[ 1 ]
-  if ( is.na( em ) ) em <- "CH4"
 
 # Start chunking
 

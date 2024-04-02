@@ -37,7 +37,7 @@
 # Read in S trends in diesel
     diesel_standards_ppm <- readData( "DEFAULT_EF_IN", "Diesel_transport_S_trend",
                                       ".xlsx", sheet_selection = "ppm",
-                                      col_types = c(rep('text', 3), rep('numeric', 52)))
+                                      col_types = c(rep('text', 3), rep('numeric', 54)))
 # Mapping file
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
