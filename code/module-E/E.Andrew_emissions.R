@@ -36,17 +36,22 @@
 
 # Andrew cement inventory
     Andrew_read <- readData( 'EM_INV', domain_extension = "CDIAC/",
-                             'Andrew_cement_1900_2018', check.names = FALSE)
+                             'Andrew_cement_1880_2022', check.names = FALSE)
 
 # Mapping files
     MCL <- readData( "MAPPINGS", "Master_Country_List" )
     Andrew_country_map <- readData( 'EM_INV', domain_extension = "CDIAC/",
                                     'Andrew_country_map' )
 
-# Set any negative values to 0
+# Set negative and NA values to 0
     Andrew_read[ Andrew_read < 0 ] <- 0
+    Andrew_read[ is.na(Andrew_read) ] <- 0
 
-    # Find all countries with no isos
+# Remove ISO, UN code, and 2022 columns
+    Andrew_read <- Andrew_read %>%
+      dplyr::select(-"UN code", -"ISO")
+
+# Find all Andrew's countries that aren't mapped to ISOs
     unmatched_Andrew_countries <- dplyr::filter( Andrew_country_map, is.na( iso ) ) %>%
       dplyr::select( Andrew ) %>%
       unique()
@@ -55,14 +60,17 @@
 # Print a warning if some countries are not in the CEDS country list
     if (nrow(unmatched_Andrew_countries) > 0) {
       for (i in 1:nrow(unmatched_Andrew_countries)) {
-        if (unname(colSums(Andrew_read[unmatched_Andrew_countries[[1]][i]]) == 0)){
-                warning( paste0( "The following country does not correpond to a CEDS country, but has no data:\n",
-                                 paste(unmatched_Andrew_countries[[1]][i], collapse = ", " ) ) )
+        unmatched_country_row <- Andrew_read$Name == unmatched_Andrew_countries[[1]][i]
+        if (any(unmatched_country_row)) {
+          row_sum <- unname(rowSums(Andrew_read[unmatched_country_row, -1]))
+          if (row_sum > 0) {
+            warning( paste0( "The following country does not correpond to a CEDS country, but has data:\n",
+                             paste(unmatched_Andrew_countries[[1]][i], collapse = ", " ) ) )
+            next
+          }
         }
-        else if (unname(colSums(Andrew_read[unmatched_Andrew_countries[[1]][i]]) > 0)){
-          warning( paste0( "The following country does not correpond to a CEDS country, but has data:\n",
-                           paste(unmatched_Andrew_countries[[1]][i], collapse = ", " ) ) )
-        }
+        warning( paste0( "The following country does not correpond to a CEDS country, but has no data:\n",
+                         paste(unmatched_Andrew_countries[[1]][i], collapse = ", " ) ) )
       }
     }
 
@@ -83,12 +91,17 @@
                                historical_pre_extension_year:end_year ), ],
                 iso ~ X_year, value = 'pop' )
 
-# Process Andrew data
-    Andrew_cement_wide <- Andrew_read
-    Andrew_cement_wide$Global <- NULL  #Remove 'Global' column
-
 # Cast Andrew to long
-    Andrew_long <- gather(Andrew_cement_wide, Country, cement_production, names(Andrew_cement_wide)[2]:names(Andrew_cement_wide)[length(names(Andrew_cement_wide))])
+    Andrew_long <- gather(Andrew_read, Year, cement_production, -Name)
+
+# Order by name
+    Andrew_long$Year <- as.integer(Andrew_long$Year)
+    Andrew_long <- Andrew_long %>%
+      arrange(Name, Year)
+
+# Reorder the columns
+    Andrew_long <- Andrew_long[, c("Year", "Name", "cement_production")]
+    colnames(Andrew_long)[2] <- "Country"
 
 # Create a units row
     Andrew_long$units <- final_units
@@ -132,87 +145,15 @@
     extended_Andrew_years_back <- paste0('X', 1750: (Andrew_start_year-1))
     Andrew_wide[,extended_Andrew_years_back] <- 0
 
-# Extend Andrew data forward to end_year
-    extended_Andrew_years_forward <- paste0('X', (Andrew_end_year+1):end_year)
-    Andrew_wide[,extended_Andrew_years_forward] <- Andrew_wide[,paste0('X', Andrew_end_year)]
-
-# -----------------------------------------------------------------------------
-# 4. Split Countries
-
-# This section is for isos which have Andrew data provided for certain
-# time periods, but in other time periods their data is within an aggregated iso.
-
-# For each country, use the disaggregate_country function defined in
-# data_functions.R to split aggregate country fuels. Use population breakdown
-# to split data.
-
-# French Equatorial Africa
-    Andrew_FrEqAf_wide <-
-      disaggregate_country( original_data = Andrew_wide,
-                            id_cols = c( 'iso', 'fuel' ),
-                            trend_data = population,
-                            trend_match_cols = 'iso',
-                            combined_iso = 'FRENCH_EQUATORIAL_AFRICA',
-                            dis_end_year = 1958,
-                            disaggregate_iso = c( 'caf', 'cog',
-                                                  'gab', 'tcd' )  ,
-                            allow_dropped_data = T )
-
-# French West Africa
-    Andrew_FrWeAf_wide <-
-      disaggregate_country( original_data = Andrew_FrEqAf_wide,
-                            id_cols = c( 'iso', 'fuel' ),
-                            trend_data = population,
-                            trend_match_cols = 'iso',
-                            combined_iso = 'FRENCH_WEST_AFRICA',
-                            method = 2,
-                            dis_end_year = 1957,
-                            disaggregate_iso = c( 'mrt', 'sen', 'mli',
-                                                  'gin', 'civ', 'bfa',
-                                                  'ben', 'ner' ) )
-
-# Leeward Islands
-    Andrew_LI_wide <-
-      disaggregate_country( original_data = Andrew_FrWeAf_wide,
-                            id_cols = c( 'iso', 'fuel' ),
-                            trend_data = population,
-                            trend_match_cols = 'iso',
-                            combined_iso = 'LEEWARD ISLANDS',
-                            dis_end_year = 1956,
-                            dis_start_year = 1950,
-                            disaggregate_iso = c( 'kna', 'atg' ),
-                            allow_dropped_data = T )
-
 # -----------------------------------------------------------------------------------------------------------
-# 5. Split additional isos
-
-# This section is for isos which do not have Andrew data provided directly in any
-# Andrew time period, but have their data contained within an aggregated Andrew iso.
-# Downscaling to these isos will be done with UN population data.
-    extended_years_with_Xs <- paste0('X', historical_pre_extension_year:end_year)
-
-# Cast Andrew to long format
-    Andrew_LI_long <- Andrew_LI_wide %>%
-      tidyr::gather( key = "Years", value = "Emissions", extended_years_with_Xs )
-
-# Fix Serbia data - disaggregate to srb and srb (Kosovo)
-    agg_region_disagg_isos <- c( "srb (kosovo)" )
-    agg_region <- "srb"
-
-    Andrew_split_srb_Fixed <- disagg_iso_with_population ( agg_region, agg_region_disagg_isos,
-                                                           Andrew_LI_long, population, extended_years_with_Xs )
-
-# Cast back into wide format
-    Andrew_split_final <- Andrew_split_srb_Fixed %>%
-      tidyr::spread( Years, Emissions )
-
-# -----------------------------------------------------------------------------------------------------------
-# 6. Add zero values for nations too small for Andrew
+# 4. Add zero values for nations too small for Andrew
 #    Add blank entries for any countries not in Andrew
+
+    extended_years_with_Xs <- paste0('X', historical_pre_extension_year:end_year)
 
 # Define countries to add to Andrew data
     non_Andrew_countries <- MCL$iso[ MCL$iso %!in%
-                                      unique( Andrew_split_final$iso ) ]
+                                      unique( Andrew_wide$iso ) ]
 
 # Only keep countries with 1 for the final_data_flag in the MCL, Kosovo, and Guam
 # TODO: when Kosovo and Guam issue in Master Country List is resolved, the call to their isos below can be removed
@@ -238,7 +179,7 @@
     add_zeros_andrew[ extended_years_with_Xs ] <- 0
 
 # Combine needed rows to Andrew, so even countries w/o data are represented
-    Andrew_disaggregated <- dplyr::bind_rows( add_zeros_andrew, Andrew_split_final )
+    Andrew_disaggregated <- dplyr::bind_rows( add_zeros_andrew, Andrew_wide )
 
 # Clean and reformat
     Andrew_disaggregated$units <- final_units

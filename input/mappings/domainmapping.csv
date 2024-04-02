@@ -17,6 +17,7 @@ GEN_IN,../input/general
 GRIDDING,../input/gridding
 DEFAULT_EF_IN,../input/default-emissions-data
 DEFAULT_EF_PARAM,../input/default-emissions-data/EF_parameters
+DEFAULT_EF_PARAM_NC,../input/default-emissions-data/EF_parameters/process_EFs
 EM_INV,../input/emissions-inventories
 UNFCCC_IN,../input/emissions-inventories/UNFCCC
 UNFCCC__NEW_IN,../input/emissions-inventories/UNFCCC_update
@@ -28,3 +29,5 @@ FIN_OUT,../final-emissions
 DIAG_OUT,../diagnostic-output
 DOCUMENTATION,../documentation
 TEST_FILES,../tests/
+PROX_OUT,../intermediate-output/final_generated_proxy
+EDGAR_GRIDS,../input/gridding/grid_data/EDGAR/v5.0

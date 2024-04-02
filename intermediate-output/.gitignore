@@ -1,3 +1,34 @@
 # Ignore all data files in this directory
 *.csv
 *.nc
+
+# Ignore generated proxy files
+final_generated_proxy/*.Rd
+final_generated_proxy_0.1/*.Rd
+incomplete-grids/*.Rd
+
+# Ignore Point Source yml files
+# OMI sources
+OMI_yml/*.yml
+# All Sources
+point_source_yml/*.yml
+# Scaled Sources
+full_point_source_scaled_yml/BC/*.yml
+full_point_source_scaled_yml/CO/*.yml
+full_point_source_scaled_yml/CO2/*.yml
+full_point_source_scaled_yml/OC/*.yml
+full_point_source_scaled_yml/NMVOC/*.yml
+full_point_source_scaled_yml/NOx/*.yml
+full_point_source_scaled_yml/NH3/*.yml
+full_point_source_scaled_yml/N2O/*.yml
+full_point_source_scaled_yml/SO2/*.yml
+# Consolidated sources
+full_point_source_yml/BC/*.yml
+full_point_source_yml/CO/*.yml
+full_point_source_yml/CO2/*.yml
+full_point_source_yml/OC/*.yml
+full_point_source_yml/NMVOC/*.yml
+full_point_source_yml/NOx/*.yml
+full_point_source_yml/NH3/*.yml
+full_point_source_yml/N2O/*.yml
+full_point_source_yml/SO2/*.yml

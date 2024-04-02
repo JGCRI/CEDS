@@ -499,7 +499,8 @@ if( em != 'CO2') {
 
   # Aggregate 1B1 and 2C by iso
   CEDS_1B1and2c <- CO2_total_CEDS_emissions[which(CO2_total_CEDS_emissions$sector %in%
-                                                    c('1B1_Fugitive-solid-fuels','2C_Metal-production')),]
+                                                    c('1B1_Fugitive-solid-fuels','2C1_Iron-steel-alloy-prod', '2C3_Aluminum-production',
+                                                      '2C4_Non-Ferrous-other-metals')),]
 
   CO2_1B1and2c <- CEDS_1B1and2c %>%
       dplyr::select( iso, all_of(X_extended_years) ) %>%

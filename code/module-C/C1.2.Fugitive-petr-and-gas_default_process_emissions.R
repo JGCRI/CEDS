@@ -1,13 +1,13 @@
 #------------------------------------------------------------------------------
 # Program Name: C1.2.Fugitive-petr-and-gas_default_process_emissions.R
-# Author: Leyang Feng, Patrick O'Rourke
-# Date Last Modified: August 13, 2020
+# Author: Leyang Feng, Patrick O'Rourke, Noah Prime
+# Date Last Modified: June 22, 2021
 # Program Purpose: Generates default process emissions for fugitive oil and
 #                  gas production ( 1B2_Fugitive-petr, 1B2b_Fugitive-NG-distr,
 #                  and 1B2b_Fugitive-NG-prod )
 # Input Files: C.[em]_ECLIPSE_flaring_emissions_extended.csv,
-#              relevant EDGAR emissions data ( EDGAR v5 = v50_[em]_1970_[edgar_end_year].xls )
-#              NC_EDGAR_sector_mapping.csv, C.[em]_GAINS_fug_oil_gas_shares.csv, Master_Country_List.csv,
+#              relevant EDGAR emissions data ( E.[em]_EDGAR )
+#              Master_EDGAR_sector_mapping.csv, C.[em]_GAINS_fug_oil_gas_shares.csv, Master_Country_List.csv,
 #              A.UN_pop_master.csv, C.N2O_EDGAR_NOx_N2O_fugitive_oil_NG_ratios.csv
 # Output Files: C.[em]_Fugitive-petr-and-gas_aggregate_emissions.csv,
 #               C.[em]_Fugitive-petr-and-gas_default_process_emissions.csv
@@ -55,86 +55,30 @@ return_diff <- function( dataframe1, dataframe2 ) {
 # Read in the extended flaring data
     flaring <- readData( "MED_OUT", file_name = paste0( 'C.', em, '_ECLIPSE_flaring_emissions_extended' ) )
 
-# Read in EDGAR non-combustion sector mapping file
-    NC_sector_map_EDGAR <- readData( "MAPPINGS", "NC_EDGAR_sector_mapping" )
+# Read in Master EDGAR sector mapping file
+    Master_sector_map_EDGAR <- readData( "MAPPINGS" , "Master_EDGAR_sector_mapping")
 
 # Read in EDGAR data
-
-#   Define EDGAR version using and other input settings
-    vn <- "5.0"
 
 #   Defineinput domain
     domain_use <- "EM_INV"
     domain_ext <- "EDGAR/"
 
-#   Read in EDGAR v4.2 - original CEDS release used this only for CH4
-    if( as.numeric( vn ) == 4.2 ){
+#   Define EDGAR years
+#   CO2 end year in v5 is 2018, else 2015
+    if( em == "CO2" ){
 
-      EDGAR_raw <- readData( domain = domain_use, domain_extension = domain_ext,
-                             file_name = paste0( "EDGAR", gsub( "[.]", "", vn ), "_", em  ) )
-
-#     If em is CH4, read in additional EDGAR v4.2 file
-      if ( em == 'CH4' ) {
-
-        skip_rows <- 9
-        extension_use <- ".xlsx"
-        EDGAR_FT_raw <- readData( domain = domain_use,  domain_extension = domain_ext,
-                                  file_name = paste0( 'v', gsub( "[.]", "", vn ), "FT_", em, "_2000_2010" ),
-                                  extension = extension_use, sheet_selection = 1, skip = skip_rows )
-
-      }
-
-#   Read in EDGAR v4.3 - original CEDS released used this for all ems other than CH4 (and CO2, since this
-#   script is not run for CO2)
-    } else if( as.numeric( vn ) == 4.3 ){
-
-      em_use <- em
-      if( em == "N2O" ){ em_use <- "NOx" }
-
-      skip_rows <- 8
-      extension_use <- ".xlsx"
-      sheet_name <- paste0( 'NEW_v', vn, '_EM_', em_use, '_ref' )
-      EDGAR_raw <- readData( domain = domain_use, domain_extension = domain_ext,
-                             file_name = paste0( 'JRC_PEGASOS_', em, '_TS_REF' ),
-                             extension = extension_use, sheet_selection = sheet_name, skip = skip_rows )
-
-#   Readin EDGAR v5
-    } else if( as.numeric( vn ) == 5 ){
-
-      fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", EDGAR_start_year, "_",
-                       EDGAR_end_year ), ".xls")
-      sheet_to_use <- paste0( "v", vn, "_EM_", em, "_IPCC1996" )
-      skip_rows <- 9
-
-#     EDGAR v5 has a special file naming convention for CO2
-      if( em == "CO2" ){
-
-        EDGAR_CO2_real_end_year <- 2018
-        fn <- c( paste0( "v",  gsub( "[.]", "", vn ), "_", em, "_", "excl_short-cycle_org_C_",
-                         EDGAR_start_year, "_", EDGAR_CO2_real_end_year ), ".xls")
-
-      }
-
-      EDGAR_raw <- readData( domain = domain_use, domain_extension = domain_ext,
-                         file_name = fn[ 1 ], extension = fn[ 2 ],
-                         sheet_selection = sheet_to_use, skip = skip_rows,
-                         missing_value = c( "", "NULL" ) )
-
-#   Naming pattern for other EDGAR versions
-    } else {
-
-      stop( script_name, " has not been formatted to process Edgar v", vn, ". Please ",
-            "reformat the script and rerun." )
+      EDGAR_end_year <- EDGAR_end_year_CO2
 
     }
 
-# If EDGAR version 4.3 is used here and em is N2O, then read in EDGAR fugitive
-# oil and gas NOx to N2O ratios data, which will be used to convert JRC_PEGASOS NOx data to N2O
-if( em == "N2O" & as.numeric( vn ) == 4.3 ){
+    # Global constants defined in common_data.R
+    edgar_year <- EDGAR_start_year : EDGAR_end_year
+    edgar_Xyear <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 
-    EDGAR_N2O_NOx_fug_oil_NG_ratios <- readData( "MED_OUT", file_name = paste0( "C.", em, "_EDGAR_NOx_N2O_fugitive_oil_NG_ratios" ) )
+#   Read in pre-formatted EDGAR data from intermediate-output (uses default extension .csv)
+    edgar <- readData( domain = "MED_OUT", file_name = paste0( "E.", em, "_EDGAR" ))
 
-}
 
 # For all ems besides NH3, load the GAINS fugitive oil and gas subsector emissions shares.
 # TODO: GAINS now has NH3, so we could make shares for NH3, even if we don't use GAINS NH3 data
@@ -265,8 +209,8 @@ if( em != "NH3" ){
 # 3. Pre-processing
 
 # Define EDGAR fugitive oil and gas sector
-    EDGAR_fug_oil_gas_mapping <- 	NC_sector_map_EDGAR %>%
-      dplyr::filter( ceds_sector == "1B2_Fugitive-petr-and-gas" )
+    EDGAR_fug_oil_gas_mapping <- Master_sector_map_EDGAR %>%
+      dplyr::filter( edgar_sector == "1B2" )
 
     EDGAR_fug_oil_gas_sec <- sort( unique( EDGAR_fug_oil_gas_mapping$edgar_sector ) )
     EDGAR_fug_oil_gas_sec_desc <- sort( unique( EDGAR_fug_oil_gas_mapping$edgar_descr ) )
@@ -277,29 +221,12 @@ if( em != "NH3" ){
 # Extract year_list in flaring data
     flaring_Xyear <- colnames( flaring )[ grep( 'X', colnames( flaring ) ) ]
 
-# Extract year_list in EDGAR data
-  edgar_year <- colnames( EDGAR_raw )[ c( grep( '19', colnames( EDGAR_raw ) ), grep( '20', colnames( EDGAR_raw ) ) ) ]
-  if ( vn %in% c( "4.3", "5.0" ) ){ edgar_Xyear <- paste0( 'X', edgar_year ) }
-  if ( em == "4.2" ){ edgar_Xyear <- edgar_year }
-  edgar_year <- as.numeric( sub( 'X', "", edgar_year ) )
 
 # Define final CEDS fuel, sector, and units
   final_fuel <- 'process'
   final_sector <- '1B2_Fugitive-petr-and-gas' # Note, this is actually the final aggregate sector, before breaking into 3 fugitive sectors
   final_units <- 'kt'
 
-# If methane and EDGAR version is v4.2, process EDGAR FT and combine with edgar
-if ( em == 'CH4' & vn == "4.2" ){
-
-  edgarFT_year <- colnames( EDGAR_FT_raw )[ c( grep( '19', colnames( EDGAR_FT_raw ) ), grep( '20', colnames( EDGAR_FT_raw ) ) ) ]
-  edgarFT_Xyear <- paste0 ( 'X' , edgarFT_year )
-  edgarFT <- EDGAR_FT_raw
-  names(edgarFT)[ which( names( edgarFT ) %in% edgarFT_year ) ] <- edgarFT_Xyear
-  FT_ext_year <- edgarFT_Xyear[ which ( edgarFT_Xyear %!in% edgar_Xyear ) ]
-  EDGAR_raw <- dplyr::left_join(EDGAR_raw, edgarFT[ c( 'ISO_A3' , 'IPCC' , FT_ext_year ) ], by = c( "ISO_A3", "IPCC" ) )
-  edgar_Xyear <- c(edgar_Xyear, FT_ext_year)
-
-}
 
 # Extract years that are not in EDGAR data
     edgar_missing_Xyear <- all_Xyear[ which( all_Xyear %!in% edgar_Xyear ) ]
@@ -308,11 +235,9 @@ if ( em == 'CH4' & vn == "4.2" ){
     dummy_layout <- flaring[ , c( 'iso', 'sector', all_Xyear ) ]
     dummy_layout[ , all_Xyear ] <- 0
 
-# Clean EDGAR data
-    if( vn %in% c( "4.3", "5.0" ) ){ edgar <- EDGAR_raw[ , c('ISO_A3', 'IPCC', 'IPCC_description', edgar_year ) ] }
-    if( vn == "4.2" ){ edgar <- EDGAR_raw[ , c( 'ISO_A3', 'IPCC', 'IPCC_description', edgar_Xyear ) ] }
-    edgar$ISO_A3 <- tolower( edgar$ISO_A3 )
-    colnames( edgar ) <- c( 'iso', 'sector', 'sector_description', edgar_Xyear )
+# Keep columns used by script
+    edgar <- edgar %>%
+      dplyr::select(iso, sector, sector_description, edgar_Xyear)
 
 # Remove rows with all NA's
     edgar <- edgar[ apply( X = edgar[ , edgar_Xyear ],
@@ -326,37 +251,14 @@ if ( em == 'CH4' & vn == "4.2" ){
     edgar_neg <- edgar[ neg_rows, ]
     edgar[ edgar < 0 ] <- 0
 
+
 # Extend EDGAR to flaring years using the last available EDGAR year (2015 for all ems other than CO2 in EDGAR v5)
     edgar[ , edgar_missing_Xyear ] <- edgar[ last( edgar_Xyear ) ]
     edgar <- edgar[ edgar$sector %in% EDGAR_fug_oil_gas_sec, ]
     edgar <- edgar[ !is.na( edgar$iso ), ]
     edgar <- edgar[ , c( 'iso', 'sector', 'sector_description', all_Xyear ) ]
 
-# If the em is N2O and EDGAR version 4.3 is being used, then convert NOx EDGAR data to N2O
-# as EDGAR v4.3 does not have N2O data available.
-    if( em == "N2O" & as.numeric( vn ) == 4.3 ){
 
-        printLog( "Using EDGAR N2O and NOx data to produce convert EDGAR PEGASOS NOx emissions to N2O emissions, as PEGASOS only provides",
-                  "NOx data for this sector..." )
-
-        EDGAR_N2O_NOx_fug_oil_NG_ratios_long <- EDGAR_N2O_NOx_fug_oil_NG_ratios %>%
-            dplyr::select( iso, all_Xyear ) %>%
-            tidyr::gather( year, Ratio_N2O_per_Nox, all_Xyear )
-
-        edgar <- edgar %>%
-            tidyr::gather( year, NOx_emissions, all_Xyear ) %>%
-            dplyr::left_join( EDGAR_N2O_NOx_fug_oil_NG_ratios_long, by = c( "iso", "year" ) ) %>%
-            dplyr::mutate( N2O_emissions = NOx_emissions * Ratio_N2O_per_Nox ) %>%
-            dplyr::select( -NOx_emissions, -Ratio_N2O_per_Nox ) %>%
-            tidyr::spread( year, N2O_emissions )
-
-        if( any( is.na( edgar[ , all_Xyear ] ) ) ){
-
-            stop( "There should be no NAs after converting EDGAR NOx fugitive oil and gas emissions to N2O...")
-
-        }
-
-    }
 
 #     Split EDGAR data into three parts
 #     As of EDGAR v5, there are 5 1B2 sub-sectors in EGDAR: Fugitive emissions from oil and gas (fossil fuels OR biofuels)
@@ -422,7 +324,7 @@ if ( em == 'CH4' & vn == "4.2" ){
     merge_table <- merge( flaring_data, edgar_data, by = 'iso', all = T )
     merge_table[ is.na( merge_table ) ] <- 0
 
-#   Generate falring and EDGAR comparing matrices
+#   Generate flaring and EDGAR comparing matrices
     flaring_mat <- merge_table[ , paste0( all_Xyear, '.x' ) ]
     edgar_mat <- merge_table[ , paste0( all_Xyear, '.y' ) ]
 

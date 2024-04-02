@@ -133,3 +133,5 @@ if (em == "CO2") {
 # 6. Write to file
 
 writeData( emissions, "MED_OUT" , paste0(em,'_total_CEDS_emissions') )
+
+logStop()

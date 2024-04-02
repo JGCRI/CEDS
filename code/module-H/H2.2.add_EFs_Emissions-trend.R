@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # Program Name: H2.2.add_EFs_Emissions-trend.R
 # Author: Rachel Hoesly
-# Program Purpose: Create base database to extend EFs backward
+# Program Purpose: Create base database to extend EFs backward based on Emissions-trends.
 # Input Files: A.total_activity_extended.csv, CEDS_historical_extension_methods_EF.csv,
 #              Master_Country_List.csv, A.UN_pop_master.csv
-# Output Files:
+# Output Files: H.[em].[sector name]-[extension file name].csv
 # TODO:
 # ---------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ pop <- readData("MED_OUT", "A.UN_pop_master", meta = T)
 final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 
 # ---------------------------------------------------------------------------
-# 2. Select relavent driver-methods
+# 2. Select relevant driver-methods
 
 trend <- 'Emissions-trend'
 
@@ -194,3 +194,4 @@ writeData( EF_trends, domain = "EXT_IN" , domain_extension = "extension-data/",
 
 
 logStop()
+

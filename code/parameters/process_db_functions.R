@@ -504,7 +504,7 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 # Output files:     B.[em]_xxxxx_db.csv
 # example:          addToDb_overwrite(new_data = s_content, em = 'SO2', file_extension = 'S_Content_db')
 
-addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
+addToDb_overwrite <- function( new_data, em, file_extension, module,
                                addEntries = FALSE ){
   printLog ("Adding new data to database")
 
@@ -534,20 +534,32 @@ addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
   # Check units
   original_units <- unique(original_db$units)
   new_units <- unique(new_data$units)
-  if( any(original_units %!in% new_units) | any(new_units %!in% original_units) ) {
-    stop( paste('Units do not match in addToDb_overwrite. Org Units:',original_units,'.  Added data units:',new_units,'Please check units'))
+
+  # check units for combustion emissions
+  if (module == "B"){
+    if( any(original_units %!in% new_units) | any(new_units %!in% original_units) ) {
+      stop( paste('Units do not match in addToDb_overwrite. Org Units:',original_units,'.  Added data units:',new_units,'Please check units'))
+    }
   }
+  # Check units for non-combustion emissions. NC default EF units are frequently population (kt/1000).
+  # Therefore, adding in new default EFs (like kt/kt) may overwrite the units.
+  if (module == "C"){
+    if( any(new_units %!in% original_units)) {
+      stop( paste('Units do not match in addToDb_overwrite. Org Units:',original_units,'.  Added data units:',new_units,'Please check units'))
+    }
+  }
+
   # Check id variables
   names <- names( new_data )
   id.names.new <- names[-grep( "X", names)]
   names <- names( original_db )
   id.names.old <- names[-grep( "X", names)]
 
-  if( !identical(id.names.new,id.names.old)){ 
+  if( !identical(id.names.new,id.names.old)){
     stop(paste0('In addToDb_overwrite, id variables of database',
     'and new data','to be added to database are not the same.'))
   }
-  if( !identical(unique(original_db$units), unique(original_db$units))){ 
+  if( !identical(unique(original_db$units), unique(original_db$units))){
     stop("In addToDb_overwrite, units of database and new data to be added to database are not the same.")
   }
 
@@ -574,10 +586,30 @@ addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
 
   #merge
   printLog('Merging new and old Data')
-  df_new <- replaceValueColMatch(x=df_old, y=df_add,
-                                 x.ColName = 'value',
-                                 match.x = c('iso','sector','fuel','units','year'),
-                                 addEntries = FALSE)
+  if (module %!in% c("C")){
+    df_new <- replaceValueColMatch(x=df_old, y=df_add,
+                                   x.ColName = 'value',
+                                   match.x = c('iso','sector','fuel','units','year'),
+                                   addEntries = FALSE)
+
+  }
+  # For NC, I removed units because "units" column from match.x since units in modC EFs I'm adding change from kt/1000 to kt/kt.
+  # Will probably want to add some kind of check on units...?
+  # Maybe remove for NC only.
+  # Note: this replaceValueColMatch function takes a long time to run. Probably a more efficient way as well?
+  if (module == "C"){
+    df_new <- replaceValueColMatch(x=df_old, y=df_add,
+                                   x.ColName = 'value',
+                                   match.x = c('iso','sector','fuel','year'),
+                                   addEntries = FALSE)
+
+    # Need to redo this because this is probably not the neatest way...
+    # this replaces the units column of df_new with that that matches df_add.
+    df_new <- replaceValueColMatch(x=df_new, y=df_add,
+                                   x.ColName = 'units',
+                                   match.x = c('iso','sector','fuel','year'),
+                                   addEntries = FALSE)
+  }
 
   df_new_wide<-as.data.frame(cast(df_new, iso+sector+fuel+units~year, value = "new_value"))
 
@@ -595,7 +627,7 @@ addToDb_overwrite <- function( new_data, em, file_extension, module = 'B',
   }
 
   # Check length
-  if ( n.observations != nrow(results)) stop("Outbut Database is not the same length as original DB. Duplicates in addToDb_overwrite.")
+  if ( n.observations != nrow(results)) stop("Output Database is not the same length as original DB. Duplicates in addToDb_overwrite.")
 
   # Output
   writeData( results, domain = "MED_OUT", fn = paste0( module,".", em, "_", file_extension))

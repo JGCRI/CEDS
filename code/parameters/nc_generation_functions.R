@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Program Name: nc_generation_functions.R
-# Authors: Leyang Feng, Caleb Braun
-# Date Last Modified: March 25 2019
+# Authors: Leyang Feng, Caleb Braun, Noah Prime
+# Date Last Modified: April 5, 2023
 # Program Purpose: NetCDF generation related functions for gridding routine.
 # ------------------------------------------------------------------------------
 
@@ -33,7 +33,11 @@ generate_final_grids_nc <- function( int_grids_list,
                                      year,
                                      em,
                                      sector_name_mapping,
-                                     seasonality_mapping ) {
+                                     seasonality_mapping,
+                                     ceds_gridding_mapping,
+                                     edgar_sector_replace_mapping,
+                                     incomplete_grid_dir,
+                                     ps_df ) {
 
   # 0 set up basics
   global_grid_area <- grid_area( grid_resolution, all_lon = T )
@@ -49,6 +53,28 @@ generate_final_grids_nc <- function( int_grids_list,
   SLV_proc_grid <- int_grids_list$SLV_int_grid
   WST_proc_grid <- int_grids_list$WST_int_grid
   SHP_proc_grid <- int_grids_list$SHP_int_grid + int_grids_list$TANK_int_grid
+
+  # 1.2 Saving grids without point sources
+  save( AGR_proc_grid, file = paste0( incomplete_grid_dir, em, '_AGR_', year, '_', grid_resolution, '.Rd' ) )
+  save( ENE_proc_grid, file = paste0( incomplete_grid_dir, em, '_ENE_', year, '_', grid_resolution, '.Rd' ) )
+  save( IND_proc_grid, file = paste0( incomplete_grid_dir, em, '_IND_', year, '_', grid_resolution, '.Rd' ) )
+  save( TRA_proc_grid, file = paste0( incomplete_grid_dir, em, '_TRA_', year, '_', grid_resolution, '.Rd' ) )
+  save( RCORC_proc_grid, file = paste0( incomplete_grid_dir, em, '_RCORC_', year, '_', grid_resolution, '.Rd' ) )
+  save( RCOO_proc_grid, file = paste0( incomplete_grid_dir, em, '_RCOO_', year, '_', grid_resolution, '.Rd' ) )
+  save( SLV_proc_grid, file = paste0( incomplete_grid_dir, em, '_SLV_', year, '_', grid_resolution, '.Rd' ) )
+  save( WST_proc_grid, file = paste0( incomplete_grid_dir, em, '_WST_', year, '_', grid_resolution, '.Rd' ) )
+  save( SHP_proc_grid, file = paste0( incomplete_grid_dir, em, '_SHP_', year, '_', grid_resolution, '.Rd' ) )
+
+  # 1.3 here is where we need to add point sources
+  AGR_proc_grid <- add_point_sources( AGR_proc_grid, em, 'AGR', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  ENE_proc_grid <- add_point_sources( ENE_proc_grid, em, 'ENE', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  IND_proc_grid <- add_point_sources( IND_proc_grid, em, 'IND', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  TRA_proc_grid <- add_point_sources( TRA_proc_grid, em, 'TRA', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCORC_proc_grid <- add_point_sources( RCORC_proc_grid, em, 'RCORC', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCOO_proc_grid <- add_point_sources( RCOO_proc_grid, em, 'RCOO', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SLV_proc_grid <- add_point_sources( SLV_proc_grid, em, 'SLV', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  WST_proc_grid <- add_point_sources( WST_proc_grid, em, 'WST', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SHP_proc_grid <- add_point_sources( SHP_proc_grid, em, 'SHP', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
 
   # 2 add seasonality for each final grids
   AGR_fin_grid <- add_seasonality( AGR_proc_grid, em, 'AGR', year, days_in_month, grid_resolution, seasonality_mapping )
@@ -198,7 +224,11 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
                                             VOC_em,
                                             VOC_names,
                                             sector_name_mapping,
-                                            seasonality_mapping ) {
+                                            seasonality_mapping,
+                                            ceds_gridding_mapping,
+                                            edgar_sector_replace_mapping,
+                                            incomplete_grid_dir,
+                                            ps_df ) {
 
   # 0
   VOC_name <- VOC_names[ VOC_names$VOC_id == VOC_em, 'VOC_name' ]
@@ -216,6 +246,30 @@ generate_final_grids_nc_subVOC <- function( int_grids_list,
   SLV_proc_grid <- int_grids_list$SLV_int_grid
   WST_proc_grid <- int_grids_list$WST_int_grid
   SHP_proc_grid <- int_grids_list$SHP_int_grid + int_grids_list$TANK_int_grid
+
+
+  # 1.2 Saving grids without point sources
+  save( AGR_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_AGR_', year, '_', grid_resolution, '.Rd' ) )
+  save( ENE_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_ENE_', year, '_', grid_resolution, '.Rd' ) )
+  save( IND_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_IND_', year, '_', grid_resolution, '.Rd' ) )
+  save( TRA_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_TRA_', year, '_', grid_resolution, '.Rd' ) )
+  save( RCORC_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_RCORC_', year, '_', grid_resolution, '.Rd' ) )
+  save( RCOO_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_RCOO_', year, '_', grid_resolution, '.Rd' ) )
+  save( SLV_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_SLV_', year, '_', grid_resolution, '.Rd' ) )
+  save( WST_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_WST_', year, '_', grid_resolution, '.Rd' ) )
+  save( SHP_proc_grid, file = paste0( incomplete_grid_dir, em, '_', VOC_em, '_SHP_', year, '_', grid_resolution, '.Rd' ) )
+
+  # 1.3 here is where we need to add point sources
+  AGR_proc_grid <- add_point_sources( AGR_proc_grid, em, 'AGR', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  ENE_proc_grid <- add_point_sources( ENE_proc_grid, em, 'ENE', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  IND_proc_grid <- add_point_sources( IND_proc_grid, em, 'IND', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  TRA_proc_grid <- add_point_sources( TRA_proc_grid, em, 'TRA', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCORC_proc_grid <- add_point_sources( RCORC_proc_grid, em, 'RCORC', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCOO_proc_grid <- add_point_sources( RCOO_proc_grid, em, 'RCOO', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SLV_proc_grid <- add_point_sources( SLV_proc_grid, em, 'SLV', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  WST_proc_grid <- add_point_sources( WST_proc_grid, em, 'WST', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SHP_proc_grid <- add_point_sources( SHP_proc_grid, em, 'SHP', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+
 
   # 2
   AGR_fin_grid <- add_seasonality( AGR_proc_grid, em, 'AGR', year, days_in_month, grid_resolution, seasonality_mapping )
@@ -544,6 +598,219 @@ generate_final_grids_nc_solidbiofuel <- function( int_grids_list,
   summary_name <- paste0( output_dir, 'CEDS_', em, '_solidbiofuel_anthro_', year, '_', grid_resolution, suffix, '.csv' )
   write.csv( total_month_em, file = summary_name, row.names = F )
 }
+
+
+# generate_final_grids_nc_user_specified
+# Brief: generate annual nc grids for user specified emissions
+# Dependencies:
+# Author: Leyang Feng
+# parameters: int_grids_list - the list contains intermediate grids
+#             output_dir - the output dir
+#             grid_resolution - the gridding resolution
+#             year - the current gridding year
+#             em - the gridding emission species
+#             sector_name_mapping - the mapping contains final sectors short names and long names
+#             seasonality_mapping  - the seasonality mapping file
+# return: null
+# input files: null
+# output: CEDS_[em]_anthro_[year]_0.5.nc
+#         CEDS_[em]_anthro_[year]_0.5.csv
+generate_final_grids_nc_user_specified <- function( int_grids_list,
+                                                    output_dir,
+                                                    grid_resolution,
+                                                    year,
+                                                    em,
+                                                    sector_name_mapping,
+                                                    seasonality_mapping,
+                                                    file_descr = 'user_specified',
+                                                    ceds_gridding_mapping,
+                                                    edgar_sector_replace_mapping,
+                                                    ps_df) {
+
+    # 0 set up basics
+    global_grid_area <- grid_area( grid_resolution, all_lon = T )
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+
+    # 1.1 extract int grids in the list
+    AGR_int_grid <- int_grids_list$AGR_int_grid
+    ELEC_int_grid <- int_grids_list$ELEC_int_grid
+    ETRN_int_grid <- int_grids_list$ETRN_int_grid
+    FFFI_int_grid <- int_grids_list$FFFI_int_grid
+    FLR_int_grid <- int_grids_list$FLR_int_grid
+    INDC_int_grid <- int_grids_list$INDC_int_grid
+    INPU_int_grid<- int_grids_list$INPU_int_grid
+    NRTR_int_grid <- int_grids_list$NRTR_int_grid
+    ROAD_int_grid <- int_grids_list$ROAD_int_grid
+    RCORC_int_grid <- int_grids_list$RCORC_int_grid
+    RCOO_int_grid <- int_grids_list$RCOO_int_grid
+    SLV_int_grid <- int_grids_list$SLV_int_grid
+    WST_int_grid <- int_grids_list$WST_int_grid
+    SHP_int_grid <- int_grids_list$SHP_int_grid
+    TANK_int_grid <- int_grids_list$TANK_int_grid
+
+    # 1.2 Replace NULL grids with zeros
+    all_zero_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+    if( is.null( AGR_int_grid  ) ) { AGR_int_grid   <- all_zero_grid }
+    if( is.null( ELEC_int_grid ) ) { ELEC_int_grid  <- all_zero_grid }
+    if( is.null( ETRN_int_grid ) ) { ETRN_int_grid  <- all_zero_grid }
+    if( is.null( FFFI_int_grid ) ) { FFFI_int_grid  <- all_zero_grid }
+    if( is.null( FLR_int_grid  ) ) { FLR_int_grid   <- all_zero_grid }
+    if( is.null( INDC_int_grid ) ) { INDC_int_grid  <- all_zero_grid }
+    if( is.null( INPU_int_grid ) ) { INPU_int_grid  <- all_zero_grid }
+    if( is.null( NRTR_int_grid ) ) { NRTR_int_grid  <- all_zero_grid }
+    if( is.null( ROAD_int_grid ) ) { ROAD_int_grid  <- all_zero_grid }
+    if( is.null( RCORC_int_grid) ) { RCORC_int_grid <- all_zero_grid }
+    if( is.null( RCOO_int_grid ) ) { RCOO_int_grid  <- all_zero_grid }
+    if( is.null( SLV_int_grid  ) ) { SLV_int_grid   <- all_zero_grid }
+    if( is.null( WST_int_grid  ) ) { WST_int_grid   <- all_zero_grid }
+    if( is.null( SHP_int_grid  ) ) { SHP_int_grid   <- all_zero_grid }
+    if( is.null( TANK_int_grid ) ) { TANK_int_grid  <- all_zero_grid }
+
+    # 1.3 Aggregate to final CEDS gridding sectors
+    AGR_proc_grid <- AGR_int_grid
+    ENE_proc_grid <- ELEC_int_grid + ETRN_int_grid + FFFI_int_grid + FLR_int_grid
+    IND_proc_grid <- INDC_int_grid + INPU_int_grid
+    TRA_proc_grid <- NRTR_int_grid + ROAD_int_grid
+    RCORC_proc_grid <- RCORC_int_grid
+    RCOO_proc_grid <- RCOO_int_grid
+    SLV_proc_grid <- SLV_int_grid
+    WST_proc_grid <- WST_int_grid
+    SHP_proc_grid <- SHP_int_grid + TANK_int_grid
+
+    # 1.4 add point sources
+    AGR_proc_grid <- add_point_sources( AGR_proc_grid, em, 'AGR', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    ENE_proc_grid <- add_point_sources( ENE_proc_grid, em, 'ENE', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    IND_proc_grid <- add_point_sources( IND_proc_grid, em, 'IND', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    TRA_proc_grid <- add_point_sources( TRA_proc_grid, em, 'TRA', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    RCORC_proc_grid <- add_point_sources( RCORC_proc_grid, em, 'RCORC', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    RCOO_proc_grid <- add_point_sources( RCOO_proc_grid, em, 'RCOO', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    SLV_proc_grid <- add_point_sources( SLV_proc_grid, em, 'SLV', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    WST_proc_grid <- add_point_sources( WST_proc_grid, em, 'WST', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+    SHP_proc_grid <- add_point_sources( SHP_proc_grid, em, 'SHP', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+
+    # 2 add seasonality for each final grids
+    AGR_fin_grid <- add_seasonality( AGR_proc_grid, em, 'AGR', year, days_in_month, grid_resolution, seasonality_mapping )
+    ENE_fin_grid <- add_seasonality( ENE_proc_grid, em, 'ENE', year, days_in_month, grid_resolution, seasonality_mapping )
+    IND_fin_grid <- add_seasonality( IND_proc_grid, em, 'IND', year, days_in_month, grid_resolution, seasonality_mapping )
+    TRA_fin_grid <- add_seasonality( TRA_proc_grid, em, 'TRA', year, days_in_month, grid_resolution, seasonality_mapping )
+    SLV_fin_grid <- add_seasonality( SLV_proc_grid, em, 'SLV', year, days_in_month, grid_resolution, seasonality_mapping )
+    WST_fin_grid <- add_seasonality( WST_proc_grid, em, 'WST', year, days_in_month, grid_resolution, seasonality_mapping )
+    SHP_fin_grid <- add_seasonality( SHP_proc_grid, em, 'SHP', year, days_in_month, grid_resolution, seasonality_mapping )
+    RCORC_fin_grid <- add_seasonality( RCORC_proc_grid, em, 'RCORC', year, days_in_month, grid_resolution, seasonality_mapping )
+    RCOO_fin_grid <- add_seasonality( RCOO_proc_grid, em, 'RCOO', year, days_in_month, grid_resolution, seasonality_mapping )
+
+    RCO_fin_grid <- RCORC_fin_grid + RCOO_fin_grid
+
+    # 3 calculate checksum values
+    AGR_month_em <- sum_monthly_em( AGR_fin_grid, em, 'AGR', year, days_in_month, global_grid_area, seasonality_mapping )
+    ENE_month_em <- sum_monthly_em( ENE_fin_grid, em, 'ENE', year, days_in_month, global_grid_area, seasonality_mapping )
+    IND_month_em <- sum_monthly_em( IND_fin_grid, em, 'IND', year, days_in_month, global_grid_area, seasonality_mapping )
+    TRA_month_em <- sum_monthly_em( TRA_fin_grid, em, 'TRA', year, days_in_month, global_grid_area, seasonality_mapping )
+    SLV_month_em <- sum_monthly_em( SLV_fin_grid, em, 'SLV', year, days_in_month, global_grid_area, seasonality_mapping )
+    WST_month_em <- sum_monthly_em( WST_fin_grid, em, 'WST', year, days_in_month, global_grid_area, seasonality_mapping )
+    SHP_month_em <- sum_monthly_em( SHP_fin_grid, em, 'SHP', year, days_in_month, global_grid_area, seasonality_mapping )
+    RCORC_month_em <- sum_monthly_em( RCORC_fin_grid, em, 'RCORC', year, days_in_month, global_grid_area, seasonality_mapping )
+    RCOO_month_em <- sum_monthly_em( RCOO_fin_grid, em, 'RCOO', year, days_in_month, global_grid_area, seasonality_mapping )
+
+    RCO_month_em <- data.frame( em = em, sector = 'RCO', year = year, month = 1 : 12, units = 'kt',
+                                value = RCORC_month_em$value + RCOO_month_em$value, stringsAsFactors = F )
+    total_month_em <- rbind( AGR_month_em, ENE_month_em, IND_month_em, TRA_month_em,
+                             SLV_month_em, WST_month_em, SHP_month_em, RCO_month_em )
+
+    # NetCDF generation starts here
+    fin_sector_list <- c( 'AGR', 'ENE', 'IND', 'TRA', 'SLV', 'WST', 'SHP', 'RCO' )
+
+    lons <- seq( -180 + grid_resolution / 2, 180 - grid_resolution / 2, grid_resolution )
+    lats <- seq( -90 + grid_resolution / 2, 90 - grid_resolution / 2, grid_resolution )
+    base_days <- ( year - 1750 ) * 365
+    time <- floor( c( 15.5, 45, 74.5, 105, 135.5, 166, 196.5, 227.5, 258, 288.5, 319, 349.5 ) )
+    time <- time + base_days
+    londim <- ncdim_def( "lon", "degrees_east", as.double( lons ), longname = 'longitude' )
+    latdim <- ncdim_def( "lat", "degrees_north", as.double( lats ), longname = 'latitude' )
+    timedim <- ncdim_def( "time", paste0( "days since 1750-01-01 0:0:0" ), as.double( time ),
+                          calendar = '365_day', longname = 'time' )
+    dim_list <- list( londim, latdim, timedim )
+    lon_bnds_data <- cbind( seq( -180, ( 180 - grid_resolution ), grid_resolution ),
+                            seq( ( -180 + grid_resolution ), 180, grid_resolution ) )
+    lat_bnds_data <- cbind( seq( -90, (90 - grid_resolution) , grid_resolution),
+                            seq( ( -90 + grid_resolution ), 90, grid_resolution ) )
+    bnds <- 1 : 2
+    bndsdim <- ncdim_def( "bnds", '', as.integer( bnds ), longname = 'bounds', create_dimvar = F )
+    time_bnds_data <- cbind( c( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 ),
+                             c( 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 ) )
+    time_bnds_data <- time_bnds_data + base_days
+
+    data_unit <- 'kg m-2 s-1'
+    missing_value <- 1.e20
+
+    # define nc variables
+    AGR <- ncvar_def( 'AGR', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'AGR', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    ENE <- ncvar_def( 'ENE', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'ENE', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    IND <- ncvar_def( 'IND', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'IND', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    TRA <- ncvar_def( 'TRA', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'TRA', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    SLV <- ncvar_def( 'SLV', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'SLV', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    WST <- ncvar_def( 'WST', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'WST', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    SHP <- ncvar_def( 'SHP', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'SHP', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    RCO <- ncvar_def( 'RCO', data_unit, dim_list, missval = missing_value, longname = sector_name_mapping[ sector_name_mapping$CEDS_fin_sector_short == 'RCO', 'CEDS_fin_sector' ], prec = 'float', compression = 5 )
+    lon_bnds <- ncvar_def( 'lon_bnds', '', list( bndsdim, londim ), prec = 'double' )
+    lat_bnds <- ncvar_def( 'lat_bnds', '', list( bndsdim, latdim ), prec = 'double' )
+    time_bnds <- ncvar_def( 'time_bnds', '', list( bndsdim, timedim ), prec = 'double' )
+
+    suffix <- ""
+    if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+
+    # generate nc file name
+    nc_file_name <- paste0( 'CEDS_', em, '_', file_descr, '_', year, '_', grid_resolution, suffix, '.nc' )
+
+    # generate the var_list
+    variable_list <- list( AGR, ENE, IND, TRA, SLV, WST, SHP, RCO, lat_bnds, lon_bnds, time_bnds )
+
+    # create new nc file
+    nc_new <- nc_create( paste0( output_dir, nc_file_name ), variable_list, force_v4 = T )
+
+    # put nc variables into the nc file
+    ncvar_put( nc_new, AGR, rotate_lat_lon( list( AGR_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, ENE, rotate_lat_lon( list( ENE_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, IND, rotate_lat_lon( list( IND_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, TRA, rotate_lat_lon( list( TRA_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, SLV, rotate_lat_lon( list( SLV_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, WST, rotate_lat_lon( list( WST_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, SHP, rotate_lat_lon( list( SHP_fin_grid ) )[[1]] )
+    ncvar_put( nc_new, RCO, rotate_lat_lon( list( RCO_fin_grid ) )[[1]] )
+
+    ncvar_put( nc_new, lon_bnds, t( lon_bnds_data ) )
+    ncvar_put( nc_new, lat_bnds, t( lat_bnds_data ) )
+    ncvar_put( nc_new, time_bnds, t( time_bnds_data ) )
+
+    add_dimension_attributes( nc_new )
+
+    # attributes for variables
+    for ( each_var in fin_sector_list ) {
+        ncatt_put( nc_new, each_var, 'cell_methods', 'time: mean' )
+        ncatt_put( nc_new, each_var, 'missing_value', 1e+20, prec = 'float' )
+    }
+
+    # Maybe add a note hear detailing the specified fuels
+    add_global_attributes( nc_new, title = paste0( 'annual emissions of', em ) )
+
+    global_total_emission <- sum( total_month_em$value ) * 0.001
+    ncatt_put( nc_new, 0, 'global_total_emission', paste0( round( global_total_emission, 2 ), ' Tg/year' ) )
+
+    # species information
+    reporting_info <- data.frame( em = c( 'SO2', 'NOx', 'CO', 'NMVOC', 'NH3', 'BC', 'OC', 'CO2', 'CH4', 'N2O' ), info = c( 'Mass flux of SOx, reported as SO2', 'Mass flux of NOx, reported as NO2', 'Mass flux of CO', 'Mass flux of NMVOC (total mass emitted)', 'Mass flux of NH3', 'Mass flux of BC, reported as carbon mass', 'Mass flux of OC, reported as carbon mass', 'Mass flux of CO2', 'Mass flux of CH4', 'Mass flux of N2O' ), stringsAsFactors = F )
+    info_line <- reporting_info[ reporting_info$em == em, 'info' ]
+    ncatt_put( nc_new, 0, 'reporting_unit', info_line )
+
+    # close nc_new
+    nc_close( nc_new)
+
+    # additional section: write a checksum file
+    suffix <- ""
+    if ( grid_remove_iso != "" ) suffix <- paste0('_no_',grid_remove_iso)
+    summary_name <- paste0( output_dir, 'CEDS_', em, '_', file_descr, '_', year, '_', grid_resolution, suffix, '.csv' )
+    write.csv( total_month_em, file = summary_name, row.names = F )
+}
+
 
 
 # generate_final_grids_nc_aircraft
@@ -1880,13 +2147,48 @@ singleVarChunking_extendedCH4air <- function( em,
 # input files: null
 # output: CEDS_[em]_anthro_[year]_TOTAL_0.5_[CEDS_version].nc
 #         CEDS_[em]_anthro_[year]_TOTAL_0.5_[CEDS_version].csv
-generate_annual_total_emissions_grids_nc <- function( output_dir, int_grids_list, grid_resolution, year, em ) {
+generate_annual_total_emissions_grids_nc <- function( output_dir,
+                                                      int_grids_list,
+                                                      grid_resolution,
+                                                      year,
+                                                      em,
+                                                      seasonality_mapping,
+                                                      ceds_gridding_mapping,
+                                                      edgar_sector_replace_mapping,
+                                                      ps_df ) {
 
   # 0 set up some basics for later use
   global_grid_area <- grid_area( grid_resolution, all_lon = T )
   flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
 
-  # 1 adding all sector's grid together so generate total emission grid
+  # 1.1 extract int grids in the list
+  AGR_proc_grid <- int_grids_list$AGR_int_grid
+  ENE_proc_grid <- int_grids_list$ELEC_int_grid + int_grids_list$ETRN_int_grid + int_grids_list$FFFI_int_grid + int_grids_list$FLR_int_grid
+  IND_proc_grid <- int_grids_list$INDC_int_grid + int_grids_list$INPU_int_grid
+  TRA_proc_grid <- int_grids_list$NRTR_int_grid + int_grids_list$ROAD_int_grid
+  RCORC_proc_grid <- int_grids_list$RCORC_int_grid
+  RCOO_proc_grid <- int_grids_list$RCOO_int_grid
+  SLV_proc_grid <- int_grids_list$SLV_int_grid
+  WST_proc_grid <- int_grids_list$WST_int_grid
+  SHP_proc_grid <- int_grids_list$SHP_int_grid + int_grids_list$TANK_int_grid
+
+  # 1.2 Add Point Sources
+  AGR_proc_grid <- add_point_sources( AGR_proc_grid, em, 'AGR', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  ENE_proc_grid <- add_point_sources( ENE_proc_grid, em, 'ENE', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  IND_proc_grid <- add_point_sources( IND_proc_grid, em, 'IND', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  TRA_proc_grid <- add_point_sources( TRA_proc_grid, em, 'TRA', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCORC_proc_grid <- add_point_sources( RCORC_proc_grid, em, 'RCORC', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCOO_proc_grid <- add_point_sources( RCOO_proc_grid, em, 'RCOO', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SLV_proc_grid <- add_point_sources( SLV_proc_grid, em, 'SLV', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  WST_proc_grid <- add_point_sources( WST_proc_grid, em, 'WST', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SHP_proc_grid <- add_point_sources( SHP_proc_grid, em, 'SHP', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+
+
+  # 1.3 adding all sector's grid together so generate total emission grid
+
+  int_grids_list <- list(AGR_proc_grid, ENE_proc_grid, IND_proc_grid,
+                         TRA_proc_grid, RCORC_proc_grid, RCOO_proc_grid,
+                         SLV_proc_grid, WST_proc_grid, SHP_proc_grid)
 
   # convert flux back to mass
   total_grid_mass <- lapply( int_grids_list, '/', flux_factor )
@@ -1994,7 +2296,10 @@ generate_monthly_total_emissions_grids_nc <- function( output_dir,
                                                       grid_resolution,
                                                       year,
                                                       em,
-                                                      seasonality_mapping ) {
+                                                      seasonality_mapping,
+                                                      ceds_gridding_mapping,
+                                                      edgar_sector_replace_mapping,
+                                                      ps_df ) {
 
   # 0
   global_grid_area <- grid_area( grid_resolution, all_lon = T )
@@ -2011,6 +2316,17 @@ generate_monthly_total_emissions_grids_nc <- function( output_dir,
   SLV_proc_grid <- int_grids_list$SLV_int_grid
   WST_proc_grid <- int_grids_list$WST_int_grid
   SHP_proc_grid <- int_grids_list$SHP_int_grid + int_grids_list$TANK_int_grid
+
+  # 1.2 Add Point Sources
+  AGR_proc_grid <- add_point_sources( AGR_proc_grid, em, 'AGR', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  ENE_proc_grid <- add_point_sources( ENE_proc_grid, em, 'ENE', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  IND_proc_grid <- add_point_sources( IND_proc_grid, em, 'IND', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  TRA_proc_grid <- add_point_sources( TRA_proc_grid, em, 'TRA', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCORC_proc_grid <- add_point_sources( RCORC_proc_grid, em, 'RCORC', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  RCOO_proc_grid <- add_point_sources( RCOO_proc_grid, em, 'RCOO', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SLV_proc_grid <- add_point_sources( SLV_proc_grid, em, 'SLV', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  WST_proc_grid <- add_point_sources( WST_proc_grid, em, 'WST', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
+  SHP_proc_grid <- add_point_sources( SHP_proc_grid, em, 'SHP', year, grid_resolution, ceds_gridding_mapping, edgar_sector_replace_mapping, ps_df )
 
   # 2
   AGR_fin_grid <- add_seasonality( AGR_proc_grid, em, 'AGR', year, days_in_month, grid_resolution, seasonality_mapping )

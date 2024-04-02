@@ -39,7 +39,10 @@ CEDS,RCP
 2B_Chemical-industry,IND
 2B2_Chemicals-Nitric-acid,IND
 2B3_Chemicals-Adipic-acid,IND
+2C1_Iron-steel-alloy-prod,IND
+2C3_Aluminum-production,IND
 2C_Metal-production,IND
+2C4_Non-Ferrous-other-metals,IND
 2D_Degreasing-Cleaning,SLV
 2D3_Other-product-use,SLV
 2D_Paint-application,SLV

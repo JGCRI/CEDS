@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions,OC,usa,2L_Other-process-emissions,1960,2022,"Commertial Cooking emissions from US 2020 NEI, trended forwared and back (to 1992) using constant dollar food and beverage spending, and before 1992 by GDP"

@@ -1,0 +1,168 @@
+inv_sector,scaling_sector,ceds_sector,Notes1,Notes2
+1A1a,energy-transformation,1A1a_Electricity-public,,
+1A1b,energy-transformation,1A1a_Electricity-autoproducer,,
+1A1cii,energy-transformation,1A1a_Heat-production,1.A.1.c.ii  Oil and Gas Extraction,
+,energy-transformation,1A1bc_Other-transformation,,
+1A2a,industrial-combustion,1A2a_Ind-Comb-Iron-steel,1.A.2.a  Iron and Steel,
+1A2b,industrial-combustion,1A2b_Ind-Comb-Non-ferrous-metals,1.A.2.b  Non-Ferrous Metals,
+1A2c,industrial-combustion,1A2c_Ind-Comb-Chemicals,1.A.2.c  Chemicals,
+1A2d,industrial-combustion,1A2d_Ind-Comb-Pulp-paper,,
+1A2e,industrial-combustion,1A2e_Ind-Comb-Food-tobacco,,
+1A2f,industrial-combustion,1A2f_Ind-Comb-Non-metalic-minerals,,
+1A2g,industrial-combustion,1A2g_Ind-Comb-Construction,,
+1A2j,industrial-combustion,1A2g_Ind-Comb-transpequip,,
+1A2l,industrial-combustion,1A2g_Ind-Comb-machinery,,
+1A2m,industrial-combustion,1A2g_Ind-Comb-mining-quarying,,
+,industrial-combustion,1A2g_Ind-Comb-wood-products,,
+,industrial-combustion,1A2g_Ind-Comb-textile-leather,,
+,industrial-combustion,1A2g_Ind-Comb-other,,
+1A3ai,,1A3aii_Domestic-aviation,1.A.3.a  Domestic Aviation,
+1A3aii,,1A3ai_International-aviation,1A3ai(ii),International-aviation-cruise-(Civil)
+1A3biii,road-rail-other,,,
+1A3bvii,road-rail-other,1A3b_Road,1A3bii,Road-transport:Light-duty-vehicles
+1A3c,road-rail-other,1A3c_Rail,1.A.3.c  Railways,
+1A3di,,1A3dii_Domestic-navigation,,
+1A3dii,,1A3di_International-shipping,1A3di(ii),International-inland-waterways
+1A3ei,road-rail-other,1A3eii_Other-transp,1A3ei,Pipeline-transport-
+1A4ai,resiential-commertial-other,1A4a_Commercial-institutional,1A4ai,Commercial-/-institutional:-Stationary
+1A4aii,resiential-commertial-other,,1A4aii,Commercial-/-institutional:-Mobile
+1A4aiii,resiential-commertial-other,,,
+1A4b,resiential-commertial-other,1A4b_Residential,1.A.4.b  Residential,
+1A4c,resiential-commertial-other,1A4c_Agriculture-forestry-fishing,1.A.4.c  Agriculture/Forestry/Fishing,
+1A6,resiential-commertial-other,1A5_Other-unspecified,,
+1B1ai1,fugitive-energy,,1.B.1  Solid Fuels,
+1B1ai2,fugitive-energy,,,
+1B1ci,fugitive-energy,1B2c_Venting-flaring-oil-gas,,
+1B2ai,fugitive-energy,1B1_Fugitive-solid-fuels,1.B.2  Oil and Natural Gas and Other Emissions from Energy Production,
+1B2aii,fugitive-energy,1B2_Fugitive-petr,,
+1B2aiii,fugitive-energy,1B2b_Fugitive-NG-prod,,
+1B2aiv,fugitive-energy,1B2b_Fugitive-NG-distr,,
+1B2av,fugitive-energy,1B2d_Fugitive-other-energy,,
+1B2bi,fugitive-energy,,,
+1B2bii,fugitive-energy,,,
+1B2biii,fugitive-energy,,,
+1B2biv,fugitive-energy,,,
+1B2bv,fugitive-energy,,,
+1B2bvi,fugitive-energy,,,
+2A1,cement-line-minerals,2A1_Cement-production,2A1,Cement-production
+2A2,cement-line-minerals,2A2_Lime-production,2A2,Lime-production
+2A4a,cement-line-minerals,2A6_Other-minerals,"Mineral Industry - Other Process Uses of Carbonates 1)			",
+2A4b,cement-line-minerals,,"Mineral Industry - Other Process Uses of Carbonates 1)			",
+2A4d,cement-line-minerals,,"Mineral Industry - Other Process Uses of Carbonates 1)			",
+2B1,chemical-industry,2B_Chemical-industry,2B1,Ammonia-production
+2B10,chemical-industry,2B2_Chemicals-Nitric-acid,,
+2B2,chemical-industry,2B3_Chemicals-Adipic-acid,2B2,Nitric-acid-production
+2B5,chemical-industry,,2B5,Carbide-production
+2B7,chemical-industry,,,
+2B8a,chemical-industry,,2B10a,Chemical-industry:-Other-(Please-specify-in-the-IIR)
+2B8b,chemical-industry,2D3_Chemical-products-manufacture-processing,,
+2B8c,chemical-industry,2H_Pulp-and-paper-food-beverage-wood,,
+2B8f,chemical-industry,,,
+2B9a,chemical-industry,,,
+2C1,metals,2C1_Iron-steel-alloy-prod,2C1,Iron-and-steel-production
+2C2,metals,,2C2,Ferroalloys-production
+2C3,metals,2C3_Aluminum-production,2C3,Aluminum-production
+2C6,metals,2C4_Non-Ferrous-other-metals,2C6,Zinc-production
+2D1,solvents,2D_Degreasing-Cleaning,\2D1,"Non-Energy Products from Fuels and Solvent Use - Lubricant Use	"
+2D2,solvents,2D3_Other-product-use,2D2,Non-Energy Products from Fuels and Solvent Use - Paraffin Wax Use
+2D4,solvents,2D_Paint-application,,Solvent use
+3A1ai,agriculture,3E_Enteric-fermentation,3.A.1,Enteric Fermentation
+3A1aii,agriculture,,3.A.1,Enteric Fermentation
+3A1b,agriculture,,3.A.1,Enteric Fermentation
+3A1c,agriculture,,3.A.1,Enteric Fermentation
+3A1d,agriculture,,3.A.1,Enteric Fermentation
+3A1e,agriculture,,3.A.1,Enteric Fermentation
+3A1f,agriculture,,3.A.1,Enteric Fermentation
+3A1g,agriculture,,3.A.1,Enteric Fermentation
+3A1h,agriculture,,3.A.1,Enteric Fermentation
+3A2ai,agriculture,3B_Manure-management,3.A.2,Manure Management
+3A2aii,agriculture,,3.A.2,Manure Management
+3A2b,agriculture,,3.A.2,Manure Management
+3A2c,agriculture,,3.A.2,Manure Management
+3A2d,agriculture,,3.A.2,Manure Management
+3A2e,agriculture,,3.A.2,Manure Management
+3A2f,agriculture,,3.A.2,Manure Management
+3A2g,agriculture,,3.A.2,Manure Management
+3A2h,agriculture,,3.A.2,Manure Management
+3A2i,agriculture,,3.A.2,Manure Management
+3B1ai1,agriculture,,,
+3B1ai2,agriculture,,,
+3B1aii1,agriculture,,,
+3B1aii2,agriculture,,,
+3B2bi,agriculture,,,
+3B2bii,agriculture,,,
+3B3bi,agriculture,,,
+3B3bii,agriculture,,,
+3B7,agriculture,,,
+3C1ai,agriculture,,,
+3C1aii,agriculture,,,
+3C1bi,agriculture,,,
+3C1bii,agriculture,,,
+3C1ci,agriculture,,,
+3C1cii,agriculture,,,
+3C3,agriculture,,,
+3C4a,agriculture,,,
+3C4b,agriculture,,,
+3C4c,agriculture,,,
+3C4di,agriculture,,,
+3C4dii,agriculture,,,
+3C4diii,agriculture,,,
+3C4div,agriculture,,,
+3C4dv,agriculture,,,
+3C4dvi,agriculture,,,
+3C4dvii,agriculture,,,
+3C4e,agriculture,,,
+3C4f,agriculture,,,
+3C4gi,agriculture,,,
+3C4gii,agriculture,,,
+3C4n,agriculture,,,
+3C4o,agriculture,,,
+3C5ai,agriculture,,,
+3C5aii,agriculture,,,
+3C5bi,agriculture,,,
+3C5bii,agriculture,,,
+3C5ci,agriculture,,,
+3C5cii,agriculture,,,
+3C5di1,agriculture,,,
+3C5di2,agriculture,,,
+3C5dii1,agriculture,,,
+3C5dii2,agriculture,,,
+3C5diii1,agriculture,,,
+3C5diii2,agriculture,,,
+3C5div1,agriculture,,,
+3C5div2,agriculture,,,
+3C5dv1,agriculture,,,
+3C5dv2,agriculture,,,
+3C5dvi1,agriculture,,,
+3C5dvi2,agriculture,,,
+3C5dvii1,agriculture,,,
+3C5dvii2,agriculture,,,
+3C5e,agriculture,,,
+3C5fii,agriculture,,,
+3C5gi1,agriculture,,,
+3C5gi2,agriculture,,,
+3C5gii1,agriculture,,,
+3C5gii2,agriculture,,,
+3C5ni,agriculture,,,
+3C5nii,agriculture,,,
+3C5oi,agriculture,,,
+3C5oii,agriculture,,,
+3C6ai1,agriculture,,,
+3C6aii1,agriculture,,,
+3C6aii2,agriculture,,,
+3C6hi,agriculture,,,
+3C6hii,agriculture,,,
+3C6ii,agriculture,,,
+3C7,agriculture,3D_Rice-Cultivation,3.C.7,Rice cultivations
+3D1,agriculture,3D_Soil-emissions,,
+,agriculture,3I_Agriculture-other,,
+4A1,waste,5A_Solid-waste-disposal,4.A,Solid Waste Disposal
+4A3,waste,5E_Other-waste-handling,,
+4B,waste,5C_Waste-incineration,,
+4C1,waste,,4.C,Incineration and Open Burning of Waste
+4D1,waste,5D_Wastewater-handling,4.D,Wastewater Treatment and Discharge
+4D2a,waste,,,
+4D2b,waste,,,
+4D2c,waste,,,
+4D2d,waste,,,
+4D2e,waste,,,

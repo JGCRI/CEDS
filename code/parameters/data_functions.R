@@ -12,7 +12,8 @@
 #       removeNARows, NAsToZeros, repeatAndAddVector, addCols, intersectNames, isNumYear, isXYear,
 #       isYear, removeBlanks, indDataStart, buildCEDSTemplate, interpolate_NAs, interpolate_NAs2,
 #       extend_and_interpolate, verify_calculate_share_params, calculate_shares, calculate_correct_shares,
-#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country, disagg_iso_with_population
+#       extend_data_on_trend, extend_data_on_trend_range, disaggregate_country, disagg_iso_with_population,
+#       calculate_EFs
 # Notes:
 
 # -----------------------------------------------------------------------------
@@ -580,8 +581,10 @@ extend_and_interpolate <- function( df_in, data_columns ){
     }
 
 #   Convert NaNs to NAs
-    df_no_NaN <- df_in %>%
-        dplyr::mutate_at( data_columns, funs( if_else( is.nan( . ), NA_real_, . ) ) )
+    is.nan.data.frame <- function(x)
+        do.call(cbind, lapply(x, is.nan))
+    df_no_NaN <- df_in
+    df_no_NaN[is.nan.data.frame( df_no_NaN)] <- NA
 
 #   Check if there are any NAs ( or NaNs technically, since NaNs are now NAs )
 #   If there are no NAs, return the original data frame, as the rest of the function
@@ -1742,7 +1745,102 @@ disaggregate_country <- function(original_data,
 
   return(split_data)
 }
+# ----------------------------------------------------------------------------
+# breakout_single_country_from_composite
+# Brief:        Breakout a single country from a composite region (ie. Surname is with Other Americas until 1999 then it's own country)
+# Details:
+#
+# Dependencies:	replaceValueCol(), extend_data_on_trend_range, disaggregate_country()
+# Author(s):     Rachel Hoesly
+# Parameters:
+#   original_data -         data frame with rows to be split. Contains lines with aggregate country data in disaggregation
+#                           years( dis_start_year:dis_end_year) and disaggregate data in non-disaggregation years. May contain data lines of other countries, which is not disturbed
+# breakout_country_iso      iso code of country to breakout from composite region
+# breakout_country_country  IEA country name of country to breakout from composite region
+# composite_region          region to breakout country from, ie Othe Americas
+# composite_isos            list of disaggregate isos in composite region (make sure to add additional time broken out countries -
+#                           wouldn't be inclucded in MCL because they have their own IEA Name later)
+# break_out_end_year        yea that country is seperated from composite region
+#   id_cols -               columns for matching. defaults to using non year X- cols are selected (id_col = T). Used for normalizing ratios to 1.
+#                           ex: c(‘iso’,’sector’,’fuel’) - ratios normalized to 1 over all sector-fuel combinations (all iso’s add to 1 for each combination)
+#                           ex: c(‘iso’,’fuel’) - ratios normalized to 1 over all fuels (all iso’s add to 1 for each fuel)
+#   trend_data -            data by which to trend split or ratios
+#   trend_match_cols -      columns in trend_data to match with original_data
+#   combined_iso -          character string, the iso name of the country to be split ex: 'ussr’
+#   disaggregate_iso -      vector of character strings, the names of the countries to replace combined_iso ex: c('aze','rus','ukr',...)
+#   dis_end_year -          numeric, the latest year of non zero data for the aggregate iso, ex 1991
+#   dis_start_year -        earliest year of aggregate data, defaults to 1750
+#   ratio_range_length -    defaults to 2
+#   ratio_start_year -      (dis_end_year + 1)
+#   method -                numeric (1 or 2)
+#                           1: Disaggregates using proportions initially from n earliest years from original split data, with proportion changing
+#                              over time according to trend data, proportions renormalized to 1.
+#                           2: Disaggregate using proportions from trend data overtime. Note: May result in discontinuities if trend data and original
+#                              data have different proportions
+#   remove_aggregate -      T/F boolean. If T, then aggregate county data is removed from the returned data frame. If F, lines of aggregate data remain
+#   write_over_values -     T/F boolean. If T, then any nonzero values for disaggregate_iso countries in disaggregate years will be overwritten.
+#                           If F, then function will error and print message showing non zero values in disaggregate years.
+# Return:   A data frame with split values, in same format as all_data_in. Does not contain rows of aggregate country data, only
+#           disaggregate countries.
+# Input Files:   none
+# Output Files:  none
+# Notes: If ratio = T:
+#           - if aggregate data is zero in ratio years, defaults to ratio = F
+#           - if disaggregate_iso are not all in all_data, defaults to ratio = F
+#           - if disaggregate_iso are not all in trend_data, load population data to use as trend_data
+# TODO: check extend_data_on_trend_range () - does it trend data forward also , or only back?
 
+
+breakout_single_country_from_composite <- function( original_data,
+                                                    breakout_country_iso,
+                                                    breakout_country_country,
+                                                    dis_trend_data,
+                                                    dis_trend_match_cols,
+                                                    composite_region,
+                                                    composite_isos,
+                                                    break_out_end_year){
+    # Define single countries in data
+    all_isos <- original_data %>% pull(iso) %>% unique
+    single_isos <- all_isos[which(all_isos!= composite_region)]
+    extra_iso <- single_isos[which(single_isos != breakout_country_iso)]
+
+    # Disaggregate composite region with breakout country from start year to  breakout year
+    aggregate_through_breakout_year <- original_data %>%
+        filter(iso == composite_region) %>%
+        dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", start_year : break_out_end_year ) )
+
+    disaggregate_through_breakout_year <- disaggregate_country( original_data = aggregate_through_breakout_year,
+                                                                trend_data = dis_trend_data,
+                                                                trend_match_cols = dis_trend_match_cols,
+                                                                combined_iso = composite_region,
+                                                                disaggregate_iso = composite_isos,
+                                                                dis_end_year = break_out_end_year,
+                                                                dis_start_year = start_year,
+                                                                method = 2,
+                                                                id_cols = T,
+                                                                remove_aggregate = T,
+                                                                write_over_values = F,
+                                                                allow_dropped_data = T )
+
+    # reaggregate composite region
+    reaggregate_keep_breakout_country <- disaggregate_through_breakout_year %>%
+        mutate(iso2 = iso) %>%
+        mutate(iso = ifelse(iso %in% single_isos, iso, composite_region)) %>%
+        mutate(test = iso == iso2) %>%
+        mutate(COUNTRY = ifelse(iso == breakout_country_iso, breakout_country_country, composite_region )) %>%
+        group_by(COUNTRY, FLOW, PRODUCT, iso) %>%
+        summarize_if(is.numeric, sum)
+
+    # subset breakout year through end year
+    aggregate_through_breakout_year <- original_data %>%
+        dplyr::select( all_of(IEA_IDcodes), "iso", paste0( "X", (break_out_end_year+1) : IEA_end_year) )
+
+    output <- reaggregate_keep_breakout_country %>%
+        dplyr::left_join( aggregate_through_breakout_year, by = c( IEA_IDcodes, "iso" ) ) %>%
+        bind_rows(original_data %>% filter(iso %in% extra_iso))
+
+
+    return(output)}
 # -----------------------------------------------------------------------------
 # disagg_iso_with_population
 # Brief: Disaggregates isos which do not have data provided directly in any time
@@ -1906,3 +2004,69 @@ disagg_iso_with_population <- function( agg_iso_region, disagg_isos_in_agg_regio
     }
 
 }
+
+
+# -----------------------------------------------------------------------------
+# calculate_EFs
+# Brief: Calculates EFs from emissions and activity data
+# Details:
+# Dependencies: common_data, data_functions
+# Author(s): Rachel Hoesly
+# Params:   agg_iso_region              Aggregate iso
+#           disagg_isos_in_agg_region   Disaggragate iso into constituent isos
+#           df_in                       Emissions data set
+#           population_data             UN population data
+#           years_use                   Data set range of years
+# Return:   EF data frame in the same format as activity data
+
+calculate_EFs <- function(activity_data, emissions_data_in){
+
+# Ef * Activity = Emissions
+# EF= Emissions/Activity:
+
+
+# 0/0 must be set to 0.
+# Fill out a blank template, identical to activity data, with emissions data
+ef_template <- activity_data
+ef_template[X_emissions_years] <- 0
+ef_template$units <- NA
+
+# Populate template with emissions data
+emissions_data <- replaceValueColMatch( ef_template, emissions_data_in,
+                                        x.ColName = X_emissions_years, #replace emissions years values
+                                        match.x = c('iso','sector','fuel'),
+                                        addEntries = FALSE)
+emissions_data <- replaceValueColMatch( emissions_data, emissions_data_in,
+                                        x.ColName = 'units', #replace units
+                                        match.x = c('iso','sector','fuel'),
+                                        addEntries = FALSE)
+
+# Sort activity and emissions and check
+activity_data <- activity_data[ with ( activity_data, order( iso, sector, fuel ) ), ]
+emissions_data <- emissions_data[ with ( emissions_data, order( iso, sector, fuel ) ), ]
+ef_template <- ef_template[ with ( ef_template, order( iso, sector, fuel ) ), ]
+
+if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                emissions_data[ , c('iso' , 'sector' , 'fuel' ) ] )){
+    stop( paste('activity and emissions data do not match. Please check') ) }
+
+# Calculate EFs
+new_efs <- ef_template
+
+if( ! identical(activity_data[ , c( 'iso' , 'sector' , 'fuel' ) ],
+                new_efs[ , c('iso' , 'sector' , 'fuel' ) ] ) ){
+    stop( paste('activity and new_efs data do not match. Please check') ) }
+
+new_efs$units <- paste0( emissions_data$units, "/", activity_data$units )
+new_efs[ X_emissions_years ] <- as.matrix(emissions_data[ X_emissions_years ]) / as.matrix(activity_data[ X_emissions_years ])
+#
+# # Replace NA and Inf with zero
+# new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , is.na(new_efs[ X_emissions_years ]), 0)
+# new_efs[ X_emissions_years ] <- replace( new_efs[ X_emissions_years ] , new_efs[ X_emissions_years ] == 'Inf', 0)
+
+return(new_efs)
+
+}
+
+
+

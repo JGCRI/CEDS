@@ -94,9 +94,9 @@
 
 # Use addToDb_overwrite function to include the data
     addToDb_overwrite( new_data = s_content, em = 'SO2',
-                       file_extension = 'S_Content_db' )
+                       file_extension = 'S_Content_db', module = "B" )
     addToDb_overwrite( new_data = ash_ret, em = 'SO2',
-                       file_extension = 'AshRet_db' )
+                       file_extension = 'AshRet_db', module = "B" )
 
     logStop()
 # END
