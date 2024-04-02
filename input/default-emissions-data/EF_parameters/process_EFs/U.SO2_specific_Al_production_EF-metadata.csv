@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+emission factor,SO2,qat,aluminum,2010,2020,"Emission factor dervied from data in ""Qatalum Sustainability Report 2020"" for 2017-2020. Seawater scrubbing lowers the emission factor by 85-90%.  Values outside of this year range are average of the adjacent 2 years."

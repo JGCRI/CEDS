@@ -28,7 +28,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CO2"
+    if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -81,7 +81,7 @@
         writeData( EF, 'DIAG_OUT',
                    paste0( 'B.', em, '_comb_User_Added_EF' ) )
         addToDb_overwrite( new_data = EF, em = em,
-                           file_extension = 'comb_EF_db' )
+                           file_extension = 'comb_EF_db', module = "B" )
     } else {
         printLog( paste( 'No data to be added to existing EF database for ', em ) )
     }

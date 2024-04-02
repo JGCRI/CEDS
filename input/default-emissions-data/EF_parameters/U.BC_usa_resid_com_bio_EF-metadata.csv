@@ -1,0 +1,3 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emission Factor,BC,usa,1A4a_Commercial-institutional,1960,2022,"Emission factors adjusted to match 2017 NEI (EQUATES, Foley etal 2023)"
+Emission Factor,BC,usa,1A4b_Residential,1960,2022,"Emission factors adjusted to match 2017 NEI (EQUATES, Foley etal 2023)"

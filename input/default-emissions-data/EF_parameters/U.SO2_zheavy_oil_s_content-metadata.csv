@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+emission factor,SO2,all,All,1965,2022,Lowering default heavy-oil sulfur content for oil producing countries with curde oil sulfur contens < 0.3%

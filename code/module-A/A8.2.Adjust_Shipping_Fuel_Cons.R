@@ -80,6 +80,15 @@
 #   Define the last year of exogenous shipping fuel data
     last_shipping_data_year <- max( shipping_fuel$year )
 
+# Warn if total shipping fuel estimate does not extend to latest CEDS year
+   if (last_shipping_data_year < BP_last_year ) {
+     printLog( "***************************************************************************************************************" )
+     printLog( "Total Shipping fuel estimate does not extend to latest CEDS year." )
+     printLog( "***************************************************************************************************************" )
+   }
+
+# TODO- CHECK. May need to truncate shipping fuel data to not extend after last CEDS year.
+
 # -----------------------------------------------------------------------------------------
 #   3. Compute CEDS shipping fuel. Aggregates international bunker and domestic shipping
 #   shipping fuel by fuel type. Result is long-form dataframe of shipping fuel activity by

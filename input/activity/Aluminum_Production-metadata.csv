@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Activity,SO2,all,2C3_Aluminum-production,1850,2022,Metal smelting amounts collated from USGS reports from 1990 forward and extended backward using HYDE metal smelting data

@@ -119,10 +119,10 @@ EDGAR_clean <- function(df_in){
   X_waste_inventory_years <- paste0( 'X', 1980 : 2010 )
 
 # EDGAR 4.2 N2O and NOx
-    EDGAR42_N2O <- readData(domain = "EM_INV", domain_extension = "EDGAR/",
+    EDGAR42_N2O <- readData(domain = "EM_INV", domain_extension = "EDGAR/EDGAR 4.2/",
                             file_name = "EDGAR42_N2O" )
 
-    EDGAR42_NOx <- readData(domain = "EM_INV", domain_extension = "EDGAR/",
+    EDGAR42_NOx <- readData(domain = "EM_INV", domain_extension = "EDGAR/EDGAR 4.2/",
                             file_name = "EDGAR42_NOx" )
 
 # ------------------------------------------------------------------------------

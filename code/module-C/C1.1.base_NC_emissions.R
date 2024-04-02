@@ -25,7 +25,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "N2O"
 
 # -------------------------------------------------------------------------------------------
 # 0.5. Define functions

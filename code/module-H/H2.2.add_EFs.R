@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Program Name: H2.1.add_EFs.R
+# Program Name: H2.2.add_EFs.R
 # Author: Rachel Hoesly
 # Date Last Updated: March 22, 2016
 # Program Purpose: To select and run the correct script(s) to extend CEDS activity data.
@@ -20,7 +20,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # provide logging, file support, and system functions - and start the script log.
 headers <- c('data_functions.R') # Additional function files required.
 log_msg <- paste0( "Calling species-specific child script to extend CEDS EFs data" ) # First message to be printed to the log
-script_name <- "H2.1.add_EFs.R"
+script_name <- "H2.2.add_EFs.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )

@@ -1,0 +1,1 @@
+This directory is where input point source time series and related data are saved

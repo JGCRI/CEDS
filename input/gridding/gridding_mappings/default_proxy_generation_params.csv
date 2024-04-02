@@ -1,0 +1,7 @@
+sector,num_sources,zero_surrounding,search_buffer,zero_buffer
+NFE,800,1,0.5,0.1
+ENE,1000,1,0.5,0.1
+FLR,300,1,0.5,0.1
+IND,1000,0,0.5,0.1
+CHE,1000,0,0.5,0.1
+IRO,1000,0,0.5,0.1
