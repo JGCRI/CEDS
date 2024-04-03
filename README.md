@@ -12,6 +12,7 @@ Major features include:
 * Updates to country inventories used for scaling
 * Refined recent year extension of liquid fuels
 * Emissions data now released with fuel and sector detail
+* Expanded representation of the metal smelting sector
 
 For details on this release see:
 
