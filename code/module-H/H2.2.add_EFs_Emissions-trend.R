@@ -43,6 +43,8 @@ final_iso <- unique(MCL[which(MCL$final_data_flag == 1),'iso'])
 trend <- 'Emissions-trend'
 
 drivers <-  select_EF_drivers(trend)
+# Make sure extensions are done in reverse time order
+drivers %>% dplyr::arrange(desc(start_year)) -> drivers
 
 # ---------------------------------------------------------------------------
 # 3. Import data files from driver-method-file
