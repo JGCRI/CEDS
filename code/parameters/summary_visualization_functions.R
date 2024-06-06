@@ -49,9 +49,8 @@ theme_diagnostic <- list(theme(panel.background = element_rect(fill = "gray90",c
                          theme(panel.grid.major = element_line(size = 0.5, linetype = 'solid',colour = "gray95")),
                          theme(panel.grid.minor = element_line(size = 0.25, linetype = 'solid',colour = "white")))
 # Formatting for the 3 different time scales
-version_comparison_formatting_modern <- list(
-    scale_x_continuous( breaks = seq( from = graph_start, to = graph_end, by = year_breaks ) ,
-                    limits = c(1960, graph_end+1)) ,
+version_comparison_formatting <- list(
+    scale_x_continuous( breaks = seq( from = graph_start, to = graph_end, by = year_breaks )) ,
     #scale_y_continuous( labels = 'comma' ),
     guides( linetype = guide_legend( override.aes = list( size = c( 1.5, 0.5 ) ) ) ),
     labs( x = "" , y = 'Emissions [Tg/yr]' ),
@@ -59,30 +58,6 @@ version_comparison_formatting_modern <- list(
     scale_linetype_manual( name= 'Version',
                        breaks = c( 'Last' ,'Current'),
                        values = c( 'solid','solid' ) ) )
-
-version_comparison_formatting_mid <- list(
-    scale_x_continuous( breaks = seq( from = graph_start, to = graph_end, by = year_breaks ) ,
-                        limits = c(1900, 1970)) ,
-    #scale_y_continuous( labels = 'comma' ),
-    guides( linetype = guide_legend( override.aes = list( size = c( 1.5, 0.5 ) ) ) ),
-    labs( x = "" , y = 'Emissions [Tg/yr]' ),
-    ggtitle(EM),
-    scale_linetype_manual( name= 'Version',
-                           breaks = c( 'Last' ,'Current'),
-                           values = c( 'solid','solid' ) ) )
-
-version_comparison_formatting_early <- list(
-    scale_x_continuous( breaks = seq( from = graph_start, to = graph_end, by = 25 ) ,
-                        limits = c(1750, 1910)) ,
-    #scale_y_continuous( labels = 'comma' ),
-    guides( linetype = guide_legend( override.aes = list( size = c( 1.5, 0.5 ) ) ) ),
-    labs( x = "" , y = 'Emissions [Tg/yr]' ),
-    ggtitle(EM),
-    scale_linetype_manual( name= 'Version',
-                           breaks = c( 'Last' ,'Current'),
-                           values = c( 'solid','solid' ) ) )
-
-
 
 # Read in current data and previous data
 # Some of this is already loaded into the the summary script, but just re-read
@@ -180,63 +155,149 @@ dfplot_Latin_America_sectors <- dfplot_Regions_sectors %>%
 dfplot_Other_sectors <- dfplot_Regions_sectors %>%
     filter(Region == 'Other Asia/Pacific/ME')
 
-# Plots
-plot_global_sectors <- ggplot(dfplot_global_sectors, aes(x = year, y = value, color = Sector, linetype= Version))+
+# Plots -------------
+# plot global sector
+plot_global_sectors_modern <- ggplot(dfplot_global_sectors %>%
+                                         filter(year>1959),
+                                     aes(x = year, y = value, color = Sector, linetype= Version))+
     geom_line( data = dplyr::filter( dfplot_global_sectors, Version == 'Last' ),
                size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
     geom_line( data = dplyr::filter( dfplot_global_sectors, Version == 'Current'  ),
                size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
-    version_comparison_formatting_modern+
-    theme_diagnostic
-
+    theme_diagnostic+
+    version_comparison_formatting
+plot_global_sectors_mid <- ggplot(dfplot_global_sectors %>%
+                                      filter(year < 1971,
+                                             year > 1899),
+                                  aes(x = year, y = value, color = Sector, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_sectors, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_sectors, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
+    theme_diagnostic+
+    version_comparison_formatting
+plot_global_sectors_early <- ggplot(dfplot_global_sectors %>%
+                                        filter(year < 1911),
+                                    aes(x = year, y = value, color = Sector, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_sectors, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_sectors, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
+    theme_diagnostic+
+    version_comparison_formatting
+# plot global fuel
+plot_global_fuel_modern <- ggplot(dfplot_global_fuel %>%
+                                      filter(year>1959),
+                                  aes(x = year, y = value, color = Fuel, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_fuel, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Fuel ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_fuel, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Fuel ), alpha = 1 ) +
+    theme_diagnostic+
+    version_comparison_formatting
+plot_global_fuel_mid <- ggplot(dfplot_global_fuel %>%
+                                   filter(year < 1971,
+                                          year > 1899),
+                               aes(x = year, y = value, color = Fuel, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_fuel, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Fuel ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_fuel, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Fuel ), alpha = 1 ) +
+    theme_diagnostic+
+    version_comparison_formatting
 plot_global_fuel <- ggplot(dfplot_global_fuel, aes(x = year, y = value, color = Fuel, linetype= Version))+
     geom_line( data = dplyr::filter( dfplot_global_fuel, Version == 'Last' ),
                size = 2 ,aes( x = year, y= value, color = Fuel ), alpha = .4 ) +
     geom_line( data = dplyr::filter( dfplot_global_fuel, Version == 'Current'  ),
                size = 0.5, aes( x = year, y = value, color = Fuel ), alpha = 1 ) +
-    version_comparison_formatting_modern+
-    theme_diagnostic
-
+    theme_diagnostic+
+    version_comparison_formatting
+# plot global region
+plot_global_region_modern <- ggplot(dfplot_global_region %>%
+                                        filter(year>1959),
+                                    aes(x = year, y = value, color = Region, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Region ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Region ), alpha = 1 ) +
+    theme_diagnostic+
+    version_comparison_formatting
+plot_global_region_mid <- ggplot(dfplot_global_region %>%
+                                     filter(year < 1971,
+                                            year > 1899),
+                                 aes(x = year, y = value, color = Region, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Region ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Region ), alpha = 1 ) +
+    theme_diagnostic+
+    version_comparison_formatting
 plot_global_region <- ggplot(dfplot_global_region, aes(x = year, y = value, color = Region, linetype= Version))+
     geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Last' ),
                size = 2 ,aes( x = year, y= value, color = Region ), alpha = .4 ) +
     geom_line( data = dplyr::filter( dfplot_global_region, Version == 'Current'  ),
                size = 0.5, aes( x = year, y = value, color = Region ), alpha = 1 ) +
-    version_comparison_formatting_modern+
-    theme_diagnostic
-
+    theme_diagnostic+
+    version_comparison_formatting
+# plot global total
+plot_global_total_modern <- ggplot(dfplot_global_total %>%
+                                       filter(year>1959),
+                                   aes(x = year, y = value,  linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value), alpha = .4 , color = global_color) +
+    geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value ), alpha = 1 , color = global_color) +
+    theme_diagnostic+
+    version_comparison_formatting
+plot_global_total_mid <- ggplot(dfplot_global_total %>%
+                                    filter(year < 1971,
+                                           year > 1899),
+                                aes(x = year, y = value,  linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value), alpha = .4 , color = global_color) +
+    geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value ), alpha = 1 , color = global_color) +
+    theme_diagnostic+
+    version_comparison_formatting
 plot_global_total <- ggplot(dfplot_global_total, aes(x = year, y = value,  linetype= Version))+
     geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Last' ),
                size = 2 ,aes( x = year, y= value), alpha = .4 , color = global_color) +
     geom_line( data = dplyr::filter( dfplot_global_total, Version == 'Current'  ),
                size = 0.5, aes( x = year, y = value ), alpha = 1 , color = global_color) +
-    version_comparison_formatting_modern+
-    theme_diagnostic
+    theme_diagnostic+
+    version_comparison_formatting
 
-# Plot Regions
+# Plot Regions ---------------------
 plot_region <- function(df_region){
 
-   modern <-  ggplot(df_region, aes(x = year, y = value, color = Sector, linetype= Version))+
+   modern <-  ggplot(df_region %>%
+                         filter(year>1959),
+                     aes(x = year, y = value, color = Sector, linetype= Version))+
         geom_line( data = dplyr::filter( df_region, Version == 'Last' ),
                    size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
         geom_line( data = dplyr::filter( df_region, Version == 'Current'  ),
                    size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
-        version_comparison_formatting_modern+
-        theme_diagnostic
-   mid <-  ggplot(df_region, aes(x = year, y = value, color = Sector, linetype= Version))+
+        theme_diagnostic+
+       version_comparison_formatting
+   mid <-  ggplot(df_region %>%
+                      filter(year < 1971,
+                             year > 1899),
+                  aes(x = year, y = value, color = Sector, linetype= Version))+
         geom_line( data = dplyr::filter( df_region, Version == 'Last' ),
                    size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
         geom_line( data = dplyr::filter( df_region, Version == 'Current'  ),
                    size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
-        version_comparison_formatting_mid+
-        theme_diagnostic
-  early <- ggplot(df_region, aes(x = year, y = value, color = Sector, linetype= Version))+
+        theme_diagnostic+
+       version_comparison_formatting
+  early <- ggplot(df_region %>%
+                      filter(year < 1911),
+                  aes(x = year, y = value, color = Sector, linetype= Version))+
         geom_line( data = dplyr::filter( df_region, Version == 'Last' ),
                    size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
         geom_line( data = dplyr::filter( df_region, Version == 'Current'  ),
                    size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
-        version_comparison_formatting_early+
-        theme_diagnostic
+        theme_diagnostic+
+      version_comparison_formatting
 
   out <- list(modern, mid, early)
   return(out)
@@ -247,18 +308,18 @@ region_plots <- lapply(list(dfplot_Africa_sectors, dfplot_China_sectors, dfplot_
 
 #output
 
-summary_plot_output <- c(list(plot_global_sectors,
-                                plot_global_sectors+version_comparison_formatting_mid,
-                                plot_global_sectors+version_comparison_formatting_early,
-                              plot_global_fuel,
-                                plot_global_fuel+version_comparison_formatting_mid,
-                                plot_global_fuel+version_comparison_formatting_early,
-                              plot_global_region,
-                                plot_global_region+version_comparison_formatting_mid,
-                                plot_global_region+version_comparison_formatting_early,
-                              plot_global_total,
-                                plot_global_total+version_comparison_formatting_mid,
-                                plot_global_total+version_comparison_formatting_early),
+summary_plot_output <- c(list(plot_global_sectorsmodern,
+                                plot_global_sectors_mid,
+                                plot_global_sectors_early,
+                              plot_global_fuel_modern,
+                                plot_global_fuel_mid,
+                                plot_global_fuel_early,
+                              plot_global_region_modern,
+                                plot_global_region_mid,
+                                plot_global_region_early,
+                              plot_global_total_modern,
+                                plot_global_total_mid,
+                                plot_global_total_early),
                          unlist(region_plots, recursive = FALSE))
 
 names(summary_plot_output) <- c('Global Sectors - Modern','Global Sectors - Mid', 'Global Sectors - Early',
@@ -288,19 +349,40 @@ if(!is.na(country_select)){
         mutate(year = as.numeric(str_replace(year, 'X','')))%>%
         mutate(value = value/1000) #Convert from Gg to Tg
 
-    plot_all_countries <- ggplot(dfplot_all_countries, aes(x = year, y = value, color = Country, linetype= Version))+
+    plot_all_countries_modern <- ggplot(dfplot_all_countries %>%
+                                            filter(year>1959),
+                                        aes(x = year, y = value, color = Country, linetype= Version))+
         geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Last' ),
                    size = 2 ,aes( x = year, y= value, color = Country ), alpha = .4 ) +
         geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Current'  ),
                    size = 0.5, aes( x = year, y = value, color = Country ), alpha = 1 ) +
-        version_comparison_formatting_modern+
+        version_comparison_formatting+
+        theme_diagnostic
+    plot_all_countries_mid <- ggplot(dfplot_all_countries %>%
+                                         filter(year < 1971,
+                                                year > 1899),
+                                     aes(x = year, y = value, color = Country, linetype= Version))+
+        geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Last' ),
+                   size = 2 ,aes( x = year, y= value, color = Country ), alpha = .4 ) +
+        geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Current'  ),
+                   size = 0.5, aes( x = year, y = value, color = Country ), alpha = 1 ) +
+        version_comparison_formatting+
+        theme_diagnostic
+    plot_all_countries_early <- ggplot(dfplot_all_countries %>%
+                                           filter(year < 1911),
+                                       aes(x = year, y = value, color = Country, linetype= Version))+
+        geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Last' ),
+                   size = 2 ,aes( x = year, y= value, color = Country ), alpha = .4 ) +
+        geom_line( data = dplyr::filter( dfplot_all_countries, Version == 'Current'  ),
+                   size = 0.5, aes( x = year, y = value, color = Country ), alpha = 1 ) +
+        version_comparison_formatting+
         theme_diagnostic
 
 # Redefine lists of plots for output
 last_index <- length(summary_plot_output)
-summary_plot_output[[(last_index+1)]] <- plot_all_countries
-summary_plot_output[[(last_index+2)]] <- plot_all_countries + version_comparison_formatting_mid
-summary_plot_output[[(last_index+3)]] <- plot_all_countries + version_comparison_formatting_early
+summary_plot_output[[(last_index+1)]] <- plot_all_countries_modern
+summary_plot_output[[(last_index+2)]] <- plot_all_countries_mid
+summary_plot_output[[(last_index+3)]] <- plot_all_countries_early
 names(summary_plot_output)[(last_index+1)] <- "Selected Countries - Modern"
 names(summary_plot_output)[(last_index+2)] <- "Selected Countries - Mid"
 names(summary_plot_output)[(last_index+3)] <- "Selected Countries - Early"
@@ -322,18 +404,39 @@ for (i in seq_along(country_select)){
 dfplot_country <- dfplot_countries_sectors %>%
     filter(iso == country_select[i])
 
-plot_country <- ggplot(dfplot_country, aes(x = year, y = value, color = Sector, linetype= Version))+
+plot_country_modern <- ggplot(dfplot_country %>%
+                                  filter(year > 1959),
+                              aes(x = year, y = value, color = Sector, linetype= Version))+
     geom_line( data = dplyr::filter( dfplot_country, Version == 'Last' ),
                size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
     geom_line( data = dplyr::filter( dfplot_country, Version == 'Current'  ),
                size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
-    version_comparison_formatting_modern+
+    version_comparison_formatting+
+    theme_diagnostic
+plot_country_mid <- ggplot(dfplot_country %>%
+                               filter(year < 1971,
+                                      year > 1899),
+                           aes(x = year, y = value, color = Sector, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_country, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_country, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
+    version_comparison_formatting+
+    theme_diagnostic
+plot_country_early <- ggplot(dfplot_country %>%
+                                 fikter(year <1911),
+                             aes(x = year, y = value, color = Sector, linetype= Version))+
+    geom_line( data = dplyr::filter( dfplot_country, Version == 'Last' ),
+               size = 2 ,aes( x = year, y= value, color = Sector ), alpha = .4 ) +
+    geom_line( data = dplyr::filter( dfplot_country, Version == 'Current'  ),
+               size = 0.5, aes( x = year, y = value, color = Sector ), alpha = 1 ) +
+    version_comparison_formatting+
     theme_diagnostic
 
 last_index <- length(summary_plot_output)
-summary_plot_output[[(last_index+1)]] <- plot_country
-summary_plot_output[[(last_index+2)]] <- plot_country + version_comparison_formatting_mid
-summary_plot_output[[(last_index+3)]] <- plot_country + version_comparison_formatting_early
+summary_plot_output[[(last_index+1)]] <- plot_country_modern
+summary_plot_output[[(last_index+2)]] <- plot_country_mid
+summary_plot_output[[(last_index+3)]] <- plot_country_early
 names(summary_plot_output)[(last_index+1)] <- paste0( country_select[i], ' - Modern')
 names(summary_plot_output)[(last_index+2)] <- paste0( country_select[i], ' - Mid')
 names(summary_plot_output)[(last_index+3)] <- paste0( country_select[i], ' - Early')
