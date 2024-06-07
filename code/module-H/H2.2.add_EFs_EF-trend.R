@@ -115,10 +115,16 @@ user_data_list <- lapply ( X = user_files_list, FUN = readData,
                            domain_extension = "extension-data/")
 names(user_data_list ) <- user_files_list
 
+#TODO - why is this done? Is never used.
 user_data <- do.call(rbind.fill, user_data_list)
 
 # ---------------------------------------------------------------------------
 # 5. Use trends to extend EFs
+
+# Make sure extensions are done in reverse time order
+# This doesn't work on a list. Needs to be fixed
+# user_data_list %>% dplyr::arrange(desc(start_year)) -> temp_data_list
+# Is code below already doing this?
 
 order <- tibble(order= numeric(0),
                     start= numeric(0))
@@ -137,6 +143,7 @@ for (i in seq_along(order_user_data_list) ){
   start <- unique(driver_trend$start_year)
   end <-unique(driver_trend$end_year)
 
+  # TODO: Add log message here printing out name of file so can track order of EF extension
   new_EFs <- extend_data_on_trend (driver_trend, new_EFs, start, end)
 
   }
