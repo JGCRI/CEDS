@@ -23,7 +23,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "SO2"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -127,8 +127,10 @@ for (i in seq_along(user_data_list) ){
 }
 order <- order[order(-order$start),]
 order_user_data_list <- list()
+order_user_files_list <- c()
 for ( i in seq_along(order$order) ){
   order_user_data_list[[i]] <- user_data_list[[order$order[i]]]
+  order_user_files_list[i] <- user_files_list[order$order[i]]
 }
 
 new_EFs <- ceds_EFs
@@ -141,6 +143,7 @@ for (i in seq_along(order_user_data_list) ){
 
   }
 
+printLog(c("user_files_list: ", order_user_files_list) )
 
 # ---------------------------------------------------------------------------
 # 4. Output

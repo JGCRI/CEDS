@@ -178,6 +178,7 @@ clean-diagnostic:
 
 clean-final:
 	rm -fv $(FINAL_OUT)/diagnostics/*.csv
+		rm -fv $(FINAL_OUT)/diagnostics/*.png
 	rm -fv $(FINAL_OUT)/diagnostics/*.pdf
 	rm -fv $(FINAL_OUT)/diagnostics/*.RData
 	rm -fv $(FINAL_OUT)/diagnostics/*.Rd
