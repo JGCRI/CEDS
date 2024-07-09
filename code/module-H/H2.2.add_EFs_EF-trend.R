@@ -10,7 +10,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -100,8 +100,9 @@ user_files_list <- list.files(path =  './extension/extension-data',
 user_files_list <- tools::file_path_sans_ext( user_files_list )
 
 #de select meta-data
-if (length(grep(pattern = "metadata", user_files_list )) > 0)
-  user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
+if (length(grep(pattern = "metadata", user_files_list )) > 0){
+    user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
+}
 
 # select emission
 user_files_list <- user_files_list[c(grep(pattern = paste0( '\\.', em, '_' ), user_files_list ),
@@ -141,14 +142,14 @@ for ( i in seq_along(order$order) ){
 
 new_EFs <- ceds_EFs
 for (i in seq_along(order_user_data_list) ){
-  driver_trend <- order_user_data_list[[i]]
-  start <- unique(driver_trend$start_year)
-  end <-unique(driver_trend$end_year)
+    driver_trend <- order_user_data_list[[i]]
+    start <- unique(driver_trend$start_year)
+    end <-unique(driver_trend$end_year)
 
-  # TODO: Add log message here printing out name of file so can track order of EF extension
-  new_EFs <- extend_data_on_trend (driver_trend, new_EFs, start, end)
+    # TODO: Add log message here printing out name of file so can track order of EF extension
+    new_EFs <- extend_data_on_trend(driver_trend, new_EFs, start, end)
 
-  }
+}
 
 printLog(c("user_files_list: ", order_user_files_list) )
 
