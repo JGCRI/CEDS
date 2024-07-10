@@ -308,7 +308,7 @@ region_plots <- lapply(list(dfplot_Africa_sectors, dfplot_China_sectors, dfplot_
 
 #output
 
-summary_plot_output <- c(list(plot_global_sectorsmodern,
+summary_plot_output <- c(list(plot_global_sectors_modern,
                                 plot_global_sectors_mid,
                                 plot_global_sectors_early,
                               plot_global_fuel_modern,

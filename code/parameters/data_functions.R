@@ -1138,7 +1138,7 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
         tidyr::gather(year, value, starts_with('X')) %>%
         dplyr::left_join( final_replacement, by = c('iso', 'sector', 'fuel', 'year') ) %>%
         dplyr::mutate( value = ifelse(is.na(replacement_value), value, replacement_value) ) %>%
-        dplyr::select(iso, sector, fuel, units, year, value) %>%
+        dplyr::select(-ratio, -replacement_value) %>%
         tidyr::spread( year, value )
 
     # Append together
@@ -1146,6 +1146,7 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
 
     return(output_data)
 }
+
 # -----------------------------------------------------------------------------
 # extend_data_on_trend_range
 # Brief:     extends data based on trend of other data
