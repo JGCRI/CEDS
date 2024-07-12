@@ -146,7 +146,20 @@ for (i in seq_along(order_user_data_list) ){
     start <- unique(driver_trend$start_year)
     end <-unique(driver_trend$end_year)
 
-    # TODO: Add log message here printing out name of file so can track order of EF extension
+    # Stop if duplicate data from single file
+    number_of_duplicate_identifiers <- driver_trend %>%
+      dplyr::group_by(iso, sector, fuel) %>%
+      dplyr::summarise( n = n() ) %>%
+      dplyr::select( n ) %>%
+      dplyr::pull()
+    if( max(number_of_duplicate_identifiers) > 1) {
+      stop(paste0('There are duplicate driver data in ', order_user_files_list[i]))
+    }
+
+    # log message here printing out name of file so can track order of EF extension
+    printLog(paste0('Extending data using ', order_user_files_list[i]))
+
+    # Do extension
     new_EFs <- extend_data_on_trend(driver_trend, new_EFs, start, end)
 
 }
