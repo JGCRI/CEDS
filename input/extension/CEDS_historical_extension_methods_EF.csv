@@ -330,7 +330,7 @@ sector,fuel,em,method,start_year,end_year,file_name,domain,domain_extension,conv
 2C3_Aluminum-production,process,all,constant,1750,1969,,,,,
 2C4_Non-Ferrous-other-metals,process,all,Emissions-trend,1750,1969,E.CO2_CDIAC_solid_fuel,MED_OUT,,,
 2C4_Non-Ferrous-other-metals,process,SO2,Emissions-trend,1850,1969,U.SO2_Non-Ferrous-other-metals,DEFAULT_EF_IN,non-combustion-emissions/,,
-2C4_Non-Ferrous-other-metals,process,SO2,Emissions-trend,1750,1850,U.Pre1850_Smelter_S_Em_Trend,EXT_IN,extension-data/,,
+2C4_Non-Ferrous-other-metals,process,SO2,Emissions-trend,1750,1849,U.Pre1850_Smelter_S_Em_Trend,EXT_IN,extension-data/,,
 2D_Degreasing-Cleaning,process,all,constant,1750,1969,,,,1850,0
 2D_Paint-application,process,all,constant,1750,1969,,,,1850,0
 2D3_Chemical-products-manufacture-processing,process,all,constant,1750,1969,,,,1850,0
