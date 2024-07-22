@@ -122,11 +122,7 @@ user_data <- do.call(rbind.fill, user_data_list)
 # ---------------------------------------------------------------------------
 # 5. Use trends to extend EFs
 
-# Make sure extensions are done in reverse time order
-# This doesn't work on a list. Needs to be fixed
-# user_data_list %>% dplyr::arrange(desc(start_year)) -> temp_data_list
-# Is code below already doing this?
-
+# Ordering files to make sure extensions are done in reverse time order
 order <- tibble(order= numeric(0),
                     start= numeric(0))
 for (i in seq_along(user_data_list) ){
@@ -140,6 +136,7 @@ for ( i in seq_along(order$order) ){
   order_user_files_list[i] <- user_files_list[order$order[i]]
 }
 
+# Do extensions in order
 new_EFs <- ceds_EFs
 for (i in seq_along(order_user_data_list) ){
     driver_trend <- order_user_data_list[[i]]
