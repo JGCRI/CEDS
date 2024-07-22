@@ -48,6 +48,8 @@ trend <- 'EF-converge'
 
 # select method
 extension_drivers_EF <- select_EF_drivers(trend)
+# Make sure extensions are done in reverse time order
+extension_drivers_EF %>% dplyr::arrange(desc(start_year)) -> extension_drivers_EF
 
 #**** If have data, then begin process data block
 if ( nrow( extension_drivers_EF) > 0 ) {

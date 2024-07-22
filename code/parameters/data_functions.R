@@ -56,25 +56,24 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
                                   addEntries,
                                   replace_NAs = F){
 
-  out <- x
-  n<-length(match.x)
-  if ( n == 1) {
-  x.match.cols <- x[,match.x[1]]
-  y.match.cols <- y[,match.y[1]]
-}
-  if ( n > 1) {
-    x.match.cols <- apply(X = x[match.x], MARGIN = 1, FUN = paste, collapse = '-')
-    y.match.cols <- apply(X = y[match.y], MARGIN = 1, FUN = paste, collapse = '-')
-      }
+    out <- x
+    n <- length(match.x)
+    if ( n == 1) {
+      x.match.cols <- x[,match.x[1]]
+      y.match.cols <- y[,match.y[1]]
+    }
+    if ( n > 1) {
+        x.match.cols <- apply(X = x[match.x], MARGIN = 1, FUN = paste, collapse = '-')
+        y.match.cols <- apply(X = y[match.y], MARGIN = 1, FUN = paste, collapse = '-')
+    }
 
-
-  out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
+    out[,x.ColName] <- y[match(x.match.cols,y.match.cols),
                        y.ColName]
 
-  index <- which(!complete.cases(out[,x.ColName]))
-  out[index,x.ColName] <- x[index,x.ColName]
+    index <- which(!complete.cases(out[,x.ColName]))
+    out[index,x.ColName] <- x[index,x.ColName]
 
-  if (addEntries){
+    if (addEntries){
     x.names <- names(x)
 
     hybrid.names <- x.names
@@ -88,9 +87,9 @@ replaceValueColMatch <- function( x,y,x.ColName,y.ColName = x.ColName,
 
     out <- rbind.fill(out, y[which(is.na(match(y.match.cols,x.match.cols))),])
     if( replace_NAs) out[is.na(out)] <- 0
-  }
+    }
 
-  return(out)
+    return(out)
 }
 
 # SAMPLE REPLACEMENT FUNCTION for replaceValueColMatch()
@@ -1043,85 +1042,111 @@ extend_data_on_trend <- function(driver_trend, input_data, start, end, diagnosti
                                  iea_start,
                                  iea_start_years_df){
 
-  # Expand fuels - all-comb
-  expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
-  driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
-  comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
-  for (i in seq_along(comb_fuels)){
-    expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
-    driver_trend <- rbind( driver_trend, expand )
-  }#for-ends
+    # Expand fuels - all-comb
+    expand <- driver_trend[which(driver_trend$fuel == 'all' ) ,]
+    driver_trend <- driver_trend[which(driver_trend$fuel != 'all' ) ,]
+    comb_fuels <- c('biomass', 'hard_coal','brown_coal','coal_coke','natural_gas','heavy_oil','diesel_oil','light_oil')
+    for (i in seq_along(comb_fuels)){
+        expand$fuel <- rep(comb_fuels[i], times= nrow(expand) )
+        driver_trend <- rbind( driver_trend, expand )
+    }#for-ends
 
-  #Check if the function is operating on IEA mode
-  if(IEA_mode == T){
-    #Extract OECD ountries (when iea_start = 1960) or Non-OECD ountries (when iea_start_year = 1970 )
-    countries <- iea_start_years_df[which(iea_start_years_df$start_year == iea_start),'iso']
+    #Check if the function is operating on IEA mode
+    if(IEA_mode == T){
+        #Extract OECD ountries (when iea_start = 1960) or Non-OECD ountries (when iea_start_year = 1970 )
+        countries <- iea_start_years_df[which(iea_start_years_df$start_year == iea_start),'iso']
 
-    #extract the drive data for each country
-    driver_trend <- filter(driver_trend, iso %in% countries )
+        #extract the drive data for each country
+        driver_trend <- filter(driver_trend, iso %in% countries )
 
-    #extract the input data for each country
-    input_data <- filter(input_data, iso %in% countries )
+        #extract the input data for each country
+        input_data <- filter(input_data, iso %in% countries )
 
-    #initialize end variable to IEA start year
-    end <- iea_start
-  }#if Ends
+        #initialize end variable to IEA start year
+        end <- iea_start
+    }#if Ends
 
-  ratio_years <- paste0('X',c(end + 1:5))
-  ext_start_year <- start
-  ext_end_year <- end
-  extension_years <- paste0('X',ext_start_year:ext_end_year)
+    # Get five years beyond end of data
+    ratio_years <- paste0('X',c(end + 1:5))
+    extension_years <- paste0('X',start:end)
 
-  # select extension data for current method
-  driver_lines <- driver_trend[, c('iso','sector','fuel') ]
-  driver_lines <- unique(paste(driver_lines$iso,driver_lines$sector,driver_lines$fuel,sep='-'))
+    # Input column names
+    input_cols <- colnames(input_data)
 
-  # select ceds data to extend
-  ceds_extension_ratios <- input_data[ which( paste(input_data$iso,input_data$sector, input_data$fuel, sep="-") %in% driver_lines  ) , ]
+    # Split input data into what needs to be modified, and what stays the same
+    keep_data <- input_data %>%
+        dplyr::filter( !(iso %in% driver_trend$iso) | !(sector %in% driver_trend$sector) | !(fuel %in% driver_trend$fuel) )
+    update_data <- input_data %>%
+        dplyr::filter( iso %in% driver_trend$iso,
+                       sector %in% driver_trend$sector,
+                       fuel %in% driver_trend$fuel )
 
-  #extended data template
-  ceds_extension_ratios <- ceds_extension_ratios[,c('iso','sector','fuel',ratio_years)]
+    # Keep only driver data where there is CEDS data
+    driver_trend <- driver_trend %>%
+        dplyr::filter( iso %in% update_data$iso,
+                       sector %in% update_data$sector,
+                       fuel %in% update_data$fuel ) %>%
+        dplyr::group_by(iso, sector, fuel) %>%
+        dplyr::slice(1) %>%
+        dplyr::ungroup()
 
-  # add Driver identifyer ratio year
-  ceds_extension_ratios <- merge(ceds_extension_ratios, driver_trend[,c("iso", 'sector','fuel', ratio_years)],
-                                 by.x = c('iso', 'sector','fuel'),
-                                 by.y = c("iso", 'sector','fuel'),
-                                 all.x = TRUE, all.y = FALSE)
+    # select ceds data in ratio years
+    ceds_extension_ratios <- update_data %>%
+        dplyr::select( iso, sector, fuel, all_of(ratio_years) ) %>%
+        tidyr::gather( year, ceds_value, ratio_years )
 
-  ceds_extension_ratios[ ratio_years ] <- ceds_extension_ratios[ paste0(ratio_years,'.x')]/ceds_extension_ratios[ paste0(ratio_years,'.y')]
-  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'NaN', 0)
-  ceds_extension_ratios <- replace(ceds_extension_ratios, ceds_extension_ratios == 'Inf', 0)
-  ceds_extension_ratios <- replace(ceds_extension_ratios, is.na(ceds_extension_ratios), 0)
+    # Select driver data in ratio years
+    driver_trend_ratios <- driver_trend %>%
+        dplyr::select(iso, sector, fuel, all_of(ratio_years) ) %>%
+        tidyr::gather( year, driver_value, ratio_years )
 
-  ceds_extension_ratios$ratio <-  rowMeans(ceds_extension_ratios[ ratio_years ])
+    # Join data and get average ratio
+    ratio_data <- ceds_extension_ratios %>%
+        dplyr::full_join(driver_trend_ratios, by = c('iso', 'sector', 'fuel', 'year')) %>%
+        dplyr::mutate( ratio = ceds_value / driver_value ) %>%
+        dplyr::mutate( ratio = ifelse(is.na(ratio), 0, ratio) ) %>%
+        dplyr::mutate( ratio = ifelse(ratio == Inf, 0, ratio) ) %>%
+        dplyr::group_by( iso, sector, fuel ) %>%
+        dplyr::mutate( avg_ratio = mean(ratio) ) %>%
+        dplyr::ungroup()
 
-  # Ratio Diagnostics
-  if(diagnostics == T) writeData(ceds_extension_ratios , "DIAG_OUT",
-                                 paste0('ceds_extension_ratios_',unique(driver_trend$sector)[1],'_',unique(driver_trend$fuel)[1],'_',start,'-',end),
-                                 meta=F)
+    # Ratio Diagnostics
+    if(diagnostics == T) {
+        writeData(ceds_extension_ratios ,
+                "DIAG_OUT",
+                paste0('ceds_extension_ratios_',unique(driver_trend$sector)[1],'_',unique(driver_trend$fuel)[1],'_',start,'-',end),
+                meta=F)
+    }
 
-  # add driver data and use ratio to calculate extended value
-  ceds_extended <- ceds_extension_ratios[,c('iso','fuel','sector','ratio')]
-  ceds_extended [ extension_years ] <- NA
-  ceds_extended <- replaceValueColMatch(ceds_extended, driver_trend,
-                                        x.ColName = extension_years,
-                                        match.x = c('iso','sector','fuel'),
-                                        addEntries = FALSE)
+    # Empty extension data with ratio
+    ceds_extended <- ratio_data %>%
+        dplyr::select(iso, sector, fuel, ratio=avg_ratio) %>%
+        dplyr::distinct()
 
-  ceds_extended[is.na(ceds_extended)] <- 0
+    # Driver data for extension years
+    replacement <- driver_trend %>%
+        dplyr::select(iso, sector, fuel, all_of(extension_years))
 
-  # calculate extended data
-  ceds_extended[ extension_years ] <- ceds_extended$ratio * ceds_extended[ extension_years ]
+    # Scale driver data by ratio
+    final_replacement <- ceds_extended %>%
+        dplyr::full_join(replacement, by = c('iso', 'sector', 'fuel')) %>%
+        dplyr::mutate_at(vars(extension_years), ~.*ratio) %>%
+        tidyr::gather( year, replacement_value, extension_years )
 
-  # add to final extension template
-  output_data <- replaceValueColMatch(input_data, ceds_extended,
-                                     x.ColName = extension_years,
-                                     match.x = c('iso','sector','fuel'),
-                                     addEntries = FALSE) %>%
-      select( one_of(names(input_data)))
+    # Replace data for current iso/sector/fuel combos for years with replacement data
+    new_data <- update_data %>%
+        tidyr::gather(year, value, starts_with('X')) %>%
+        dplyr::left_join( final_replacement, by = c('iso', 'sector', 'fuel', 'year') ) %>%
+        dplyr::mutate( value = ifelse(is.na(replacement_value), value, replacement_value) ) %>%
+        dplyr::select(-ratio, -replacement_value) %>%
+        tidyr::spread( year, value )
 
-  return(output_data)
+    # Append together
+    output_data <- dplyr::bind_rows(keep_data, new_data)
+
+    return(output_data)
 }
+
 # -----------------------------------------------------------------------------
 # extend_data_on_trend_range
 # Brief:     extends data based on trend of other data

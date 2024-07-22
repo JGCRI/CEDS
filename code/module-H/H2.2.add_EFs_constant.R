@@ -37,6 +37,8 @@ extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF'
 trend <- 'constant'
 
 drivers <-  select_EF_drivers(trend)
+# Make sure extensions are done in reverse time order
+drivers %>% dplyr::arrange(desc(start_year)) -> drivers
 
 
 # ---------------------------------------------------------------------------
