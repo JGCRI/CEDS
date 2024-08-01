@@ -12,7 +12,7 @@ This data and code release updates small issues with the preliminary April 01, 2
 For details on this release see:
 
 * See the [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of data and methodology changes.
-* Graphs of emission differences between this version and [the previous major release (v_2021_04_20)](./documentation/Version_comparison_figures_v_2024_07_08_vs_v_2021_04_20.pdf) and [the CEDS CMIP6 data release](./documentation/Version_comparison_figures_v_2024_07_08_vs_2016_07_16(CMIP6).pdf)
+* Graphs of emission differences between this version and [the previous major release (v_2021_04_20)](./documentation/Version_comparison_figures_v_2024_07_08_vs_v_2021_04_20.pdf) and [the CEDS CMIP6 data release](./documentation/Version_comparison_figures_v_2024_07_08_vs_2016_07_16-CMIP6.pdf)
  as documented in Hoesly et al (2018a).
 * Emissions by country, fuel and sector, archived [here](http://doi.org/10.5281/zenodo.12803197).
 
