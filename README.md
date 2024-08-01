@@ -1,28 +1,24 @@
 # CEDS
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species (BC, CO, CO<sub>2</sub>, NH<sub>3</sub>, NMVOC, NO<sub>x</sub>,  OC, SO<sub>2</sub>) over the industrial era (1750 - present) along with CH<sub>4</sub> and N<sub>2</sub>O over recent decades. The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
-**April 2024 Release:** April 1, 2024 (v\_2024\_04\_01)
+**July 2024 Release:** July 08, 2024 (v\_2024\_07\_08)
 
-This data and code release updates driver and emissions data throughout and extends the emissions time series to 2022. 
+This data and code release updates small issues with the preliminary April 01, 2024 release, which extended emissions to 2022. 
 
-Major features include:
-
-* Emissions estimates to 2022
-* Updated default data from IEA, Energy Institute, EDGAR, and others
-* Updates to country inventories used for scaling
-* Refined recent year extension of liquid fuels
-* Emissions data now released with fuel and sector detail
+* Corrected a historical GBR SO2 discontinuity before 1850 in smelting SO2 emissions
+* Other small historical corrections to smelting SO2 before 1850
+* Small corrections to historical NOx and NH3 emissions
 
 For details on this release see:
 
 * See the [release notes](https://github.com/JGCRI/CEDS/wiki/Release-Notes) for a summary of data and methodology changes.
-* Graphs of emission differences between this version and [the previous version](./documentation/Version_comparison_figures_v_2024_04_01_vs_v_20121_04_20.pdf) and [the CEDS CMIP6 data release](./documentation/Version_comparison_figures_v_2024_04_01_vs_2016_07_16(CMIP6).pdf)
+* Graphs of emission differences between this version and [the previous major release (v_2021_04_20)](./documentation/Version_comparison_figures_v_2024_07_08_vs_v_20121_04_20.pdf) and [the CEDS CMIP6 data release](./documentation/Version_comparison_figures_v_2024_07_08_vs_2016_07_16(CMIP6).pdf)
  as documented in Hoesly et al (2018a).
-* Emissions by country, fuel and sector, archived [here](http://doi.org/10.5281/zenodo.10904361).
+* Emissions by country, fuel and sector, archived [here](http://doi.org/10.5281/zenodo.12803197).
 
 We encourage comments on this data. The best way to comment on the data is through the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) page.
 
-_Gridded data corresponding to this release is in production and will be released shortly._	
+_Gridded data corresponding to this release will be released shortly._	
 
 _A journal paper describing this dataset is in preparation. A notice will be updated here and sent to the CEDS listserv when this is available._
 
@@ -58,6 +54,19 @@ _Note that the paper zip file supplement contains annual emissions estimates by 
 ***
 
 **Previous Versions** 
+
+**April 2024 Release:** April 1, 2024 (v\_2024\_04\_01)
+
+This data and code release updates driver and emissions data throughout and extends the emissions time series to 2022. 
+
+Major features include:
+
+* Emissions estimates to 2022
+* Updated default data from IEA, Energy Institute, EDGAR, and others
+* Updates to country inventories used for scaling
+* Refined recent year extension of liquid fuels
+* Emissions data now released with fuel and sector detail
+* Expanded representation of the metal smelting sector
 
 **April 2021 Release:** April 21, 2021 (v\_2021\_04\_21)
 
