@@ -1,6 +1,20 @@
 # CEDS
 The Community Emissions Data System (CEDS) produces consistent estimates of global air emissions species (BC, CO, CO<sub>2</sub>, NH<sub>3</sub>, NMVOC, NO<sub>x</sub>,  OC, SO<sub>2</sub>) over the industrial era (1750 - present) along with CH<sub>4</sub> and N<sub>2</sub>O over recent decades. The system is written in R and uses open-source data (with the exception of the IEA energy statistics which must be purchased from IEA). CEDS is publicly available through an [Open Source License](#license-section).
 
+## **Data Releases**
+
+**2024 Gridded Data Release:** December 3, 2024 (v\_2024\_11\_25)
+
+Global gridded emissions from 1750-2022 at 0.5° for the v\_2024\_04\_01 data are now available on [ESGF](https://aims2.llnl.gov/search/input4mips/) [Search for: mip\_era = CMIP6Plus; institution\_id = PNNL-JGCRI]. Checksum files archived at [zenodo](https://zenodo.org/records/14145000).
+
+0.1° data from 1980 - 2022 will be available shortly.
+
+Major features include:
+
+* Updated gridding proxies overall
+* Improved location of large point source emitters, particularly for SO<sub>2</sub>
+* New implementation of seasonality, including sub-annual impacts during COVID
+
 **July 2024 Release:** July 08, 2024 (v\_2024\_07\_08)
 
 This data and code release updates small issues with the preliminary April 01, 2024 release, which extended emissions to 2022. 
@@ -17,8 +31,6 @@ For details on this release see:
 * Emissions by country, fuel and sector, archived [here](http://doi.org/10.5281/zenodo.12803197).
 
 We encourage comments on this data. The best way to comment on the data is through the [CEDS Issues](https://github.com/JGCRI/CEDS/issues) page.
-
-_Gridded data corresponding to this release will be released shortly._	
 
 _A journal paper describing this dataset is in preparation. A notice will be updated here and sent to the CEDS listserv when this is available._
 
@@ -53,7 +65,7 @@ _Note that the paper zip file supplement contains annual emissions estimates by 
 
 ***
 
-**Previous Versions** 
+# Previous Versions
 
 **April 2024 Release:** April 1, 2024 (v\_2024\_04\_01)
 
