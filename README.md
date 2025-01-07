@@ -5,7 +5,7 @@ The Community Emissions Data System (CEDS) produces consistent estimates of glob
 
 **2024 Gridded Data Release:** December 3, 2024 (v\_2024\_11\_25)
 
-Global gridded emissions from 1750-2022 at 0.5° for the v\_2024\_04\_01 data are now available on [ESGF](https://aims2.llnl.gov/search/input4mips/) [Search for: mip\_era = CMIP6Plus; institution\_id = PNNL-JGCRI]. Checksum files archived at [zenodo](https://zenodo.org/records/14145000).
+Global gridded emissions from 1750-2022 at 0.5° for the v\_2024\_07\_08 data are now available on [ESGF](https://aims2.llnl.gov/search/input4mips/) [Search for: mip\_era = CMIP6Plus; institution\_id = PNNL-JGCRI]. Checksum files archived at [zenodo](https://zenodo.org/records/14145000).
 
 0.1° data from 1980 - 2022 will be available shortly.
 
