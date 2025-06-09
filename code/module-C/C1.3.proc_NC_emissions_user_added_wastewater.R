@@ -385,6 +385,7 @@ if ( em == "NH3" ) {  # only run script for NH3
 
 # ------------------------------------------------------------------------------
 # 4. Compute default NH3 emissions and EFs
+  printLog("Compute default NH3 emissions and EFs")
 # Default NH3 emissions are computed from NH3 emissions per-capita estimates
 # (provided in Per-Capita_Protein_and_WW_NH3.csv), population data, and
 # wastewater treatment % (calculated above):
@@ -392,14 +393,13 @@ if ( em == "NH3" ) {  # only run script for NH3
 # Default NH3 EFs:
 #     EF = emission per-capita * (1 - wastewater treatment ratio)
 
-  ww_interp_bwd_long <- melt( ww_interp_bwd, id = c( "iso", "country", "region" ) )
-  names( ww_interp_bwd_long ) <- c( "iso", "country", "region", "year", "ww_treatment_percent" )
+  ww_interp_bwd_long <- ww_interp_bwd %>% pivot_longer(all_of(paste0('X',extended_years)), names_to = 'year', values_to = "ww_treatment_percent")
   ww_interp_bwd_long$year <- xYearToNum( ww_interp_bwd_long$year )
 
 # Extend NH3 per-capita emissions to all emissions years
   names( NH3_em_pc ) <- c( "year", "NH3_pc" )
   NH3_em_pc$NH3_pc <- as.numeric( as.character( NH3_em_pc$NH3_pc ) )
-  NH3_em_pc_ext <- merge( data.frame( year = extended_years ), 
+  NH3_em_pc_ext <- merge( data.frame( year = extended_years ),
                        NH3_em_pc, all = T ) %>% dplyr::arrange( year )
   NH3_em_pc_ext$NH3_pc <- na.locf( NH3_em_pc_ext$NH3_pc, na.rm = F )
   NH3_em_pc_ext$NH3_pc <- na.locf( NH3_em_pc_ext$NH3_pc, na.rm = F, fromLast = T )

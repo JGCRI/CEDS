@@ -60,10 +60,20 @@
       sector_fuel_mapping <- paste0(inv_name,"_",em)
     }
 
-    # For now include just Korea and Taiwan, where we need to capture earlier
-    # emission controls/technology changes
-    region <- c( "kor", "twn" )
-    inv_years <- c( 1980 : 2015 )
+    # Include all REAS countries that we don't have country-specific data for 
+    # For SO2 only include "jpn","kor", "twn" so we capture longer-term trends
+    if (em == "SO2" ) { 
+       region <- c( "jpn","kor", "twn" )
+       inv_years <- c( 1980 : 2014 )
+    } else {
+       # Otherwise, user REAS32 for countries we dont otherwise have inventories for
+       region <- c( "afg", "bgd", "brn", "btn", "idn", 
+                  "khm", "lao", "lka", "mdv", "mmr", "mng", "mys", "npl",
+                  "pak", "phl", "prk", "sgp", "tha", "vnm" )
+       # Use narrower range of years where activity data is more likely to be consistent
+       # between IEA data versions, etc.
+       inv_years <- c( 1990 : 2013 )
+    }
 
     inventory_data_file <- paste0( "E.", em, "_", inv_name, "_inventory" )
     inv_data_folder <- "MED_OUT"

@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment,Created by
+Mapping,NA,NA,NA,1980,2017,EDGAR seasonality profile. Removed negative seasonality for France August 2017 and subtracted that amount from other months to sum to one.,Hamza Ahsan

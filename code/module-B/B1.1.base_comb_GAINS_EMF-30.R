@@ -110,8 +110,10 @@
                                  file_name = activity_file_Name, skip = activity_rows_to_skip )
 
 # Read in GAINS mapping files
+   # This is the GAINS iso to region map modified to assign some iso's default EFs from a
+   # different GAINS region that is more appropriate for that iso
     GAINS_ctry_map <- readData( domain = 'MAPPINGS', domain_extension = domain_ext_use,
-                                file_name ='emf-30_ctry_map' )
+                                file_name ='emf-30_ctry_map_assign' )
 
     GAINS_fuel_sector_map <- readData( domain = 'MAPPINGS', domain_extension = domain_ext_use,
                                        file_name = 'emf-30_fuel_sector_map' )
@@ -124,6 +126,30 @@
 
 # Define the year of IEA World Conversion Factors data to use
     CONVERSION_YEAR_TO_USE <- "X2010"
+
+# Read in user modifications to GAINS EF trends
+# TODO - eventually move this to a new script to act on any default EF trend data
+# TODO - expand this to allow multiple input files with different starting points
+# TODO - expand to cover all gains years and copy forward if necessary
+
+   data_path <- './default-emissions-data/EF_parameters/default_EF_trend_mods'
+   user_files_list <- list.files(path =  data_path,
+                                 pattern = '*.csv')
+   user_files_list <- tools::file_path_sans_ext( user_files_list )
+
+   #De select meta-data
+   if (length(grep(pattern = "metadata", user_files_list )) > 0)
+       user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
+
+   # select emission
+   user_files_list <- user_files_list[c(grep(pattern = paste0( em, '_' ), user_files_list ))]
+
+   # Read in files
+   user_data_mods <- lapply ( user_files_list, FUN = readData,
+                              domain = "DEFAULT_EF_PARAM" ,
+                              domain_extension = "default_EF_trend_mods/")
+
+   user_mod_data <- do.call(rbind.fill, user_data_mods)
 
 # ---------------------------------------------------------------------------
 # 2. Calculate GAINS heat content
@@ -555,38 +581,50 @@
         mutate_at(vars(starts_with("X")), funs(if_else(is.na(.),median(., na.rm = TRUE),.))) %>%
         ungroup()
 
-# TODO - implement a more general and transparanet way of changing our default EF extension values
+# ---------------------------------------------------------------------------
+# 8. User corrections
 
-# India Adjustment
-# GAINS appears to incorporate the introduction of stricter transportation emission standards in India after 2020
-# Since Gajbhiye etal 2023 (doi: 10.1016/j.trd.2022.103603) indicate a very low fraction of trucks
-# adhering to the phast VI standards, revised diesel EF improvement downward to a nominal 2%/year after 2020
+gainsEMF30_comb_final <- gainsEMF30_comb
 
-    # Get 2020 EF value for road sector emissions from diesel combustion in India
-    ef_2020 <- gainsEMF30_comb %>%
-        dplyr::filter( iso == 'ind', sector == '1A3b_Road', fuel == 'diesel_oil' ) %>%
-        dplyr::select( X2020 ) %>%
-        dplyr::pull()
+# Do only if there are user corrections read in
+if ( length(user_mod_data) >0 ) {
 
-    # Number of years from 2020 till end year (kept flexible)
-    num_years_after_2020 <- tail(ceds_years, 1) - 2020
-    # Repetitive multiplication of EF 2020 by 0.98 to get new EFs
-    new_efs <- ef_2020 * cumprod( rep(0.98, num_years_after_2020) )
+# Filter GAINS data to contain only selected categories
+    user_mod_data_categories <- user_mod_data %>% select("iso", "sector", "fuel")
+    # Emission factor trends to change
+    gainsEMF30_comb_toMod <- gainsEMF30_comb %>% right_join(user_mod_data_categories, by = c("iso", "sector", "fuel"))
+    # Emission factor trends to retain as is
+    gainsEMF30_comb_org <- gainsEMF30_comb %>% anti_join(user_mod_data_categories, by = c("iso", "sector", "fuel"))
 
-    # Replace the EF values for years after 2020
-    gainsEMF30_comb[(
-        # Get the row
-        gainsEMF30_comb$iso == 'ind' &
-        gainsEMF30_comb$sector == '1A3b_Road' &
-        gainsEMF30_comb$fuel == 'diesel_oil'),
-        # And the columns
-        tail(X_ceds_years, num_years_after_2020)] <- new_efs # And substitute new values
+    DF_XYears = names(gainsEMF30_comb_toMod)[isXYear(names(gainsEMF30_comb_toMod))]
+    gainsEMF30_comb_toMod_long <- gainsEMF30_comb_toMod %>% pivot_longer(cols = all_of(DF_XYears), names_to = "year") %>%
+        mutate( year = gsub("X","", year)) %>% dplyr::rename(EF = value) %>% select(-units)
+    user_mod_data_long <- user_mod_data %>% pivot_longer(cols = all_of(names(user_mod_data)[isXYear(names(user_mod_data))]), names_to = "year") %>%
+        mutate( year = gsub("X","", year)) %>% dplyr::rename(user_mult = value) %>% select(-units)
 
+    gainsEMF30_comb_calc <- left_join(gainsEMF30_comb_toMod_long,user_mod_data_long, by = c("sector", "fuel", "iso", "year")) %>%
+        # Where mult is zero, transform to NA
+        dplyr::mutate(user_mult = ifelse(user_mult == 0, NA,user_mult)) %>%
+        dplyr::group_by(iso, sector, fuel) %>%
+        dplyr::mutate(an_anchor_year = ifelse(user_mult == 1, year,0)) %>%
+        dplyr::mutate(anchor_year = max(an_anchor_year, na.rm = TRUE)) %>%
+        dplyr::mutate(mult = ifelse(year<=anchor_year,1,user_mult)) %>%
+        dplyr::mutate(new_EF = EF * mult)
+
+    # Clean up, widen, and join with rest of data
+    gainsEMF30_comb_new <- gainsEMF30_comb_calc %>%
+        select( -EF, -user_mult, -mult, -an_anchor_year, -anchor_year) %>%
+        mutate( year = paste0("X",year)) %>%
+        pivot_wider( values_from = new_EF, names_from = "year") %>%
+        mutate( units = "kt/kt")
+
+    gainsEMF30_comb_final <- rbind(gainsEMF30_comb_org,gainsEMF30_comb_new)
+} # End check for existence of user data corrections
 
 # ---------------------------------------------------------------------------
-# 8. Diagnostics
+# 9. Diagnostics
 
-    gains_diagnostics <- gainsEMF30_all
+    gains_diagnostics <- gainsEMF30_comb_final
 
 # Ratio of the emissions factors in the last CEDS year to the EF in the last
 # EDGAR inventory year (will not be correct for EDGAR GHGs which have later end-year,
@@ -615,20 +653,21 @@
     writeData( GAINS_heat_content, domain = "MED_OUT", fn = "B1.1.Europe_heat_content_IEA" )
 
 # Write extreme ratios of EFs in last CEDS year to EF in last inventory year
+   if (nrow(gains_diagnostics) > 0 ) {
     writeData( gains_diagnostics, domain = "DIAG_OUT", fn = paste0( "B.", em, "_GAINS_EF_ratios" ) )
-
+   }
 # For CO2 don't use global GAINS data, but write to diagnostic.
 # For other species, write to intermediate-output to be used for base combustion emission factors
 # ( BC, OC, and SO2 use GAINS data for recent control percents, and thus are also output to
 # the intermediate-output directory)
     if ( em %in% c( 'CO2' ) ) {
 
-        writeData( gainsEMF30_comb, domain = "DIAG_OUT",
+        writeData( gainsEMF30_comb_final, domain = "DIAG_OUT",
                    fn = paste0( 'B.', em, '_comb_EF_GAINS_EMF30' ) )
 
     } else {
 
-        writeData( gainsEMF30_comb, domain = "MED_OUT",
+        writeData( gainsEMF30_comb_final, domain = "MED_OUT",
                    fn = paste0( 'B.', em, '_comb_EF_GAINS_EMF30' ) )
 
     }

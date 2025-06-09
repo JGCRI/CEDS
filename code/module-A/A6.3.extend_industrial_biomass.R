@@ -236,8 +236,13 @@ ceds_sector_breakdown <- do.call( rbind.fill, ceds_sector_breakdown_list )
 # Initialize breakdowns for start year (only 1A2g_Ind-Comb-other should be 1),
 # then fill in all intermediate years and interpolate
 ceds_sector_breakdown <- ceds_sector_breakdown %>%
-    dplyr::mutate( X1850 = as.numeric( sector == '1A2g_Ind-Comb-other' ) ) %>%
-    dplyr::mutate_at( setdiff( breakdown_years, names( . ) ), funs( +NA_real_ ) ) %>%
+    dplyr::mutate( X1850 = as.numeric( sector == '1A2g_Ind-Comb-other' ) )
+
+breakdown_columns <- setdiff(breakdown_years, names(ceds_sector_breakdown))
+ceds_sector_breakdown[breakdown_columns] <- NA_real_
+
+ceds_sector_breakdown <- ceds_sector_breakdown %>%
+    #dplyr::mutate_at( setdiff( breakdown_years, names( . ) ), funs( +NA_real_ ) ) %>%
     dplyr::select( iso, sector, fuel, breakdown_years ) %>%
     interpolate_NAs( )
 

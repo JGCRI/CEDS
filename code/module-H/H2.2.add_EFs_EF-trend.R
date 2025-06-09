@@ -10,7 +10,7 @@
 # 0. Read in global settings and headers
 # Define PARAM_DIR as the location of the CEDS "parameters" directory, relative
 # to the "input" directory.
-    PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
+PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -23,7 +23,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "OC"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -100,8 +100,9 @@ user_files_list <- list.files(path =  './extension/extension-data',
 user_files_list <- tools::file_path_sans_ext( user_files_list )
 
 #de select meta-data
-if (length(grep(pattern = "metadata", user_files_list )) > 0)
-  user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
+if (length(grep(pattern = "metadata", user_files_list )) > 0){
+    user_files_list <- user_files_list[-grep(pattern = "metadata", user_files_list )]
+}
 
 # select emission
 user_files_list <- user_files_list[c(grep(pattern = paste0( '\\.', em, '_' ), user_files_list ),
@@ -115,35 +116,66 @@ user_data_list <- lapply ( X = user_files_list, FUN = readData,
                            domain_extension = "extension-data/")
 names(user_data_list ) <- user_files_list
 
+#TODO - why is this done? Is never used.
 user_data <- do.call(rbind.fill, user_data_list)
 
 # ---------------------------------------------------------------------------
 # 5. Use trends to extend EFs
 
+# Ordering files to make sure extensions are done in reverse time order
 order <- tibble(order= numeric(0),
                     start= numeric(0))
 for (i in seq_along(user_data_list) ){
-  order[i,] <- c(i,user_data_list[[i]]$start_year[1])
+  order[i,] <- as.list(c(i,user_data_list[[i]]$start_year[1]))
 }
 order <- order[order(-order$start),]
 order_user_data_list <- list()
+order_user_files_list <- c()
 for ( i in seq_along(order$order) ){
   order_user_data_list[[i]] <- user_data_list[[order$order[i]]]
+  order_user_files_list[i] <- user_files_list[order$order[i]]
 }
 
+# Do extensions in order
 new_EFs <- ceds_EFs
 for (i in seq_along(order_user_data_list) ){
-  driver_trend <- order_user_data_list[[i]]
-  start <- unique(driver_trend$start_year)
-  end <-unique(driver_trend$end_year)
+    # TO DO: this unique is a bandaid - but there is a reason why it has to be there?
+    # I have no idea what error is there that makes it necessary
+    driver_trend <- order_user_data_list[[i]] %>% unique
+    start <- unique(driver_trend$start_year)
+    end <-unique(driver_trend$end_year)
 
-  new_EFs <- extend_data_on_trend (driver_trend, new_EFs, start, end)
+    # Stop if duplicate data from single file
+    number_of_duplicate_identifiers <- driver_trend %>%
+      dplyr::group_by(iso, sector, fuel) %>%
+      dplyr::summarise( n = n() ) %>%
+      dplyr::select( n ) %>%
+      dplyr::pull()
+    if( max(number_of_duplicate_identifiers) > 1) {
+      stop(paste0('There are duplicate driver data in ', order_user_files_list[i]))
+    }
 
-  }
+    # log message here printing out name of file so can track order of EF extension
+    printLog(paste0('Extending data using ', order_user_files_list[i]))
 
+    # Do extension
+    new_EFs <- extend_data_on_trend(driver_trend, new_EFs, start, end)
+
+}
+
+printLog(c("user_files_list: ", order_user_files_list) )
 
 # ---------------------------------------------------------------------------
 # 4. Output
+
+# Check input ef_db and output ef_db
+old <- ceds_EFs %>%
+    arrange(iso, sector, fuel, units)
+new <- new_EFs %>%
+    arrange(iso, sector, fuel, units)
+if( ! identical(old[c('iso', 'sector','fuel')],new[c('iso', 'sector','fuel')]) ){
+    stop('input and outpu EFs in H3.1 apply EF pathway are not identical. Check.')
+}
 
 writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = T)
 

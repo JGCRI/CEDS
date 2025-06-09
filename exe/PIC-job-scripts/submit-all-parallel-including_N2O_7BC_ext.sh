@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit all CEDS species to run in parallel.
+# Submit all CEDS-dev species to run in parallel.
 
 # Run activity first, get the ID of that job and have all
 # other species run only if activity completed successfully.

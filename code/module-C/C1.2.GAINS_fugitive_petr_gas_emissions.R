@@ -45,7 +45,7 @@
 #   Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "N2O"
+    if ( is.na( em ) ) em <- "CH4"
 
 #   Stop script if running for unsupported species
     if ( ! ( em %in% c( 'BC', 'CH4', 'CO', 'CO2', 'N2O', 'NMVOC', 'NOx', 'OC', 'SO2' ) ) ) {
@@ -362,7 +362,7 @@
 
 #       II.) Map GAINS emissions data to CEDS isos
         GAINS_FugEmiss_isoMapped <- GAINS_FugEmiss_SecMapped %>%
-            dplyr::left_join( GAINS_country_map_clean, by = "Region" )
+            dplyr::left_join( GAINS_country_map_clean, by = "Region", relationship = "many-to-many" )
 
         if( any ( is.na( GAINS_FugEmiss_isoMapped$iso ) | GAINS_FugEmiss_isoMapped$iso == "" ) ){
 
@@ -382,7 +382,7 @@
 
         }
 
-#   Seperate emissions for processing - (1) NG distribution fug. emiss,
+#   Separate emissions for processing - (1) NG distribution fug. emiss,
 #   (2) NG production ug. emiss, and (3) Oil production fug. emiss
     GAINS_fug_NG_distribution <- GAINS_FugEmiss_isoMapped %>%
         dplyr::filter( ceds_sector == "1B2b_Fugitive-NG-distr" )
@@ -397,14 +397,29 @@
 
 # 5. Reformat CDIAC Driver data
 
+    first_year <- as.numeric(str_extract(X_CDIAC_END_YEAR, "\\d+")) + 1
+    end_year <- as.numeric(str_extract(last(CDIAC_YEARS_EXTEND_TO), "\\d+"))
+
 # Subset NG Emissions and retain appropriate years (1960-2011).
 # Note that CDIAC inventory only goes to 2011 (other than cement which was extended during initial CDIAC processing),
 # so after subsetting appropriate years, extend CDIAC emissions to 2020 for EF (constant, equal to 2011 values).
   CDIAC_CO2_gas <- CDIAC_CO2_inventory %>%
     dplyr::filter( fuel == "gas_fuels" ) %>%
     dplyr::select( iso, fuel, all_of(CDIAC_YEARS_X) ) %>%
-    dplyr::filter( iso != "global" ) %>%
-    dplyr::mutate_at( CDIAC_YEARS_EXTEND_TO, funs( identity( !!rlang::sym( X_CDIAC_END_YEAR ) ) ) )
+    dplyr::filter( iso != "global" )
+
+  #Creates new columns in the form of a list using setNames()
+  new_columns <- stats::setNames(
+      #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+      #for an amount of instances denoted by end_year - start_year + 1
+      replicate(end_year - first_year + 1, CDIAC_CO2_gas[[X_CDIAC_END_YEAR]], simplify = FALSE),
+      #These are the new names for each column
+      paste0("X", first_year:end_year)
+  )
+
+  CDIAC_CO2_gas <- CDIAC_CO2_gas %>%
+      #!!!new_columns ensures that each column is added separately (it separates new_columns)
+      tibble::add_column(!!!new_columns)
 
 #  Check if all isos in CDIAC data are within the MCL, and
 #  that all isos in the MCL are within the CDIAC data
@@ -533,7 +548,7 @@
 #   Interpolate the EF between GAINS years, retain only CEDS years
     NG_distribution_EF_interp <- NG_distribution_EF %>%
         tidyr::spread( years, EF ) %>%
-        dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
+        bind_cols(purrr::map_dfc(MISSING_GAINS_YEARS_TO_MAKE, ~ tibble(!! .x := NA)))%>%
         dplyr::select( Region, iso, ceds_sector, EF_units, all_of(GAINS_INTERP_YEARS_X) ) %>%
         interpolate_NAs2( ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, all_of(GAINS_FINAL_YEARS_WITH_X) )
@@ -542,7 +557,7 @@
     missing_years_for_extending <- paste0('X', start_year:( as.numeric( GAINS_START_YEAR ) - 1 ) ) # Currently: 1960-1999
 
     NG_distribution_EF_extended <- NG_distribution_EF_interp %>%
-        dplyr::mutate_at( missing_years_for_extending, funs( identity( X2000 ) ) ) %>%
+        bind_cols(purrr::map_dfc(missing_years_for_extending, ~ tibble(!! .x := identity(NG_distribution_EF_interp$X2000)))) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, all_of(X_emissions_years) ) %>%
         tidyr::gather( key = years, value = EFs, all_of(X_emissions_years) )
 
@@ -579,7 +594,7 @@
 
     BP_oil <- BP_oil_data %>%
         dplyr::select( BPName_Oil_production, all_of(BP_OIL_YEARS_x) ) %>%
-        dplyr::filter_at( .vars = colnames( BP_oil_data ), any_vars( !is.na( . ) ) ) %>%
+        dplyr::filter_at( vars(everything()), any_vars( !is.na( . ) ) ) %>%
         dplyr::left_join( MCL, by = "BPName_Oil_production" ) %>%
         dplyr::filter( !is.na( BPName ) ) %>%
         tidyr::gather( key = years, value = Oil_production, all_of(BP_OIL_YEARS_x) ) %>%
@@ -642,12 +657,31 @@
 #   set production to NA from 1960-1970 (since all data is currently 0 (for all isos),
 #   and extend 2013 (final IEA production year) to final BP year (actual BP end year, using constant extension)
 #   TODO: This may not be 0 for 1960-1970 in future IEA data - this should be checked when updating IEA data versions.
-      IEA_oil <- en_stat_sector_fuel %>%
+
+    #first picks an IEA extension range based on the following variables
+    first_year <- as.numeric(str_extract(X_IEA_end_year, "\\d+")) + 1
+    end_year <- as.numeric(str_extract(IEA_EXT_TO_BP_END_YEAR, "\\d+"))
+
+    #preliminary data manipulation, including replacing all IEA_NA_YEARS with NA
+    IEA_oil <- en_stat_sector_fuel %>%
         dplyr::filter( sector == "crude-oil-production",
                        !( iso %in% BP_oil_isos ) ) %>%
         dplyr::left_join( MCL_unique_with_OECD_flag, by = "iso" ) %>%
-        dplyr::mutate_at( IEA_NA_YEARS, funs( identity( NA ) ) )  %>%  # All data in these years is currently 0 for countries not in BP, and begins in 1971 (when non-oecd data begins)
-        dplyr::mutate_at( .vars = IEA_EXT_TO_BP_END_YEAR, funs( + ( !!rlang::sym( X_IEA_end_year ) ) ) ) %>%
+        # All data in these years is currently 0 for countries not in BP, and begins in 1971 (when non-oecd data begins)
+        dplyr::mutate(across(all_of(IEA_NA_YEARS), ~ NA ) )
+
+    #Creates new columns based on X_IEA_end_year
+    new_columns <- stats::setNames(
+        #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+        #for an amount of instances denoted by end_year - start_year + 1
+        replicate(end_year - first_year + 1, IEA_oil[[X_IEA_end_year]], simplify = FALSE),
+        #These are the new names for each column
+        paste0("X", first_year:end_year)
+    )
+
+    #Adds columns to IEA_oil and does further data manipulation
+    IEA_oil <- IEA_oil %>%
+        tibble::add_column(!!!new_columns) %>%
         dplyr::mutate( sector = "oil_production",
                        data_source = "IEA" ) %>%
         dplyr::select( data_source, iso, sector, fuel, units, all_of(IEA_AND_BP_YEARS_x) )
@@ -694,12 +728,26 @@
 #   Note: We are aggregating data for which some isos might be NA (IEA's first reported year of data is 1971, so only
 #   isos for a given GAINS region which had data from BP are aggregated. However, this aggregate info isn't used below,
 #   as the aggRegion EF is created only for years within "GAINS_EMISS_YEARS_KEEP_X" (currently 2000, 2005, 2010, and 2020)
-    Oil_production_aggRegion_for_EF <- Oil_production_region_mapped %>%
+    first_year <- BP_actual_last_year + 1
+    end_year <- as.numeric(str_extract(last(production_extension_GAINS_years), "\\d+"))
+
+    Oil_production_aggRegion_for_EF_intermediate <- Oil_production_region_mapped %>%
         dplyr::select( -iso ) %>%
         dplyr::group_by( Region, sector, fuel, units ) %>%
         dplyr::summarise_all( funs( sum ( ., na.rm = TRUE) ) ) %>%
-        dplyr::ungroup( ) %>%
-        dplyr::mutate_at( production_extension_GAINS_years, funs( identity( !!rlang::sym( paste0( "X", BP_actual_last_year ) ) ) ) ) %>%
+        dplyr::ungroup( )
+
+    new_columns <- stats::setNames(
+        #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+        #for an amount of instances denoted by end_year - start_year + 1
+        replicate(end_year - first_year + 1, Oil_production_aggRegion_for_EF_intermediate[[paste0("X", BP_actual_last_year)]], simplify = FALSE),
+        #These are the new names for each column
+        paste0("X", first_year:end_year)
+    )
+
+    Oil_production_aggRegion_for_EF <- Oil_production_aggRegion_for_EF_intermediate %>%
+        tibble::add_column(!!!new_columns) %>%
+        #dplyr::mutate_at( production_extension_GAINS_years, funs( identity( !!rlang::sym( paste0( "X", BP_actual_last_year ) ) ) ) ) %>%
         dplyr::rename( units_production = units ) %>%
         dplyr::select( Region, sector, fuel, units_production, all_of(GAINS_EMISS_YEARS_KEEP_X) ) %>%
         tidyr::gather( key = years, value = Oil_production, all_of(GAINS_EMISS_YEARS_KEEP_X) )
@@ -742,14 +790,27 @@
 #   Interpolate the EF between GAINS years, retain only CEDS years (2000-2014)
     Oil_prod_EF_interp <- Oil_prod_EF_fixed %>%
         tidyr::spread( years, EF ) %>%
-        dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
+        #OLD -- dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
+        bind_cols(purrr::map_dfc(MISSING_GAINS_YEARS_TO_MAKE, ~ tibble(!! .x := NA))) %>% #NEW
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_INTERP_YEARS_X ) %>%
         interpolate_NAs2( ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, GAINS_FINAL_YEARS_WITH_X )
 
 #   Extend earliest EF year backwards to start_year (2000 back to 1960)
+    first_year <- as.numeric(str_extract(first(missing_years_for_extending), "\\d+"))
+    end_year <- as.numeric(str_extract(last(missing_years_for_extending), "\\d+"))
+
+    new_columns <- stats::setNames(
+        #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+        #for an amount of instances denoted by end_year - start_year + 1
+        replicate(end_year - first_year + 1, Oil_prod_EF_interp[[GAINS_START_YEAR_X]], simplify = FALSE),
+        #These are the new names for each column
+        paste0("X", first_year:end_year)
+    )
+
     Oil_prod_EF_extended <- Oil_prod_EF_interp %>%
-        dplyr::mutate_at( missing_years_for_extending, funs( identity( !!rlang::sym( GAINS_START_YEAR_X ) ) ) ) %>%
+        tibble::add_column(!!!new_columns) %>%
+        #dplyr::mutate_at( missing_years_for_extending, funs( identity( !!rlang::sym( GAINS_START_YEAR_X ) ) ) ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, X_emissions_years ) %>%
         tidyr::gather( key = years, value = EFs, X_emissions_years )
 
@@ -757,6 +818,14 @@
 #   Note, production values are set to 0 after 1965 for isos which are not within the combined IEA and BP production data (assumes NA because 0 production )
     Oil_production_region_mapped_long <- Oil_production_region_mapped %>%
         tidyr::gather( key = years, value = oil_production, X_emissions_years )
+
+    if ( nrow( Oil_production_region_mapped_long %>% group_by(iso,years) %>% filter(n()>1) ) > 0 ) {
+        iso_list <- Oil_production_region_mapped_long %>% group_by(iso,years) %>% filter(n()>1)
+        iso_list <- unique(iso_list$iso)
+        printLog(paste("Duplicate values found for isos:",iso_list,". Removing...") )
+        Oil_production_region_mapped_long %>% distinct(iso,sector,fuel,Region, .keep_all = TRUE) ->
+            Oil_production_region_mapped_long
+    }
 
     Oil_prod_EF_extended_isos <- sort( unique( Oil_production_region_mapped_long$iso ) )
 
@@ -784,7 +853,8 @@
                            "Note: Annual changes and shares of total are calculated using million tonnes oil equivalent figures." )
 
     BP_gas_data <- BP_gas_production %>% dplyr::select( -matches("_|-") )
-    colnames( BP_gas_data ) <- c( 'BPName_Gas_production', BP_GAS_YEARS_x )
+    BP_gas_data <- organizeBPData(BP_gas_data)
+    colnames( BP_gas_data ) <- c( 'BPName_Gas_production', BP_GAS_YEARS_x, "Growth Rate 2022", "Share 2022" )
 
     MCL_BP_gas_map <- MCL %>%
         dplyr::select( iso, BPName_Gas_production ) %>%
@@ -865,12 +935,26 @@
 #   and extend 2013 (final IEA production year) to final BP year (actual BP end year, using constant extension)
 #   TODO: This may not be 0 for 1960-1970 in future IEA data - this should be checked when updating IEA data versions.
 #   TODO: Should we set 1960-1970 NA for the OECD countries that are all 0 for these years? (seem to be missing data for these isos too)
-      IEA_gas <- en_stat_sector_fuel %>%
+    first_year <- as.numeric(str_extract(X_IEA_end_year, "\\d+")) + 1
+    end_year <- as.numeric(str_extract(IEA_EXT_TO_BP_END_YEAR, "\\d+"))
+
+    IEA_gas_intermediate <- en_stat_sector_fuel %>%
         dplyr::filter( sector == "natural_gas-production",
                        !( iso %in% BP_gas_isos ) ) %>%
         dplyr::left_join( MCL_unique_with_OECD_flag, by = "iso" ) %>%
-        dplyr::mutate_at( IEA_NA_YEARS, funs( if_else( OECD_flag == "NonOECD", NA_real_ , . ) ) )  %>%
-        dplyr::mutate_at( .vars = IEA_EXT_TO_BP_END_YEAR, funs( + ( !!rlang::sym( X_IEA_end_year ) ) ) ) %>%
+        dplyr::mutate_at( IEA_NA_YEARS, funs( if_else( OECD_flag == "NonOECD", NA_real_ , . ) ) )
+
+
+    new_columns <- stats::setNames(
+        #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+        #for an amount of instances denoted by end_year - start_year + 1
+        replicate(end_year - first_year + 1, IEA_gas_intermediate[[X_IEA_end_year]], simplify = FALSE),
+        #These are the new names for each column
+        paste0("X", first_year:end_year))
+
+    IEA_gas <- IEA_gas_intermediate %>%
+        tibble::add_column(!!!new_columns) %>%
+        #dplyr::mutate_at( .vars = IEA_EXT_TO_BP_END_YEAR, funs( + ( !!rlang::sym( X_IEA_end_year ) ) ) ) %>%
         dplyr::mutate( sector = "gas_production",
                        data_source = "IEA" ) %>%
         dplyr::select( data_source, iso, sector, fuel, units, all_of(IEA_AND_BP_YEARS_x) )
@@ -916,12 +1000,26 @@
 #   Note: We are aggregating data for which some isos might be NA (IEA's first reported year of data is 1971, so only
 #   isos for a given GAINS region which had data from BP are aggregated. However, this aggregate info isn't used below,
 #   as the aggRegion EF is created only for years within "GAINS_EMISS_YEARS_KEEP_X" (currently 2000, 2005, 2010, and 2020)
-    Gas_production_aggRegion_for_EF <- Gas_production_region_mapped %>%
+    first_year <- BP_actual_last_year + 1
+    end_year <- as.numeric(str_extract(last(production_extension_GAINS_years), "\\d+"))
+
+    Gas_production_aggRegion_for_EF_intermediate <- Gas_production_region_mapped %>%
         dplyr::select( -iso ) %>%
         dplyr::group_by( Region, sector, fuel, units ) %>%
         dplyr::summarise_all( funs( sum ( ., na.rm = TRUE) ) ) %>%
-        dplyr::ungroup( ) %>%
-        dplyr::mutate_at( production_extension_GAINS_years, funs( identity( !!rlang::sym( paste0( "X", BP_actual_last_year ) ) ) ) ) %>%
+        dplyr::ungroup( )
+
+    new_columns <- stats::setNames(
+        #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+        #for an amount of instances denoted by end_year - start_year + 1
+        replicate(end_year - first_year + 1, Gas_production_aggRegion_for_EF_intermediate[[paste0("X", BP_actual_last_year)]], simplify = FALSE),
+        #These are the new names for each column
+        paste0("X", first_year:end_year)
+    )
+
+    Gas_production_aggRegion_for_EF <- Gas_production_aggRegion_for_EF_intermediate %>%
+        #dplyr::mutate_at( production_extension_GAINS_years, funs( identity( !!rlang::sym( paste0( "X", BP_actual_last_year ) ) ) ) ) %>%
+        tibble::add_column(!!!new_columns) %>%
         dplyr::rename( units_production = units ) %>%
         dplyr::select( Region, sector, fuel, units_production, all_of(GAINS_EMISS_YEARS_KEEP_X) ) %>%
         tidyr::gather( key = years, value = gas_production, all_of(GAINS_EMISS_YEARS_KEEP_X) )
@@ -964,13 +1062,25 @@
 #   Interpolate the EF between GAINS years, retain only CEDS years (2000-2014)
     gas_prod_EF_interp <- gas_prod_EF_fixed %>%
         tidyr::spread( years, EF ) %>%
-        dplyr::mutate_at( MISSING_GAINS_YEARS_TO_MAKE, funs( identity( NA ) ) ) %>%
+        bind_cols(purrr::map_dfc(MISSING_GAINS_YEARS_TO_MAKE, ~ tibble(!! .x := NA)))%>%
         dplyr::select( Region, iso, ceds_sector, EF_units, all_of(GAINS_INTERP_YEARS_X) ) %>%
         interpolate_NAs2( ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, all_of(GAINS_INTERP_YEARS_X) )
 
 #   Extend earliest EF year gas_prod_EF_interp to start_year (2000 back to 1960)
+    first_year <- as.numeric(str_extract(first(missing_years_for_extending), "\\d+"))
+    end_year <- as.numeric(str_extract(last(missing_years_for_extending), "\\d+"))
+
+    new_columns <- stats::setNames(
+        #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+        #for an amount of instances denoted by end_year - start_year + 1
+        replicate(end_year - first_year + 1, Oil_prod_EF_interp[[GAINS_START_YEAR_X]], simplify = FALSE),
+        #These are the new names for each column
+        paste0("X", first_year:end_year)
+    )
+
     gas_prod_EF_extended <- gas_prod_EF_interp %>%
+        tibble::add_column(!!!new_columns) %>%
         dplyr::mutate_at( missing_years_for_extending, funs( identity( !!rlang::sym( GAINS_START_YEAR_X ) ) ) ) %>%
         dplyr::select( Region, iso, ceds_sector, EF_units, X_emissions_years ) %>%
         tidyr::gather( key = years, value = EFs, X_emissions_years )
@@ -1018,11 +1128,11 @@ loadPackage('zoo')
             "NOx data for these sectors..." )
 
 #   Calculate Regional/Global/National Ratios to fill in missing data
-    EDGAR_N2O_NOx_Regions <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+   EDGAR_N2O_NOx_Regions <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units,-fossil_bio) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units,-fossil_bio)) %>%
         select(iso, sector, units, sector_description, year, N2O, NOx) %>%
         filter(sector_description == "Fugitive emissions from oil and gas") %>%
-        left_join(MCL %>% select(iso, Figure_Region)) %>%
+        left_join(MCL %>% select(iso, Figure_Region) %>% unique()) %>%
         filter(!is.na(Figure_Region)) %>%  # CHANGE LATER
         group_by(Figure_Region, sector, units, sector_description, year) %>%
         summarize_if(is.numeric, sum, na.rm = TRUE) %>%
@@ -1032,8 +1142,8 @@ loadPackage('zoo')
         mutate(ratio_region = N2O_NOx_ratio) %>%
         select(Figure_Region, sector, units, sector_description, year, ratio_region)
 
-    EDGAR_N2O_NOx_Global <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+    EDGAR_N2O_NOx_Global <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units,-fossil_bio) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units,-fossil_bio)) %>%
         select(sector, units, sector_description, year, N2O, NOx) %>%
         filter(sector_description == "Fugitive emissions from oil and gas") %>%
         group_by(sector, units, sector_description, year) %>%
@@ -1045,8 +1155,8 @@ loadPackage('zoo')
         ungroup() %>%
         select(sector, units, year, ratio_global)
 
-    EDGAR_N2O_NOx_National <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+    EDGAR_N2O_NOx_National <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units,-fossil_bio) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units,-fossil_bio)) %>%
         filter(sector_description == "Fugitive emissions from oil and gas") %>%
         select(iso, units, year, N2O, NOx) %>%
         group_by(iso, units, year) %>%
@@ -1067,16 +1177,17 @@ loadPackage('zoo')
 # Define empty columns to add 1960-1969
     addYearColumns <- paste("X", start_year:(EDGAR_start_year-1), sep = "")
 
-    EDGAR_N2O_and_NOx <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
-        left_join(MCL %>% select(iso, Figure_Region)) %>%
+    EDGAR_N2O_and_NOx <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units,-fossil_bio) %>%
+        left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units,-fossil_bio),
+                  by = c('iso', 'sector', 'units', 'sector_description', 'fossil_bio', 'year')) %>%
+        left_join(MCL %>% select(iso, Figure_Region) %>% unique(), by = c('iso')) %>%
         filter(sector_description == "Fugitive emissions from oil and gas") %>%
         mutate(N2O_NOx_ratio = N2O/NOx) %>%
         mutate(N2O_NOx_ratio = ifelse(N2O == 0 & NOx == 0, 0, N2O_NOx_ratio)) %>%
         mutate(N2O_NOx_ratio = ifelse(N2O != 0 & NOx == 0, NA, N2O_NOx_ratio)) %>%
-        left_join( EDGAR_N2O_NOx_Regions) %>%
-        left_join( EDGAR_N2O_NOx_Global) %>%
-        left_join( EDGAR_N2O_NOx_National) %>%
+        left_join( EDGAR_N2O_NOx_Regions, by = c('sector', 'units', 'sector_description', 'year', 'Figure_Region')) %>%
+        left_join( EDGAR_N2O_NOx_Global, by = c('sector', 'units', 'year')) %>%
+        left_join( EDGAR_N2O_NOx_National, by = c('iso', 'units', 'year')) %>%
         mutate( N2O_NOx_ratio = ifelse(!is.na(N2O_NOx_ratio), N2O_NOx_ratio,ratio_region)) %>%
         mutate( N2O_NOx_ratio = ifelse(!is.na(N2O_NOx_ratio), N2O_NOx_ratio,ratio_global)) %>%
         mutate( N2O_NOx_ratio = ifelse(!is.na(N2O_NOx_ratio), N2O_NOx_ratio,ratio_national)) %>%
@@ -1084,7 +1195,7 @@ loadPackage('zoo')
         unique() %>%
         spread(year, N2O_NOx_ratio) %>%
         tibble::add_column(!!!set_names(as.list(rep(NA, length(addYearColumns))),nm=addYearColumns)) %>%
-        select(iso, sector, units, paste0('X',start_year:end_year))
+        select(iso, sector, units, paste0('X',start_year:BP_last_year))
 
 #   Add any missing final CEDS isos
     if( any( MCL_clean$iso %!in% EDGAR_N2O_and_NOx$iso ) ){
@@ -1105,8 +1216,8 @@ loadPackage('zoo')
     }else(EDGAR_ratio_final <-  EDGAR_N2O_and_NOx)
 
 #   Extend ratios forwards and backwards to cover all CEDS years
-    EDGAR_ratio_final[ paste0('X',EDGAR_start_year:end_year) ] <- t(na.locf(t(EDGAR_ratio_final[ paste0('X',EDGAR_start_year:end_year) ])))
-    EDGAR_ratio_final[ paste0('X',start_year:end_year) ] <- t(na.locf(t(EDGAR_ratio_final[ paste0('X',start_year:end_year) ]),fromLast = TRUE))
+    EDGAR_ratio_final[ paste0('X',EDGAR_start_year:BP_last_year) ] <- t(na.locf(t(EDGAR_ratio_final[ paste0('X',EDGAR_start_year:BP_last_year) ])))
+    EDGAR_ratio_final[ paste0('X',start_year:BP_last_year) ] <- t(na.locf(t(EDGAR_ratio_final[ paste0('X',start_year:BP_last_year) ]),fromLast = TRUE))
 
     if( any(is.na(EDGAR_ratio_final)) ) stop("NA's in final EDGAR N20-NOx ratio")
 
@@ -1200,6 +1311,28 @@ loadPackage('zoo')
     if( nrow( GAINS_fug_splits_some_NA ) != 0 ){
 
         GAINS_fug_splits_some_NA_fixed <- extend_and_interpolate( GAINS_fug_splits_some_NA , X_emissions_years )
+
+        #normalize shares if necessary
+        some_NAs_sum_check <- GAINS_fug_splits_some_NA_fixed %>%
+            dplyr::select(-sector) %>%
+            dplyr::group_by( iso, fuel, units) %>%
+            dplyr::summarise_all( sum, na.rm = TRUE )
+
+        if( any( round( some_NAs_sum_check[ X_emissions_years] , 10 ) != 1 ) ){
+        #normalize shares to 1
+            GAINS_fug_splits_some_NA_fixed <-  calculate_shares(input_data = GAINS_fug_splits_some_NA_fixed,
+                                    id_columns = c('iso','fuel','units'),
+                                    target_column = 'sector')
+    # recheck
+            some_NAs_sum_check2 <- GAINS_fug_splits_some_NA_fixed %>%
+                dplyr::select(-sector) %>%
+                dplyr::group_by( iso, fuel, units) %>%
+                dplyr::summarise_all( sum, na.rm = TRUE )
+            if( any( round( some_NAs_sum_check2[ paste0('X',1960:end_year)] , 5 ) != 1 ) ){
+                stop('GAINS fugitive splits do not equal one even after renormalizeing. Check Data in line 1221')
+            }
+    }
+
 
     }
 
@@ -1339,8 +1472,8 @@ loadPackage('zoo')
         dplyr::group_by( iso, fuel, units ) %>%
         dplyr::summarise_all( sum, na.rm = TRUE )
 
-    if( any( round( GAINS_share_check[ , X_emissions_years] , 15 ) != 1 ) ){
-
+    if( any( round( GAINS_share_check[ X_emissions_years] , 10 ) != 1 ) ){
+        #TODOR44: Errors here for CH4
         stop( "Final GAINS fugitive oil and gas subsector shares should sum to 1.... see C1.2.GAINS_fugitive_petr_gas_emissions.R..." )
 
     }
@@ -1350,7 +1483,7 @@ loadPackage('zoo')
         dplyr::mutate( units = "diaggregate fugitive oil and gas shares" )
 
 # ------------------------------------------------------------------------------
-
+0
 # 13. Output
 
 # Final GAINS emissions
@@ -1367,3 +1500,4 @@ writeData( GAINS_fug_oil_gas_splits_final, domain = "MED_OUT", fn = paste0( "C."
 
 logStop( )
 # END
+

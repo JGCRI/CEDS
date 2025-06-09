@@ -224,7 +224,7 @@ initialize( script_name, log_msg, headers )
 # diag_Eur should be defined in either iso_Fern or iso_IEA, but no other isos
 # should be within these assignments (it is possible newer IEA version
 # contain additional, or fewer, isos in diag_Eur).
-    IEA_end_year_used_to_config_res_bio <- 2021
+    IEA_end_year_used_to_config_res_bio <- 2022
 
     if( IEA_end_year > IEA_end_year_used_to_config_res_bio ){
 
@@ -770,11 +770,15 @@ initialize( script_name, log_msg, headers )
     res_unspec_comp <- res_unspec %>%
         dplyr::left_join( res_unspec_adj, by = c( "iso", "fuel", "units", "year" ) )
 
+    # Check for NAs
+    if( anyNA( IEA_en_adj ) ){ stop( 'NAs in IEA_en_adj data. Please Check...' ) }
+
 # ------------------------------------------------------------------------------
 # 8. Write output
-    biomass_final_ext[ is.na( biomass_final_ext ) ] <- ""
-    biomass_IEA_final[ is.na( biomass_IEA_final ) ] <- ""
-    IEA_res_unspec_out[ is.na( IEA_res_unspec_out ) ] <- ""
+
+    #biomass_final_ext[ is.na( biomass_final_ext ) ] <- ""
+    #biomass_IEA_final[ is.na( biomass_IEA_final ) ] <- ""
+    #IEA_res_unspec_out[ is.na( IEA_res_unspec_out ) ] <- ""
 
     writeData( IEA_en_adj, "MED_OUT", "A.en_biomass_fix" )
     writeData( biomass_final_ext, "MED_OUT", "A.residential_biomass_full" )

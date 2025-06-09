@@ -1,2 +1,3 @@
 Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
 Energy Consumption,NA,USA,Residential,1949,2022,"Residential renewables consumption for the U.S. by fuel type. U.S. EIA  September 2023 Monthly Energy Review. Released September 26, 2023. Downloaded from: http://www.eia.gov/totalenergy/data/monthly/#renewable."
+Energy Consumption,NA,USA,Residential,1980,1989,"Discontinuity in EIA biomass consumption data smoothed over this decade by assuming linear trend on rural per-capita values"

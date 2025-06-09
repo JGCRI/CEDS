@@ -1,13 +1,22 @@
 ﻿NUMBER,SOURCE,NAME,COUNTRY,FUEL,CEDS_SECTOR,COMMENT,CEDS_COMMENT
-18,Oil and Gas,Novopolotsk,Belarus,,1A1a_Electricity-public,Novopolotsk oil power plant,"Novopolotsk does have an oil refinery, which is why this may have ended up in 'Oil and Gas'. However in CEDS, majority of emissions associated with heat production, and then elec production. Almost no emissions attributed to 1B2. There is also a power plant, as commented, which uses oil and gas! But then this should be in 1A1a."
-68,Smelter,Mariupol,Ukraine,process,2C1_Iron-steel-alloy-prod,Mariupol iron/steel factories,https://en.wikipedia.org/wiki/Azovstal_Iron_and_Steel_Works
-125,Oil and Gas,Aliaga Kardemir,Turkey,process,2B_Chemical-industry,Aliaga Kardemir refinery and power plant,"Near-zero emissions in 1B2 sector in Turkey. However, there are multiple oil refineries in the area, and petrochemical plants. There are some 2B emissions in CEDS in Turkey, so we will assume it's catching these sources."
+3,Smelter,Kostomuksha,Russia,process,2C1_Iron-steel-alloy-prod,Kostomuksha ore-dressing mill,Iron ore dressing mill
+11,Oil and Gas,Mildred Lake,Canada,process,1A1bc_Other-transformation,Oil Sands mines with upgraders,No emissions in 1B2 in Canada
+18,Oil and Gas,Novopolotsk,Belarus,heavy_oil,1A1a_Electricity-public,Novopolotsk oil power plant,"Novopolotsk does have an oil refinery, which is why this may have ended up in 'Oil and Gas'. However in CEDS, majority of emissions associated with heat production, and then elec production. Almost no emissions attributed to 1B2. There is also a power plant, as commented, which uses oil and gas! But then this should be in 1A1a."
+29,Smelter,Magnitogorsk,Russia,hard_coal,1A2a_Ind-Comb-Iron-steel,Magnitogorsk,Steel plant
+39,Oil and Gas,Orenburg,Russia,process,1B2b_Fugitive-NG-prod,"Gas refinery, power plant within 20 km",
+43,Oil and Gas,Karachaganak,Kazakhstan,process,1B2b_Fugitive-NG-prod,Karachaganak gas and oil field,
+68,Smelter,Mariupol,Ukraine,hard_coal,1A2g_Ind-Comb-other,Mariupol iron/steel factories,https://en.wikipedia.org/wiki/Azovstal_Iron_and_Steel_Works
+70,Oil and Gas,Astrakhan,Russia,process,1B2b_Fugitive-NG-prod,"Gas refinery, power plant within 20 km",
+121,Oil and Gas,Mubarek,Uzbekistan,process,1B2b_Fugitive-NG-prod,"Mubarec gap processing plant, other oil and gas industrial sources",Large gas plant. Lines up with CEDS emissions in UZB being 1B2b_Fugitive-NG-prod
+125,Oil and Gas,Aliaga Kardemir,Turkey,hard_coal,1A1a_Electricity-public,Aliaga Kardemir refinery and power plant,"Near-zero emissions in 1B2 sector in Turkey, lots in energy production. Possible the coal fired plant, and the coking refinery: https://en.wikipedia.org/wiki/Kardemir_power_station and https://www.offshore-technology.com/marketdata/aliaga-refinery-coking-turkey/?cf-view"
+150,Oil and Gas,Khangiran,Iran,process,1B2b_Fugitive-NG-prod,Shahid Hashemmiejad (Khangiran) Gas refinery,"In Iran, the large majority of emissions in CEDS come from 1B2, and thus is our default labeling in Iran. There are other sectors that contribute non-insignfigant emissions which we would consider further."
 223,Oil and Gas,Zagroz,Iran,process,2B_Chemical-industry,Petrochemical complex,"Massive complex of petrochemical plants. Includes and oil refinery in the area. Again, could probably be included in multiple, though mostly seems like 2B_Chemical-Industry, which Iran has some emissions in this sector in CEDS"
 259,Oil and Gas,Linhai,Taiwan,hard_coal,1A2c_Ind-Comb-Chemicals,Linhai Industrial Park,"Chemical processing plants in the area. CEDS in Taiwan has near zero 1B2 emissions, but significant 1A2c_Ind-Comb-Chemicals"
 287,Smelter,Manchester,Jamaica,process,2C3_Aluminum-production,Bauxite plants. May not be correct position of the source.,
-315,Oil and Gas,Tacoa,Venezuela,,1A1a_Electricity-public,Tacoa,Appears to actually be a heavy oil power plant (http://www.hpi-llc.com/expertise/turnkey-power-plants/epc-projects/tacoa-power-barge) (https://www.industrialfireworld.com/540292/tacoa-venezuela-dec-19-1982)
+315,Oil and Gas,Tacoa,Venezuela,heavy_oil,1A1a_Electricity-public,Tacoa,Appears to actually be a heavy oil power plant (http://www.hpi-llc.com/expertise/turnkey-power-plants/epc-projects/tacoa-power-barge) (https://www.industrialfireworld.com/540292/tacoa-venezuela-dec-19-1982)
+349,Oil and Gas,Sergipe,Brazil,process,1A1bc_Other-transformation,"Sergipe Oil Field. Very weak signal, just above the sensitivity level.",No emissions in 1B2 in Brazil
 368,Smelter,Noranda,Chile,process,2C4_Non-Ferrous-other-metals,,"Copper, zinc, nickel mines and smelter. More recently alumninum smelting took over. Perhaps for recent years, like OMI years, should be 2C3. However, all emissions in Chile in CEDS are in 2C4, NF metals (https://www.referenceforbusiness.com/history2/44/Noranda-Inc.html)"
-397,Smelter,Rudny,Kazakhstan,hard_coal,1A2a_Ind-Comb-Iron-steel,"Rudny Smelter (Iron), Kazakhstan",
+397,Smelter,Rudny,Kazakhstan,hard_coal,1A2a_Ind-Comb-Iron-steel,"Rudny Smelter (Iron), Kazakhstan",Most emissions are in this sector
 448,Oil and Gas,Zhenhai,China,process,2B_Chemical-industry,Zhenhai Refining & Chemical,"In China, next to no emisisons in 1B2. Lots in 2B_Chem-ind and 1A2c_Ind-Comb-Chemicals. Here default chem processes to 2B"
 483,Smelter,Qingzhen,China,process,2C3_Aluminum-production,"Multiple sources near Qingzhen. Strong and significant signal, but not sure about the exact source type and location.",Lots of bauxite mines and aluminum processing/smelters in the area. (see here https://www.asianmetal.cn/news/data/2135962/ and https://www.cmgroup.net/news/guizhou-qingzhen-bx-mining-capacity-5-mtpy/)
 496,Oil and Gas,Jilin,China,process,2B_Chemical-industry,CNCP (PetroChina) Jilin Chemical Refinery,"In China, next to no emisisons in 1B2. Lots in 2B_Chem-ind and 1A2c_Ind-Comb-Chemicals. Here default chem processes to 2B"
@@ -15,7 +24,30 @@
 528,Oil and Gas,Maoming,China,process,2B_Chemical-industry,,"Multiple cement factories, oil farms and other petrochemical complexes in the area. Default to 2B, though could belong in multiple sectors."
 529,Oil and Gas,Xiashan,China,process,2B_Chemical-industry,,Multiple chemical/petrochemical plants in the area
 535,Oil and Gas,Chovar,Iran,process,2B_Chemical-industry,,Petrochemical plant creating mostly HDPE plastics
+560,Smelter,Kryvyi Rih,Ukraine,hard_coal,1A2g_Ind-Comb-other,Central Mining and Refining Facility,Central Mining and Processing Plant (Central GOK) produces 67.5% and 68.2% Fe concentrate and 65% Fe pellets
 564,Smelter,Zestafoni,Georgia,heavy_oil,1A2g_Ind-Comb-other,,"Appears to be refrencing mining operation (https://mmi.ge/10247-history-of-development-of-metallurgy-in-georgia.html). In CEDS, mining emissions in Georgia are zero. Instead, they appear in `other`"
 565,Smelter,Yangjiazhangzi,China,process,2C3_Aluminum-production,No information,Known for its mines being a major supplier of the worlds Molybdenum
-584,Smelter,Khouzestan,Iran,natural_gas,1A2a_Ind-Comb-Iron-steel,Steel Factory,"Clearly labeled steel factory, so belongs in 1A2a. However, may consider attributing elsewhere, as Iran has very little emissions in this sector in CEDS."
-585,Smelter,Zarand,Iran,natural_gas,1A2a_Ind-Comb-Iron-steel,Steel Factory,"Clearly labeled steel factory, so belongs in 1A2a. However, may consider attributing elsewhere, as Iran has very little emissions in this sector in CEDS."
+576,Oil and Gas,Sovetabad,Trukmenistan,process,1B2b_Fugitive-NG-prod,,Gas Field (https://scholarship.rice.edu/bitstream/handle/1911/91496/%20international-gas-trade-in-central-asia-turkmenistan-iran-russia-and-afghanistan.pdf?sequence=1)
+579,Oil and Gas,Dakhni,Pakistan,process,1A1bc_Other-transformation,Dakhni Oilfield,"No emissions in 1B2 in Pakistan, but available in 1A1bc"
+584,Smelter,Khouzestan,Iran,heavy_oil,1A2g_Ind-Comb-other,Steel Factory,"Iran has very little emissions in this sector in CEDS. Assume heavy oil, but could also be some diesel."
+585,Smelter,Zarand,Iran,heavy_oil,1A2g_Ind-Comb-other,Steel Factory,"Iran has very little emissions in this sector in CEDS. Assume heavy oil, but could also be some diesel."
+636,Smelter,Severstal,Russia,hard_coal,1A2g_Ind-Comb-other,Steel factory near Cherepovets,
+679,Smelter,Luan,China,hard_coal,1A2a_Ind-Comb-Iron-steel,Steel factory,
+683,Smelter,Monlova,Mexico,heavy_oil,1A2g_Ind-Comb-other,Steel factory,
+712,Oil and Gas,Edmonton,Canada,process,1A1bc_Other-transformation,,No emissions in 1B2 in Canada
+714,Oil and Gas,Syzran,Russia,process,1B2b_Fugitive-NG-prod,N of Caspian Region?,
+716,Oil and Gas,Dzhelandy,Russia,process,1B2b_Fugitive-NG-prod,N of Caspian Region?,
+717,Oil and Gas,Borodinsk,Russia,process,1B2b_Fugitive-NG-prod,N of Caspian Region?,
+723,Smelter,Karabuk,Turkey,hard_coal,1A2a_Ind-Comb-Iron-steel,Karabuk Iron Steel Factory,
+727,Oil and Gas,Kyzyl Kum,Uzbekistan,process,1B2b_Fugitive-NG-prod,Gas Field,
+738,Smelter,Nagoya,Japan,hard_coal,1A2a_Ind-Comb-Iron-steel,Nippon Steel Nagoya,
+740,Smelter,Sangan,Iran,heavy_oil,1A2g_Ind-Comb-other,Sangan Minerals And Steel Complex,"Limited energy data detail, most emissions are in 1A2g_Ind-Comb-other"
+785,Oil and Gas,Abreu,Brazil,process,1A1bc_Other-transformation,Refinery Abreu and Lima,No emissions in 1B2 in Brazil
+787,Oil and Gas,Duke,Brazil,process,1A1bc_Other-transformation,,No emissions in 1B2 in Brazil
+789,Oil and Gas,Santos,Brazil,process,1A1bc_Other-transformation,,No emissions in 1B2 in Brazil
+792,Oil and Gas,Triumph,Brazil,process,1A1bc_Other-transformation,Triumph petrochemical pole,No emissions in 1B2 in Brazil
+828,Oil and Gas,Saman-Depe,Turkmenistan,process,1B2b_Fugitive-NG-prod,,"Gas Field https://en.wikipedia.org/wiki/Saman-Depe_Gas_Field#:~:text=Saman%2DDepe%20is%20proven%20to,drilled%20by%20subcontractor%20Sichuan%20Petroleum."
+830,Smelter,Sayanogorskiy,Russia,process,2C3_Aluminum-production,Aluminum factory ?,
+839,Smelter,Liuzhou,China,hard_coal,1A2a_Ind-Comb-Iron-steel,Metal factories,
+844,Smelter,Golgohar,Iran,heavy_oil,1A2g_Ind-Comb-other,Steel factory,"Iran has very little emissions in this sector in CEDS. Assume heavy oil, but could also be some diesel."
+846,Smelter,Zarinshahr,Iran,heavy_oil,1A2g_Ind-Comb-other,Steel factory,"Iran has very little emissions in this sector in CEDS. Assume heavy oil, but could also be some diesel."

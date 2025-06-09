@@ -1,3 +1,3 @@
 prefer_id,prefer_source,replace_id,replace_source,method
-RAW0000001,raw,OMI0000002,omi,replace
+RAW0000001,raw,OMI0000002,omi,splice2005
 RAW0000003,raw,OMI0000072,omi,splice2005

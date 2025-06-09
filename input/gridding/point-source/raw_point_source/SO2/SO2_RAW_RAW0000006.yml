@@ -1,0 +1,23 @@
+    documentation:
+        description: Mae Mah
+        data_source: raw
+        date: 2025-02-17
+        
+    attributes:
+        name: Mae Mah
+        id: RAW0000006
+        location: Wawa
+        longitude: 99.7499
+        latitude: 18.2963
+        emissions species: SO2
+        units: kt
+        time series:
+            estimates:
+                source of data: Derived from reported lignite consumption, data "Costs and Benefits of Flue Gas Desulfurization for Pollution Control at the Mae Moh Power Plant, Thailand ( Punyawadee etal 2008)", with emission controls phased in to match SO2 emissions reported by "Thailand’s Coal‐fired Power Plant Pollution Control (Simachaya 2015)" (presentation)".
+                values: {1971:16.32,1972:13.77,1973:12.9625,1974:18.2325,1975:18.02,1976:20.4,1977:15.5975,1978:20.4,1979:53.5075,1980:56.1425,1981:65.195,1982:71.6975,1983:66.8525,1984:82.6625,1985:195.3725,1986:199.1125,1987:243.3975,1988:250.58,1989:288.15,1990:419.6875,1991:498.3125,1992:525.725,1993:488.325,1994:516.63,1995:519.47325,1996:522.75,1997:576.586875,1998:360.536,1999:106.2891,2000:90.015,2001:33.456,2002:25.5595,2003:26.1919,2004:28.1129,2005:28.1707,2006:26.8872,2007:26.8787,2008:27.8936,2009:26.8906,2010:27.2068,2011:29.1737,2012:28.4818,2013:28.7011,2014:28.934,2015:24.6228,2016:27.8902,2017:27.0266,2018:24.0873,2019:23.3937,2020:22.4791,2021:24.2165,2022:23.2203}
+                uncertainty: ...
+        CEDS_sector: 1A1a_Electricity-public
+        EDGAR_sector: ENE
+        fuel: brown-coal
+        iso: tai
+        build date: 1971

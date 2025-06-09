@@ -1,0 +1,14 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+EF Adjustment,SO2,zaf,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no evidence of such a large drop
+EF Adjustment,SO2,uzb,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,tkm,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,tjk,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,kgz,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,kaz,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,prk,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,mng,1A2a_Ind-Comb-Iron-steel,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,zaf,1A1a_Electricity-public,2015,2023,Lower decrease after 2015 - no evidence of such a large drop
+EF Adjustment,SO2,ind,1A1a_Electricity-public,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,png,1A1a_Electricity-public,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,idn,1A1a_Electricity-public,2015,2023,Lower decrease after 2015 - no source for such a large drop
+EF Adjustment,SO2,tls,1A1a_Electricity-public,2015,2023,Lower decrease after 2015 - no source for such a large drop

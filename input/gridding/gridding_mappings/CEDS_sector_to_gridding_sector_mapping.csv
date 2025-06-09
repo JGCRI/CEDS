@@ -59,7 +59,7 @@ CEDS_working_sector,CEDS_int_gridding_sector,CEDS_int_gridding_sector_short,CEDS
 5D_Wastewater-handling,Waste,WST,Waste,WST
 6B_Other-not-in-total,Industrial process and product use,INPU,Industrial Sector,IND
 7A_Fossil-fuel-fires,Fossil Fuel Fires,FFFI,Energy Sector,ENE
-7BC_Indirect-N2O-non-agricultural-N,Industrial process and product use,INPU,Industrial Sector,IND
+7BC_Indirect-N2O-non-agricultural-N,Agriculture,AGR,Agriculture,AGR
 11A_Volcanoes,,,,
 11B_Forest-fires,,,,
 11C_Other-natural,,,,

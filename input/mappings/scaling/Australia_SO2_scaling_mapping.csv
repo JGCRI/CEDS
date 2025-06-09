@@ -1,0 +1,11 @@
+inv_sector,scaling_sector,ceds_sector,,Notes
+Iron Smelting and Steel Manufacturing,Iron-steel,2C1_Iron-steel-alloy-prod,,"[*] sectors have duplicated data across years, so not used for CEDS scaling. Only scaling to sectors where emissions are dominated by large point sources (will slightly undercount as emissions from sub-threshold facilitates are not included.)"
+Iron and Steel Casting,Iron-steel,1A2a_Ind-Comb-Iron-steel,,
+Alumina Production,Aluminium,2C3_Aluminum-production,,
+Aluminium Smelting,Aluminium,,,
+"Copper, Silver, Lead and Zinc Smelting and Refining",Other-Non-ferrous,1A2b_Ind-Comb-Non-ferrous-metals,,
+Other Basic Non-Ferrous Metal Manufacturing,Other-Non-ferrous,2C4_Non-Ferrous-other-metals,,
+Non-Ferrous Metal Casting,Other-Non-ferrous,,,
+Fossil Fuel Electricity Generation,electric_gen,1A1a_Electricity-public,,
+Hydro-Electricity Generation,electric_gen,,,
+Other Electricity Generation,electric_gen,,,

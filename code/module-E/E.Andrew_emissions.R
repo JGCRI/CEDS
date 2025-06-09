@@ -36,7 +36,7 @@
 
 # Andrew cement inventory
     Andrew_read <- readData( 'EM_INV', domain_extension = "CDIAC/",
-                             'Andrew_cement_1880_2022', check.names = FALSE)
+                             'Andrew_cement_1880_2024', check.names = FALSE)
 
 # Mapping files
     MCL <- readData( "MAPPINGS", "Master_Country_List" )

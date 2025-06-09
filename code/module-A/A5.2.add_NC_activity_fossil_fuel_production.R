@@ -146,12 +146,28 @@ MCL_unique_with_OECD_flag <- MCL_clean %>%
 
 # 4. Process IEA and Hyde oil production data
 
+#gets numeric values for the years that must be appended to the dataframe
+start_year <- as.numeric(str_extract(X_IEA_end_year, "\\d+")) + 1
+end_year <- as.numeric(str_extract(IEA_EXT_TO_BP_END_YEAR, "\\d+"))
+
 # Cleanup IEA oil production data
 # Extend final IEA oil production year (2017) to final BP year (actual BP end year, using constant extension)
 IEA_oil <- en_stat_sector_fuel %>%
     dplyr::filter( sector == "crude-oil-production" ) %>%
-    dplyr::left_join( MCL_unique_with_OECD_flag, by = "iso" ) %>%
-    dplyr::mutate_at( .vars = IEA_EXT_TO_BP_END_YEAR, funs( + ( !!rlang::sym( X_IEA_end_year ) ) ) ) %>%
+    dplyr::left_join( MCL_unique_with_OECD_flag, by = "iso" )
+
+#Creates new columns in the form of a list using setNames()
+new_columns <- stats::setNames(
+    #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+    #for an amount of instances denoted by end_year - start_year + 1
+    replicate(end_year - start_year + 1, IEA_oil[[X_IEA_end_year]], simplify = FALSE),
+    #These are the new names for each column
+    paste0("X", start_year:end_year)
+)
+
+IEA_oil <- IEA_oil %>%
+    #!!!new_columns ensures that each column is added separately (it separates new_columns)
+    tibble::add_column(!!!new_columns) %>%
     dplyr::select(iso, units, all_of(IEA_YEARS_x) )
 
 # Cleanup Hyde oil production data

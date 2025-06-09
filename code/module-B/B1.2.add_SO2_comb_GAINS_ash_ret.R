@@ -328,9 +328,52 @@
         all_years_after2010 <- paste0( "X", 2011:2014 )
         all_years <- paste0( "X", 1960:2014 )
 
+        ##Replaces the mutate_at() function by manually inserting replicated columns. First,
+        #numeric values for replicated years are obtained, new columns using the previous
+        #X2010 column are created, renamed, and then appended to gainsash_ret_final_IND_extended
+
+    #BEFORE 2010 Extension
+
+        #gets numeric values for the years that must be appended to the dataframe
+        start_year <- as.numeric(str_extract(first(all_years_before2010), "\\d+"))
+        end_year <- as.numeric(str_extract(last(all_years_before2010), "\\d+"))
+
+        ##Sets new columns based on the start and end year from IEA_end_year and year_columns respectively
+        new_columns <- stats::setNames(
+            #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+            #for an amount of instances denoted by end_year - start_year + 1
+            replicate(end_year - start_year + 1, gainsash_ret_final_IND[['X2010']], simplify = FALSE),
+            #These are the new names for each column
+            paste0("X", start_year:end_year)
+        )
+
         gainsash_ret_final_IND_extended <- gainsash_ret_final_IND %>%
-            dplyr::mutate_at( all_years_before2010, funs( + X2010 ) ) %>%
-            dplyr::mutate_at( all_years_after2010, funs( + X2010 ) ) %>%
+            #!!!new_columns ensures that each column is added separately (it separates new_columns)
+            tibble::add_column(!!!new_columns)
+
+    #AFTER 2010 Extension
+
+        #gets numeric values for the years that must be appended to the dataframe
+        start_year <- as.numeric(str_extract(first(all_years_after2010), "\\d+"))
+        end_year <- as.numeric(str_extract(last(all_years_after2010), "\\d+"))
+
+        ##Sets new columns based on the start and end year from IEA_end_year and year_columns respectively
+        new_columns <- stats::setNames(
+            #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+            #for an amount of instances denoted by end_year - start_year + 1
+            replicate(end_year - start_year + 1, gainsash_ret_final_IND[['X2010']], simplify = FALSE),
+            #These are the new names for each column
+            paste0("X", start_year:end_year)
+        )
+
+        gainsash_ret_final_IND_extended <- gainsash_ret_final_IND_extended %>%
+            #!!!new_columns ensures that each column is added separately (it separates new_columns)
+            tibble::add_column(!!!new_columns)
+
+
+    #General cleanup of extended data
+
+        gainsash_ret_final_IND_extended <- gainsash_ret_final_IND_extended %>%
             dplyr::select( iso, sector, fuel, units, all_of(all_years) )
 
 

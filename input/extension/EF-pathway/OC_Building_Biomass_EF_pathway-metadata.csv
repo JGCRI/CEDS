@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emissions Factor,OC,global,Building Biomass,1940,1985,Set min emission factor that ramps up from min scaled value in recent time to default early EF by 1940

@@ -45,16 +45,16 @@
     inv_data_folder <- 'MED_OUT'
     sector_fuel_mapping <- 'Australia'
     mapping_method <- 'sector'
-    inv_name <- 'AUS_2018' #for naming diagnostic files
+    inv_name <- 'AUS_NPI' #for naming diagnostic files
     region <- c( "aus" )
-    inv_years<-c( 2001:2021 )
+    inv_years<-c( 2000:2022 )
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
 
- # # Scaling for NOx
- #
- #    if ( em %in% c("NOx") ) {
- #        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_NOx')
- #    }
+ # Scaling for SO2
+
+    if ( em %in% c("SO2") ) {
+        sector_fuel_mapping <- paste0(sector_fuel_mapping,'_SO2')
+    }
 
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
@@ -102,3 +102,4 @@
 # Every script should finish with this line
     logStop()
 # END
+

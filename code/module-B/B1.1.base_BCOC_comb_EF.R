@@ -44,7 +44,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "OC"
+    if ( is.na( em ) ) em <- "BC"
 
 # ------------------------------------------------------------------------------
 # 0.5 Define functions for later use
@@ -214,10 +214,14 @@
     final_out <- final_full[ , c( 'iso', 'sector', 'fuel',
                                   'units', X_emissions_years ) ]
 # Removed values are recent bond values for cases that only had 2005 or 2010 values)
+
 # This input file only extends to 2014, so copy values out to last data year
 	X_Extend_Years <- paste0("X", 2015:BP_last_year)
-    bond_remove_values <- bond_remove_values %>%
-      dplyr::mutate_at( X_Extend_Years, funs( identity( !!rlang::sym( "X2014" ) ) ) )
+	replicate_n <- length(X_Extend_Years)
+
+    bond_remove_values[X_Extend_Years] <- do.call(cbind,
+                                                 replicate(n = 	replicate_n,
+                                                 bond_remove_values["X2014"]))
 
 # Replace bond values that were removed
     final_out <- replaceValueColMatch( final_out, bond_remove_values,

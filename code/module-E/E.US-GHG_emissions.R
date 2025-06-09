@@ -51,8 +51,8 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
                                     2:ncol( inv_data_sheet ) ]
         names( inv_data ) <- inv_data_sheet[ 2, 2:ncol( inv_data_sheet ) ]
         names( inv_data )[ 1 ] <- 'Source'
-        inv_data <- inv_data[ -(grep( "Does not exceed",
-                                     inv_data[ , 1 ] )-4):-nrow( inv_data_sheet ), ]
+      #  inv_data <- inv_data[ -(grep( "Does not exceed",
+      #                              inv_data[ , 1 ] )-4):-nrow( inv_data_sheet ), ]
 
         inv_years <- colnames(inv_data %>% dplyr::select(-Source))
 

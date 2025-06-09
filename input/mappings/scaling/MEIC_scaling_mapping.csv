@@ -1,4 +1,4 @@
-inv_sector,scaling_sector,ceds_sector,MEIC_Source
+inv_sector,scaling_sector,ceds_sector,MEIC_Source/Notes
 1A1a_Electricity-public,Electricity_Heat_Ind_Comb,1A1a_Electricity-public,power
 1A1a_Electricity-autoproducer,Electricity_Heat_Ind_Comb,1A1a_Electricity-autoproducer,power
 1A1a_Heat-production,Electricity_Heat_Ind_Comb,1A1a_Heat-production,heating
@@ -25,7 +25,8 @@ inv_sector,scaling_sector,ceds_sector,MEIC_Source
 1A3eii_Other-transp,1A3b_Road,1A3eii_Other-transp,other offroad
 ,1A4b_Residential_Commertial,1A4a_Commercial-institutional,
 1A4b_Residential,1A4b_Residential_Commertial,1A4b_Residential,residential
-,,,
+1A4c_Agriculture-forestry-fishing,1A4b_Residential_Commertial,1A4c_Agriculture-forestry-fishing,
+,Electricity_Heat_Ind_Comb,1A5_Other-unspecified,
 1B2ai_Fugitive-petr-prod,Fugutive,1B1_Fugitive-solid-fuels,
 ,Fugutive,1B2_Fugitive-petr,
 1B2aiv_Fugitive-petr-refining,Fugutive,1B2b_Fugitive-NG-prod,
@@ -36,9 +37,9 @@ inv_sector,scaling_sector,ceds_sector,MEIC_Source
 2A2_Lime-production,2A2_Lime-production,2A2_Lime-production,lime
 2A6_Other-minerals,2A6_Other-minerals,2A6_Other-minerals,brick and glass
 2B_Chemical-industry,2B_Chemical-industry,2B_Chemical-industry,inorganic / organic chemicals production
-2C_Iron-steel-alloy-prod,2C_Metal-production,2C_Metal-production,iron and steel
-2C3_Aluminum-production,2C_Metal-production,,aluminum
-2C4_Non-Ferrous-other-metals,2C_Metal-production,,other non-ferrous
+2C_Iron-steel-alloy-prod,2C1_Iron-steel-alloy-prod,2C1_Iron-steel-alloy-prod,iron and steel
+2C3_Aluminum-production,,,aluminum
+2C4_Non-Ferrous-other-metals,,,other non-ferrous
 2D_Degreasing-Cleaning,Solvents,2D_Degreasing-Cleaning,"domestic solvent use, dry clean, priting gasoline cleaning"
 2D3_Chemical-product-use,Solvents,2D3_Chemical-products-manufacture-processing,"printing ink, passenger vehicle treated, pesticle use, glue use"
 2D_Paint-application,Solvents,2D_Paint-application,paint application

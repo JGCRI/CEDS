@@ -20,11 +20,14 @@ source( paste0( PARAM_DIR, "header.R" ) )
 
 initialize(script_name = "P2.1.consolidate_sources.R",
            log_msg = "Consolidating duplicate sources",
-           headers = c("data_functions.R", "gridding_functions.R",
+           headers = c("data_functions.R",
                        "interpolation_extension_functions.R",
                        "co-emitted_species_calculation_functions.R",
                        "point_source_util_functions.R"),
            common_data = TRUE)
+
+# Needed in case netcdf package is not available
+library("geosphere")
 
 # 0.1 Set paths -------------------------------------------------------
 
@@ -203,9 +206,16 @@ output_dir <- filePath( domain = 'MED_OUT',
                         extension = '',
                         fn = '' )
 
+# Write out the individual files into intermediate directory
 all_sources %>%
     dplyr::group_by(id) %>%
     dplyr::group_walk( ~ write_yml_all_ems(.x, id = .y$id, yml_dir = output_dir) )
+
+
+# End --------------------------------------------------------------
+
+logStop()
+
 
 
 

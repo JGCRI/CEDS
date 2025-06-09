@@ -31,7 +31,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "BC"
+if ( is.na( em ) ) em <- "CO2"
 
 # ---------------------------------------------------------------------------
 # 0.5. Script Options
@@ -251,11 +251,17 @@ if ( length( list.files( "../final-emissions/current-versions/", pattern = paste
   # Write out current-run
   writeSummary()
 
-  #Comparison Figures - plot and write Rdata object
-  comparison_plots <- summary_comparison_plots(global_color = color )
+  # Default to using standard regions for comparison
+  Master_Country_List_Compare_Reg = Master_Country_List
+
+  # Alternative country grouping for diagnostic plots
+  # Master_Country_List_Compare_Reg <- Master_Country_List <- readData( "MAPPINGS", "Master_Country_List_OtherAsiaME_RegDet")
+
+  # To write out different comparison graphs can just re-run the next few lines if put a stop after graphs are written (so temp _last-run folder is still there)
+  comparison_plots <- summary_comparison_plots(global_color = color, MCL = Master_Country_List_Compare_Reg )
 
   #Print comparison plots to PDF if option chosen
-  if(WRITE_COMPARISON_PLOTS == TRUE) print_single_em_comparison_plots()
+  if(WRITE_COMPARISON_PLOTS == TRUE) print_single_em_comparison_plots(MCL = Master_Country_List_Compare_Reg)
   if(WRITE_INDIVIDUAL_COMPARISON_PLOTS == TRUE) print_summary_graphs(print_regions = FALSE)
 
   # Read current-run and last-run emissions summary

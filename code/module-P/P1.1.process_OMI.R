@@ -6,7 +6,7 @@
 #                   and extend those point sources back in time to their construction
 #                   date.Saves these time series as yml files to be used in subsequent
 #                   scripts.
-# Input Files: OMI_Catalogue_Emissions_2005-2019.xls
+# Input Files: Catalogue_SO2_2022_complete_June-12-2023.xls
 #              global_power_plant_database.csv
 #              H.SO2_total_EFs_extended_adjusted-pathway.csv
 #              OMI_to_ceds_sector_mapping.csv
@@ -27,10 +27,16 @@ initialize(script_name = "P1.1.process_OMI.R",
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 
+library(geosphere)
+library(yaml)
+
 # 0.5.) Set-up details for script ----------------------------------------------
 
 # Define emissions species
 if ( is.na( em ) ) em <- "SO2"
+
+# Years
+x_CEDS_years <- paste0('X', historical_pre_extension_year:end_year)
 
 # Don't need to run this script besides when emission species is SO2
 if(em != 'SO2'){
@@ -41,15 +47,21 @@ if(em != 'SO2'){
     writeData( OMI, domain = 'DIAG_OUT', fn = 'P.OMI_sources_in_CEDS', meta = FALSE )
 }else{
 
-    library( yaml )
-    library( geosphere )
 
-    # 1.1) Read in input files, define output destination ------------------------
+# 1.1) Read in input files, define output destination ------------------------
 
     # OMI catalog (wide)
-    OMI <- readData( domain = 'GRIDDING', domain_extension = 'point-source/',
-                     file_name = 'OMI_Catalogue_Emissions_2005-2019',
-                     extension = '.xls', meta = FALSE )
+    OMI_list <- readData( domain = 'GRIDDING', domain_extension = 'point-source/',
+                         file_name = 'Catalogue_SO2_2023',
+                         extension = '.xlsx', meta = FALSE )
+    OMI <- OMI_list$Catalogue
+
+    # OMI years (input as y<year>, and convert to X<year>)
+    y_years <- grep('y', colnames(OMI), value = TRUE)
+    x_OMI_years <- gsub('y', 'X', y_years)
+    omi_years <- as.numeric(gsub('y', '', y_years))
+    OMI_start_year <- min(omi_years)
+    OMI_end_year <- max(omi_years)
 
     # OMI to CEDS sector mapping file
     OMI_sector_map <- readData( domain = 'GRIDDING', domain_extension = 'gridding_mappings/',
@@ -85,6 +97,20 @@ if(em != 'SO2'){
                            file_name = 'GPPDB_supplement',
                            extension = '.csv', meta = FALSE )
 
+    # Convert character colunms to UTF-8
+    GPPDB[] <- lapply(GPPDB, function(col) {
+        if (is.character(col)) {iconv(col, from = "latin1", to = "UTF-8", sub = "")
+        } else {col}
+        })
+
+    # Manually collected supplement data for missing power plants in GPPDB
+    CEDS_gppdb <- readData( domain = 'GRIDDING', domain_extension = 'point-source/',
+                            file_name = 'CEDS_power_plant_database',
+                            extension = '.csv', meta = FALSE )
+    # Combine GPPBD with CEDS supplementary
+    GPPDB <- GPPDB %>% dplyr::select(country, country_long, name, gppd_idnr, capacity_mw, latitude, longitude, primary_fuel, commissioning_year, source)
+    GPPDB <- dplyr::bind_rows(GPPDB, CEDS_gppdb %>% dplyr::rename(gppd_idnr = CEDS_ID))
+
     # CEDS inventory
     CEDS_inv <- readData( domain = 'MED_OUT', file_name = 'SO2_total_CEDS_emissions' )
 
@@ -110,26 +136,19 @@ if(em != 'SO2'){
                                     fuel = character(),
                                     NUMBER = integer() )
 
-    # 1.15.) Extract / Set Year Variables
-    X_CEDS_years <- paste0('X', historical_pre_extension_year:end_year)
-    y_OMI_years <- grep('y', colnames(OMI), value = TRUE)
-    X_OMI_years <- gsub('y', 'X', y_OMI_years)
-    OMI_years <- as.numeric(gsub('y', '', y_OMI_years))
-    OMI_start_year <- min(OMI_years)
-    OMI_end_year <- max(OMI_years)
 
-    # 1.2.) Convert OMI to long format ------------------------------------------
+# 1.2.) Convert OMI to long format ------------------------------------------
 
     # Change 'Coal' and 'Oil' to 'hard_coal', and 'heavy_oil' to match CEDS fuels
-    GPPDB$primary_fuel <- plyr::mapvalues( GPPDB$primary_fuel,
+    GPPDB$primary_fuel <- mapvalues( GPPDB$primary_fuel,
                                      from = c( 'Gas',         'Coal',      'Oil',       'Biomass', 'Petcoke' ),
                                      to =   c( 'natural_gas', 'hard_coal', 'heavy_oil', 'biomass', 'heavy_oil' ) )
 
     # Some countries names in OMI don't match the master counter list. Here we replace
     # those cases in order to get the correct iso.
     OMI <- OMI %>%
-        dplyr::filter( SOURCE != 'Volcano') %>%
-        dplyr::mutate( COUNTRY = dplyr::case_when(COUNTRY == 'USA' ~ 'United States',                       COUNTRY == 'Santa Cruz Islands' ~ 'Soloman Islands',
+        dplyr::filter( TYPE != 'Volcano') %>%
+        dplyr::mutate( COUNTRY = case_when(COUNTRY == 'USA' ~ 'United States',                       COUNTRY == 'Santa Cruz Islands' ~ 'Soloman Islands',
                                            COUNTRY == 'UK' ~ 'United Kingdom',                       COUNTRY == 'Tonga Islands' ~ 'Tonga',
                                            COUNTRY == 'Iran' ~ 'Islamic Republic of Iran',           COUNTRY == 'Reunion Island, France' ~ 'France',
                                            COUNTRY == 'Taiwan' ~ 'Chinese Taipei',                   COUNTRY == 'South Sandwich Isl. (UK)' ~ 'United Kingdom',
@@ -137,9 +156,11 @@ if(em != 'SO2'){
                                            COUNTRY == 'Northern Mariana Islands' ~ 'United States',  COUNTRY == 'Macedonia (FYROM)' ~ 'Macedonia',
                                            COUNTRY == 'Trinidad' ~ 'Trinidad and Tobago',            COUNTRY == 'South Korea' ~ 'Republic of Korea',
                                            COUNTRY == 'Papua New Guinea\\xa0' ~ 'Papua New Guinea',  COUNTRY == 'Trukmenistan' ~ 'Turkmenistan',
+                                           COUNTRY == 'Shi Lanka' ~ 'Sri Lanka',
                                            TRUE ~ COUNTRY)) %>%
         dplyr::left_join( country_iso_map, by = c('COUNTRY' = 'Country_Name') ) %>%
-        dplyr::select( iso, NUMBER, LATITUDE, LONGITUDE, SOURCE, NAME, COUNTRY, COMMENT, all_of(y_OMI_years) )
+        dplyr::rename( SOURCE = TYPE ) %>%
+        dplyr::select( iso, NUMBER, LATITUDE, LONGITUDE, SOURCE, NAME, COUNTRY, COMMENT, all_of(y_years) )
 
     # Set CEDS_sector to defaults, or according to OMI mapping file
     OMI <- OMI %>%
@@ -151,17 +172,17 @@ if(em != 'SO2'){
 
     # OMI catalog (long)
     OMI_long <- OMI %>%
-        tidyr::gather( year, em, all_of(y_OMI_years) ) %>%
+        tidyr::gather( year, em, all_of(y_years) ) %>%
         dplyr::mutate( year = as.numeric( gsub( 'y', '', year ) ) ) %>%
         dplyr::select( iso, NUMBER, LATITUDE, LONGITUDE, SOURCE, CEDS_SECTOR, NAME, year, em, COUNTRY, COMMENT )
 
-    # 1.3.) Full sector mapping (CEDS new sector -> CEDS old sector -> CEDS gridding sector -> EDGAR gridding sector) -----------------
+# 1.3.) Full sector mapping (CEDS new sector -> CEDS old sector -> CEDS gridding sector -> EDGAR gridding sector) -----------------
     full_sector_map <- ceds_ceds_grid_sector_map %>%
         dplyr::left_join( ceds_new_to_old, by = c('CEDS_working_sector' = 'ceds_sector') ) %>%
         dplyr::mutate( new_sector = ifelse(is.na(new_sector), CEDS_working_sector, new_sector) ) %>%
         dplyr::filter( new_sector %in% OMI$CEDS_SECTOR ) %>%
         dplyr::left_join( edgar_ceds_grid_sector_map, by = c('CEDS_int_gridding_sector_short' = 'CEDS_level1_shortname') ) %>%
-        dplyr::mutate( SO2 = dplyr::case_when( new_sector == '2C4_Non-Ferrous-other-metals' ~ 'nfe',
+        dplyr::mutate( SO2 = case_when( new_sector == '2C4_Non-Ferrous-other-metals' ~ 'nfe',
                                         new_sector == '2C3_Aluminum-production' ~ 'nfe',
                                         new_sector == '2C1_Iron-steel-alloy-prod' ~ 'iro',
                                         new_sector == '2B_Chemical-industry' ~ 'che',
@@ -170,9 +191,9 @@ if(em != 'SO2'){
                                         TRUE ~ SO2 )) %>%
         dplyr::distinct()
 
-    # 2.) Define functions for processing and extending OMI -----------------------
+# 2.) Define functions for processing and extending OMI -----------------------
 
-    # 2.1.) Returns data for single OMI source in desired format -------------------
+# 2.1.) Returns data for single OMI source in desired format -------------------
 
     # Function extracts single OMI source in long format
     get_source_long <- function( num ){
@@ -185,7 +206,7 @@ if(em != 'SO2'){
     }
 
 
-    # 2.2.) Getting Power Plants within OMI source -----------------------------
+# 2.2.) Getting Power Plants within OMI source -----------------------------
 
     # Returns power plants from GPPDB within given radius (km) of input OMI source
     pp_within_rad <- function( wide_source, rad ){
@@ -233,33 +254,30 @@ if(em != 'SO2'){
         # supplemental data file
         pp_data <- pp_data %>%
             dplyr::filter( fuel %in% supported_fuels ) %>%
-            dplyr::left_join( GPPDB_sup %>% dplyr::select(-name), by = c( 'id', 'fuel' = 'old_fuel' ) ) %>%
+            left_join( GPPDB_sup %>% dplyr::select(-name), by = c( 'id', 'fuel' = 'old_fuel' ) ) %>%
             dplyr::mutate( capacity = ifelse( !is.na( manual_cap ), manual_cap, capacity ),
                            construct_date = ifelse( !is.na( manual_cd ), manual_cd, construct_date ),
                            fuel = ifelse( !is.na( real_fuel ), real_fuel, fuel ) ) %>%
             dplyr::select( -c( manual_cap, manual_cd, real_fuel, iso ) ) %>%
             dplyr::mutate( construct_date = as.integer( round( construct_date ) ) )
 
-        # TODO: Steve suggested to use CEDS inventory / assumptions to somehow infer data.
-        #       I see a lot of problems with any method I can think of, and there's no way
-        #       that any of them are gonna be 'right'. I think it's best for now just to
-        #       omit the plant, and flag it, by adding it to a generated list which we
-        #       save to diagnostics, that will keep track of plants that should be in CEDS
-        #       but need attention.
-
+        # TODO: Perhaps come up with a way to infer the construction date
+        #       Currently just assuming it's always been there essentially
+        # TODO: Power plants need to have capacity data, otherwise impossible to
+        #       dis-aggregate in any meaningful way
         # Save plants missing data for diagnostic file
         pps_missing_data <<- rbind( pps_missing_data, pp_data[ !complete.cases( pp_data ), ] )
 
-        # Remove plants with missing data
+        # Remove plants with missing capacity data
         pp_data <- pp_data %>%
-            stats::na.omit()
+            dplyr::filter( !is.na(capacity) )
 
         return( pp_data )
 
     }
 
 
-    # 2.3.) Disaggregation -----------------------------------------------------
+# 2.3.) Disaggregation -----------------------------------------------------
 
     # Returns the input OMI source disagregated into nearby power plants.
     # Returns in long format time series for each plant (one dataframe).
@@ -267,6 +285,10 @@ if(em != 'SO2'){
 
         # iso is lower case everywhere in CEDS
         pps_within_rad$country <- tolower( pps_within_rad$country )
+
+        # Remove power plants with missing commission data
+        pps_within_rad <- pps_within_rad %>%
+            dplyr::filter( !is.na(construct_date) )
 
         # Creating data frame with each power plant near the OMI source having its
         # fair share of the OMI emissions assigned to it for every OMI year
@@ -276,9 +298,9 @@ if(em != 'SO2'){
             dplyr::left_join( EF_db %>%
                            dplyr::filter( sector == '1A1a_Electricity-public' ),
                        by = c( 'country' = 'iso', 'fuel' ) ) %>%
-            dplyr::select( id:NUMBER, all_of(X_OMI_years) ) %>%
+            dplyr::select( id:NUMBER, x_OMI_years ) %>%
             # Turn into long format and remove 'X' from year and make numeric type
-            tidyr::gather( year, EF, all_of(X_OMI_years) ) %>%
+            tidyr::gather( year, EF, x_OMI_years ) %>%
             dplyr::mutate( year = as.numeric( gsub( 'X', '', year ) ) ) %>%
             # Here we set a power plant's capacity to zero if the year is before its
             # construction date
@@ -336,34 +358,56 @@ if(em != 'SO2'){
             dplyr::select( country, fuel ) %>%
             dplyr::distinct( country, fuel )
 
+        # Get all power plants in the iso and mark them as either within
+        # the radius or outside the radius
         GPPDB_info <- iso_fuel_combinations %>%
             dplyr::left_join( GPPDB %>% dplyr::mutate( country = tolower(country) ), by = c( 'country', 'fuel' = 'primary_fuel' ) ) %>%
             dplyr::select( name, capacity = capacity_mw, construct_date = commissioning_year, country, fuel ) %>%
             dplyr::mutate( name_iso_fuel = paste0( name, '_', country, '_', fuel ) ) %>%
             dplyr::mutate( nearby = ifelse( name_iso_fuel %in% pps_within_rad$name_iso_fuel, 'near', 'far' ) )
 
+        # Check that not all power plants in iso are within radius
+        # Can happen in small countries
+        if( sum(GPPDB_info$nearby == 'far') == 0 ){
+            # Calculating (estimating) total emissions from power plants within radius
+            # Start by only getting power plants in iso
+            tot_pp_emissions <- GPPDB_info %>%
+                dplyr::left_join( CEDS_inv %>%
+                               dplyr::filter( sector == '1A1a_Electricity-public' ),
+                           by = c( 'country' = 'iso', 'fuel' ) ) %>%
+                tidyr::gather( year, CEDS_em, x_CEDS_years ) %>%
+                dplyr::mutate( year = as.numeric( gsub( 'X', '', year ) ) ) %>%
+                dplyr::group_by( year ) %>%
+                # Emissions are just the CEDS emissions, since we have all power plants in this iso
+                dplyr::summarise( total_pp_em = sum( CEDS_em ) )
+        }else{
+        # Calculating (estimating) total emissions from power plants within radius
         tot_pp_emissions <- GPPDB_info %>%
             dplyr::left_join( CEDS_inv %>%
                            dplyr::filter( sector == '1A1a_Electricity-public' ),
                        by = c( 'country' = 'iso', 'fuel' ) ) %>%
-            tidyr::gather( year, CEDS_em, all_of(X_CEDS_years) ) %>%
+            tidyr::gather( year, CEDS_em, x_CEDS_years ) %>%
             dplyr::mutate( year = as.numeric( gsub( 'X', '', year ) ) ) %>%
             # Assuming that any plants without construction years were around for all
             # of OMI
-            dplyr::mutate( construct_date = ifelse( is.na( construct_date ), OMI_start_year, construct_date ) ) %>%
+            dplyr::mutate( construct_date = ifelse( is.na( construct_date ), 2005, construct_date ) ) %>%
             dplyr::mutate( capacity = capacity * ( year >= construct_date ) ) %>%
             dplyr::group_by( nearby, year, country, fuel, CEDS_em ) %>%
             dplyr::summarise( sum_cap = sum( capacity ) ) %>%
-            tidyr::spread( nearby, sum_cap ) %>%
+            tidyr::spread( nearby, sum_cap, fill = 0 ) %>%
+            # Proportion of CEDS emissions = total capacity in the radius / total capacity of iso
             dplyr::mutate( prop = ifelse( far + near == 0, 0, near / ( far + near ) ) ) %>%
+            # Get emissions (multiply CEDS emissions by proportion)
             dplyr::mutate( pp_ems = CEDS_em * prop ) %>%
             dplyr::group_by( year ) %>%
+            # Aggregate over fuel, and in the iso
             dplyr::summarise( total_pp_em = sum( pp_ems ) )
+        }
 
         return( tot_pp_emissions )
     }
 
-    # 2.4.) Extending sources -------------------------------------------------
+# 2.4.) Extending sources -------------------------------------------------
 
     # Function to extend disaggregated power plants using emission factors
     extend_power_plants_EF <- function( disagg_source ){
@@ -431,7 +475,7 @@ if(em != 'SO2'){
         # Extend data back to construct date using lag/lead variables
         for( i in (OMI_start_year-1):plant_data$construct_date ){
             prev_data <- prev_data %>%
-                dplyr::arrange( desc( year ) ) %>%
+                dplyr::arrange( dplyr::desc( year ) ) %>%
                 dplyr::mutate( dis_agg_em = lag( dis_agg_em * dplyr::lead( EF_ratio ), default = dis_agg_em[1] ) )
         }
 
@@ -478,7 +522,7 @@ if(em != 'SO2'){
         # the greatest amount of emissions in CEDS
         if(length(source_fuel) == 0){
             source_fuel <- CEDS_inv_for_source %>%
-                dplyr::mutate( total = rowSums(select(., all_of(X_CEDS_years))) ) %>%
+                dplyr::mutate( total = rowSums(dplyr::select(., x_CEDS_years)) ) %>%
                 dplyr::select(fuel, total) %>%
                 dplyr::arrange(desc(total)) %>%
                 dplyr::select(fuel) %>%
@@ -487,7 +531,7 @@ if(em != 'SO2'){
         } else if(is.na(source_fuel)){
             printLog(paste0('Unspecified Fuel Type for OMI source ', non_pp$NUMBER) )
             source_fuel <- CEDS_inv_for_source %>%
-                dplyr::mutate( total = rowSums(select(., all_of(X_CEDS_years))) ) %>%
+                dplyr::mutate( total = rowSums(select(., x_CEDS_years)) ) %>%
                 dplyr::select(fuel, total) %>%
                 dplyr::arrange(desc(total)) %>%
                 dplyr::select(fuel) %>%
@@ -499,11 +543,11 @@ if(em != 'SO2'){
         extended_non_pp <- rbind( non_pp_data, prev_data ) %>%
             dplyr::left_join( CEDS_inv_for_source %>%
                            dplyr::filter( fuel == source_fuel ) %>%
-                           tidyr::gather( year, CEDS_em, all_of(X_CEDS_years) ) %>%
+                           tidyr::gather( year, CEDS_em, all_of(x_CEDS_years) ) %>%
                            dplyr::mutate( year = as.numeric( gsub( 'X', '', year ) ) ),
                        by = c( 'iso', 'year' ) ) %>%
             dplyr::mutate( prop = ifelse(CEDS_em == 0, 0, em / CEDS_em ) ) %>%
-            dplyr::mutate( prop = mean( prop[ year %in% OMI_years ] ) ) %>%
+            dplyr::mutate( prop = mean( prop[ year %in% OMI_start_year:end_year ] ) ) %>%
             dplyr::mutate( final_em = ifelse( year < OMI_start_year, CEDS_em * prop, em ) ) %>%
             dplyr::arrange( year ) %>%
             dplyr::mutate( final_em = ifelse( is.na(final_em),0,final_em ) )
@@ -513,7 +557,7 @@ if(em != 'SO2'){
     }
 
 
-    # 2.4.) Creating yml files ---------------------------------------------
+# 2.4.) Creating yml files ---------------------------------------------
 
     # Function that creates a yml for each power plant in the provided data
     create_ymls <- function( extended_data ){
@@ -662,6 +706,7 @@ if(em != 'SO2'){
         close_pps_clean <- clean_power_plant_data( close_pps )
         if( nrow( close_pps_clean ) < 1 ){ return() }
         source_disagg <- disagg_omi( source_long, close_pps_clean )
+        if( nrow( source_disagg ) < 1 ){ return() }
         source_disagg_extended_EF <- extend_power_plants_EF( source_disagg )
         create_ymls( source_disagg_extended_EF )
     }
@@ -688,7 +733,7 @@ if(em != 'SO2'){
                 dplyr::mutate( em = ifelse( em - total_pp_em  > 0, em - total_pp_em, 0  ) ) %>%
                 # If there is a zero between two non-zero years, replace with average of surrounding year
                 # This is a common data artifact in OMI
-                dplyr::mutate( em = ifelse( em == 0 & lag(em) > 0 & lead(em) > 0, (lag(em) + lead(em)) / 2, em ) ) %>%
+                dplyr::mutate( em = ifelse( em == 0 & lag(em) > 0 & dplyr::lead(em) > 0, (lag(em) + dplyr::lead(em)) / 2, em ) ) %>%
                 # Zero on ends more likely to be valid, so let those remain zero
                 dplyr::mutate( em = ifelse( is.na( em ), 0, em ) ) %>%
                 dplyr::select( -total_pp_em )
@@ -697,17 +742,26 @@ if(em != 'SO2'){
         #   - Extend using CEDS inventory
         source_extended <- extend_non_pp( source_adjusted )
 
+        # Check if any NAs exist in required columns
+        na_values <- source_extended %>%
+            dplyr::select(iso, sector, fuel) %>%
+            is.na() %>%
+            sum()
+
+        # Do not write out if NAs exist in required columns
+        if(na_values != 0) return()
+
         # Create yml
         create_yml_non_pp( source_extended )
     }
 
 
-    # 3.1) Creating yml files by OMI Power Plant ----------------------------------
+# 3.1) Creating yml files by OMI Power Plant ----------------------------------
 
     omi_power_plants <- OMI %>%
         dplyr::filter(CEDS_SECTOR == '1A1a_Electricity-public') %>%
         dplyr::select( NUMBER ) %>%
-        pull()
+        dplyr::pull()
 
     # Default radius of 40
     # Radius set to 60 for OMI num 25 in order to match with GPPDB
@@ -722,12 +776,12 @@ if(em != 'SO2'){
         print('Done')
     }
 
-    # 3.2.) Creating yml files by OMI non power plant ---------------------------------
+# 3.2.) Creating yml files by OMI non power plant ---------------------------------
 
     omi_non_pp <- OMI %>%
         dplyr::filter( CEDS_SECTOR != '1A1a_Electricity-public' ) %>%
         dplyr::select( NUMBER ) %>%
-        pull()
+        dplyr::pull()
 
     for( omi_num in omi_non_pp ){
         print( paste0( 'Processing OMI source #', omi_num ) )
@@ -736,7 +790,7 @@ if(em != 'SO2'){
     }
 
 
-    # 4.) Diagnostic -----------------------------------------------------------
+# 4.) Diagnostic -----------------------------------------------------------
 
     OMI %>%
         dplyr::select( NUMBER, NAME, COUNTRY, SOURCE, COMMENT ) %>%

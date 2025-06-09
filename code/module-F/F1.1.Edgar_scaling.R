@@ -22,7 +22,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CO"
+    if ( is.na( em ) ) em <- "NOx"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -39,6 +39,8 @@
 # 1. Define parameters for inventory specific script
 
 # Stop script if running for unsupported species
+# Note that these are species that can be scaled with EDGAR, the master scaling
+# script controls which species actually are scaled with EDGAR
   if ( em %!in% c( 'CH4', 'CO', 'CO2', 'N2O', 'NH3', 'NMVOC', 'NOx', 'SO2' ) ) {
 
       stop( paste( 'Edgar scaling is not supported for emission species ',
@@ -114,8 +116,16 @@ if ( em == "N2O") {
                   "swz", "syc", "syr", "tca", "tcd", "tgo",
                   "tkm", "tls", "ton", "tto", "tun", "tza",
                   "uga", "ukr", "ury", "uzb", "vct", "ven", "vgb",
-                  "vnm", "vut", "wsm", "yem", "zaf", "zmb", "zwe" )
+                  "vut", "wsm", "yem", "zaf", "zmb", "zwe")
 }
+
+    # ,
+    # # Scaling for regions that will be scaled to REAS 3.2 later
+    # # so that can use recent trends from EDGAR
+    # "afg", "bgd", "brn", "btn", "idn",
+    # "khm", "lao", "lka", "mdv", "mmr", "mng", "mys", "npl",
+    # "pak", "phl", "prk", "sgp", "tha", "vnm"
+region <- unique(region)
 
 # If em is CO2 and EDGAR v5 is being used, use EDGAR end year 2018
 # TODO: (Future): If CO2 is ever scaled to EDGAR v5 in the future, then confirm
@@ -128,7 +138,31 @@ if( em %in% c('CH4','N2O','CO2') ) {
 
   inv_years <- c( EDGAR_start_year : EDGAR_end_year )
 
+# ------------------------------------------------------------------------------
+# Scale CEDS Data with IEA Energy Scaling Factor
+  printLog("Scaling CEDS data pre EDGAR scaling with IEA scalar.")
+  unscaled_em <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+  energy_scaling_factor <- readData( "ENERGY_IN", 'CD.IEA_Energy_Scaling_Factors' )
 
+  scaled_prep <- unscaled_em %>%
+      gather(year, unscaled_em, -iso, -sector, -fuel, -units) %>%
+      left_join(energy_scaling_factor %>% select(-units) %>% gather(year, scaling_factor, -iso, -sector, -fuel) ,
+                by = c("iso", "sector", "fuel", "year"))
+  no_scaling_factor <- scaled_prep %>%
+      filter(is.na(scaling_factor)) %>%
+      writeData(., domain = 'DIAG_OUT' , paste0( "F.", em, "_missing_scaling_factor_IEA_EDGAR_scaling" ) )
+
+  energy_scaled_em <- scaled_prep %>%
+      replace_na(list(scaling_factor = 1)) %>%
+      mutate(scaled_em = unscaled_em*scaling_factor) %>%
+      select(-scaling_factor, -unscaled_em) %>%
+      spread(year, scaled_em)
+
+  if( anyNA(energy_scaled_em)){stop( 'NAs in pre EDGAR IEA scaled emissions, check. ')}
+
+  writeData(  energy_scaled_em , domain = 'MED_OUT' , paste0( "F.", em, "_scaled_emissions" ) )
+
+# ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
 
@@ -145,7 +179,6 @@ if( em %in% c('CH4','N2O','CO2') ) {
 
 # ------------------------------------------------------------------------------
 # 3. Arrange the CEDS emissions data to match the inventory data
-
 # Create a boolean switch to determine if diagnostic data should be written
     DEBUG = TRUE
 
@@ -187,6 +220,26 @@ if( em %in% c('CH4','N2O','CO2') ) {
 
 # Encorporate scaled em and EF
   F.addScaledToDb( scaled_ef, scaled_em, meta_notes )
+
+# ------------------------------------------------------------------------------
+# Scale CEDS Data with IEA Energy Scaling Factor
+  printLog("Rescaling EDGAR scaled data with IEA scalar.")
+  energy_EDGAR_scaled_em <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
+
+  energy_rescaled_em <- energy_EDGAR_scaled_em %>%
+        gather(year, unscaled_em, -iso, -sector, -fuel, -units) %>%
+        left_join(energy_scaling_factor %>% select(-units) %>% gather(year, scaling_factor, -iso, -sector, -fuel) ,
+                  by = c("iso", "sector", "fuel", "year")) %>%
+        mutate(scaled_em = unscaled_em/scaling_factor) %>% #scale by the recipricol
+        replace_na(list(scaled_em = 0)) %>%
+        select(-scaling_factor, -unscaled_em) %>%
+        spread(year, scaled_em)
+
+  if( anyNA(energy_rescaled_em)){stop( 'NAs in post EDGAR IEA rescaled emissions, check. ')}
+
+  writeData(  energy_rescaled_em , domain = 'MED_OUT' , paste0( "F.", em, "_scaled_emissions" ) )
+
+# ------------------------------------------------------------------------------
 
 # Every script should finish with this line
     logStop()

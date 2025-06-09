@@ -98,7 +98,8 @@ MFSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selectio
 if ( em == 'CH4' ){
 
   bp_energy_data <- readData( "ENERGY_IN", BP_data_file_name, ".xlsx")
-  BP_coal_production_raw <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "tonnes", bp_energy_data ) ]]
+  # With new additions of BP data need to check the key terms to find the coal sheet
+  BP_coal_production_raw <- bp_energy_data[[ getBPSheetNumber( "coal", "production", "mt", bp_energy_data ) ]]
   # First coal production data year is 1981
   X_BP_years <- paste0( 'X', 1981 : BP_last_year )
   BP_coal_production <- cleanBPDataSheet( BP_coal_production_raw, X_BP_years, Master_Country_List )

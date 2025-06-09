@@ -20,7 +20,7 @@
 # Get emission species first so can name log appropriately
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[1]
-    if ( is.na( em ) ) em <- "CH4"
+    if ( is.na( em ) ) em <- "CO2"
 
 # Call standard script header function to read in universal header files -
 # provide logging, file support, and system functions - and start the script log.
@@ -37,7 +37,7 @@
 # 1. Define parameters read in files
 
 # Stop script if running for unsupported species
-    if ( em %!in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O') ) {
+    if ( em %!in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O', 'NH3') ) {
         stop( paste( 'UNFCCC script is not supported for emission species ', em,
                      '. Remove from script list in F1.inventory_scaling.R...' ) )
     }
@@ -51,13 +51,11 @@
     inv_name <- 'UNFCCC'
     sector_fuel_mapping <- inv_name
 
-    inv_years <- c( 1990 : 2012 )
+    inv_years <- c( 1990 : 2021 )
 
-    if ( em %in% c('CH4','N2O', 'CO2') ) {
-        sector_fuel_mapping <- 'UNFCCC_GHG'
-        inv_name <- 'UNFCCC_update'
-        inv_years <- c( 1990 : 2020 )
-    }
+    sector_fuel_mapping <- 'UNFCCC_GHG'
+    inv_name <- 'UNFCCC_update'
+
     # For CO2 scale only CEDS process sectors
     if ( em == c( 'CO2') ) sector_fuel_mapping <- 'UNFCCC_CO2'
 
@@ -75,8 +73,9 @@
 # include only regions that aren't scaled elsewhere for non-CO2 and non-CH4 emissions
 # TODO: blr and ukr should only be used for specific years where is close to expert estimates, or to calibrate parameters off-line
 # TODO: If grc ends up being scaled to EMEP (see git issue #253), then potentially remove it's scaling below
-# Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions
-    if ( em %!in% c( "CO2", 'CH4', 'N2O' ) ){ region <- c( "blr" , "grc" , "nzl" ) }
+# Include japan since this inventory is generally the most recent, and goes back consistently to 1990
+# Ukraine (ukr) energy reporting is inconsistent, instead have calibrated coal S% by hand. Check other emissions.
+    if ( em %!in% c( "CO2", 'CH4', 'N2O' ) ){ region <- c( "blr" , "grc" , "nzl", "jpn" ) }
 
 # UNFCCC inventory is processed in E.UNFCCC_[em]_emissions.R script
     inventory_data_file <- paste0( 'E.', em, '_', inv_name, '_inventory' )
@@ -103,6 +102,7 @@
 
 # Aggregate ceds data to scaling sectors/fuels
     ceds_data <- F.cedsAggregate( input_em, region, mapping_method )
+    writeData(ceds_data, 'DIAG_OUT', paste0('F.',em,'_','CEDS','_emissions'),meta = FALSE)
 
 # ------------------------------------------------------------------------------
 # 4. Calculate Scaling Factors, reaggregate to CEDS sectors

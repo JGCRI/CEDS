@@ -1,0 +1,7 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+S Percent,SO2,pak,1A1a_Electricity-public,1850,2025,Slightly higher than typical regional imported coal sulfur comtent (Best in Class Ð Australian Export Thermal Coal Denney 2022) as informed by TropOMI emission estimates
+S Percent,SO2,lao,all,1850,2025,"SO2 Dispersion Modeling Emitted From Hongsa Coal-Fired Power Plant Transboundary to Nan Province, Thailand (Srirattana1 & Piaowan 2020)"
+S Percent,SO2,tha,all,1850,2025,"Costs and Benefits of Flue Gas Desulfurization for Pollution Control at the Mae Moh Power Plant, Thailand ( Punyawadee etal 2008). Note sulfur content is reported to be higher (3%), but is lower here so that emissions match reports when the default 15% brown coal ash retention value is ued."
+S Percent,SO2,mys,all,1850,2025,Typical regional imported coal sulfur comtent (Best in Class Ð Australian Export Thermal Coal Denney 2022)
+S Percent,SO2,tha,all,1850,2025,Typical regional imported coal sulfur comtent (Best in Class Ð Australian Export Thermal Coal Denney 2022)

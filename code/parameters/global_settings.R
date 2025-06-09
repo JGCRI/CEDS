@@ -10,7 +10,7 @@
 
 # Load required libraries. If library isn't installed, outputs warning message
 loadPackage <- function( pName, versions = NULL ) {
-  minVersion <- if( !is.null(versions) ) versions[[pName]] else 0
+  minVersion <- if( !is.null(versions) ) versions[[pName]] else "0.0.0"
 
   if( suppressMessages( !require( pName, character.only=T ) ) ) {
     cat( "Couldn't load '", pName, "'. Please Install.\n", sep="")
@@ -84,7 +84,7 @@ VERBOSE <- TRUE
 #follow the instruction in the next comment
 
 # User should uncomment the following line if he/she has a specific cedsUserVersionNumber to use
- options(cedsUserVersionNumber = "v_2024_04_01") # Comment out to get dynamic version number
+ options(cedsUserVersionNumber = "v_2025_03_18") # Comment out to get dynamic version number
                                                 # (automatically sets the version tag to the
                                                 # date of the CEDS run)
 

@@ -13,7 +13,7 @@
 # Set of historical years for which the CEDS system has IEA data.
 
 # USER SET DATA - Set this to the last year of the IEA data used
-IEA_end_year  <- 2021  # Latest year of IEA data; used to compare BP and IEA
+IEA_end_year  <- 2022  # Latest year of IEA data; used to compare BP and IEA
 
 IEA_start_year  <- 1960 # First year of IEA data
 X_IEA_end_year  <- paste0( "X", IEA_end_year  ) # First Xyear of IEA data
@@ -22,15 +22,15 @@ X_IEA_years <- paste0( "X", IEA_years) # Set of IEA Xyears being utilized
 
 # USER SET DATA - Set this to the last year of the BP data used
 # The set of years for the BP data extendForwards further, and is used to augment the IEA.
-BP_last_year <- 2022
+BP_last_year <- 2023
 
 # USER SET DATA - Set this to the last year of the EMEP data used
 EMEP_last_year <- 2021
 
 # USER SET DATA - Set this to point to the name of the BP statistical data, which should be
 # Located in the inputs/energy folder
-BP_data_file_name <- "Statistical_Review_of_World_Energy_2023"
-BP_detailed_oil_data_file_name <- "Statistical_Review_of_World_Energy_2023-oil-by-product"
+BP_data_file_name <- "Statistical_Review_of_World_Energy_2024"
+BP_detailed_oil_data_file_name <- "Statistical_Review_of_World_Energy_2024-oil-by-product"
 # NOTE - Need to also change this file name in the makefile
 
 # The actual last year of data provided in the BP energy data. User need to set an additional value for this object if
@@ -38,6 +38,7 @@ BP_detailed_oil_data_file_name <- "Statistical_Review_of_World_Energy_2023-oil-b
 if( BP_data_file_name == "BP_energy_data.xlsx" ){ BP_actual_last_year <- 2014}
 if( BP_data_file_name == "bp-stats-review-2022-all-data" ){ BP_actual_last_year <- 2021}
 if( BP_data_file_name == "Statistical_Review_of_World_Energy_2023" ){ BP_actual_last_year <- 2022}
+if( BP_data_file_name == "Statistical_Review_of_World_Energy_2024" ){ BP_actual_last_year <- 2023}
 
 BP_first_year <- IEA_end_year + 1 # First year for BP only data
 BP_years <- BP_first_year : BP_last_year # The years for which there is only BP data
@@ -50,7 +51,7 @@ BP_FSU_aggregate <- TRUE
 
 # Edgar year
 EDGAR_start_year <- 1970
-EDGAR_end_year <- 2018       # In the 2022 update the air pollutants go to 2018
+EDGAR_end_year <- 2022       # In the 2022 update the air pollutants go to 2018
 EDGAR_end_year_GHG <- 2022   # In the 2023 update, the GHGS go to 202s
 EDGAR_end_year_CO2 <- 2022   # IN case CO2 end year is different
 
@@ -107,6 +108,9 @@ Hyde_start_year <- 1800
 OMI_start_year <- 2005
 OMI_end_year <- 2019
 
+# Downscale years
+downscale_start_year <- 1980
+
 # ---------------------------------
 # Define IEA composite region names used within CEDS. These tend to change
 # between IEA versions, so are defined in common_data.R.
@@ -133,7 +137,7 @@ future_pop_scenario <- "Medium fertility"
 # 3) v_2021_02_05
 # 4) v_2021_04_21
 #
-available_CEDS_releases <- c( "v2016_07_26" , "v_2021_04_20")
+available_CEDS_releases <- c( "v2016_07_26" , "v_2021_04_20", "v_2024_07_08", "v_2025_03_18")
 
 # ---------------------------------
 # Country to remove from grid

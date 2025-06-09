@@ -631,7 +631,7 @@ if ( em %!in% c( 'N2O' ) ) {
             dplyr::group_by( sector, fuel, years, units.x, units.y ) %>%
             dplyr::mutate( EF = Emissions_ktN2O / fuel_consumption,
                            units = "kt/kt" ) %>%
-            dplyr::ungroup( onr_emissions_clean ) %>%
+            dplyr::ungroup(  ) %>%
             dplyr::select( sector, fuel, units, years, EF )
 
 #   B.) Generate EFs for natural_gas vehicles
@@ -695,14 +695,14 @@ if ( em %!in% c( 'N2O' ) ) {
             dplyr::group_by( Vehicle_Type, fuel, years, EF_Units, VMT_units ) %>%
             dplyr::mutate( Emissions = EF * VMT,
                            units = "g" ) %>%
-            dplyr::ungroup( onr_EF_clean ) %>%
+            dplyr::ungroup(  ) %>%
             dplyr::select( fuel, years, Emissions, units ) %>%
             dplyr::mutate( Emissions = Emissions * KT_PER_GRAM,
                            units = "kt",
                            fuel = "natural_gas" ) %>%
             dplyr::group_by( fuel, years, units ) %>%
             dplyr::summarise_all( sum, na.rm = TRUE ) %>%
-            dplyr::ungroup( onr_EF_clean )
+            dplyr::ungroup(  )
 
 #       IV.) Generate natural gas vehicle EFs
         onr_ng_EFs_final <- onr_ng_emissions %>%
@@ -1082,25 +1082,25 @@ if ( em %!in% c( 'N2O' ) ) {
 
         missing_recent_years <- subset( emissions_years, emissions_years > most_recent_current_year )
 
-        comb_ef_wide <- comb_ef_wide %>%
-            dplyr::mutate_at( .vars = paste0( "X", missing_recent_years) , funs( + ( !!rlang::sym( paste0( "X", most_recent_current_year ) ) ) ) )
+        comb_ef_wide[paste0( "X", missing_recent_years)] <- do.call(cbind, replicate(n = length(missing_recent_years),
+                                                                    comb_ef_wide[paste0( "X", most_recent_current_year )] ))
 
     }
 
     # Extend backwards to 1960
     missing_early_years <- subset( emissions_years, emissions_years < oldest_current_year )
 
+    comb_ef_wide[paste0( "X", missing_early_years)] <- do.call(cbind, replicate(n = length(missing_early_years),
+                                                                                   comb_ef_wide[paste0( "X", oldest_current_year )] ))
     comb_ef_1990ext <- comb_ef_wide %>%
-        dplyr::mutate_at( .vars = paste0( "X", missing_early_years) , funs( + ( !!rlang::sym( paste0( "X", oldest_current_year ) ) ) ) ) %>%
         dplyr::select( sector, fuel, units, X_emissions_years )
 
 #   B.) Apply stationary_efs to all years and add it to the rest of the EF data
     stationary_ef_extended <- stationary_ef %>%
-        dplyr::mutate_at( .vars = X_emissions_years, funs( + EF ) ) %>%
         dplyr::select( -EF )
+    stationary_ef_extended[X_emissions_years] <- replicate(n = length(X_emissions_years), stationary_ef$EF )
 
     comb_ef_final <- rbind( comb_ef_1990ext, stationary_ef_extended )
-
 
 #   C.) Apply the emissions factors to all CEDS countries
     MCL_list <- MCL %>%
