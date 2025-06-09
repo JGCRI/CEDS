@@ -72,19 +72,6 @@
 # ------------------------------------------------------------------------------
 # 2. Read In Data with scaling functions
 
-# Remove commertial sector diesel emissions before scaling since most of this combustion is in the
-# inventory's mobile sector
-# Because we have not changed the EFs (and these also are re-set back to default values) these will
-# return in the final emissions data
-default_emissions <- readData( "MED_OUT", paste0( "F.", em, "_scaled_emissions" ) )
-
-default_emissions[which(default_emissions$iso == "usa" &
-                        default_emissions$sector == "1A4a_Commercial-institutional" &
-                        default_emissions$fuel == "diesel_oil"), X_emissions_years] <- 0
-
-writeData( default_emissions, domain = "MED_OUT",
-           fn = paste0( "F.", em, "_scaled_emissions" ), meta = TRUE )
-
 # Read in the inventory data, mapping file, the specified emissions species, and
 # the latest versions of the scaled EFs
     scaling_data <- F.readScalingData( inventory = inventory_data_file,

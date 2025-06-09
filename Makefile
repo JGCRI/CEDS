@@ -474,7 +474,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext.csv: \
 	$(MOD_A)/A3.1.IEA_BP_data_extension.R \
 	$(MED_OUT)/A.comb_othertrans_activity.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx \
-	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2023.xlsx
+	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2024.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-1.2
@@ -484,7 +484,7 @@ $(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv: \
 	$(MED_OUT)/A.IEA_BP_energy_ext.csv \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MAPPINGS)/energy/BP_detailed_extension.csv \
-	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2023-oil-by-product.csv
+	$(ENERGY_DATA)/Statistical_Review_of_World_Energy_2024-oil-by-product.csv
 	Rscript $< $(EM) --nosave --no-restore
 
 # aa3-2
@@ -521,6 +521,7 @@ $(MED_OUT)/A.Sintering_production.csv: \
 $(MED_OUT)/A.default_comb_activity_with_other.csv: \
 	$(MOD_A)/A4.1.default_modern_energy_data.R \
 	$(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv \
+	$(MED_OUT)/A.IEA_BP_energy_ext_detailed.csv \
 	$(MAPPINGS)/Master_Fuel_Sector_List.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
@@ -547,6 +548,8 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MOD_A)/A5.2.add_NC_activity_fossil_fuel_production.R \
 	$(MOD_A)/A5.2.add_NC_activity_aluminum_production.R \
 	$(MOD_A)/A3.3.proc_pig_iron.R \
+	$(MOD_A)/A5.2.add_NC_activity_aluminum_production.R \
+	$(MOD_A)/A3.3.proc_pig_iron.R \
 	$(PARAMS)/common_data.R \
 	$(PARAMS)/global_settings.R \
 	$(PARAMS)/IO_functions.R \
@@ -561,6 +564,7 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	$(MAPPINGS)/2011_NC_SO2_ctry.csv \
 	$(MAPPINGS)/Master_Country_List.csv \
 	$(MED_OUT)/A.UN_pop_master.csv \
+	$(MED_OUT)/A.UN_pop_master.csv \
 	$(ACTIV)/Smelter-Feedstock-Sulfur.xlsx \
 	$(ACTIV)/Wood_Pulp_Consumption.xlsx \
 	$(ACTIV)/GDP.xlsx \
@@ -574,6 +578,8 @@ $(MED_OUT)/A.NC_activity_db.csv: \
 	Rscript $(word 7,$^) $(EM) --nosave --no-restore
 	Rscript $(word 8,$^) $(EM) --nosave --no-restore
 	Rscript $(word 9,$^) $(EM) --nosave --no-restore
+	Rscript $(word 10,$^) $(EM) --nosave --no-restore
+	Rscript $(word 11,$^) $(EM) --nosave --no-restore
 	Rscript $(word 10,$^) $(EM) --nosave --no-restore
 	Rscript $(word 11,$^) $(EM) --nosave --no-restore
 
@@ -637,7 +643,7 @@ $(MED_OUT)/A.other_biomass_extended.csv: \
 $(MED_OUT)/A.extended_flaring.csv: \
 	$(MOD_A)/A6.3.extended_flaring.R \
 	$(MED_OUT)/A.crude_oil_production_data.csv \
-	$(ENERGY_DATA)/World_Bank_Gas_Flaring_Data_2012-2022.xlsx
+	$(ENERGY_DATA)/World_Bank_Gas_Flaring_Data-2012-2023.xlsx
 	Rscript $< $(EM) --nosave --no-restore
 
 # Combine all combustion extension data
@@ -663,6 +669,8 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	$(MOD_A)/A7.2.add_activity_fossil_fuel_production.R \
 	$(MOD_A)/A7.2.add_activity_aluminum.R \
 	$(MOD_A)/A7.2.add_activity_pig_iron.R \
+	$(MOD_A)/A7.2.add_activity_aluminum.R \
+	$(MOD_A)/A7.2.add_activity_pig_iron.R \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.pulp_paper_consumption_full.csv \
 	$(MED_OUT)/A.NC_activity.csv \
@@ -672,6 +680,8 @@ $(MED_OUT)/A.NC_activity_extended_db.csv: \
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 3,$^) $(EM) --nosave --no-restore
 	Rscript $(word 4,$^) $(EM) --nosave --no-restore
+	Rscript $(word 5,$^) $(EM) --nosave --no-restore
+	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 	Rscript $(word 5,$^) $(EM) --nosave --no-restore
 	Rscript $(word 6,$^) $(EM) --nosave --no-restore
 
@@ -806,6 +816,7 @@ $(MED_OUT)/C.$(EM)_NC_emissions_db.csv: \
 	$(MAPPINGS)/sector_input_mapping.xlsx \
 	$(ACTIV)/Process_SO2_Emissions_to_2005.xlsx \
 	$(MED_OUT)/E.$(EM)_EDGAR.csv \
+	$(MED_OUT)/E.$(EM)_EDGAR.csv \
 	$(MED_OUT)/E.CO2_Andrew_Cement.csv \
 	$(MED_OUT)/E.CO2_CDIAC_inventory.csv \
 	$(MED_OUT)/A.extended_flaring.csv
@@ -826,8 +837,8 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
 	$(MED_OUT)/E.$(EM)_ARG_2012_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_old_to2011_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
@@ -858,9 +869,11 @@ $(MED_OUT)/C.$(EM)_NC_emissions.csv: \
 $(MED_OUT)/C.$(EM)_NC_EF.csv: \
 	$(MOD_C)/C2.1.base_NC_EF.R \
 	$(MOD_C)/C1.2.add_NC_default_EF.R \
+	$(MOD_C)/C1.2.add_NC_default_EF.R \
 	$(MED_OUT)/A.NC_activity.csv \
 	$(MED_OUT)/C.$(EM)_NC_emissions.csv
 	Rscript $< $(EM) --nosave --no-restore
+	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 	Rscript $(word 2,$^) $(EM) --nosave --no-restore
 
 # cc2-2 #TODO: is this a good place for this?
@@ -955,13 +968,13 @@ $(MED_OUT)/E.$(EM)_ARG_2012_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv: \
-	$(MOD_E)/E.CAN_emissions_olderData.R
+$(MED_OUT)/E.$(EM)_CAN_old_to2011_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions_old_to2011.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
-$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv: \
-	$(MOD_E)/E.CAN_emissions_2021.R
+$(MED_OUT)/E.$(EM)_CAN_inventory.csv: \
+	$(MOD_E)/E.CAN_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -1005,7 +1018,7 @@ $(MED_OUT)/E.$(EM)_US_GHG_inventory.csv: \
 
 # ee1-2
 $(MED_OUT)/E.$(EM)_AUS_inventory.csv: \
-	$(MOD_E)/E.Australia_emissions_2018Update.R
+	$(MOD_E)/E.Australia_NPI_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ee1-2
@@ -1014,8 +1027,8 @@ $(MED_OUT)/E.$(EM)_TWN_inventory.csv: \
 	Rscript $< $(EM) --nosave --no-restore
 	
 # ee1-2
-$(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv: \
-	$(MOD_E)/E.EDGAR_HTAPv3_emissions.R
+$(MED_OUT)/E.$(EM)_EDGAR_HTAPv3.1_inventory.csv: \
+	$(MOD_E)/E.EDGAR_HTAPv3.1_emissions.R
 	Rscript $< $(EM) --nosave --no-restore
 
 # ff1-1a
@@ -1023,8 +1036,8 @@ $(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv: \
 $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.inventory_scaling.R \
 	$(MOD_F)/F1.1.Argentina_scaling.R \
-	$(MOD_F)/F1.1.CAN_scaling_olderData.R \
-	$(MOD_F)/F1.1.CAN_scaling_2018.R \
+	$(MOD_F)/F1.1.CAN_scaling_old_to2011.R \
+	$(MOD_F)/F1.1.CAN_scaling.R \
 	$(MOD_F)/F1.1.China_scaling.R \
 	$(MOD_F)/F1.1.China_MEIC_2018_scaling.R \
 	$(MOD_F)/F1.1.Edgar_scaling.R \
@@ -1034,7 +1047,7 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.REAS_scaling.R \
 	$(MOD_F)/F1.1.REAS32_scaling.R \
 	$(MOD_F)/F1.1.South_Korea_scaling.R \
-	$(MOD_F)/F1.1.South_Korea_EDGAR-HTAPv3_scaling.R \
+	$(MOD_F)/F1.1.South_Korea_EDGAR-HTAPv3.1_scaling.R \
 	$(MOD_F)/F1.1.UNFCCC_scaling.R \
 	$(MOD_F)/F1.1.US_scaling.R \
 	$(MOD_F)/F1.1.US-EPA_scaling.R \
@@ -1043,11 +1056,11 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MOD_F)/F1.1.Taiwan_scaling.R \
 	$(PARAMS)/emissions_scaling_functions.R \
 	$(MED_OUT)/E.$(EM)_ARG_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_to2011_inventory.csv \
-	$(MED_OUT)/E.$(EM)_CAN_2021_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_old_to2011_inventory.csv \
+	$(MED_OUT)/E.$(EM)_CAN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_inventory.csv \
 	$(MED_OUT)/E.$(EM)_CHN_2018_inventory.csv \
-	$(MED_OUT)/E.(EM)_EDGAR_HTAPv3_inventory.csv \
+	$(MED_OUT)/E.$(EM)_EDGAR_HTAPv3.1_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR09_inventory.csv \
 	$(MED_OUT)/E.$(EM)_EMEP_NFR14_inventory.csv \
 	$(MED_OUT)/E.$(EM)_Japan_inventory.csv \
@@ -1061,15 +1074,15 @@ $(MED_OUT)/F.$(EM)_scaled_emissions.csv: \
 	$(MED_OUT)/E.$(EM)_AUS_inventory.csv \
 	$(MED_OUT)/E.$(EM)_TWN_inventory.csv \
 	$(SC_MAPPINGS)/Argentina_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_old_scaling_mapping.csv \
+	$(SC_MAPPINGS)/CAN_old_NOx_scaling_mapping.csv \
 	$(SC_MAPPINGS)/CAN_scaling_mapping.csv \
 	$(SC_MAPPINGS)/CAN_NOx_scaling_mapping.csv \
-	$(SC_MAPPINGS)/CAN_2018_scaling_mapping.csv \
-	$(SC_MAPPINGS)/CAN_2018_NOx_scaling_mapping.csv \
 	$(SC_MAPPINGS)/MEIC_scaling_mapping.csv \
 	$(SC_MAPPINGS)/MEIC_2018_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_mapping.csv \
 	$(SC_MAPPINGS)/Edgar_scaling_year.csv \
-	$(SC_MAPPINGS)/EDGAR_HTAPv3_kor_scaling_mapping.csv \
+	$(SC_MAPPINGS)/EDGAR_HTAPv3.1_kor_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_mapping.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_scaling_year.csv \
 	$(SC_MAPPINGS)/EMEP_NFR09_SO2_scaling_mapping.csv \
@@ -1210,7 +1223,11 @@ $(LOGS)/$(EM)_RCO_proxy_extension_log.csv: \
 	$(PARAMS)/utility_functions.R
 	Rscript $< $(EM) $(RES) --nosave --no-restore
 
-
+$(LOGS)/$(EM)_CAMS_proxy_generation.csv: \
+	$(MOD_G)/G0.5.CAMS_proxy_generation.R \
+	$(PARAMS)/common_data.R
+	Rscript $< $(EM) $(RES) --nosave --no-restore
+	
 
 # Each block below first generates yearly grids (and .csv totals) as
 # intermediate output, then chunks them together into larger final files.

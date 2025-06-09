@@ -47,7 +47,7 @@
 # ------------------------------------------------------------------------------
 
     # In the 2022 IEA data, there is a negative value in domestic coaking coal for moz in 2013
-    if(IEA_end_year > 2021) stop("Section 1.5 in A2.1.IEA_en_bal.R is configured for the 2021 IEA data.
+    if(IEA_end_year > 2022) stop("Section 1.5 in A2.1.IEA_en_bal.R is configured for the 2021 IEA data.
                                  Check corrections for negative IEA values. Change this logic when updating IEA data.")
     A.IEA_en_stat_ctry_hist_full<- A.IEA_en_stat_ctry_hist_full %>%
         mutate(X2013 = ifelse( (iso == 'moz' & FLOW == 'DOMSUP' & PRODUCT == 'Coking coal (kt)' & X2013 == -1 ),
@@ -298,9 +298,10 @@
                                                 addEntries = FALSE )
 
 # Data that doesn't map to a CEDS sector/fuel and extra columns
+
     DroppedData <- rbind.fill( DroppedData,
                                A.IEA_en_stat_process[ !complete.cases( A.IEA_en_stat_process[ , c( 'sector', 'fuel' ) ] )
-                                                      && A.IEA_process_coal$fuel != "process", ] )
+                                                      & A.IEA_process_coal$fuel != "process", ] )
 
 # Drop A.IEA_en_stat_process data that doesn't map to a CEDS sector/fuel and extra columns
     A.IEA_en_stat_process <- A.IEA_en_stat_process[ , c( 'iso', 'sector', 'fuel', 'units', X_IEA_years ) ]

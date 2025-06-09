@@ -1,0 +1,7 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+SO2 Control,SO2,tha,1A1a_Electricity-public,1850,2025,"Controls phased in to match S emissions reported by ""Thailand’s Coal_fired Power Plant Pollution Control (Simachaya 2015)"" (presentation)"
+SO2 Control,SO2,lao,1A1a_Electricity-public,1850,2025,"92% control as indicated in design docments and in ""SO2 Dispersion Modeling Emitted From Hongsa Coal-Fired Power Plant Transboundary to Nan Province, Thailand (Srirattana1 & Piaowan 2020)"""
+SO2 Control,SO2,mys,1A1a_Electricity-public,1850,2025,"Controls as indicaed by literature review, adjusted to match sattelite SO2 information"
+SO2 Control,SO2,pak,1A1a_Electricity-public,1850,2025,"Controls assumed only for Sahiwal power plant, given sattelite estimates indicating limited or no control at Port Qasim EPC power station"
+SO2 Control,SO2,idn,1A1a_Electricity-public,1850,2025,"Controls estimated to be on about 15% of plants, with controls adjusted to match apparent failure episodes indicated by satellite data"
+SO2 Control,SO2,tha,1A1a_Electricity-public,1850,2025,"Two newer plants have controls, wiuth effectieness estimated using satellite data"

@@ -362,8 +362,7 @@ if ( em == "CO2") {
     dplyr::arrange( iso )
   waste_EF_long <- melt( waste_EF, id=c( "iso", "sector", "fuel", "units" ) )
 
-
-  ratios_long <- melt( ratios, id="iso" )
+  ratios_long <- pivot_longer(ratios, cols = X_emissions_years,names_to = "variable")
   names( ratios_long )[ names( ratios_long ) == "value" ] <- "ratio"
 
   waste_EF_long <- merge( waste_EF_long, ratios_long, all.x = T )

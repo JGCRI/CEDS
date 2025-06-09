@@ -1,0 +1,27 @@
+    documentation:
+        description: Nadezhda smelter
+        data_source: raw
+        date: 2021-10-20
+        
+    attributes:
+        name: Nadezhda
+        id: RAW0000002
+        location: Norilsk
+        longitude: 87.95
+        latitude: 69.35
+        emissions species: SO2
+        units: kt
+        time series:
+            source_1:
+                reference: Impacts of point polluters on terrestrial biota comparative analysis of 18 contaminated areas
+                values: {1980: 0, 1982: 328.5, 1983: 378.045, 1984: 367.08, 1986: 349.095, 1987: 348.795, 1988: 336.645, 1989: 331.125, 1990: 330.255, 1991: 330.255, 1993: 279.42, 1994: 279.045, 1995: 294.195, 1996: 302.16, 1997: 315.72, 1998: 309.735, 1999: 315.6, 2000: 311.82, 2001: 307.515, 2002: 294.75, 2003: 276.99, 2004: 301.68, 2005: 293.295}
+                uncertainty: ...
+            source_2:
+                reference: OMI catalogue (scaled down)
+                values: {2006: 300.405, 2007: 283.590, 2008: 283.710, 2009: 335.550, 2010: 320.445, 2011: 301.560, 2012: 311.835, 2013: 359.610, 2014: 306.945, 2015: 290.115, 2016: 301.830, 2017: 257.820, 2018: 259.740, 2019: 250.560, 2020: 239.925, 2021: 223.080, 2022: 223, 2023: 223}
+                uncertainty: ...
+        CEDS_sector: 2C4_Non-Ferrous-other-metals
+        EDGAR_sector: NFE
+        fuel: process
+        iso: rus
+        build date: 1979

@@ -198,10 +198,10 @@ replace_data <- function(attrs, preferred_data_em, replaceable_data_em, replace_
     }else if(replace_method == 'sum'){
 
         # Add data columns
-        data_cols <- as.numeric(preferred_data_em[paste0('X',1750:2019)]) +
-            as.numeric( replaceable_data_em[paste0('X',1750:2019)] )
+        data_cols <- as.numeric(preferred_data_em[paste0('X',1750:end_year)]) +
+            as.numeric( replaceable_data_em[paste0('X',1750:end_year)] )
         data_cols <- as.data.frame(matrix(data_cols,nrow=1))
-        colnames(data_cols) <- paste0('X',1750:2019)
+        colnames(data_cols) <- paste0('X',1750:end_year)
 
         # Append to attribute columns
         new_data <- cbind(attrs, data_cols)
@@ -227,7 +227,7 @@ replace_data <- function(attrs, preferred_data_em, replaceable_data_em, replace_
 
             # Later year data columns come from 'replaceable' data
             late_data_cols <- replaceable_data %>%
-                dplyr::select( paste0('X', (splice_year+1):2019) )
+                dplyr::select( paste0('X', (splice_year+1):end_year) )
 
             # Merge all columns together
             new_data <- cbind(attrs, early_data_cols, late_data_cols)
@@ -249,7 +249,7 @@ replace_data <- function(attrs, preferred_data_em, replaceable_data_em, replace_
 
             # Later year data columns come from 'replaceable' data
             late_data_cols <- preferred_data %>%
-                dplyr::select( paste0('X', (splice_year+1):2019) )
+                dplyr::select( paste0('X', (splice_year+1):end_year) )
 
             # Merge all columns together
             new_data <- cbind(attrs, early_data_cols, late_data_cols)

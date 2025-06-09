@@ -30,7 +30,7 @@ initialize( script_name, log_msg, headers )
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "CO2"
+if ( is.na( em ) ) em <- "N2O"
 
 # Input domain
 domain <- "EM_INV"
@@ -52,14 +52,14 @@ X_EDGAR_years <- paste0( 'X', EDGAR_start_year : EDGAR_end_year )
 # 2. Input
 
 # File settings for EDGARv6.1 Air pollutants and EDGARv8 GHG
-fn <- c( paste0( em, "_", EDGAR_start_year, "_",
+fn <- c( paste0( "EDGAR_",em, "_", EDGAR_start_year, "_",
                  EDGAR_end_year ), ".xlsx")
 
-if( em == 'CH4') fn [1] <- "EDGAR_CH4_1970_2022"
-if( em == 'N2O') fn [1] <- "EDGAR_N2O_1970_2022"
-if( em == 'CO2') fn [1] <- "IEA_EDGAR_CO2_1970_2022"
+if( em == 'CH4') fn [1] <- "EDGAR_CH4_1970_2023"
+if( em == 'N2O') fn [1] <- "EDGAR_N2O_1970_2023"
+if( em == 'CO2') fn [1] <- "IEA_EDGAR_CO2_1970_2023"
 
-sheet_to_use <- paste0(em, "_IPCC1996" )
+sheet_to_use <- "IPCC 1996"
 
 if( em %in% c('CH4','N2O','CO2') ) {
     sheet_to_use <- "IPCC 1996"
@@ -78,7 +78,11 @@ edgar_in <- readData( domain, domain_extension = domain_ext,
 
 # Add iso, units, group by sector
 # combine fossil and bio emissions for each year/sector
-# convert to long form for processeing
+# convert to long form for processing
+
+if (em == "CO2"){
+    if (length(unique(edgar_in$fossil_bio)) != 1) stop("Check EDGAR CO2 emissions - should only be fossil component")
+}
 
 edgar_long <- edgar_in %>%
     mutate(iso = tolower(Country_code_A3)) %>%
@@ -89,8 +93,8 @@ edgar_long <- edgar_in %>%
     tidyr::gather(year, value, -iso, -sector, -units, -fossil_bio, -sector_description) %>%
     mutate(year = sub("Y_",'X',year)) %>%
     mutate(value = as.numeric(value)) %>%
-    replace_na(list(value = 0)) %>%
-    dplyr::group_by( iso, sector, units, sector_description, year ) %>% # we want both bio and fossil emissions for most sectors
+    tidyr::replace_na(list(value = 0)) %>%
+    dplyr::group_by( iso, sector, units, sector_description, fossil_bio, year ) %>% # we want both bio and fossil emissions for most sectors
     dplyr::summarize(value = sum(value, na.rm = TRUE)) %>%
     dplyr::ungroup() %>%
     mutate(value = ifelse(value <0, 0, value)) # replace negative emissions with zero

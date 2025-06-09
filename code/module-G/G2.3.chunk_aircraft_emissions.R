@@ -26,4 +26,8 @@ if ( is.na( em ) ) em <- "SO2"
 # Chunk bulk emissions
 chunk_emissions( singleVarChunking_aircraftemissions, em )
 
+# Generate diagnostic line plots
+printLog( 'Generating diagnostic plots ...' )
+source( "../code/diagnostic/diag_seasonal_plots_aircraft.R" )
+
 logStop()

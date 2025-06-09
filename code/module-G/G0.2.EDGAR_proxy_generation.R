@@ -1,7 +1,7 @@
 # Header ----------------------------------------------------------------------
 # Program Name: G0.2.EDGAR_proxy_generation.R
 # Authors: Noah Prime
-# Date Last Updated: 7/23/21
+# Date Last Updated: 3/4/25
 # Program Purpose: Generate any proxy files which are dependent on EDGAR grids,
 #                  though the FLR and RCO sectors will have proxy processed further,
 #                  or extended in other scripts
@@ -31,11 +31,11 @@ res <- as.numeric( args_from_makefile[ 2 ] )
 if ( is.na( em ) ) em <- "N2O"
 if ( is.na( res ) ) res <- 0.5 # default gridding resolution of 0.5
 
-if( em == 'CO2' ){
-    EDGAR_end_year <- EDGAR_end_year_CO2
+if( em %in% c('CO2', 'CH4', 'N2O') ){
+    EDGAR_end_year <- EDGAR_end_year_GHG
 }
 
-year_list <- EDGAR_start_year:EDGAR_end_year
+year_list <- EDGAR_start_year:end_year
 
 
 # 2. Setting paths ---------------------------------------------------------------
@@ -51,7 +51,6 @@ input_folder <- pathmapping %>%
     dplyr::select( path ) %>%
     pull()
 
-
 # extracting path to temporary directory from pathmapping
 temp_path <- pathmapping %>%
     dplyr::filter( type == 'temp' ) %>%
@@ -59,13 +58,11 @@ temp_path <- pathmapping %>%
     dplyr::mutate( path = gsub('<em>', em, path ) ) %>%
     pull()
 
-
 # extracting path to output file from pathmapping
 out_path <- pathmapping %>%
     dplyr::filter( emission == em, type == 'edgar_sector' ) %>%
     dplyr::select( path ) %>%
     pull()
-
 
 # extracting the path to proxy folder
 proxy_path <- pathmapping %>%
@@ -85,10 +82,6 @@ source_path <- filePath( 'MED_OUT', 'full_point_source_scaled_yml/', extension =
 
 # 3. Needed files -----------------------------------------------------------------
 
-# Read in file name to EDGAR gridding sector mapping file
-nc_namemapping <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/',
-                            paste0( em, '_nc_filename_to_edgar_grd_sector.csv' ), meta = FALSE )
-
 # Default proxy generation parameters
 default_params <- readData( file_name = 'default_proxy_generation_params',
                             domain = 'GRIDDING', domain_extension = 'gridding_mappings/',
@@ -98,7 +91,7 @@ default_params <- readData( file_name = 'default_proxy_generation_params',
 unlink( paste0( '../logs/', em, '_proxy_generation.csv' ) )
 
 
-# 4. Read in EDGAR 5 grids ---------------------------------------------------
+# 4. Read in EDGAR grids ---------------------------------------------------
 
 # unzip the downloaded file into temp dir
 zip_list <- list.files( input_folder )
@@ -118,12 +111,7 @@ source_data <- source_data %>%
 
 # 6. Process nc files -------------------------------------------------------
 
-# Reading, removing point sources, changing longitude bounds, aggregate, saving
-ncProcess <- function( nc_file ) {
-
-    # extract info from file from its name by splitting into parts on '_'
-    name_parts <- unlist( strsplit( nc_file, split ='_' ) )
-    parts_length <- length( name_parts )
+edgar_ap_nc_process <- function( nc_file, name_parts, parts_length ){
 
     # finding the file year
     file_year <- subset( name_parts, name_parts %in% year_list )
@@ -132,61 +120,97 @@ ncProcess <- function( nc_file ) {
     file_year_string_position <- which(name_parts == file_year)
     sector_string_begins_position <- file_year_string_position + 1
 
-    # This grabs the last part of the file name, beginning
-    # with the sector. For example: "_IRO.0.1x0.1.nc"
-    last_parts <- paste0( '_', paste( name_parts[ sector_string_begins_position : parts_length ], collapse = '_' ) )
+    # This grabs the full sector name from file
+    sector <- gsub( '.0.1x0.1.nc', '', paste( name_parts[ sector_string_begins_position : parts_length ], collapse = '_' ) )
 
-    # If file corresponds to EDGAR gridding sector, we process the grid:
-    if ( last_parts %in% nc_namemapping$EDGAR_nc_last_part ) {
+    # Name the output file
+    file_name <- paste0( em, '_', file_year, '_', sector )
 
-        # Get EDGAR gridding sector
-        sector <- nc_namemapping %>%
-            dplyr::filter( EDGAR_nc_last_part == last_parts ) %>%
-            dplyr::select( EDGAR_gridding_shortname ) %>%
-            pull()
+    # Read in grid
+    raw_grid <- raster::raster( paste0( temp_path, '/', nc_file ) )
 
-        # Name the output file
-        file_name <- paste0( em, '_', file_year, '_', sector )
+    return( list(
+        raw_grid = raw_grid,
+        file_name = file_name,
+        sector = sector
+    ) )
+}
 
-        # Read in grid
-        raw_grid <- raster( paste0( temp_path, '/', nc_file ) )
+edgar_ghg_nc_process <- function( nc_file, name_parts, parts_length ){
 
-        # Turn into matrix object, and order grid so that we use
-        # longitude bounds of -180 to 180 rather than 0 to 360
-        grid <- as.matrix( raw_grid )
-        grid <- cbind( grid[ , ((1800) + 1) : (3600) ], grid[ , 1 : (1800) ] )
+    # finding the file year
+    file_year <- name_parts[5]
 
-        # Sector generally written in upper
-        sector <- toupper(sector)
+    # find the file sector (follows the year in the file name but could be separated by '_')
+    file_year_string_position <- which(name_parts == file_year)
+    sector_string_begins_position <- file_year_string_position + 1
 
-        # Get the parameters for given sector
-        params <- default_params %>%
-            dplyr::filter( sector == !!sector )
+    # This grabs the full sector name from file
+    sector <- paste( name_parts[ sector_string_begins_position : (parts_length-1) ], collapse = '_' )
 
-        # Zero out cells from proxy grid
-        grid <- remove_point_sources(grid, source_data, params, sector, res = 0.1)
+    # Name the output file
+    file_name <- paste0( em, '_', file_year, '_', sector )
 
-        # Not allowing downscale, but here starts aggregation process
-        stopifnot( res >= 0.1)
+    # Read in grid
+    raw_grid <- raster::raster( paste0( temp_path, '/', nc_file ) )
 
-        # Find the factor of aggregation
-        fact <- res/0.1
+    return( list(
+        raw_grid = raw_grid,
+        file_name = file_name,
+        sector = sector
+    ) )
+}
 
-        # Aggregate grid
-        agg_grid <- aggregate( raster( grid ), fact = fact, fun = sum )
+# Reading, removing point sources, changing longitude bounds, aggregate, saving
+# This function currently supports several version of EDGAR:
+#   Air pollutants: v6.1, v8.1
+#   GHG: V8.0, GHG2024
+ncProcess <- function( nc_file ) {
 
-        # Save formatted/aggregated grid as .Rd file to pre-specified output file
-        assign( file_name, as.matrix( agg_grid ) )
+    # extract info from file from its name by splitting into parts on '_'
+    name_parts <- unlist( strsplit( nc_file, split ='_' ) )
+    parts_length <- length( name_parts )
 
-        save( list = file_name, file = paste0( out_path, '/', file_name, '.Rd' ) )
-        rm( list = file_name )
-
-    }else{
-
-        stop( "Files ending in ", last_parts, " for ", em, " do not match the corresponding ",
-              "entry in ", em,"_nc_filename_to_edgar_grd_sector.csv. Please check spelling... ")
-
+    if( name_parts[1] %in% c('v8.0','v8.1', 'EDGAR') ){
+        edgar_data_list <- edgar_ghg_nc_process( nc_file, name_parts, parts_length )
+    }else if( name_parts[1] == 'EDGARv6.1' ){
+        edgar_data_list <- edgar_ap_nc_process( nc_file, name_parts, parts_length )
     }
+
+    # Extract results from reading in data
+    sector <- edgar_data_list$sector
+    file_name <- edgar_data_list$file_name
+
+    # Turn into matrix object, and order grid so that we use
+    # longitude bounds of -180 to 180 rather than 0 to 360
+    # For version v8.0, this is already the case
+    grid <- as.matrix( edgar_data_list$raw_grid )
+    if( name_parts[1] == 'EDGARv6.1' ){
+        grid <- cbind( grid[ , ((1800) + 1) : (3600) ], grid[ , 1 : (1800) ] )
+    }
+
+    # Get the parameters for given sector
+    params <- default_params %>%
+        dplyr::filter( sector == !!sector )
+
+    # Zero out cells from proxy grid
+    grid <- remove_point_sources(grid, source_data, params, sector, res = 0.1)
+
+    # Not allowing downscale, but here starts aggregation process
+    stopifnot( res >= 0.1)
+
+    # Find the factor of aggregation
+    fact <- res/0.1
+
+    # Aggregate grid
+    agg_grid <- raster::aggregate( raster::raster( grid ), fact = fact, fun = sum )
+
+    # Save formatted/aggregated grid as .Rd file to pre-specified output file
+    assign( file_name, as.matrix( agg_grid ) )
+
+    save( list = file_name, file = paste0( out_path, '/', file_name, '.Rd' ) )
+    rm( list = file_name )
+
 }
 
 # Get list of NetCDF files to be processed
@@ -231,7 +255,7 @@ proxyGenerate <- function( grid_resolution = 0.5,
         # Check that the sector exists for the given emission species
         if( length( sec_mapping_info ) == 0 ){
 
-            printLog( "EDGAR v5", "information for", sector, "doesn't exist for", paste0( em, "..." ) )
+            printLog( "EDGAR", "information for", sector, "doesn't exist for", paste0( em, "..." ) )
 
             # Continue annual processing if sector exists
         } else{ invisible( lapply( year_list, function( year ) {
@@ -296,7 +320,6 @@ proxyGenerate( grid_resolution = res, out_path, proxy_path, sec_mapping, year_li
 
 # Remove temp proxy files
 unlink( out_path, recursive = T )
-
 
 # 10.) Diagnostics ---------------------------------------------------------
 

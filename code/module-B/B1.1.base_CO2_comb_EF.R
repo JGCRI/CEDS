@@ -227,6 +227,13 @@
                                          coal_heat_content$fuel ) ),
                            X_emissions_years ]  # TODO: This could be split up into several lines for clarity.
 
+# Add EF for international bunker hard_coal. Use gbr values since this was the major historical bunker source
+    hard_coal_efs <- ef_data %>% filter( iso == "gbr" & fuel %in% "hard_coal" & sector == "1A1a_Electricity-public")
+    hard_coal_efs$sector = "1A3di_International-shipping"
+    hard_coal_efs$iso = "global"
+    ef_data <- ef_data %>% filter( !(iso == "global" & fuel =="hard_coal" & sector == "1A3di_International-shipping") )
+    ef_data <- rbind(ef_data, hard_coal_efs )
+
 # ---------------------------------------------------------------------------
 # 5. Fix any outlier emission factors
 #    Set maximum emission factors by fuel type and check that no EFs exceed these  values.
@@ -283,7 +290,7 @@ max_CO2_ef_by_fuel <- max_CO2_ef_by_fuel %>%
      dplyr::mutate( maxCO2EF = if_else( fuel == "biomass",
         0.0 / 100 * (15.9994*2+12.011)/12.011, maxCO2EF ) )
 
-# Set any EF to their maximum possilble value if they are larger than the
+# Set any EF to their maximum possible value if they are larger than the
 # given maximum
 ef_data_max_EF_applied <- ef_data %>%
   dplyr::left_join( max_CO2_ef_by_fuel, by = "fuel" ) %>%

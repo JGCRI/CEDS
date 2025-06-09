@@ -465,6 +465,12 @@ readExcel <- function( full_file_path, sheet_selection = "ALL",
         sheet_names <- all_sheets[ sheet_selection ]
     } else {
         sheet_names <- all_sheets[ all_sheets %in% sheet_selection ]
+        # Check for sheet name mismatch
+        if ( length(sheet_names) == 0 ) {
+            err_msg <- paste("Excel sheet:",sheet_selection,"not found in workbook:",full_file_path)
+            printLog( err_msg )
+            stop( err_msg )
+        }
     }
 
     # Error checking
@@ -547,6 +553,39 @@ addDependency <- function( fqn, ... ) {
 	}
 }
 
+# -----------------------------------------------------------------------------
+# removeMetadataCommas
+# Brief:            Remove comma's from metadata comments as these can cause issues later
+# Author(s):        Steve Smith
+# params:
+#   metadata_df:        A metadata dataframe
+#
+# Return:                A metadata dataframe
+# Input Files:          None
+#
+removeMetadataCommas <- function( metadata_df, filename ) {
+
+    checkTextEncoding <- function( input, filename) {
+        if ( !all(validUTF8( input ))) {
+            stop(paste("Invaid text encoding found in file:",filename))
+        }
+    }
+
+        # Any comma's in the metadata can prove problematic later. Remove
+    new_metadata_prev <- metadata_df
+    if ('Source/Comment' %in% names(metadata_df)) {
+        checkTextEncoding(metadata_df$'Source/Comment', filename)
+        metadata_df$'Source/Comment' <- gsub(",","",as.character(metadata_df$'Source/Comment'))
+    } else if ('Source.Comment' %in% names(metadata_df)) {
+        checkTextEncoding(metadata_df$'Source.Comment', filename)
+        metadata_df$'Source.Comment' <- gsub(",","",as.character(metadata_df$'Source.Comment'))
+    }
+
+    if ( length(all.equal(new_metadata_prev,metadata_df)) > 1) {
+        printLog( "Comma's removed from metadata file." )
+    }
+    return(metadata_df)
+}
 # -----------------------------------------------------------------------------
 # writeData
 # Brief:            Write an arbitrary data file.
@@ -724,6 +763,12 @@ readMetaData <- function( meta_domain = NULL, file_name = NULL, file_extension =
 
         if( new_metadata_exists && any( sapply( new_metadata, not_character ) ) ){
             new_metadata <- dplyr::mutate_if( new_metadata, not_character, as.character  )
+        }
+
+        # Any comma's in the metadata can prove problematic later. Remove
+        # Don't run by default - is not robust, but can be useful for debugging text file format issues
+        if( new_metadata_exists && 1==2 ){
+            new_metadata <- removeMetadataCommas(new_metadata)
         }
 
     } else new_metadata_exists <- FALSE

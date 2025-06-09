@@ -29,25 +29,32 @@
 # -----------------------------------------------------------------------------
 # 1. Load Data
 #    A.) Load the Master Country List for mapping
-     MCL <- readData( "MAPPINGS", "Master_Country_List", meta = F )
+     FAO_country_map <- readData( "MAPPINGS", "FAO_country_mapping", meta = F )
 
 #    B.) Load FAO manure management data file
-     FAO_mm <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_management', meta = FALSE)
+     FAO_mm <-  readData('EM_INV' , domain_extension = 'FAO/', 'FAOSTAT_N2O_manure_management_1961-2022', meta = FALSE)
 
 #    C.) Load FAO manure left on pasture data file
-     FAO_mp <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_pasture', meta = FALSE)
+     FAO_mp <-  readData('EM_INV' , domain_extension = 'FAO/', 'FAOSTAT_N2O_manure_pasture_1961-2022', meta = FALSE)
 
 #    D.) Load FAO Synthetic Fertilizers data file
-     FAO_sf <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_synthetic_fertilizer', meta = FALSE)
+     FAO_sf <-  readData('EM_INV' , domain_extension = 'FAO/', 'FAOSTAT_N2O_synthetic_fertilizer_1961-2022', meta = FALSE)
 
 #    E.) Load FAO Manure applied to Soils data file
-     FAO_ma <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_manure_appplied', meta = FALSE)
+     FAO_ma <-  readData('EM_INV' , domain_extension = 'FAO/', 'FAOSTAT_N2O_manure_applied_1961-2022', meta = FALSE)
 
 #    F.) Load FAO Cultivation of Organic Soils data file
-     FAO_cos <-  readData('EM_INV' , domain_extension = 'FAO_N2O/', 'FAO_N2O_API_organic_soil_cultivation', meta = FALSE)
+     FAO_cos <-  readData('EM_INV' , domain_extension = 'FAO/', 'FAOSTAT_N2O_cropland_organic_drained_soils_1990-2023', meta = FALSE)
 
 #    G.) Load UN Population data file
      un_pop <- readData( "MED_OUT" , 'A.UN_pop_master', meta = FALSE)
+# -----------------------------------------------------------------------------
+
+    FAO_start_year <- FAO_mm %>% pull(Year) %>% min()
+    FAO_end_year <- bind_rows( FAO_mm, FAO_mp, FAO_sf, FAO_cos) %>% pull(Year) %>% max()
+    X_FAO_end_year <- paste0('X', FAO_end_year)
+    X_FAO_years <- paste0('X', FAO_start_year:FAO_end_year)
+
 # -----------------------------------------------------------------------------
 # 2. Process FAO N2O data
 
@@ -58,40 +65,25 @@
        FAO_add <- ddply(rbind(FAO_mm, FAO_mp), .(Area, Year), summarize, summed_value = sum(Value))
        FAO_manure_summed <- dplyr::left_join(FAO_manure_summed, FAO_add, by = c("Area" = "Area", "Year" = "Year"))
 
+# FAO Manure
 
-#      Map over CEDS iso codes
        FAO_manure <- FAO_manure_summed %>%
-            left_join(MCL[c('iso','FAO_Country_Code_2021')], by = c('Area.Code..M49.' = 'FAO_Country_Code_2021')) %>%
-
-#      Remove columns that are not needed
-            select(-Domain.Code, -Area.Code..M49., -Area, -Element.Code, -Element, -Item.Code, -Item, -Year.Code,
-                   -Unit, -Value, -Flag, -Flag.Description) %>%
-
+#      Map over CEDS iso codes
+            left_join(FAO_country_map, by = c('Area.Code..M49.' = 'FAO_Country_Code')) %>%
 #      Rename "Domain" variable "sector"
             dplyr::rename(sector = Domain) %>%
-
 #      Map sectors to CEDS sectors
             mutate(sector = "3B_Manure-management") %>%
-
 #      Convert years into CEDS format
             mutate(Year = as.character(Year)) %>%
-            mutate(Year = paste0('X','',Year))
-
+            mutate(Year = paste0('X','',Year)) %>%
 #      Reorder columns of interest
-       FAO_manure <- FAO_manure[, c("iso", "sector", "Year", "summed_value")]
-
-#      Delete duplicated rows before spreading data to wide format (duplicated when iso is present
-#      more than once in MCL)
-       FAO_manure <- dplyr::distinct(FAO_manure)
-
+            select(iso, sector, Year, summed_value) %>%
 #      Delete countries that did not map over
-       FAO_manure <- dplyr::filter(FAO_manure, !is.na(iso))
-
+            dplyr::filter(!is.na(iso)) %>%
 #      Spread the data to wide format
-       FAO_manure <- tidyr::spread(FAO_manure, Year, summed_value)
+            tidyr::spread(Year, summed_value)
 
-#      Remove Years not needed (2015, 2016)
-       FAO_manure <- dplyr::select(FAO_manure, -X2015, -X2016)
 
 #   B.) Process FAO soil data (CEDS sector 3D_Soil-emissions)
 
@@ -103,57 +95,39 @@
 
 #      Map over CEDS iso codes
        FAO_soil <- FAO_soil_summed %>%
-           left_join(MCL[c('iso','FAO_Country_Code_2021')], by = c('Area.Code..M49.' = 'FAO_Country_Code_2021')) %>%
-
-#      Remove columns that are not needed
-           select(-Domain.Code, -Area.Code..M49., -Area, -Element.Code, -Element, -Item.Code, -Item, -Year.Code,
-                  -Unit, -Value, -Flag, -Flag.Description) %>%
-
+#      Map over CEDS iso codes
+           left_join(FAO_country_map, by = c('Area.Code..M49.' = 'FAO_Country_Code')) %>%
 #      Rename "Domain" variable "sector"
            dplyr::rename(sector = Domain) %>%
-
 #      Map sectors to CEDS sectors
            mutate(sector = "3D_Soil-emissions") %>%
-
 #      Convert years into CEDS format
            mutate(Year = as.character(Year)) %>%
-           mutate(Year = paste0('X','',Year))
-
+           mutate(Year = paste0('X','',Year)) %>%
 #      Reorder columns of interest
-       FAO_soil <- FAO_soil[, c("iso", "sector", "Year", "summed_value")]
-
-#      Delete duplicated rows before spreading data to wide format (duplicated when iso is present
-#      more than once in MCL, or if not mapped to CEDS iso and has the same value as another country
-#      that did not get mapped for a given year)
-       FAO_soil <- dplyr::distinct(FAO_soil)
-
+           select(iso, sector, Year, summed_value) %>%
 #      Delete countries that did not map over
-       FAO_soil <- dplyr::filter(FAO_soil, !is.na(iso))
-
+           dplyr::filter(!is.na(iso)) %>%
 #      Spread the data to wide format
-       FAO_soil <- tidyr::spread(FAO_soil, Year, summed_value)
-
-#      Remove Years not needed (2015, 2016)
-       FAO_soil <- dplyr::select(FAO_soil, -X2015, -X2016)
+           tidyr::spread(Year, summed_value)
 
 #   C.) Combine the soil and manure data into one data frame
 
 #      Row bind the data frame
-       FAO <- rbind(FAO_manure, FAO_soil)
 
-#      Sort the data frame by iso, sector
-       FAO <- dplyr::arrange(FAO, iso, sector)
+      if(FAO_end_year != 2023){ stop('Need to check this code - hard coded for 2023 - check new data.')}
+# A lot of the Soil emissions data for 2023 is discontinuous - zero out for now
+       FAO <- bind_rows(FAO_manure, FAO_soil) %>%
+           arrange(iso, sector) %>%
+#       some zero last years in the data - make NA, to carry fowrad the last value below
+           mutate( X2023 = NA)
+
+#      Carry Forward value to last year
+       FAO_extended <- FAO
+       FAO_extended[ X_FAO_years ] <- t(na.locf(t(FAO_extended[ X_FAO_years ])))
 
 # -----------------------------------------------------------------------------
 # 3. Country Splitting
-
-#   List countries that will be split and how they will be split
-    list(czech.slovkia = c(1961, 1993, "csk","cze","svk"),
-       bel.lux = c(1961, 2000, "blx","bel","lux"),
-       yugo = c(1961, 1992, "yug", "scg", "svn", "mkd","hrv","bih"),
-       ser.mont = c(1961, 2006, "scg","srb","mne"),
-       soviet = c(1961, 1992, "USSR","arm","aze","blr","est","geo","kaz",
-                  "kgz","ltu","lva","mda","rus","tjk","tkm","ukr","uzb"))
 
 
 #   Reformat UN population data
@@ -163,7 +137,7 @@
                       iso ~ X_year, value = 'pop')
 
 #   Disaggregate csk data
-    FAO_csk <- disaggregate_country(original_data = FAO,
+    FAO_csk <- disaggregate_country(original_data = FAO_extended,
                                   id_cols = c('iso','sector'),
                                   trend_data = population,
                                   trend_match_cols = 'iso',
@@ -171,6 +145,7 @@
                                   disaggregate_iso = c("cze","svk"),
                                   dis_end_year= 1992,
                                   dis_start_year = 1961)
+
 #   Disaggregate USSR data
     FAO_ussr <- disaggregate_country(original_data = FAO_csk,
                                   id_cols = c('iso','sector'),
@@ -182,26 +157,14 @@
                                   dis_end_year= 1991,
                                   dis_start_year = 1961)
 #   Disaggregate blx data
-    FAO_blx <- tryCatch(
-        {
-            FAO_blx <- disaggregate_country(original_data = FAO_ussr,
-                                            id_cols = c('iso','sector'),
-                                            trend_data = population,
-                                            trend_match_cols = 'iso',
-                                            combined_iso = 'blx',
-                                            disaggregate_iso = c("bel","lux"),
-                                            dis_end_year= 1999,
-                                            dis_start_year = 1961)
-
-            return(FAO_blx)
-        },
-        error=function(cond) {
-            message(paste("Warning: The blx iso does not appear to exist in the FAO data"))
-            message(cond)
-            FAO_blx <- FAO_ussr
-            return(FAO_blx)
-        }
-    )
+    FAO_blx <- disaggregate_country(original_data = FAO_ussr,
+                                  id_cols = c('iso','sector'),
+                                  trend_data = population,
+                                  trend_match_cols = 'iso',
+                                  combined_iso = 'blx',
+                                  disaggregate_iso = c("bel","lux"),
+                                  dis_end_year= 1999,
+                                  dis_start_year = 1961)
 
 
 #   Disaggregate yug data
@@ -210,28 +173,21 @@
                                    trend_data = population,
                                    trend_match_cols = 'iso',
                                    combined_iso = "yug",
-                                   disaggregate_iso = c("scg", "svn", "mkd","hrv","bih"),
+                                   disaggregate_iso = c( "svn", "mkd","hrv","bih"),
                                    dis_end_year= 1991,
                                    dis_start_year = 1961)
-#   Disaggregate scg data
-    FAO_scg <- disaggregate_country(original_data = FAO_yug,
-                                  id_cols = c('iso','sector'),
-                                  trend_data = population,
-                                  trend_match_cols = 'iso',
-                                  combined_iso = "scg",
-                                  disaggregate_iso = c("srb","mne"),
-                                  dis_end_year= 2005,
-                                  dis_start_year = 1961)
+
+    FAO_yug[FAO_yug == 0] <- NA
+
+# Carry values forward
+
+    #      Carry Forward value to last year
+    FAO_yug[ X_FAO_years ] <- t(na.locf(t(FAO_yug[ X_FAO_years ])))
+
 # -----------------------------------------------------------------------------
 # 4. Final Processing
 
-  FAO_out <- FAO_scg
-
-#   Carry foward last value to end year
-    FAO_last <- max( as.numeric ( gsub('X','',names ( FAO_out ) ) ), na.rm = T )
-    years <- paste0('X',1961:end_year)
-    add_years <- years[ years %!in% names( FAO_out ) ]
-    FAO_out[ add_years ] <- FAO_out[ paste0('X', FAO_last ) ]
+  FAO_out <- FAO_yug
 
 #   Add units and fuel variables
     FAO_out <- FAO_out %>%
@@ -239,7 +195,8 @@
         dplyr::mutate(fuel = 'process')
 
 #   Reorder columns of interest
-    FAO_out <- FAO_out[c('iso','sector','fuel','units',years)]
+    FAO_out <- FAO_out[c('iso','sector','fuel','units',X_FAO_years)]
+    FAO_out[is.na(FAO_out)] <- 0
 
 # --------------------------------------------------------------------------------
 # 5. Output

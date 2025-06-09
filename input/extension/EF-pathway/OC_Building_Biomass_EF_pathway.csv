@@ -1,0 +1,3 @@
+iso,sector,fuel,units,emission,pathway_type,X1940,X1985,X2000,X2023
+all,1A4b_Residential,biomass,fraction,OC,minimum,0.00234,0.000245,0.000245,0.000245
+all,1A4a_Commercial-institutional,biomass,fraction,OC,minimum,0.00234,0.000245,0.000245,0.000245

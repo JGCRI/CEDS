@@ -1,0 +1,3 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+Emission Factor,SO2,usa,1A4b_Residential,1750,1960,Heating fuel oil sulfur content from Petroleum Product Survey:  Burner-Fuel Oils  (Bureau of Mines)
+Emission Factor,SO2,usa,1A4a_Commercial-institutional,1750,1960,Heating fuel oil sulfur content from Petroleum Product Survey:  Burner-Fuel Oils  (Bureau of Mines)

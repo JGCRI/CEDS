@@ -1,5 +1,7 @@
 Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
-Emissions,SO2,all,2C_Metal-production,1850,2018,"Smith et al. (2011) metal smelting emissions, updated + iron smelting in USA, CAN, FIN, CHN"
-Emissions,SO2,mex,2C_Metal-production,1850,2019,"Smith et al. (2011) bottom up metal smelting emissions, updated, blended with reported emissions from Southern Copper Corp (Sustainability and Annual reports)"
-Emissions,SO2,chn,2C_Metal-production,1850,2019,"Bottom up metal smelting emissions, using fraction of smelters with acid plants from 2000[euro]2010 (Wu etal 2012), updated to 2017"
-Emissions,SO2,chl,2C_Metal-production,1850,2019,"Bottom up metal smelting emissions, scaled to match country reports on total emissions in latter years."
+Emissions,SO2,all,2C4_Non-Ferrous-other-metals,1850,2023,"Smith et al. (2011) metal smelting emissions methodology, updated metal production, removal, and emission factor assumptions"
+Emissions,SO2,mex,2C4_Non-Ferrous-other-metals,1850,2023,"Smith et al. (2011) bottom up metal smelting emissions, updated, blended with reported emissions from Southern Copper Corp (Sustainability and Annual reports)"
+Emissions,SO2,chn,2C4_Non-Ferrous-other-metals,1850,2023,"Bottom up metal smelting emissions, using fraction of smelters with acid plants from 2000�2010 (Wu etal 2012), updated to 2017"
+Emissions,SO2,aus,2C4_Non-Ferrous-other-metals,1850,2023,AUS NPI emissions adjusted by subtracting estimated S emissions from fuel combustion
+Emissions,SO2,kaz,2C4_Non-Ferrous-other-metals,1850,2023,"Recent SO2 emissions estimated from combniation of company reports form kazzinc, KAZ Minerals together with bottom-up mass balance calculations"
+Emissions,SO2,zmb,2C4_Non-Ferrous-other-metals,1850,2023,Recent SO2 emissions estimated from combniation of various sources for sulfur removal amounts together with bottom-up mass balance calculations to make estimates consistent with sattelite inventory

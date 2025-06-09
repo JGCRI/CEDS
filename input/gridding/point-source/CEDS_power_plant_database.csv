@@ -1,0 +1,2 @@
+country,country_long,name,CEDS_ID,capacity_mw,latitude,longitude,primary_fuel,commissioning_year,source,url
+PAK,Pakistan,Chiniot,CEDS0000001,62.4,31.610381,72.760886,biomass,2015,GlobalData,https://www.power-technology.com/marketdata/chiniot-biomass-power-plant-pakistan/?cf-view

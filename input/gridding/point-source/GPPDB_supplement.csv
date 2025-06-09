@@ -1,0 +1,26 @@
+id,name,manual_cap,manual_cd,old_fuel,real_fuel,iso
+WRI1075638,Huantai power station,950,2017,hard_coal,hard_coal,chn
+WRI1075858,AES Galabovo,670,2011,hard_coal,brown_coal,blg
+WRI1008041,Brikel power station,240,1961,hard_coal,brown_coal,blg
+WRI1008058,Maritsa 3 power station,120,1971,hard_coal,brown_coal,blg
+WRI1008060,Maritsa Itzok-2 power station,1602,1979,hard_coal,brown_coal,blg
+WRI1008061,Maritsa Itzok-3 power station,908,1980,hard_coal,brown_coal,blg
+WRI1008059,TOPLO RUSE,110,2017,hard_coal,brown_coal,blg
+WRI1061847,Novo-Ryazan Thermal Power Station,425,2017,natural_gas,natural_gas,rus
+WRI1000102,Walidia,600,1992,heavy_oil,heavy_oil,egy
+WRI1000086,Hurghada,143,2002,heavy_oil,heavy_oil,egy
+WRI1000085,Sharm El-Sheikh,144,1995,heavy_oil,heavy_oil,egy
+WRI1000098,Karmouz,23,1966,heavy_oil,heavy_oil,egy
+WRI1008114,Ahwaz (ramiin),1903,1980,heavy_oil,heavy_oil,irn
+WRI1008119,Bandar Abbas,1280,1980,heavy_oil,heavy_oil,irn
+WRI1008121,Besat,247.5,1967,heavy_oil,heavy_oil,irn
+WRI1008169,Neka (Shahid Salimi),1779.6,1979,heavy_oil,heavy_oil,irn
+WRI1008190,Shazand,1300,2000,heavy_oil,heavy_oil,irn
+WRI1008184,Shahid M. Montazeri,1600,1985,heavy_oil,heavy_oil,irn
+WRI1008196,Tabriz,736,1986,heavy_oil,heavy_oil,irn
+WRI1008185,Shahid Mofateh,1000,1995,heavy_oil,heavy_oil,irn
+WRI1008361,Orot Rabin,2590,1984,hard_coal,hard_coal,isr
+WRI1008362,Rutenberg,2250,1991,hard_coal,hard_coal,isr
+WRI1008685,Az Zour South CCGT,2400,1987,heavy_oil,heavy_oil,kwt
+WRI1008689,Doha East,1350,1977,heavy_oil,heavy_oil,kwt
+WRI1008690,Doha West,2400,1982,heavy_oil,heavy_oil,kwt

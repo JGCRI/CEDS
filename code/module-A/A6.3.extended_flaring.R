@@ -3,15 +3,13 @@
 # Authors Names: Hamza Ahsan
 # Date Last Modified: 29 March 2024
 # Program Purpose: Generates a composite time series of flaring volume using WB
-#                  (2012-2022) and EI (1975-2011) data and extends back to 1800 using
+#                  (2012-2023) and EI (1975-2011) data and extends back to 1800 using
 #                  flaring intensity (based on average flaring and oil production
 #                  for 1975-1977).
-# Input Files: World_Bank_Gas_Flaring_Data_2012-2022.xlsx,
+# Input Files: World_Bank_Gas_Flaring_Data_2012-2023.xlsx,
 #              Statistical_Review_of_World_Energy_2023.xlsx, Master_Country_List.csv,
 #              Master_Fuel_Sector_List.xlsx, A.crude_oil_production_data.csv
 # Output Files: A.extended_flaring.csv
-# TODO: Currently addressing dip in Russia flaring intensity (2002-2003) adhoc.
-#       May want to consider a more general approach.
 
 #-------------------------------------------------------------------------------
 
@@ -25,7 +23,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
 # provide logging, file support, and system functions - and start the script log.
 headers <- c("data_functions.R", "bp_extension_functions.R")
 log_msg <- "Flaring extension from EI and World Bank data" # First message to be printed to the log
-script_name <- "A6.5.extended_flaring.R"
+script_name <- "A6.3.extended_flaring.R"
 
 source( paste0( PARAM_DIR, "header.R" ) )
 initialize( script_name, log_msg, headers )
@@ -37,7 +35,7 @@ MCL <- readData( "MAPPINGS", "Master_Country_List" )
 
 # Read in World Bank flaring volume data
 printLog( c("Reading in World Bank flaring volume data."))
-WB_data <- readData( "ENERGY_IN", "World_Bank_Gas_Flaring_Data_2012-2022", ".xlsx")
+WB_data <- readData( "ENERGY_IN", "World_Bank_Gas_Flaring_Data-2012-2023", ".xlsx")
 
 # Read in oil production data
 printLog( c("Reading in oil production data."))
@@ -46,6 +44,7 @@ oil_production <- readData( "MED_OUT" , 'A.crude_oil_production_data' )
 # Read in EI energy data
 printLog( c("Reading in EI flaring volume data."))
 EI_energy_data <- readData( "ENERGY_IN", BP_data_file_name, ".xlsx",  skip = 2)
+EI_energy_data <- lapply(EI_energy_data, organizeBPData)
 
 # ------------------------------------------------------------------------------
 # 2. Process input flaring data
@@ -53,19 +52,26 @@ EI_energy_data <- readData( "ENERGY_IN", BP_data_file_name, ".xlsx",  skip = 2)
 printLog( c("Generating composite timeseries of flare gas volume using WB and EI data."))
 # Use World Bank data back to 2012 and EI data before that to 1975
 
+if( !(BP_last_year %in% (WB_data[[ 'Flare volume' ]] %>% names))){
+    stop('Need to update World Bank Flaring data in A6.3.etended_flaring.R')
+}
+
+
+
 # World Bank flaring data
-WB_flaring <- WB_data[[ 'Flaring Volume' ]] %>%
+WB_flaring <- WB_data[[ 'Flare volume' ]] %>%
     rename_at(vars(as.character(2012:BP_last_year)), ~ paste0('X',2012:BP_last_year)) %>%
-    mutate(WB_flaring = `Country, mcm`) %>%  # This could be more robust
+    mutate(WB_flaring = `Country, bcm`) %>%  # This could be more robust
     select(WB_flaring, paste0('X',2012:BP_last_year)) %>%
     filter(!is.na(X2012)) %>%
     left_join(MCL %>% select(iso, WB_flaring) %>% unique) %>%
     select(iso, paste0('X',2012:BP_last_year)) %>%
     filter(!is.na(iso))
 
-# Convert World Bank flaring to billion cubic meters
-divide.by.1000 <- function(x, na.rm=FALSE) (x/1000)
-WB_flaring <- mutate_at(WB_flaring, paste0('X',2012:BP_last_year), divide.by.1000)
+# 2024 World bank data is already in bcm - here for if it changes back to mcm
+# # Convert World Bank flaring to billion cubic meters
+# divide.by.1000 <- function(x, na.rm=FALSE) (x/1000)
+# WB_flaring <- mutate_at(WB_flaring, paste0('X',2012:BP_last_year), divide.by.1000)
 
 # EI (previously BP) flaring data
 EI_flaring <- EI_energy_data[[ getBPSheetNumber( "natural", "gas", "flaring", EI_energy_data ) ]] %>%
@@ -113,6 +119,14 @@ EI_flaring_final <- EI_flaring_long %>% spread(key=year, value=volume) %>%
     full_join(EI_flaring %>% filter(!grepl('Other', BPName_flaring))) %>%
     select(-BPName_flaring)
 
+# Russia values for 2002 and 2003 aren't valid for some reason, zero out
+if ( (EI_flaring_final[EI_flaring_final$iso == "rus", c("X2003")] /
+      EI_flaring_final[EI_flaring_final$iso == "rus", c("X2004")] )  < 0.8 ) {
+    EI_flaring_final <- EI_flaring_final %>%
+                        mutate(X2002 = ifelse(iso == 'rus', 0, X2002),
+                               X2003 = ifelse(iso == 'rus', 0, X2003) )
+}
+
 # Combine EI and WB flaring data
 flaring_final <- full_join(EI_flaring_final, WB_flaring) %>%
     replace(is.na(.), 0)
@@ -153,12 +167,12 @@ flaring_extended_inital <- left_join(oil_production, flaring_intensity) %>%
 
 # Calculate flaring intensity (FI = flaring volume over oil production)
 flaring_long <- flaring_extended_inital %>%
-    dplyr::select(c(iso, X1800:X2022 )) %>%
-    tidyr::gather(key="year", value="volume", "X1800":"X2022")
+    dplyr::select(c(iso, paste0("X", 1800:BP_last_year) )) %>%
+    tidyr::gather(key="year", value="volume", paste0("X", 1800:BP_last_year))
 
 oil_prod_long <- oil_production %>%
-    dplyr::select(c(iso, X1800:X2022 )) %>%
-    tidyr::gather(key="year", value="volume", "X1800":"X2022")
+    dplyr::select(c(iso, paste0("X", 1800:BP_last_year) )) %>%
+    tidyr::gather(key="year", value="volume", paste0("X", 1800:BP_last_year))
 
 FI <- cbind(flaring_long[1:2],flaring_long$volume/oil_prod_long$volume)
 
@@ -173,13 +187,13 @@ FI_wide[] <- lapply(FI_wide, function(x) {
 })
 
 # Calculate the median of all the non-zero FI values from the WB data time period for all WB years
-FI_WB_list <- as.vector(as.matrix(FI_wide[,paste0("X", 2012:2022)]))
+FI_WB_list <- as.vector(as.matrix(FI_wide[,paste0("X", 2012:BP_last_year)]))
 
 FI_WB_median <- median(FI_WB_list[FI_WB_list>0])
 
 # Calculate the ratio of FI to this median FI for all the WB data points
 
-FI_WB_ratio <- cbind(FI_wide[1], FI_wide[, paste0("X", 2012:2022)]/FI_WB_median)
+FI_WB_ratio <- cbind(FI_wide[1], FI_wide[, paste0("X", 2012:BP_last_year)]/FI_WB_median)
 
 # For all values of FI > 10 * median FI replace FI with a new value for the world bank time period
 # a) If FI > 10 * median for all WB years, replace with median value
@@ -187,7 +201,7 @@ FI_WB_ratio <- cbind(FI_wide[1], FI_wide[, paste0("X", 2012:2022)]/FI_WB_median)
 FI_threshold <- 10
 
 FI_WB_ratio_long <- FI_WB_ratio %>%
-    tidyr::gather(key="year", value="FI_ratio", "X2012":"X2022") %>%
+    tidyr::gather(key="year", value="FI_ratio", paste0("X", 2012:BP_last_year)) %>%
     dplyr::mutate(FI_new_a = dplyr::case_when(FI_ratio > FI_threshold ~ FI_WB_median, TRUE ~ FI_ratio)) %>% # part a)
     dplyr::mutate(FI_new_b = dplyr::case_when(FI_ratio > FI_threshold ~ NA_real_, TRUE ~ FI_ratio)) %>% # part b)
     dplyr::group_by(iso) %>%
@@ -214,7 +228,7 @@ FI_new <- dplyr::left_join(FI_wide[c("iso", paste0("X", 1800:2011))], FI_WB_new,
 # expect it. Leave that as zero.)
 
 FI_new_long <- FI_new %>%
-    tidyr::gather(key="year", value="FI", "X1800":"X2022") %>%
+    tidyr::gather(key="year", value="FI", paste0("X", 1800:BP_last_year)) %>%
     dplyr::mutate(year = as.numeric(sub('.', '',year))) %>%
     dplyr::mutate(FI_filter = ifelse(year >= 1990, FI, NA)) %>%
     dplyr::mutate(FI_filter = ifelse(FI == 0, NA, FI_filter)) %>%
@@ -258,10 +272,8 @@ flaring_extended <- cbind(FI_final[1], as.data.frame(x * y)) %>%
     dplyr::mutate(units = "bcm") %>%
     dplyr::select(c("iso", "activity", "units", paste0("X", 1800:BP_last_year)))
 
-
 # ------------------------------------------------------------------------------
 # 6. Output
-
 
 # write extended flaring data
 writeData( flaring_extended , "MED_OUT", "A.extended_flaring" )

@@ -37,6 +37,7 @@ library( 'yaml' )
 
 # ==============================================================================
 # core gridding functions
+
 # ------------------------------------------------------------------------------
 # grid_one_iso
 # Brief: Generates an iso's emission spatial distribution using proxy.
@@ -73,72 +74,81 @@ grid_one_iso <- function( iso,
                           location_index,
                           proxy_substitution_mapping,
                           proxy,
-                          proxy_backup ) {
+                          proxy_backup,
+                          month = NULL ) {
 
-  sub_flag <- proxy_substitution_mapping[ proxy_substitution_mapping$em == em &
-                                            proxy_substitution_mapping$sector == sector &
-                                            proxy_substitution_mapping$iso == iso, 'sub_flag' ]
+    # print( paste0(iso, ' : ', sector) )
 
-  if ( length( sub_flag ) == 0  ) { proxy <- proxy } else { proxy <- proxy_backup }
+    sub_flag <- proxy_substitution_mapping %>%
+        dplyr::filter( em == !!em, sector == !!sector, iso == !!iso ) %>%
+        dplyr::pull()
 
-  # retrieve matrix indexes for iso for later proxy cropping
-  index_line <- location_index[ location_index$iso == iso, ]
-  start_row <- index_line$start_row
-  end_row <- index_line$end_row
-  start_col <- index_line$start_col
-  end_col <- index_line$end_col
+    if ( length( sub_flag ) == 0  ) { proxy <- proxy } else { proxy <- proxy_backup }
 
-  # retrieve the iso_mask from memory
-  mask_name <- paste0( iso, '_mask')
-  mask <- get( mask_name )
+    # retrieve matrix indexes for iso for later proxy cropping
+    index_line <- location_index[ location_index$iso == iso, ]
+    start_row <- index_line$start_row
+    end_row <- index_line$end_row
+    start_col <- index_line$start_col
+    end_col <- index_line$end_col
 
-  proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ]
-  weighted_proxy <- proxy_cropped * mask
-  norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
-  norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
+    # retrieve the iso_mask from memory
+    mask_name <- paste0( iso, '_mask')
+    mask <- get( mask_name )
 
-  #======================================================
-  # # DEBUGGING
-  # if(sum(norm_weighted_proxy) == 0){
-  #   printLog(paste0('WARNING, UNFLAGGED ZERO PROXY: ', iso, ', ', sector, ', ', em))
-  #   printLog('USING PROXY BACKUP UNEXPECTEDLY')
-  #   proxy_cropped <- proxy_backup[ start_row : end_row, start_col : end_col ]
-  #   weighted_proxy <- proxy_cropped * mask
-  #   norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
-  #   norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
-  # }
-  #======================================================
+    # Create normalized proxy over given region
+    proxy_cropped <- proxy[ start_row : end_row, start_col : end_col, drop=FALSE ]
+    weighted_proxy <- proxy_cropped * mask
+    norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
+    norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
 
-  emissions_value <- gridding_emissions_sector[ gridding_emissions_sector$iso == iso, paste0( 'X', year ) ]
+    # Check in case back-up population proxy is also zero
+    if( sum(norm_weighted_proxy) == 0 ){
+        # Set all values in proxy to have saem weight
+        proxy_cropped[TRUE] <- 1
+        weighted_proxy <- proxy_cropped * mask
+        norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
+        norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
+    }
 
-  iso_em_spatial <- emissions_value * norm_weighted_proxy
+    emissions_value <- 0
+    if( is.null(month) ){
+        # Get annual emission value
+        emissions_value <- gridding_emissions_sector %>%
+            dplyr::filter( iso == !!iso ) %>%
+            dplyr::select( paste0( 'X', year ) ) %>%
+            dplyr::pull()
+    }else{
+        # Get Monthly emission value
+        emissions_value <- gridding_emissions_sector %>%
+            dplyr::filter( iso == !!iso ) %>%
+            dplyr::select( all_of(month) ) %>%
+            dplyr::pull()
+    }
 
-  #======================================================
-  # # DEBUGGING
-  proxy_cropped <- proxy[ start_row : end_row, start_col : end_col ]
-  weighted_proxy <- proxy_cropped * mask
-  norm_weighted_proxy <- weighted_proxy / sum( weighted_proxy )
-  norm_weighted_proxy[ is.nan( norm_weighted_proxy ) ] <- 0
+    # Distribute emissions
+    iso_em_spatial <- emissions_value * norm_weighted_proxy
 
-  proxy_cropped_backup <- proxy_backup[ start_row : end_row, start_col : end_col ]
-  weighted_proxy_backup <- proxy_cropped_backup * mask
-  norm_weighted_proxy_backup <- weighted_proxy_backup / sum( weighted_proxy_backup )
-  norm_weighted_proxy_backup[ is.nan( norm_weighted_proxy_backup ) ] <- 0
+    # #======================================================
+    # Diagnostic: Prints message when distributed emissions =/= aggregate emissions
+    proxy_cropped_backup <- proxy_backup[ start_row : end_row, start_col : end_col ]
+    weighted_proxy_backup <- proxy_cropped_backup * mask
+    norm_weighted_proxy_backup <- weighted_proxy_backup / sum( weighted_proxy_backup )
+    norm_weighted_proxy_backup[ is.nan( norm_weighted_proxy_backup ) ] <- 0
 
-  sum_spatial <- sum(iso_em_spatial)
-  if( typeof(all.equal(emissions_value, sum_spatial)) == 'character' ){
-    print(paste0(iso, ' ,', em, ' ,', sector, ' ,', year, ' has total emisions: ', emissions_value, ' but distributed emissions: ', sum(iso_em_spatial), 
-                '. Normalized proxy sum: ', sum(norm_weighted_proxy), ', and normalized proxy-backup sum: ', sum(norm_weighted_proxy_backup)))
-  }
-  #======================================================
-  
+    sum_spatial <- sum(iso_em_spatial)
+    if( typeof(all.equal(emissions_value, sum_spatial)) == 'character' ){
+        print(paste0(iso, ', ', em, ', ', sector, ', ', year, ' has total emisions: ', emissions_value, ' but distributed emissions: ', sum(iso_em_spatial),
+                     '. Normalized proxy sum: ', sum(norm_weighted_proxy), ', and normalized proxy-backup sum: ', sum(norm_weighted_proxy_backup)))
+    }
+    # #======================================================
 
+    return( iso_em_spatial )
 
-  return( iso_em_spatial )
 }
 
 # ------------------------------------------------------------------------------
-# aggregare_all_isos
+# aggregate_all_isos
 # Brief: Aggregates all iso's emission into one global grid.
 #        The aggregating is in following steps:
 #        (1) Create an empty temoplate grid as global extent using grid_resolution
@@ -157,32 +167,198 @@ grid_one_iso <- function( iso,
 # output: null
 aggregate_all_isos <- function( iso_list, iso_em_spatial_list, location_index, grid_resolution, flux_factor ) {
 
-  # create a empty template grid for later aggregating
-  temp_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+    # create a empty template grid for later aggregating
+    temp_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
 
-  # aggregating
-  for ( iso in iso_list ) {
+    # aggregating
+    for ( iso in iso_list ) {
 
-	info_line <- location_index[ location_index$iso == iso, ]
-    start_row <- info_line$start_row
-    end_row <- info_line$end_row
-    start_col <- info_line$start_col
-    end_col <- info_line$end_col
+        info_line <- location_index[ location_index$iso == iso, ]
+        start_row <- info_line$start_row
+        end_row <- info_line$end_row
+        start_col <- info_line$start_col
+        end_col <- info_line$end_col
 
-	# add the em_spatial to empty template grid
-	temp_grid[ start_row : end_row , start_col : end_col ] <-
-    temp_grid[ start_row : end_row , start_col :end_col ] + iso_em_spatial_list[[ iso ]]
-  }
+        # add the em_spatial to empty template grid
+        temp_grid[ start_row : end_row , start_col : end_col ] <-
+            temp_grid[ start_row : end_row , start_col :end_col ] + iso_em_spatial_list[[ iso ]]
 
-  # convert into flux
-  temp_grid <- temp_grid * flux_factor
-  em_spatial_global <- temp_grid
+        # print(paste0( iso, ': ', sum(is.na(iso_em_spatial_list[[ iso ]]))))
+    }
 
-  return( em_spatial_global )
+    # convert into flux
+    temp_grid <- temp_grid * flux_factor
+    em_spatial_global <- temp_grid
+
+    return( em_spatial_global )
+}
+
+
+# ------------------------------------------------------------------------------
+# aggregate_sector_grids
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output:
+aggregate_sector_grids <- function( gridded_seasonality_sector_grids_list,
+                                    regional_seasonality_sector_grids_list,
+                                    gridded_seasonality_sector_list,
+                                    regional_seasonality_sector_list ) {
+
+    # Names of every sector present in one of the two grid lists
+    all_sectors_list <- unique(c(gridded_seasonality_sector_list, regional_seasonality_sector_list))
+
+    # Empty list to populate with aggregated results
+    agg_list <- vector("list", length(all_sectors_list) )
+    names(agg_list) <- all_sectors_list
+
+    for( sector_name in all_sectors_list ){
+        added <- FALSE
+
+        # Add regional seasonality data if present
+        if( sector_name %in% names(regional_seasonality_sector_grids_list) ){
+            agg_list[[sector_name]] <- regional_seasonality_sector_grids_list[[sector_name]]
+            added <- TRUE
+        }
+
+        # Add gridded seasonality data if present
+        if( sector_name %in% names(gridded_seasonality_sector_grids_list) ){
+            if( added ){
+                agg_list[[sector_name]] <-  agg_list[[sector_name]] + gridded_seasonality_sector_grids_list[[sector_name]]
+            }else{
+                agg_list[[sector_name]] <- gridded_seasonality_sector_grids_list[[sector_name]]
+            }
+        }
+
+    }
+
+    return( agg_list )
+
+}
+
+
+# ------------------------------------------------------------------------------
+# grid_one_sector_regional_seasonality
+# Brief: Generates a global grid for a given CEDS intermediate gridding sector.
+#        This works for data that uses regional/country level seasonality profiles
+# Dependencies:
+# Author: Noah Prime
+# parameters: sector - the current gridding sector
+#             em - the current gridding emission species
+#             grid_resolution - gridding resolution
+#             year - the current gridding year
+#             gridding_emissions_xyear - the emission data used for gridding, passed by upper layer function
+#             location_index - location index table, contains matrix index information for the country in global extent
+#             proxy_mapping - proxy mapping file
+#             proxy_substitution_mapping - proxy substitution mapping file
+# return: global_em_spatial - a global grid for given sector
+# input files: null
+# output: null
+grid_one_sector_regional_seasonality <- function( sector,
+                                                  em,
+                                                  grid_resolution,
+                                                  global_grid_area,
+                                                  year,
+                                                  regional_seasonality_emissions_year,
+                                                  location_index,
+                                                  proxy_mapping,
+                                                  proxy_substitution_mapping,
+                                                  proxy_files ) {
+
+    # Get proxy for given species/gridding sector/year
+    proxy <- get_proxy( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'primary' )
+    proxy_backup <- get_proxy( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'backup' )
+
+    # Get emissions for the given int gridding sector
+    regional_seasonality_emissions_int_sector <- regional_seasonality_emissions_year %>%
+        dplyr::filter( CEDS_int_gridding_sector_short == !!sector )
+
+    # Apply over each month in data for the given sector
+    res_list <- lapply( month_columns,
+                        grid_one_month_regional_seasonality,
+                        em,
+                        sector,
+                        year,
+                        regional_seasonality_emissions_int_sector,
+                        location_index,
+                        proxy_substitution_mapping,
+                        proxy,
+                        proxy_backup,
+                        proxy_mapping,
+                        grid_resolution )
+
+    # Compress list of month matrices to 3D array
+    result <- simplify2array(res_list)
+
+    return( result )
 }
 
 # ------------------------------------------------------------------------------
-# grid_one_sector
+# grid_one_month_regional_seasonality
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output:
+grid_one_month_regional_seasonality <- function(
+        month,
+        em,
+        sector,
+        year,
+        regional_seasonality_emissions_int_sector,
+        location_index,
+        proxy_substitution_mapping,
+        proxy,
+        proxy_backup,
+        proxy_mapping,
+        grid_resolution ) {
+
+    # Currently not accepting non-gridded SHP and TANK seasonality
+    stopifnot( !(sector %in% c( 'SHP', 'TANK' )) )
+
+    # Get emissions for just the given month
+    month_emissions <- regional_seasonality_emissions_int_sector %>%
+        dplyr::select(iso, CEDS_int_gridding_sector_short, all_of(month) )
+
+    # Get list of isos
+    iso_list <- unique(month_emissions$iso)
+
+    # Apply seasonality for each iso
+    iso_em_spatial_list <- lapply( iso_list,
+                                   grid_one_iso,
+                                   em,
+                                   sector,
+                                   year,
+                                   month_emissions,
+                                   location_index,
+                                   proxy_substitution_mapping,
+                                   proxy,
+                                   proxy_backup,
+                                   month = month )
+    names( iso_em_spatial_list ) <- iso_list
+
+    # Factor from kt to kg m-2 s-1
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+    days_in_current_month <- days_in_month[which(month_columns == month)]
+    flux_factor <- 1000000 /  grid_area(grid_resolution, all_lon = TRUE) / ( days_in_current_month * 24 * 60 * 60 )
+
+    # Aggregate isos
+    result <- aggregate_all_isos( iso_list,
+                                  iso_em_spatial_list,
+                                  location_index,
+                                  grid_resolution,
+                                  flux_factor )
+
+    return( result )
+}
+
+# ------------------------------------------------------------------------------
+# grid_one_sector_gridded_seasonality
 # Brief: Generates a global grid for a given sector.
 #        This function contains several different gridding strategies for different sectors after a few common steps.
 #        (1) extract sectoral gridding emissions
@@ -217,79 +393,130 @@ aggregate_all_isos <- function( iso_list, iso_em_spatial_list, location_index, g
 # return: global_em_spatial - a global grid for given sector
 # input files: null
 # output: null
-grid_one_sector <- function( sector,
-                             em,
-                             grid_resolution,
-                             global_grid_area,
-                             year,
-                             gridding_emissions_xyear,
-                             location_index,
-                             proxy_mapping,
-                             proxy_substitution_mapping,
-                             proxy_files ) {
+grid_one_sector_gridded_seasonality <- function( sector,
+                                                 em,
+                                                 grid_resolution,
+                                                 global_grid_area,
+                                                 year,
+                                                 gridded_seasonality_emissions_year,
+                                                 location_index,
+                                                 proxy_mapping,
+                                                 proxy_substitution_mapping,
+                                                 proxy_files,
+                                                 ceds_gridding_mapping,
+                                                 seasonality_mapping ) {
 
-  gridding_emissions_sector <- gridding_emissions_xyear[ gridding_emissions_xyear$sector == sector, ]
+    # Get emissions for given sector
+    gridded_seasonality_emissions_sector <- gridded_seasonality_emissions_year %>%
+        dplyr::filter( CEDS_int_gridding_sector_short == !!sector )
 
-  proxy <- get_proxy( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'primary' )
-  proxy_backup <- get_proxy( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'backup' )
+    # Get proxy grids
+    proxy <- get_proxy( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'primary' )
+    proxy_backup <- get_proxy( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'backup' )
 
-  flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 ) # from kt to kg m-2 s-1
+    # Factor from kt to kg m-2 s-1
+    flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
 
-  if ( sector == 'SHP' ) {
-    emissions_value <- sum( gridding_emissions_sector[ , paste0( 'X', year ) ] )
+    if ( sector == 'SHP' ) {
+        emissions_value <- sum( gridded_seasonality_emissions_sector[ , paste0( 'X', year ) ] )
 
-    mask <- global_mask
-	  proxy_weighted <- proxy * mask
-    proxy_normlized <- proxy_weighted / sum( proxy_weighted )
-    proxy_normlized[ is.na( proxy_normlized ) ] <- 0
-    global_em_spatial <- proxy_normlized * emissions_value
+        mask <- global_mask
+        proxy_weighted <- proxy * mask
+        proxy_normlized <- proxy_weighted / sum( proxy_weighted )
+        proxy_normlized[ is.na( proxy_normlized ) ] <- 0
+        global_em_spatial <- proxy_normlized * emissions_value
 
-    # convert into flux
-    global_em_spatial <- global_em_spatial * flux_factor
+        # convert into flux
+        global_em_spatial <- global_em_spatial * flux_factor
 
-  } else if ( sector == 'TANK' ) {
-    # TANK emissions only exist in iso global
-    emissions_value <- gridding_emissions_sector[ gridding_emissions_sector$iso == 'global', paste0( 'X', year ) ]
+    } else if ( sector == 'TANK' ) {
+        # TANK emissions only exist in iso global
+        emissions_value <- gridded_seasonality_emissions_sector %>%
+            dplyr::filter( iso == 'global' ) %>%
+            dplyr::select( paste0('X', year) ) %>%
+            dplyr::pull()
 
-    #========================================================
-    # DEBUGGING
-    # temp <- gridding_emissions %>%
-    #   dplyr::filter(sector == 'TANK') %>%
-    #   dplyr::mutate(sum_all_years = rowSums(paste0('X', year_list)))
-    #========================================================
+        mask <- global_mask
+        proxy_weighted <- proxy * mask
+        proxy_normlized <- proxy_weighted / sum( proxy_weighted )
+        proxy_normlized[ is.na( proxy_normlized ) ] <- 0
+        global_em_spatial <- proxy_normlized * emissions_value
 
-    mask <- global_mask
-	  proxy_weighted <- proxy * mask
-    proxy_normlized <- proxy_weighted / sum( proxy_weighted )
-    proxy_normlized[ is.na( proxy_normlized ) ] <- 0
-    global_em_spatial <- proxy_normlized * emissions_value
+        # convert into flux
+        global_em_spatial <- global_em_spatial * flux_factor
 
-    # convert into flux
-    global_em_spatial <- global_em_spatial * flux_factor
+    }else {
+        stopifnot(sector %in% c( 'AGR', 'ELEC', 'ETRN', 'FFFI', 'FLR', 'INDC', 'INPU', 'NRTR', 'RCOO', 'RCORC', 'ROAD', 'SLV', 'WST' ) )
+        iso_list <- gridded_seasonality_emissions_sector$iso
 
-  }else {
-    stopifnot(sector %in% c( 'AGR', 'ELEC', 'ETRN', 'FFFI', 'FLR', 'INDC', 'INPU', 'NRTR', 'RCOO', 'RCORC', 'ROAD', 'SLV', 'WST' ) )
-    iso_list <- gridding_emissions_sector$iso
+        iso_em_spatial_list <- lapply( iso_list,
+                                       grid_one_iso,
+                                       em,
+                                       sector,
+                                       year,
+                                       gridded_seasonality_emissions_sector,
+                                       location_index,
+                                       proxy_substitution_mapping,
+                                       proxy,
+                                       proxy_backup )
+        names( iso_em_spatial_list ) <- iso_list
+        global_em_spatial <- aggregate_all_isos( iso_list, iso_em_spatial_list, location_index, grid_resolution, flux_factor )
+    }
 
-    iso_em_spatial_list <- lapply( iso_list,
-                                   grid_one_iso,
-                                   em,
-                                   sector,
-                                   year,
-                                   gridding_emissions_sector,
-                                   location_index,
-                                   proxy_substitution_mapping,
-                                   proxy,
-                                   proxy_backup )
-    names( iso_em_spatial_list ) <- iso_list
-    global_em_spatial <- aggregate_all_isos( iso_list, iso_em_spatial_list, location_index, grid_resolution, flux_factor )
-  }
+    # Get final gridding sector
+    final_gridding_sector <- ceds_gridding_mapping %>%
+        dplyr::filter( CEDS_int_gridding_sector_short == !!sector ) %>%
+        dplyr::select( CEDS_final_gridding_sector_short ) %>%
+        dplyr::slice(1) %>%
+        dplyr::pull()
 
-  return( global_em_spatial )
+    # Apply seasonality grid
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+    fin_grid <- add_seasonality(global_em_spatial, em, final_gridding_sector, year, days_in_month, grid_resolution, seasonality_mapping )
+
+    return( fin_grid )
+
 }
 
 # ------------------------------------------------------------------------------
-# grid_all_sectors
+# grid_all_sectors_regional_seasonality
+# Brief: lapply wraper for grid_one_country
+# Dependencies: grid_one_sector
+# Author: Leyang Feng
+# parameters: sector_list - the sectors in the gridding emissions
+#             rest see the grid_one_sector
+# return: res_list - a list contains grid for each sector
+# input files: null
+# output: null
+grid_all_sectors_regional_seasonality <- function( sector_list,
+                                                   em,
+                                                   grid_resolution,
+                                                   global_grid_area,
+                                                   year,
+                                                   regional_seasonality_emissions_year,
+                                                   location_index,
+                                                   proxy_mapping,
+                                                   proxy_substitution_mapping,
+                                                   proxy_files ) {
+
+    res_list <- lapply( sector_list,
+                        grid_one_sector_regional_seasonality,
+                        em,
+                        grid_resolution,
+                        global_grid_area,
+                        year,
+                        regional_seasonality_emissions_year,
+                        location_index,
+                        proxy_mapping,
+                        proxy_substitution_mapping,
+                        proxy_files )
+
+    names( res_list ) <- paste0( sector_list, '_int_grid' )
+    return( res_list )
+}
+
+# ------------------------------------------------------------------------------
+# grid_all_sectors_gridded_seasonality
 # Brief: lapply wraper for grid_one_countriy
 # Dependencies: grid_one_sector
 # Author: Leyang Feng
@@ -298,30 +525,34 @@ grid_one_sector <- function( sector,
 # return: res_list - a list contains grid for each sector
 # input files: null
 # output: null
-grid_all_sectors <- function( sector_list,
-                              em,
-                              grid_resolution,
-                              global_grid_area,
-                              year,
-                              gridding_emissions_xyear,
-                              location_index,
-                              proxy_mapping,
-                              proxy_substitution_mapping,
-                              proxy_files ) {
+grid_all_sectors_gridded_seasonality <- function( sector_list,
+                                                  em,
+                                                  grid_resolution,
+                                                  global_grid_area,
+                                                  year,
+                                                  gridding_emissions_xyear,
+                                                  location_index,
+                                                  proxy_mapping,
+                                                  proxy_substitution_mapping,
+                                                  proxy_files,
+                                                  ceds_gridding_mapping,
+                                                  seasonality_mapping ) {
 
-  res_list <- lapply( sector_list,
-                      grid_one_sector,
-                      em,
-                      grid_resolution,
-                      global_grid_area,
-                      year,
-                      gridding_emissions_xyear,
-                      location_index,
-                      proxy_mapping,
-                      proxy_substitution_mapping,
-                      proxy_files )
-  names( res_list ) <- paste0( sector_list, '_int_grid' )
-  return( res_list )
+    res_list <- lapply( sector_list,
+                        grid_one_sector_gridded_seasonality,
+                        em,
+                        grid_resolution,
+                        global_grid_area,
+                        year,
+                        gridding_emissions_xyear,
+                        location_index,
+                        proxy_mapping,
+                        proxy_substitution_mapping,
+                        proxy_files,
+                        ceds_gridding_mapping,
+                        seasonality_mapping )
+    names( res_list ) <- paste0( sector_list, '_int_grid' )
+    return( res_list )
 }
 
 # ------------------------------------------------------------------------------
@@ -341,31 +572,270 @@ grid_all_sectors <- function( sector_list,
 grid_one_year <- function( year,
                            em,
                            grid_resolution,
-                           gridding_emissions,
+                           gridded_seasonality_emissions,
+                           regional_seasonality_emissions,
                            location_index,
                            proxy_mapping,
                            proxy_substitution_mapping,
-                           proxy_files ){
+                           proxy_files,
+                           ceds_gridding_mapping,
+                           seasonality_mapping ){
 
-  current_x_year <- paste0( 'X', year )
-  gridding_emissions_xyear <- gridding_emissions[ c( 'iso', 'sector', current_x_year ) ]
+    # Current year column name
+    current_x_year <- paste0( 'X', year )
 
-  sector_list <- sort( unique( gridding_emissions_xyear$sector ) )
+    # Keep emissions for the given year for each emissions dataframes
+    gridded_seasonality_emissions_year <- gridded_seasonality_emissions %>%
+        dplyr::select(iso, CEDS_int_gridding_sector_short, current_x_year)
+    regional_seasonality_emissions_year <- regional_seasonality_emissions %>%
+        dplyr::select(iso, CEDS_int_gridding_sector_short, year, all_of(month_columns)) %>%
+        dplyr::filter( year == !!year )
 
-  global_grid_area <- grid_area( grid_resolution, all_lon = T )
+    # Get the sector lists
+    gridded_seasonality_sector_list <- sort( unique( gridded_seasonality_emissions_year$CEDS_int_gridding_sector_short ) )
+    regional_seasonality_sector_list <- sort( unique( regional_seasonality_emissions_year$CEDS_int_gridding_sector_short ) )
 
-  sector_grids_list <- grid_all_sectors( sector_list,
-                                         em,
-                                         grid_resolution,
-                                         global_grid_area,
+    # Global grid area matrix
+    global_grid_area <- grid_area( grid_resolution, all_lon = T )
+
+    # Create grids for each sector for data using gridded seasonality profiles
+    gridded_seasonality_sector_grids_list <- grid_all_sectors_gridded_seasonality(gridded_seasonality_sector_list,
+                                                                                  em,
+                                                                                  grid_resolution,
+                                                                                  global_grid_area,
+                                                                                  year,
+                                                                                  gridded_seasonality_emissions_year,
+                                                                                  location_index,
+                                                                                  proxy_mapping,
+                                                                                  proxy_substitution_mapping,
+                                                                                  proxy_files,
+                                                                                  ceds_gridding_mapping,
+                                                                                  seasonality_mapping )
+    names(gridded_seasonality_sector_grids_list) <- gridded_seasonality_sector_list
+
+    # Create grids for each sector for data using regional seasonality profiles
+    regional_seasonality_sector_grids_list <- grid_all_sectors_regional_seasonality(regional_seasonality_sector_list,
+                                                                                    em,
+                                                                                    grid_resolution,
+                                                                                    global_grid_area,
+                                                                                    year,
+                                                                                    regional_seasonality_emissions_year,
+                                                                                    location_index,
+                                                                                    proxy_mapping,
+                                                                                    proxy_substitution_mapping,
+                                                                                    proxy_files )
+    names(regional_seasonality_sector_grids_list) <- regional_seasonality_sector_list
+
+    # Aggregate sectors from gridded/regional seasonality profiles if appear in each
+    sector_grids_list <- aggregate_sector_grids( gridded_seasonality_sector_grids_list,
+                                                 regional_seasonality_sector_grids_list,
+                                                 gridded_seasonality_sector_list,
+                                                 regional_seasonality_sector_list )
+
+
+    return( sector_grids_list )
+}
+
+
+# ------------------------------------------------------------------------------
+# grid_point_sources_one_year
+# Brief: Generates one arrays containing a single year's point source emissions
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output:
+grid_point_sources_one_year <- function( em,
                                          year,
-                                         gridding_emissions_xyear,
-                                         location_index,
-                                         proxy_mapping,
-                                         proxy_substitution_mapping,
-                                         proxy_files )
+                                         regional_seasonality_point_sources,
+                                         gridded_seasonality_ponit_sources,
+                                         grid_resolution ){
 
-  return( sector_grids_list )
+    # Extract data for the given year
+    regional_seasonality_point_sources_year <- regional_seasonality_point_sources %>%
+        dplyr::filter( year == !!year )
+    gridded_seasonality_point_sources_year <- gridded_seasonality_point_sources %>%
+        dplyr::filter( year == !!year )
+
+    # List of final CEDS gridding sectors present
+    rsps_sector_list <- unique(regional_seasonality_point_sources_year$CEDS_final_gridding_sector_short)
+    gsps_sector_list <- unique(gridded_seasonality_point_sources_year$CEDS_final_gridding_sector_short)
+
+    # Get 3D point source arrays for each sector present
+
+    # For regional seasonality point sources
+    rsps_grids_list <- lapply( rsps_sector_list,
+                               grid_one_sector_regional_point_sources,
+                               regional_seasonality_point_sources_year,
+                               grid_resolution )
+    names(rsps_grids_list) <- rsps_sector_list
+
+    # Checksums regional seasonality point source gridding
+    checksums <- mapply(annual_grid_checksum, grid = rsps_grids_list, sector = rsps_sector_list,
+                        MoreArgs = list(agg_ems = regional_seasonality_point_sources_year,
+                                        em = em, year = year, type = 'regional', res = grid_resolution))
+
+    # For gridded seasonality point sources
+    gsps_grids_list <- lapply( gsps_sector_list,
+                               grid_one_sector_gridded_point_sources,
+                               year,
+                               gridded_seasonality_point_sources_year,
+                               grid_resolution )
+    names(gsps_grids_list) <- gsps_sector_list
+    # Checksums gridded seasonality point source gridding
+    checksums <- mapply(annual_grid_checksum, grid = gsps_grids_list, sector = gsps_sector_list,
+                        MoreArgs = list(agg_ems = gridded_seasonality_point_sources_year,
+                                        em = em, year = year, type = 'gridded', res = grid_resolution))
+
+    # Aggregate sectors from gridded/regional seasonality profiles if appear in each
+    sector_grids_list <- aggregate_sector_grids( gsps_grids_list,
+                                                 rsps_grids_list,
+                                                 gsps_sector_list,
+                                                 rsps_sector_list )
+
+    # Checksums aggregate point source gridding
+    agg_regional <- regional_seasonality_point_sources_year %>%
+        dplyr::mutate(total = rowSums(.[month_columns])) %>%
+        dplyr::group_by(CEDS_final_gridding_sector_short) %>%
+        dplyr::summarise( total = sum(total) ) %>%
+        dplyr::ungroup()
+    agg_gridded <- gridded_seasonality_point_sources_year %>%
+        dplyr::group_by(CEDS_final_gridding_sector_short) %>%
+        dplyr::summarise( total = sum(value) ) %>%
+        dplyr::ungroup()
+    agg_total <- dplyr::bind_rows(agg_regional, agg_gridded) %>%
+        dplyr::group_by(CEDS_final_gridding_sector_short) %>%
+        dplyr::summarise( total = sum(total) ) %>%
+        dplyr::ungroup()
+    checksums <- mapply(annual_grid_checksum, grid = sector_grids_list, sector = names(sector_grids_list),
+                        MoreArgs = list( agg_ems = agg_total,
+                                         em = em, year = year, type = 'aggregated', res = grid_resolution) )
+
+    return(sector_grids_list)
+
+}
+
+
+# ------------------------------------------------------------------------------
+# grid_one_sector_gridded_point_sources
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output:
+grid_one_sector_gridded_point_sources <- function( sector,
+                                                   year,
+                                                   gridded_seasonality_point_sources_year,
+                                                   grid_resolution ){
+
+    # Grid of 0's at given resolution
+    zero_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+
+    # Get data for the given sector
+    annual_emissions <- gridded_seasonality_point_sources_year %>%
+        dplyr::filter( CEDS_final_gridding_sector_short == !!sector ) %>%
+        dplyr::select( latitude, longitude, value )
+
+    # If no sources, return grid
+    if(nrow(annual_emissions) == 0){ return(zero_grid) }
+
+    # get global grid area object for given resolution
+    global_grid_area_vector <- grid_area( grid_resolution )
+
+    # row, col of each emission
+    coords <- t( apply(annual_emissions, 1, function(x){coordinates_to_index(x[1],x[2],grid_resolution)}) )
+
+    # emission converted to flux
+    flux <- ( annual_emissions[,'value']  * 1000000 ) / ( global_grid_area_vector[coords[,1]] * 365 * 24 * 60 * 60 )
+
+    # Create sparse matrix of point sources
+    sparseMat <- sparseMatrix( i = coords[,1], j = coords[,2], x = flux, dims = c(180 / grid_resolution, 360 / grid_resolution) )
+
+    # Convert to standard matrix
+    annual_grid <- as.matrix( sparseMat )
+
+    # Apply seasonality grid
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+    fin_grid <- add_seasonality(annual_grid, em, sector, year, days_in_month, grid_resolution, seasonality_mapping )
+
+    # Return 3D array
+    return( fin_grid )
+}
+
+
+# ------------------------------------------------------------------------------
+# grid_one_sector_regional_point_sources
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output:
+grid_one_sector_regional_point_sources <- function( sector,
+                                                    regional_seasonality_point_sources_year,
+                                                    grid_resolution ){
+
+    # Get data for given final gridding sector
+    regional_seasonality_point_sources_sector <- regional_seasonality_point_sources_year %>%
+        dplyr::filter( CEDS_final_gridding_sector_short == !!sector )
+
+    # Create grid for each month
+    res_list <- lapply( month_columns,
+                        grid_one_month_regional_point_sources,
+                        regional_seasonality_point_sources_sector,
+                        grid_resolution )
+
+    # Compress list of month matrices to 3D array
+    result <- simplify2array(res_list)
+
+    return(result)
+}
+
+
+# ------------------------------------------------------------------------------
+# grid_one_month_regional_point_sources
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output:
+grid_one_month_regional_point_sources <- function( month,
+                                                   regional_seasonality_point_sources_sector,
+                                                   grid_resolution ){
+
+    # Grid of 0's at given resolution
+    zero_grid <- matrix( 0, 180 / grid_resolution, 360 / grid_resolution )
+
+    # Extract data for given month
+    month_emissions <- regional_seasonality_point_sources_sector %>%
+        dplyr::select(latitude, longitude, all_of(month))
+
+    # If no sources, return grid
+    if(nrow(month_emissions) == 0){ return(zero_grid) }
+
+    # get global grid area object for given resolution
+    global_grid_area_vector <- grid_area( grid_resolution )
+
+    # row, col of each emission
+    coords <- t( apply(month_emissions, 1, function(x){coordinates_to_index(x[1],x[2],grid_resolution)}) )
+
+    # emission converted to flux
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+    days_in_current_month <- days_in_month[which(month_columns == month)]
+    flux <- ( month_emissions[,month]  * 1000000 ) / ( global_grid_area_vector[coords[,1]] * days_in_current_month * 24 * 60 * 60 )
+
+    # Create sparse matrix of point sources
+    sparseMat <- sparseMatrix( i = coords[,1], j = coords[,2], x = flux, dims = c(180 / grid_resolution, 360 / grid_resolution) )
+
+    # Return as standard matrix
+    return( as.matrix( sparseMat ) )
+
 }
 
 # ------------------------------------------------------------------------------
@@ -394,7 +864,7 @@ grid_one_year_air <- function( year,
   global_grid_area <- grid_area( grid_resolution, all_lon = T )
   flux_factor <- 1000000 / global_grid_area / ( 365 * 24 * 60 * 60 )
 
-  emissions_value <- unlist( gridding_emissions_xyear[ current_x_year ] )
+  emissions_value <- sum( gridding_emissions_xyear[ current_x_year ] )
 
   if ( emissions_value <= 0 ) {
     AIR_global_em_spatial <- array( 0, dim = c( 180 / grid_resolution, 360 / grid_resolution, 25 ) )
@@ -429,49 +899,59 @@ grid_one_year_air <- function( year,
 # return: proxy - the desired proxy
 # input files: null
 # output: null
-get_proxy <- function( em, year, sector, proxy_mapping, proxy_files, proxy_type = 'primary' ) {
+get_proxy <- function( em, year, sector, proxy_mapping, proxy_files,
+                       proxy_type = 'primary', proxy_dir = 'default', proxy_backup_dir = 'default' ) {
 
-  # use VOC proxy files for all sub-VOCs
-  if ( em %!in% proxy_mapping$em ) {
+    # Get proxy directory (could be default 0.5, or provided)
+    if(proxy_dir == 'default'){
+        proxy_dir <- filePath( "MED_OUT",  "final_generated_proxy/", extension = "" )
+    }
+    if(proxy_backup_dir == 'default'){
+        proxy_backup_dir <- filePath( "GRIDDING", "proxy-backup/", extension = "" )
+    }
+
+    # use VOC proxy files for all sub-VOCs
+    if ( em %!in% proxy_mapping$em ) {
     stop( paste( 'Could not find proxy mapping for emission', em ) )
-  }
+    }
 
-  proxy_info <- proxy_mapping %>%
+    proxy_info <- proxy_mapping %>%
     dplyr::filter( em == !!em, sector == !!sector, year == !!year )
 
-  stopifnot( nrow( proxy_info ) == 1 )
+    stopifnot( nrow( proxy_info ) == 1 )
 
-  if ( proxy_type == 'primary' ) {
+    if ( proxy_type == 'primary' ) {
     file_name <- proxy_info$proxy_file
     file_name_re <- paste0( "^", file_name )
 
     proxy_root <- proxy_dir
     proxy_file <- grep( file_name_re, proxy_files$primary, value = T )
-  }
+    }
 
-  # If we want a backup proxy, or the primary proxy file can't be found,
-  # look for a backup
-  if ( proxy_type != 'primary' || length( proxy_file ) == 0 ) {
+    # If we want a backup proxy, or the primary proxy file can't be found,
+    # look for a backup
+    if ( proxy_type != 'primary' || length( proxy_file ) == 0 ) {
     file_name <- proxy_info$proxybackup_file
     file_name_re <- paste0( "^", file_name )
 
     proxy_root <- proxy_backup_dir
     proxy_file <- grep( file_name_re, proxy_files$backup, value = T )
-  }
+    }
 
-  # Check that we found one, and exactly one, proxy file
-  if ( length( proxy_file ) != 1 ) {
+    # Check that we found one, and exactly one, proxy file
+    if ( length( proxy_file ) != 1 ) {
     stop( paste( length( proxy_file ), "proxy files found in", proxy_root,
                  "for", em, year, sector ) )
-  }
+    }
 
-  proxy_var_name <- load( paste0( proxy_root, proxy_file ) )
+    proxy_var_name <- load( paste0( proxy_root, proxy_file ) )
 
-  get( proxy_var_name )
+    get( proxy_var_name )
 }
 
 # ==============================================================================
 # seasonality functions
+
 # ------------------------------------------------------------------------------
 # add_seasonality
 # Brief: add seasonality to annual flux grids; different strategies are adapted for different sectors
@@ -553,7 +1033,7 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
     for ( i in month_list ) {
       storage_array[ , , , i ] <- annual_flux * sea_fracs[ , , , i ] * 12
     }
-  } else if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST' ) ) {
+  } else if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST', 'RCO' ) ) {
     sea_adj <- 365 / rowSums( sweep( sea_fracs, 3, days_in_month, `*`) * 12, dims = 2)
     storage_array <- sweep(sea_fracs, c(1, 2), annual_flux * sea_adj * 12, `*`)
   }
@@ -562,6 +1042,95 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
 
   return( monthly_array )
 }
+
+# ------------------------------------------------------------------------------
+# add_seasonality_global
+# Brief: add seasonality to annual flux grids for aircraft emissions using global
+# seasonality (e.g., carbon monitoring)
+# Dependencies:
+# Author: Hamza Ahsan
+# parameters: annual_flux - the annual flux matrix that needs to add seasonality
+#             em - the current gridding emission species
+#             sector - the current gridding sector
+#             year - the current gridding year
+#             days_in_month - days in month in a year, passed by upper layer function
+#             grid_resolution - gridding resolution
+#             seasonality_mapping - seasonality mapping file
+# return: monthly_array - flux grids for each month
+# input files: null
+# output: null
+add_seasonality_global <- function( annual_flux, em, sector, gridding_year, days_in_month, grid_resolution, seasonality_mapping ) {
+
+    seasonality_fraction <- seasonality_mapping %>%
+        dplyr::filter(year == gridding_year) %>%
+        dplyr::select(Jan:Dec)
+
+    # Dimensions of output grid
+    month_list <- 1 : 12
+    common_dim <- c( 180 / grid_resolution, 360 / grid_resolution, 25, length( month_list ) )
+
+    seasonality_array <- array( dim = common_dim )
+    for ( i in month_list ) {
+        seasonality_array[ , , , i ] <- seasonality_fraction[[i]]
+    }
+
+    # Empty output grid
+    storage_array <- array( dim = common_dim )
+    if ( sector == 'AIR' ) {
+        for ( i in month_list ) {
+            storage_array[ , , , i ] <- annual_flux * seasonality_array[ , , , i ] * 12
+        }
+    }
+
+    monthly_array <- storage_array
+    return( monthly_array )
+}
+
+
+# ------------------------------------------------------------------------------
+# annual_grid_checksum
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return: monthly_em - a data frame of monthly emissions value in kt
+# input files: null
+# output: null
+annual_grid_checksum <- function( grid, agg_ems, em, year, sector = 'Not Air', type = 'gridded', res = 0.5 ) {
+    # Needed data
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+    global_grid_area <- grid_area( res, all_lon = TRUE )
+
+    # Get monthly global emissions
+    monthly_ems <- sum_monthly_em(grid, em, sector, year, days_in_month, global_grid_area)
+    # Get total over months
+    output_total <- monthly_ems %>%
+        dplyr::summarise( total = sum(value) )
+    if( type == 'regional' ){
+    # Get total of input data
+    input_total <- agg_ems %>%
+        dplyr::filter( CEDS_final_gridding_sector_short == !!sector ) %>%
+        dplyr::mutate(total = rowSums(.[month_columns])) %>%
+        dplyr::summarise( total = sum(total) )
+    }else if( type == 'gridded' ){
+        input_total <- agg_ems %>%
+            dplyr::filter( CEDS_final_gridding_sector_short == !!sector ) %>%
+            dplyr::summarise( total = sum(value) )
+    }else if( type == 'aggregated' ){
+        input_total <- agg_ems %>%
+            dplyr::filter( CEDS_final_gridding_sector_short == !!sector ) %>%
+            dplyr::summarise( total = sum(total) )
+    }
+
+    if(abs(input_total - output_total) > 1e-5){
+        stop(paste0('Differnce in emissions between input point source emissions and gridded point source emissions is ',
+                    input_total - output_total, ' for ', em, ' in ', year, ' in the ', sector, ' sector.'))
+    }
+
+    return(input_total - output_total)
+
+}
+
 
 # ------------------------------------------------------------------------------
 # sum_monthly_em
@@ -578,34 +1147,10 @@ add_seasonality <- function( annual_flux, em, sector, year, days_in_month, grid_
 # return: monthly_em - a data frame of monthly emissions value in kt
 # input files: null
 # output: null
-sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_grid_area, seasonality_mapping ) {
-
-  file_name <- seasonality_mapping %>%
-      dplyr::filter( em == !!em, sector == !!sector, year == !!year ) %>%
-      dplyr::pull( 'seasonality_file' ) %>%
-      grep( list.files( seasonality_dir ), value = T )
-
-  sea_frac_var_name <- sub( '.Rd$', '', file_name )
-
-  # common_seasonality_list exists in the global environment
-  if ( file_name %!in% common_seasonality_list ) {
-      load( paste0( seasonality_dir, file_name ) )
-  }
-
-  sea_fracs <- get( sea_frac_var_name )
+sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_grid_area ) {
 
   month_list <- 1 : 12
 
-  if ( sector == 'SHP' ) {
-    monthly_em_list <- lapply( month_list, function( i ) {
-      month_flux <- fin_grid[ , , i ]
-      month_mass <- month_flux * global_grid_area * days_in_month[ i ] * 24 * 60 * 60
-      month_mass_value <- sum( month_mass, na.rm = T )
-      month_mass_value <- month_mass_value * 0.000001 # from kg to kt
-      out_df <- data.frame( em = em, sector = sector, year = year, month = i, units = 'kt', value = month_mass_value, stringsAsFactors = F  )
-      } )
-    monthly_em <- do.call( 'rbind', monthly_em_list )
-  }
   if ( sector == 'AIR' ) {
     monthly_em_list <- lapply( month_list, function( i ) {
       month_flux <- fin_grid[ , , , i ]
@@ -617,8 +1162,8 @@ sum_monthly_em <- function( fin_grid, em, sector, year, days_in_month, global_gr
       } )
     monthly_em <- do.call( 'rbind', monthly_em_list )
   }
-  if ( sector %in% c( 'AGR', 'ENE', 'IND', 'TRA', 'RCORC', 'RCOO', 'SLV', 'WST' ) ) {
-    monthly_em_list <- lapply( 1 : 12, function( i ) {
+  else {
+    monthly_em_list <- lapply( month_list, function( i ) {
       month_flux <- fin_grid[ , , i ]
       month_mass <- month_flux * global_grid_area * days_in_month[ i ] * 24 * 60 * 60
       month_mass_value <- sum( month_mass, na.rm = T )
@@ -765,7 +1310,7 @@ gridding_initialize <- function( grid_resolution = 0.5,
   grid_resolution <<- grid_resolution
   printLog( paste( 'Processing resolution:', grid_resolution ) )
 
-  if ( em == 'CH4' ) { start_year <- 1970 }
+  if ( (em == 'CH4') & (start_year < 1970) ) { start_year <- 1970 }
   year_list <<- seq( start_year, end_year )
   printLog( paste( 'Gridding from year', start_year, 'to year', end_year ) )
 
@@ -801,31 +1346,48 @@ gridding_initialize <- function( grid_resolution = 0.5,
 # NOTE: Code assumes that current mapping file is complete for all years in the last year provided
 # TODO: See if extendProxyMapping and extendSeasonalityMapping can be combined using scoped function variants
 extendProxyMapping <- function( a_proxy_mapping ) {
-  last_proxy_data_year <- as.numeric( max( a_proxy_mapping$year ) )
-  last_proxy_data_year_string <- paste( last_proxy_data_year )
+  
+    last_proxy_data_year <- max(a_proxy_mapping$year)
 
-  extra_years_needed <- (last_proxy_data_year+1):end_year
-  extra_years_needed_string <- paste( extra_years_needed )
+    # Only extend if needed
+    if (last_proxy_data_year < end_year) {
 
-  final_years <- 1750:end_year
-  final_years_string <- paste( final_years )
+        # Get extra years that need to be filled
+        extra_years_needed <- as.character((last_proxy_data_year + 1):end_year)
 
-  a_proxy_mapping_temp <- a_proxy_mapping %>%
-    tidyr::spread( year, proxybackup_file ) %>%
-    dplyr::mutate_at( extra_years_needed_string, funs( identity (  !!rlang::sym( last_proxy_data_year_string ) ) ) ) %>%
-    tidyr::gather( key = year, value = proxybackup_file, all_of(final_years_string) ) %>%
-    dplyr::arrange( em, sector, year, proxy_file ) %>%
-    dplyr::select( em, sector,  year, proxy_file, proxybackup_file ) %>%
-    dplyr::filter( !is.na( proxybackup_file ) )
+        # Pivot data to wide format
+        a_proxy_mapping_temp <- a_proxy_mapping %>%
+            tidyr::pivot_wider(names_from = year, values_from = proxybackup_file)
 
-  return(a_proxy_mapping_temp)
+        # Add missing columns for extra years
+        missing_years <- setdiff(extra_years_needed, names(a_proxy_mapping_temp))
+        if (length(missing_years) > 0) {
+            a_proxy_mapping_temp[missing_years] <- NA
+        }
+
+        # Extend the last available year's data
+        a_proxy_mapping_temp <- a_proxy_mapping_temp %>%
+            dplyr::mutate(across(all_of(extra_years_needed), ~ get(as.character(last_proxy_data_year))))
+
+        # Pivot back to long format
+        a_proxy_mapping_temp <- a_proxy_mapping_temp %>%
+            tidyr::pivot_longer(cols = as.character(1750:end_year), names_to = "year", values_to = "proxybackup_file") %>%
+            dplyr::mutate(year = as.integer(year)) %>%
+            dplyr::arrange(em, sector, year, proxy_file) %>%
+            dplyr::filter(!is.na(proxybackup_file))
+
+    } else {
+        a_proxy_mapping_temp <- a_proxy_mapping
+    }
+
+    return(a_proxy_mapping_temp)
 }
 
 # ------------------------------------------------------------------------------
 # extendSeasonalityMapping
-# Brief: Extend pre-existing seasonality mapping to last year needed by copying last year of data
+# Brief: Extend pre-existing seasonality mapping to first and last year needed by copying first or last year of data
 # Dependencies: null
-# Author: Steve Smith, Patrick O'Rourke
+# Author: Steve Smith, Patrick O'Rourke, Noah Prime
 # parameters: seasonality_mapping - seasonality mapping dataframe
 # return: extended seasonality mapping dataframe
 # input files: null
@@ -833,31 +1395,64 @@ extendProxyMapping <- function( a_proxy_mapping ) {
 # NOTE: Code assumes that current mapping file is complete for all years in the last year provided
 # TODO: See if extendProxyMapping and extendSeasonalityMapping can be combined using scoped function variants
 extendSeasonalityMapping <- function( a_seasonality_mapping ) {
-  last_seasonality_data_year <- as.numeric( max( a_seasonality_mapping$year ) )
-   last_seasonality_data_year_string <- paste( last_seasonality_data_year )
 
-  extra_years_needed <- (last_seasonality_data_year+1):end_year
-  extra_years_needed_string <- paste( extra_years_needed )
+    final_years <- 1750:end_year
+    final_years_string <- paste(final_years)
 
-  final_years <- 1750:end_year
-  final_years_string <- paste( final_years )
+    extend_group <- function(grouped_data, group_vars) {
 
-  a_seasonality_mapping <- a_seasonality_mapping %>%
-    tidyr::spread( year, seasonality_file ) %>%
-    dplyr::mutate_at( extra_years_needed_string, funs( identity (  !!rlang::sym( last_seasonality_data_year_string ) ) ) ) %>%
-    tidyr::gather( key = year, value = seasonality_file, all_of(final_years_string) ) %>%
-    dplyr::arrange( em, sector, year, seasonality_file ) %>%
-    dplyr::select( em, sector,  year, seasonality_file ) %>%
-    dplyr::filter( !is.na( seasonality_file ) )
+        first_year <- min(grouped_data$year)
+        final_year <- max(grouped_data$year)
 
-  return( a_seasonality_mapping )
+        extended_grouped_data <- grouped_data %>%
+            tidyr::pivot_wider(names_from = year, values_from = seasonality_file)
+
+        # Generate full range of years
+        all_years <- as.character(1750:end_year)
+
+        # Ensure all years exist as columns
+        missing_years <- setdiff(all_years, names(extended_grouped_data))
+        if (length(missing_years) > 0) {
+            extended_grouped_data[missing_years] <- NA  # Add missing year columns with NA
+        }
+
+        # Extend earlier years only if first_year > 1750
+        if (first_year > 1750) {
+            earlier_years <- as.character(1750:(first_year - 1))
+            extended_grouped_data <- extended_grouped_data %>%
+                dplyr::mutate(across(all_of(earlier_years), ~ get(as.character(first_year))))
+        }
+
+        # Extend later years only if final_year < end_year
+        if (final_year < end_year) {
+            later_years <- as.character((final_year + 1):end_year)
+            extended_grouped_data <- extended_grouped_data %>%
+                dplyr::mutate(across(all_of(later_years), ~ get(as.character(final_year))))
+        }
+
+        extended_grouped_data <- extended_grouped_data %>%
+            tidyr::pivot_longer(cols = all_of(all_years), names_to = "year", values_to = "seasonality_file") %>%
+            dplyr::mutate(year = as.integer(year)) %>%
+            dplyr::arrange(year, seasonality_file) %>%
+            dplyr::filter(!is.na(seasonality_file))
+
+        return(extended_grouped_data)
+    }
+
+    # Use group_modify to return a data frame
+    extended_mapping <- a_seasonality_mapping %>%
+        dplyr::group_by(em, sector) %>%
+        dplyr::group_modify(~ extend_group(.x, .y)) %>%
+        dplyr::ungroup()
+
+    return(extended_mapping)
 }
 
 
 # ------------------------------------------------------------------------------
 # generate_rural_population_proxy
 # Brief: Extend pre-existing seasonality mapping to last year needed by copying last year of data
-# Dependencies: Population proxy file population_<year>.Rd
+# Dependencies: Population proxy file population_<year>
 # Author: Noah Prime
 # parameters: year - year for which to generate capped rural population proxy
 #             global_grid_area - matrix defined by the gridding resolution
@@ -866,9 +1461,22 @@ extendSeasonalityMapping <- function( a_seasonality_mapping ) {
 # output files: saves capped_rural_population_<year>.Rd to proxy directory
 # NOTE: Code assumes that population proxy already exists for the given year
 generate_rural_population_proxy <- function( year, global_grid_area, proxy_dir, backup_proxy_dir ){
+    if( year > 2015 ){return()}
     # loading population proxy files
-    population_proxy_file <- paste0('population_',year,'.Rd')
-    population_proxy <- get( load( paste0( backup_proxy_dir,population_proxy_file ) ) )
+    population_proxy <- tryCatch(
+        expr = {
+            population_proxy_file <- paste0('population_',year)
+            population_proxy <- get( load( paste0( backup_proxy_dir,population_proxy_file ) ) )
+        },
+        error = function(e){
+            population_proxy_file <- paste0('population_',year,'.Rd')
+            population_proxy <- get( load( paste0( backup_proxy_dir,population_proxy_file ) ) )
+        },
+        warning = function(w){
+            population_proxy_file <- paste0('population_',year,'.Rd')
+            population_proxy <- get( load( paste0( backup_proxy_dir,population_proxy_file ) ) )
+        }
+    )
 
     # altering population proxy to be rural population proxy
     pop_density_cutoff <- 1000 / 2.59e+6 # Rural population density as defined by U.S. Department of Health and Human Services (see wiki)
@@ -877,7 +1485,7 @@ generate_rural_population_proxy <- function( year, global_grid_area, proxy_dir, 
     population_proxy <- population_proxy * global_grid_area
 
     # write new proxy files into proxy and backup-proxy
-    save( population_proxy, file = paste0( proxy_dir, 'capped_rural_population_', year, '.Rd') )
+    save( population_proxy, file = paste0( proxy_dir, 'capped_rural_population_', year) )
 
 }
 
@@ -897,6 +1505,7 @@ generate_rural_population_proxy <- function( year, global_grid_area, proxy_dir, 
 # input files: Null
 # output files: Null
 coordinates_to_index <- function( lat, lon, res = 0.1 ){
+
     # Check that lat, lon are within correct range
     if( !((lat >= -90) & (lat <= 90) & (lon >= -180) & (lon <= 180)) ){
         stop( 'Latitude must be between -90,90 and Longitude between -180,180' )
@@ -959,6 +1568,47 @@ coordinates_to_index <- function( lat, lon, res = 0.1 ){
     }
 
     return( c( round(row), round(col) ) )
+}
+
+
+# ------------------------------------------------------------------------------
+# monthly_ps_array
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output files:
+monthly_ps_array <- function( monthly_df, grid_resolution ){
+
+    # If no sources, stop
+    if(nrow(monthly_df) == 0){ stop('No point sources given') }
+
+    # Select relevant data
+    emissions <- monthly_df %>%
+        dplyr::select(latitude, longitude, Jan:Dec)
+
+    # row, col of each emission
+    coords <- t( apply(emissions, 1, function(x){coordinates_to_index(x[1],x[2],grid_resolution)}) )
+
+    # Add row/col columns
+    emissions[c('row', 'col')] <- coords
+
+    # Make long, and map Jan-Dec as 1-12
+    abreviated_months <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+    number_months <- 1:12
+    emissions <- emissions %>%
+        tidyr::gather('month', 'emissions', all_of(abreviated_months) ) %>%
+        dplyr::left_join( data.frame(abreviated_months, number_months), by = c('month' = 'abreviated_months') )
+
+    # Add all point sources to the array
+    point_source_array <- array(0, dim = c(180/grid_resolution, 360/grid_resolution, 12) )
+    for(i in 1:nrow(emissions)){
+        point_source_array[emissions[i, 'row'], emissions[i, 'col'], emissions[i, 'number_months']] <- emissions[i, 'emissions']
+    }
+
+    return( point_source_array )
 }
 
 
@@ -1099,7 +1749,7 @@ load_point_sources <- function( source_path, em ){
                         )
 
         # Empty dataframe of time series
-        Xyears <- paste0('X',1750:2019)
+        Xyears <- paste0('X',1750:end_year)
         Xyears_df <- data.frame( matrix(ncol = length(Xyears), nrow = 0) ) %>%
             dplyr::mutate_all(as.numeric)
 
@@ -1109,7 +1759,7 @@ load_point_sources <- function( source_path, em ){
         # Rename columns
         x <- c('description', 'name', 'location', 'longitude', 'latitude', 'emission',
                'units', 'CEDS_sector', 'EDGAR_sector', 'fuel', 'iso', 'build_year',
-               paste0('X',1750:2019) )
+               paste0('X',1750:end_year) )
         colnames( df ) <- x
 
         return( df )
@@ -1128,7 +1778,7 @@ load_point_sources <- function( source_path, em ){
                                     dplyr::select( description, name, location, longitude,
                                                    latitude, emission, units, CEDS_sector,
                                                    EDGAR_sector, fuel, iso, build_year,
-                                                   X1750:X2019 )
+                                                   paste0('X',1750:end_year) )
                                 return( df )
                             } ) )
 
@@ -1169,8 +1819,10 @@ match_sources <- function( proxy, ymls, params, sector ){
     # Area for which a cell is considered a match
     if( nrow(params) == 0){
         search_buffer <- 0.5
+        zero_surrounding <- 1
     }else{
         search_buffer <- as.numeric( params$search_buffer )
+        zero_surrounding <- params$search_buffer
     }
 
     # Loop through each point sources to find matches
@@ -1182,7 +1834,7 @@ match_sources <- function( proxy, ymls, params, sector ){
         source_sector <- ymls$EDGAR_sector[i]
 
         # Whether or not this source is in a sector which is set to zero surrounding cells
-        to_zero[i] <- params$zero_surrounding
+        to_zero[i] <- zero_surrounding
 
         # Looking for a cell in EDGAR near enough to the source to be considered a match
         matching_coords <- proxy %>%
@@ -1363,6 +2015,228 @@ remove_point_sources <- function( grid, sources, params, sector, res ){
     return( new_grid )
 }
 
+
+# ------------------------------------------------------------------------------
+# extend_iso_seasonality_profile_mapping
+# Brief: Maps iso/sector/year seasonality profiles for a single iso back
+#        to start year using the earliest available profile for the
+#        given iso/sector
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output files:
+extend_iso_seasonality_profile_mapping <- function(seasonality_pofiles, x_years){
+    # Get iso/sector/year combinations not present in seasonality profiles
+    regional_seasonality_iso_sector_combos <- seasonality_profiles %>%
+        dplyr::select(iso, sector) %>%
+        dplyr::distinct()
+    regional_seasonality_iso_sector_combos[x_years] <- NA
+    regional_seasonality_iso_sector_year_combos <- regional_seasonality_iso_sector_combos %>%
+        tidyr::gather( year, value, all_of(x_years) ) %>%
+        dplyr::mutate( year = as.numeric(gsub('X', '', year)) ) %>%
+        dplyr::select( iso, sector, year )
+    extension_combos <- regional_seasonality_iso_sector_year_combos %>%
+        dplyr::setdiff( seasonality_profiles %>% dplyr::select(iso,sector,year) )
+
+    # Get the earliest profile for each iso/sector
+    earliest_year_profiles <- seasonality_profiles %>%
+        dplyr::group_by(iso, sector, CEDS_int_gridding_sector_short, CEDS_final_gridding_sector_short ) %>%
+        dplyr::filter(year == min(year)) %>%
+        dplyr::select(-year) %>%
+        dplyr::ungroup()
+
+    # Map that profile to each iso/sector/year in the extension
+    extension_seasonality_mapping <- extension_combos %>%
+        dplyr::right_join( earliest_year_profiles, by = c('iso', 'sector'))
+
+    # Stack extension with recent years
+    full_seasonality_profiles <- dplyr::bind_rows(seasonality_profiles, extension_seasonality_mapping) %>%
+        dplyr::arrange( iso, sector, year )
+
+    # Diagnostics, seasonality profiles should sum to 1
+    seasonality_profile_diagnostics <- full_seasonality_profiles %>%
+        dplyr::mutate(total = rowSums(.[month_columns])) %>%
+        dplyr::select(iso, sector, year, data_source, total) %>%
+        dplyr::arrange(total)
+
+    # Make sure profiles sum to 1
+    full_seasonality_profiles <- full_seasonality_profiles %>%
+        dplyr::mutate(total = rowSums(.[month_columns])) %>%
+        dplyr::mutate_at(month_columns, ~./total)
+
+    return(full_seasonality_profiles)
+}
+
+
+# Downscaling --------------------------------------------------------------
+
+
+# downscale_grid ------------------------------------------------------------------
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output files:
+downscale_grid <- function( grid, reference, fact ){
+    # Reference grid as raster (and aggregated)
+    reference_raster <- raster( reference )
+    reference_raster_agg <- aggregate( reference_raster, fact = fact, fun = sum )
+
+    # Base resolution grid as raster
+    grid_raster <- raster( grid )
+
+    # normalize proxy by norm_dim x norm_dim grid chunks
+    reference_norm <- reference_raster / disaggregate( reference_raster_agg, fact )
+
+    # Multiply grid by proportions
+    out_grid <- disaggregate( grid_raster, fact ) * reference_norm
+
+    # Replace NA with 0
+    out_grid[ is.na( out_grid ) ] <- 0
+
+    # Unused emissions
+    unused <- grid_raster * ( reference_raster_agg == 0 )
+    sum_unused <- cellStats( unused, sum )
+
+    return( list( 'grid' = as.matrix( out_grid ), 'unused' = as.matrix( unused ), 'sum_unused' = sum_unused ) )
+}
+
+
+
+# downscale_sector ------------------------------------------------------------------
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output files:
+downscale_sector <- function( sector,
+                              fine_res,
+                              input_grid,
+                              primary_proxy,
+                              primary_backup,
+                              default_proxy,
+                              norm_dim,
+                              gridcell_area_coarse,
+                              gridcell_area_fine ){
+
+    # Number of days in each month
+    days_in_month <- c( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 )
+
+    # Empty output array
+    outarray <- array(0, dim=c(180/fine_res,360/fine_res,12))
+
+    # Loop through months
+    for( i in 1:12 ){
+
+        # Get grid for given month
+        grid <- input_grid[,,i]
+
+        # Convert from flux to mass
+        grid <- grid * ( gridcell_area_coarse * ( days_in_month[i] * 24 * 60 * 60 ) * 0.000001 )
+
+        # Use proxy to downscale
+        downscale1 <- downscale_grid( grid, primary_proxy, norm_dim )
+
+        # If emissions from grid were lost due to proxy being zero, disaggregate
+        # left-over emissions using backup proxy
+        if( downscale1$sum_unused > 0 ){
+
+            # Use back up proxy to downscale
+            downscale2 <- downscale_grid( downscale1$unused, primary_backup, norm_dim )
+            # Add left out emissions back to full grid
+            downscale1$grid <- downscale1$grid + downscale2$grid
+
+            # If still the back-up proxy leaves out emissions, use default global
+            # proxy. This is a grid of all ones, so it just uniformly distributes
+            # over the fine cells.
+            if( downscale2$sum_unused > 0 ){
+
+                # Downscale using default global proxy
+                downscale3 <- downscale_grid( downscale2$unused, default_proxy, norm_dim )
+                # Add left out emissions to full grid
+                downscale1$grid <- downscale1$grid + downscale3$grid
+
+            }
+
+        }
+
+        # Convert from mass back to flux (kt to kg m-2 s-1)
+        flux <- downscale1$grid / ( gridcell_area_fine * ( days_in_month[i] * 24 * 60 * 60 ) * 0.000001 )
+
+        # Save to output array
+        outarray[,,i] <- flux
+
+    }
+
+    return( outarray )
+}
+
+
+# downscale_year ------------------------------------------------------------------
+# Brief:
+# Dependencies:
+# Author: Noah Prime
+# parameters:
+# return:
+# input files:
+# output files:
+downscale_year <- function(em, year, sector_list, int_grids_list,
+                           proxy_files, proxy_mapping, proxy_dir, proxy_backup_dir,
+                           res, norm_dim, gridcell_area_coarse, gridcell_area_fine){
+
+    print(year)
+
+    # Initialize sector list
+    int_grids_list_fine <- list()
+
+    for(sector in sector_list) {
+
+        print(sector)
+
+        # Get single month grid
+        input_grid <- int_grids_list[[sector]]
+
+        # Load global proxy (all ones) which is the same as backup proxy for shipping
+        default_proxy <- matrix( rep(1, 180 * 360 / res / res ), ncol = 360 / res )
+
+        # SHP/TANK/AIR proxies not available at 0.1°, just use conservative interp
+        if( sector == 'AIR' ){
+            primary_proxy <- default_proxy
+            primary_backup <- default_proxy
+        }else{
+            # Get 0.1° proxies
+            primary_proxy <- get_proxy( em, year, sector, proxy_mapping, proxy_files,
+                                        proxy_type = 'primary', proxy_dir = proxy_dir, proxy_backup_dir = proxy_backup_dir )
+            primary_backup <- get_proxy( em, year, sector, proxy_mapping, proxy_files,
+                                        proxy_type = 'backup', proxy_dir = proxy_dir, proxy_backup_dir = proxy_backup_dir )
+        }
+
+        # Full downscaling process
+        output_array <- downscale_sector( sector,
+                                          res,
+                                          input_grid,
+                                          primary_proxy,
+                                          primary_backup,
+                                          default_proxy,
+                                          norm_dim,
+                                          gridcell_area_coarse,
+                                          gridcell_area_fine )
+
+        # Save fine resolution array for sector list
+        int_grids_list_fine[[sector]] <- output_array
+
+    }
+
+    names(int_grids_list_fine) <- sector_list
+
+    return(int_grids_list_fine)
+}
 
 
 

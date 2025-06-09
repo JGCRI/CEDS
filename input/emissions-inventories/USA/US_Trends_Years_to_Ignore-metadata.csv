@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+parameter,air pollutants,usa,All Anthro,1990,2022,Parameter indicating how many of the last years in the data to ignore because they are either projected or extrapolated

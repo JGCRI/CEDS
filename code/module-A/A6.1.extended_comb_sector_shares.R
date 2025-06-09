@@ -386,8 +386,13 @@ extended_breakdown_not_coal <- ceds_extsector_percentages_corrected %>%
 nonOECD_NA_years <- paste0( "X", 1960 : extension_end_year )
 
 extended_breakdown <- extended_breakdown_coal %>%
-    rbind.fill( extended_breakdown_not_coal ) %>%
-    mutate_at( setdiff( X_extended_years, names( . ) ), funs( +NA ) ) %>%
+    rbind.fill( extended_breakdown_not_coal )
+
+extended_columns <- setdiff(X_extended_years, names(extended_breakdown))
+extended_breakdown[extended_columns] <- NA
+
+extended_breakdown <- extended_breakdown %>%
+    #mutate_at( setdiff( X_extended_years, names( . ) ), funs( +NA ) ) %>%
     dplyr::left_join( iea_start_year, by = "iso" ) %>%
     select(iso, fuel, ext_sector, sector, one_of( X_extended_years ), start_year ) %>%
     dplyr::mutate_at( nonOECD_NA_years, list( ~ifelse( start_year == 1971, NA_real_, . ) ) ) %>%
@@ -443,7 +448,8 @@ final_percentages_corrected <- final_percentages_corrected %>%
      dplyr::ungroup( ) %>%
      dplyr::group_by( iso, fuel ) %>%
      dplyr::select( -sector ) %>%
-     dplyr::summarize_all( list( ~sum ) )
+     dplyr::summarize(across(everything(), sum, na.rm = TRUE))
+     #dplyr::summarize_all( list( ~sum ) )
 
  shares_not_0_or_1 <- final_test %>%
      tidyr::gather( key = years, value = shares, all_of(X_extension_years) ) %>%

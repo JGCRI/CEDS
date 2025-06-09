@@ -33,7 +33,7 @@
 # Describes which emission species is being analyzed
     args_from_makefile <- commandArgs( TRUE )
     em <<- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "BC"
+    if ( is.na( em ) ) em <- "NH3"
 
 #   TODO: When level 2 NFR14 data is used, this will need to include an if else statement - as level 2 NFR14
 #         data for SO2 is now labelled as SO2, not SOx. It will also need to be moved lower, so that
@@ -138,7 +138,8 @@
 
     	# Cast to wide format
 	    EMEP_emdf <- EMEP_em %>%
-	        tidyr::spread(key=year, value=emissions, fill = 0)
+	        tidyr::spread(key=year, value=emissions, fill = 0) %>%
+	        filter(sector != "N_Natural")
 
 
     	# Relabel units from Gg to kt (same numerical value, different label)
@@ -309,11 +310,17 @@
     if (em %!in% c('BC','OC','CH4','CO2','N2O')){
         # remove sectors not scaled in mod F.
         country_total <- EMEP_emdf %>%
-            dplyr::filter( !(sector %in% c("IntShipping","Aviation","AviCruise","AgriOther","Other","Natural","Memo")) )
+            dplyr::filter( !(sector %in% c("P_IntShipping","H_Aviation","O_AviCruise","M_Other","N_Natural","z_Memo")) )
 
         # Save data to diagnostics folder before aggregation
         writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
                     paste0('inventory_',em,'_EMEP'))
+
+        country_total_reg <- country_total %>%
+            left_join( MCL %>% select(c(iso, Region)) %>% unique )
+
+        writeData( country_total_reg, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                   paste0('inventory_',em,'_EMEP_with_EW_regions'))
 
         # Aggregate emissions by country
         country_total <- country_total %>%

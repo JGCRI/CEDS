@@ -36,7 +36,7 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     inventory_data_file <- paste0( 'USA/EPA_inventory_', em )
     inv_data_folder <- "EM_INV"
     inv_name <- 'US-EPA' #for naming diagnostic files
-    inv_years <- 1990:2014
+    inv_years <- 1990:2022
 
 # ------------------------------------------------------------------------------
 # 2. Inventory to Standard Form (iso-sector-fuel-years, iso-sector-years, etc)
@@ -50,16 +50,17 @@ PARAM_DIR <- if("input" %in% dir()) "code/parameters/" else "../code/parameters/
     # Read inventory
         waste <- readData( inv_data_folder, inventory_data_file )
     # Retain only 4 waste products, drop the product name, and sum
+        # TODO: The summarise_each function below fails, replace with tydyverse
         waste <- filter( waste, waste_product %in%
                             c( "Plastics",
                                "Synthetic Rubber in Tires",
                                "Carbon Black in Tires",
-                               "Synthetic Fibers" ) ) %>%
+                               "Synthetic Fibers","all" ) ) %>%
                              select( -waste_product ) %>%
-                            group_by( sector, units ) %>%
-                        summarise_each( list( ~sum ) )
+                             group_by( sector, units ) %>%
+                             summarize_if (is.numeric, sum)
 
-    # Add iso tag
+     # Add iso tag
         waste$iso <- "usa"
     # Convert year headers to xyears
         names( waste )[ grepl( "X", names( waste ) ) ] <-

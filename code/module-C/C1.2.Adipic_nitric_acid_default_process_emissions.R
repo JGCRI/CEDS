@@ -239,9 +239,12 @@ X_EPA_EXTENDED_YEARS <- paste0( "X", EDGAR_start_year : end_year )
 #      TODO: Confirm metodology
     if( nrow( EPA_0_EPA_start_year ) != 0 ){
 
-        EPA_0_EPA_start_year_ext <- EPA_0_EPA_start_year %>% # remove the 2 when verified
-            dplyr::mutate_at( .vars = X_EPA_EXTENSION_YEARS, funs( identity( +0 ) ) ) %>%
-            dplyr::select( iso, sector, fuel, units, X_EPA_EXTENDED_YEARS )
+        EPA_0_EPA_start_year_ext <- EPA_0_EPA_start_year # remove the 2 when verified
+            EPA_0_EPA_start_year_ext[X_EPA_EXTENSION_YEARS] <- do.call(cbind,
+                                                                       replicate( length(X_EPA_EXTENSION_YEARS),
+                                                                                  EPA_0_EPA_start_year[X_EPA_YEARS[1]] ) )
+        EPA_0_EPA_start_year_ext <- EPA_0_EPA_start_year_ext %>%
+            select( iso, sector, fuel, units, X_EPA_EXTENDED_YEARS )
 
     }
 
@@ -353,7 +356,7 @@ if( em != "N2O" ){
         dplyr::arrange( iso, sector ) %>%
         dplyr::mutate( fuel = "process",
                        units = "kt" ) %>%
-        dplyr::mutate_at( .vars = X_emissions_years, .funs = funs( identity( 0 ) ) )
+        bind_cols(purrr::map_dfc(X_emissions_years, ~ tibble(!! .x := 0)))
 
 }
 

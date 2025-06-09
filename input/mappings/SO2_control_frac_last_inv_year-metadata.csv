@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
+Mapping,SO2,All,NA,NA,NA,Year after which SO2 emission factors are trended using GAINS (other than those listed in SO2_control_frac_exclude_fuel_sector.csv). Generally is last inventory scaling year.

@@ -91,21 +91,17 @@
     if ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O' ) ){ scripts <-
         c( scripts, 'F1.1.UNFCCC_scaling.R' ) }
 
-# REAS
-    if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
-        c( scripts, 'F1.1.REAS_scaling.R' ) }
-
 # REAS 3.2
     if ( em %in% c('SO2','CO','NMVOC','NOx', 'NH3') ){ scripts <-
         c( scripts, 'F1.1.REAS32_scaling.R' ) }
 
-# CAN
+# CAN - old to 2011
     if ( em %in% c('SO2','NOx','NMVOC','CO','PM10','PM25' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_olderData.R' ) }
+        c( scripts, 'F1.1.CAN_scaling_old_to2011.R' ) }
 
 # CAN - Newer data must run last
     if ( em %in% c( 'SO2', 'NOx', 'NMVOC', 'CO','NH3','BC','OC' ) ){ scripts <-
-        c( scripts, 'F1.1.CAN_scaling_2018.R' ) }
+        c( scripts, 'F1.1.CAN_scaling.R' ) }
 
 # USA
     # removed scaling of BC and OC due to discrepancy in US PM2.5 data
@@ -151,9 +147,17 @@
     if ( em %in% c( 'SO2', 'NOx', 'CO', 'NMVOC','NH3', 'BC','OC' ) ) { scripts <-
         c( scripts, 'F1.1.South_Korea_scaling.R' ) }
 
-# South Korea EDGAR-HTAPv3
+# South Korea EDGAR-HTAPv3.1
     if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
-        c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3_scaling.R' ) }
+        c( scripts, 'F1.1.South_Korea_EDGAR-HTAPv3.1_scaling.R' ) }
+
+# Japan EDGAR-HTAPv3.1
+    if ( em %in% c('CO','NH3','NMVOC','NOx','SO2' ) ) { scripts <-
+        c( scripts, 'F1.1.Japan_EDGAR-HTAPv3.1_scaling.R' ) }
+
+# EDGAR-HTAPv3.1 BC-OC
+    if ( em %in% c('BC','OC' ) ) { scripts <-
+        c( scripts, 'F1.1.BCOC_EDGAR-HTAPv3.1_scaling.R' ) }
 
 # ------------------------------------------------------------------------------------
 # 4. Run all scripts for the given emissions type

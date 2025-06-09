@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+emission factor,CO,vnm,Industry,1990,2022,Increase biomass emission factor for industry to better match REAS and EDGAR estimates for this country

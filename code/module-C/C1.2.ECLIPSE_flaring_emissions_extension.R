@@ -34,7 +34,7 @@
 # Define emissions species variable
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "N2O"
+    if ( is.na( em ) ) em <- "CO"
 
     MODULE_C <- "../code/module-C/"
 
@@ -109,6 +109,8 @@
 #         ECLIPSE data and Hyde/IEA data for available years ( 1990, 2000, 2010 ), then extends the ratios to
 #         all years( 1800 - end_year ) using linear method and multiply the ratios to Hyde/IEA data to have
 #         full time series data of ECLIPSE flaring.
+
+# Calculate Ratio
     flaring_ratio <- data.frame( iso = flaring_eclipse$iso, X1990 = ( flaring_eclipse$X1990 / flaring_IH$X1990 ),
                                     X2000 = ( flaring_eclipse$X2000 / flaring_IH$X2000 ),
                                     X2010 = ( flaring_eclipse$X2010 / flaring_IH$X2010 ), stringsAsFactors = F )
@@ -120,15 +122,21 @@
     colnames( flaring_ratio ) <- c( 'iso', 'X1990', 'X2000', 'X2010' )
     flaring_ratio$iso <- as.character( flaring_ratio$iso )
 
-    year <- c( 1990, 2000, 2010 )
-    flaring_extended_ratios <- data.frame()
-    for ( row_index in 1 : nrow( flaring_ratio ) ) {
-      ratio <- unlist( flaring_ratio[ row_index, c( 'X1990', 'X2000', 'X2010' ) ] )
-      linear_reg <- lm( ratio ~ year )
-      extended_ratios <- linear_reg$coefficients[[ 2 ]] * extend_years + linear_reg$coefficients[[ 1 ]]
-      flaring_extended_ratios <- rbind( flaring_extended_ratios, extended_ratios )
-    }
-    flaring_extended <- flaring_IH[ , extend_Xyears ] * flaring_extended_ratios
+    ratio_year <- c( 1990, 2000, 2010 )
+
+    # Extend and interpolate ratios across extention years
+    # Interpolate between and extend contantly backward and forwrad
+
+    flaring_extended_ratios <- flaring_ratio
+    flaring_extended_ratios[ paste0( 'X', extend_years[which(extend_years %!in% ratio_year)] ) ] <- NA
+    flaring_extended_ratios <- flaring_extended_ratios[c('iso', extend_Xyears)]
+    flaring_extended_ratios[extend_Xyears] <- t( na.approx( t(flaring_extended_ratios[extend_Xyears]) , na.rm = F) )
+    flaring_extended_ratios[extend_Xyears] <- t( na.locf( t(flaring_extended_ratios[extend_Xyears]) , na.rm = F ) )
+    flaring_extended_ratios[extend_Xyears] <- t( na.locf( t(flaring_extended_ratios[extend_Xyears]) , fromLast = TRUE) )
+
+    #Apply ration and extend
+
+    flaring_extended <- flaring_IH[ extend_Xyears ] * flaring_extended_ratios[ extend_Xyears ]
     flaring_extended[ flaring_extended < 0 ] <- 0
     flaring_extended <- cbind( flaring_ratio$iso, flaring_extended )
     colnames(  flaring_extended ) <- c( 'iso', extend_Xyears )
@@ -167,11 +175,13 @@
 
 
    #   Calculate Regional/Global/National Ratios to fill in missing data
-   EDGAR_N2O_NOx_Regions <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+   #TODOR44 - With recent updates (maybe R44, maybe somthing else) this no longer works.
+   #We're not getting numerical ratios out of this chunk anymore
+   EDGAR_N2O_NOx_Regions <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units, -fossil_bio) %>%
+       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units, -fossil_bio)) %>%
        select(iso, sector, units, sector_description, year, N2O, NOx) %>%
        filter(sector_description == "Fugitive emissions from oil and gas") %>%
-       left_join(MCL %>% select(iso, Figure_Region)) %>%
+       left_join(MCL %>% select(iso, Figure_Region) %>% unique()) %>%
        filter(!is.na(Figure_Region)) %>%  # CHANGE LATER
        group_by(Figure_Region, sector, units, sector_description, year) %>%
        summarize_if(is.numeric, sum, na.rm = TRUE) %>%
@@ -181,8 +191,8 @@
        mutate(ratio_region = N2O_NOx_ratio) %>%
        select(Figure_Region, sector, units, sector_description, year, ratio_region)
 
-   EDGAR_N2O_NOx_Global <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+   EDGAR_N2O_NOx_Global <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units, -fossil_bio) %>%
+       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units, -fossil_bio)) %>%
        select(sector, units, sector_description, year, N2O, NOx) %>%
        filter(sector_description == "Fugitive emissions from oil and gas") %>%
        group_by(sector, units, sector_description, year) %>%
@@ -194,8 +204,8 @@
        ungroup() %>%
        select(sector, units, year, ratio_global)
 
-   EDGAR_N2O_NOx_National <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
+   EDGAR_N2O_NOx_National <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units, -fossil_bio) %>%
+       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units, -fossil_bio)) %>%
        filter(sector_description == "Fugitive emissions from oil and gas") %>%
        select(iso, units, year, N2O, NOx) %>%
        group_by(iso, units, year) %>%
@@ -216,9 +226,9 @@
    # Define empty columns to add 1960-1969
    addYearColumns <- paste("X", start_year:(EDGAR_start_year-1), sep = "")
 
-   EDGAR_N2O_and_NOx <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units) %>%
-       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units)) %>%
-       left_join(MCL %>% select(iso, Figure_Region)) %>%
+   EDGAR_N2O_and_NOx <- EDGAR_N2O %>% gather(year, N2O, - iso,-sector,-sector_description,-units, -fossil_bio) %>%
+       left_join(EDGAR_NOx %>% gather(year, NOx, - iso,-sector,-sector_description,-units, -fossil_bio)) %>%
+       left_join(MCL %>% select(iso, Figure_Region)%>% unique()) %>%
        filter(sector_description == "Fugitive emissions from oil and gas") %>%
        mutate(N2O_NOx_ratio = N2O/NOx) %>%
        mutate(N2O_NOx_ratio = ifelse(N2O == 0 & NOx == 0, 0, N2O_NOx_ratio)) %>%

@@ -27,20 +27,20 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "N2O"
+if ( is.na( em ) ) em <- "CO2"
 
 # -----------------------------------------------------------------------------------------------------------
 
 # 0.5 Settings
 
-if( ! ( em %in% c( "CH4", "N2O", "CO2" ) ) ){
+if( ! ( em %in% c( 'SO2', 'CO', 'NMVOC', 'NOx', 'CO2', 'CH4', 'N2O', 'NH3' ) ) ){
 
-    printLog ( paste0 ( "Selected em is not CH4, N2O, CO2. E.UNFCCC_emissions_update.R is not needed and will",
+    printLog ( paste0 ( "Selected em is not in E.UNFCCC_emissions_update.R and will",
                         " not be run. Dummy file will be generated for this em..." ) )
 
 } else{
 
-    UNFCCC_years <- paste0( 1990:2020 )
+    UNFCCC_years <- paste0( 1990:2021 )
     UNFCCC_years_with_Xs <- paste0( "X", UNFCCC_years )
 
 # -----------------------------------------------------------------------------------------------------------
@@ -60,12 +60,16 @@ if( ! ( em %in% c( "CH4", "N2O", "CO2" ) ) ){
 
 # Fix column names, add units column, remove rows not needed
 colnames(UNFCCC) = UNFCCC[ 3, ]
-
+colnames(UNFCCC)[1] = "UNFCCC"
+if ( UNFCCC[4,4] == "kt") {
+    UNFCCC$units <- UNFCCC[4,4] # Select unit from units row
+} else {
+    stop("Check units and/or format in UNFCCC data.")
+}
 # TODO: Remove hard coded last inventory year below
 UNFCCC_clean <- UNFCCC %>%
     dplyr::slice( -( 1:4 ) ) %>%
-    dplyr::rename( UNFCCC = " ", "2020" = "Last Inventory Year (2020)", sector = Year ) %>%
-    dplyr::mutate( units = "kt" ) %>%
+    dplyr::rename( "2021" = "Last Inventory Year (2021)", sector = Year ) %>%
     dplyr::mutate( UNFCCC = str_replace(UNFCCC, 'Türkiye', 'Turkey')) %>%
 
 

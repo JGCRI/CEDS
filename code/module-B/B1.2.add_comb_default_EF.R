@@ -28,7 +28,7 @@
 
     args_from_makefile <- commandArgs( TRUE )
     em <- args_from_makefile[ 1 ]
-    if ( is.na( em ) ) em <- "SO2"
+    if ( is.na( em ) ) em <- "CO"
 
 # ---------------------------------------------------------------------------
 # 0.5 Load Packages
@@ -50,7 +50,7 @@
     EF_file_list <- EF_file_list[ -grep( pattern = "metadata", EF_file_list ) ]
 
 # Files with the emission in the name
-    EF_file_list <- EF_file_list[ grep( pattern = paste0( '\\.', em ), EF_file_list ) ]
+    EF_file_list <- EF_file_list[ grep( pattern = paste0( '\\.', em, '_' ), EF_file_list ) ]
 
 # Order files alphabetically (case insensitive)
     EF_file_list <- EF_file_list[str_order(EF_file_list, locale = "en")]

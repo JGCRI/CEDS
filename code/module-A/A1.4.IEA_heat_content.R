@@ -212,8 +212,27 @@
       years_to_extend_to <- subset( IEA_end_year_to_CEDS_end_year,
                                     IEA_end_year_to_CEDS_end_year %!in% X_IEA_years )
 
+
+      #gets numeric values for the years that must be appended to the dataframe
+      start_year <- as.numeric(str_extract(X_IEA_end_year, "\\d+")) + 1
+      end_year <- as.numeric(str_extract(last(years_to_extend_to), "\\d+"))
+
+      ##Sets new columns based on the start and end year from IEA_end_year and year_columns respectively
+      new_columns <- stats::setNames(
+          #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+          #for an amount of instances denoted by end_year - start_year + 1
+          replicate(end_year - start_year + 1, coal_shares[[X_IEA_end_year]], simplify = FALSE),
+          #These are the new names for each column
+          paste0("X", start_year:end_year)
+      )
+
       coal_shares <- coal_shares %>%
-          dplyr::mutate_at( years_to_extend_to, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+          #!!!new_columns ensures that each column is added separately (it separates new_columns)
+          tibble::add_column(!!!new_columns)
+
+     # OLD CODE
+     # coal_shares <- coal_shares %>%
+     #     dplyr::mutate_at( years_to_extend_to, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
 
   }
 
@@ -359,8 +378,26 @@
 # Constantly extend heat value forward, if needed, through final CEDS year
   if( last( IEA_years ) < last( emissions_years ) ){
 
-    coal_all_ext_forward <- coal_all_ext %>%
-        dplyr::mutate_at( years_to_extend_to, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+      #gets numeric values for the years that must be appended to the dataframe
+      start_year <- as.numeric(str_extract(X_IEA_end_year, "\\d+")) + 1
+      end_year <- as.numeric(str_extract(last(years_to_extend_to), "\\d+"))
+
+      ##Sets new columns based on the start and end year from IEA_end_year and year_columns respectively
+      new_columns <- stats::setNames(
+          #first argument is this replicate function, which returns identical copies of the X_IEA_end_year column
+          #for an amount of instances denoted by end_year - start_year + 1
+          replicate(end_year - start_year + 1, coal_all_ext[[X_IEA_end_year]], simplify = FALSE),
+          #These are the new names for each column
+          paste0("X", start_year:end_year)
+      )
+
+      coal_all_ext_forward <- coal_all_ext %>%
+          #!!!new_columns ensures that each column is added separately (it separates new_columns)
+          tibble::add_column(!!!new_columns)
+
+      #OLD CODE
+      #coal_all_ext_forward <- coal_all_ext %>%
+       # dplyr::mutate_at( years_to_extend_to, funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
 
   }else(
       coal_all_ext_forward <- coal_all_ext )

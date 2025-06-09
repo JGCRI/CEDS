@@ -1,4 +1,0 @@
-Data Type,Emission,Region,Sector,Start Year,End Year,Source Comment
-Emissions,CH4,All,3D_Rice-Cultivation,1961,2020,FAO emissions data - http://www.fao.org/faostat/en/#data
-Emissions,CH4,All,3E_Enteric-fermentation,1961,2020,FAO emissions data - http://www.fao.org/faostat/en/#data
-Emissions,CH4,All,3B_Manure-management,1961,2020,FAO emissions data - http://www.fao.org/faostat/en/#data

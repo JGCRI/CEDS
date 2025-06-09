@@ -16,12 +16,11 @@ source( paste0( PARAM_DIR, "header.R" ) )
 
 initialize(script_name = "P3.1.calc_ces.R",
            log_msg = "Consolidating duplicate sources",
-           headers = c("data_functions.R", "gridding_functions.R",
+           headers = c("data_functions.R", 
                        "interpolation_extension_functions.R",
                        "co-emitted_species_calculation_functions.R",
                        "point_source_util_functions.R"),
            common_data = TRUE)
-
 
 # 0.1 Set paths -------------------------------------------------------
 
@@ -75,7 +74,8 @@ sources_df <- do.call(rbind, source_df_list)
 
 # Get distinct iso, sector, fuel combos to shrink EF and CEDS inventory
 relevant_combs <- sources_df %>%
-    dplyr::distinct(iso, CEDS_sector, fuel)
+    dplyr::distinct(iso, CEDS_sector, fuel) %>%
+    na.omit()
 
 # Remove full data frame from memory. Large and not needed.
 remove(sources_df)
@@ -85,9 +85,10 @@ remove(sources_df)
 
 # Emission list
 em_list <- c('SO2','CO2','CO','BC','OC','NOx','CH4','NMVOC','NH3','N2O')
+# em_list <- c('SO2') #For testing w/o all species run
 
 # Year list
-years <- 1750:2019
+years <- 1750:end_year
 Xyears <- paste0( 'X', years )
 
 # 2.1 Emission Factors ---------------------------------------------
@@ -145,7 +146,7 @@ remove(CEDS_inv_list)
 
 # Keep only relevant inventories
 CEDS_inv <- relevant_combs %>%
-    dplyr::left_join(CEDS_inv, by = c('iso', 'CEDS_sector' = 'sector')) %>%
+    dplyr::left_join(CEDS_inv, by = c('iso', 'CEDS_sector' = 'sector'), relationship = "many-to-many") %>%
     dplyr::rename( 'sector' = 'CEDS_sector' )
 
 
@@ -241,7 +242,16 @@ fill_co_emitted_species <- function(em, point_source, EFs, CEDS){
 }
 
 # Call manager function for each point source
-full_sources_list <- lapply(source_df_list, calc_ces_manager)
+full_sources_list <- lapply(source_df_list, function(x){
+    tryCatch(
+        expr = {
+            calc_ces_manager(x)
+        },
+        error = function(e){
+            print("Warning: One of your point sources may be formatted incorrectly. Skipping calculation of co-emitted species.")
+        }
+    )
+})
 
 
 
@@ -254,7 +264,16 @@ for(em in em_list){
 }
 
 # Write out YAML files containing individual species time series
-invisible( lapply(full_sources_list, write_yml_by_em, base_yml_dir = out_path) )
+write_out_list <- lapply(full_sources_list, function(x){
+    tryCatch(
+        expr = {
+            write_yml_by_em(x, out_path)
+        },
+        error = function(e){
+            print("Warning: One of your point sources may be formatted incorrectly. Will not be saved as new YAML.")
+        }
+    )
+})
 
 
 # END --------------------------------------------------

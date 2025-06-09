@@ -60,51 +60,51 @@ X_EXTENSION_YEARS <- paste0( "X", EXTENSION_YEARS )
 # ---------------------------------------------------------------------------
 # 2. Extend Dataframe template
 
-    ceds_comb_extended  <- ceds_comb_activity
-    ceds_comb_extended[X_EXTENSION_YEARS] <- NA
-    ceds_comb_extended <- ceds_comb_extended[ c( 'iso', 'sector', 'fuel', 'units', X_extended_years ) ]
+ceds_comb_extended  <- ceds_comb_activity
+ceds_comb_extended[X_EXTENSION_YEARS] <- NA
+ceds_comb_extended <- ceds_comb_extended[ c( 'iso', 'sector', 'fuel', 'units', X_extended_years ) ]
 
 # Fill in 'global" iso with zeros. We replace international shipping values later in the script
 # and formally in script A8.2
-    ceds_comb_extended[ ceds_comb_extended$iso == 'global' , X_EXTENSION_YEARS ] <- 0
+ceds_comb_extended[ ceds_comb_extended$iso == 'global' , X_EXTENSION_YEARS ] <- 0
 
 # ---------------------------------------------------------------------------
 # 3. Add Extended coal, oil, gas fuels
 
 # Write function to replace values based on IEA years
-    add_extended_activity_by_iea <- function( new_data,
-                                              a.ceds_comb_extended = ceds_comb_extended ){
+add_extended_activity_by_iea <- function( new_data,
+                                          a.ceds_comb_extended = ceds_comb_extended ){
 
-        iea1971 <- iea_start_year %>%
-            dplyr::filter( start_year == 1971 ) %>%
-            pull( iso )
+    iea1971 <- iea_start_year %>%
+        dplyr::filter( start_year == 1971 ) %>%
+        pull( iso )
 
-        iea1960 <- iea_start_year %>%
-            dplyr::filter( start_year == 1960 ) %>%
-            pull( iso )
+    iea1960 <- iea_start_year %>%
+        dplyr::filter( start_year == 1960 ) %>%
+        pull( iso )
 
-        activity1960 <-  replaceValueColMatch( a.ceds_comb_extended,
-                                               new_data %>% dplyr::filter ( iso %in% iea1960 ),
-                                               x.ColName = X_EXTENSION_YEARS,
-                                               match.x = c( 'iso','sector','fuel' ),
-                                               addEntries = F )
+    activity1960 <-  replaceValueColMatch( a.ceds_comb_extended,
+                                           new_data %>% dplyr::filter ( iso %in% iea1960 ),
+                                           x.ColName = X_EXTENSION_YEARS,
+                                           match.x = c( 'iso','sector','fuel' ),
+                                           addEntries = F )
 
-        activity1971 <-  replaceValueColMatch( activity1960,
-                                               new_data %>% dplyr::filter ( iso %in% iea1971 ),
-                                               x.ColName = paste0( 'X', historical_pre_extension_year : 1970 ),
-                                               match.x = c( 'iso','sector','fuel' ),
-                                               addEntries = F )
+    activity1971 <-  replaceValueColMatch( activity1960,
+                                           new_data %>% dplyr::filter ( iso %in% iea1971 ),
+                                           x.ColName = paste0( 'X', historical_pre_extension_year : 1970 ),
+                                           match.x = c( 'iso','sector','fuel' ),
+                                           addEntries = F )
 
-        if( nrow(activity1971) != nrow( a.ceds_comb_extended ) ) stop( )
+    if( nrow(activity1971) != nrow( a.ceds_comb_extended ) ) stop( )
 
-        return( activity1971 )
+    return( activity1971 )
 
-    }
+}
 
 # Add extended coal, oil, gas data
-    ceds_comb_extended <- add_extended_activity_by_iea( A.natural_gas_extended )
-    ceds_comb_extended <- add_extended_activity_by_iea( A.oil_extended )
-    ceds_comb_extended <- add_extended_activity_by_iea( A.coal_extended )
+ceds_comb_extended <- add_extended_activity_by_iea( A.natural_gas_extended )
+ceds_comb_extended <- add_extended_activity_by_iea( A.oil_extended )
+ceds_comb_extended <- add_extended_activity_by_iea( A.coal_extended )
 
 # ---------------------------------------------------------------------------
 # 4. Add Shipping Fuel
@@ -114,77 +114,82 @@ X_EXTENSION_YEARS <- paste0( "X", EXTENSION_YEARS )
 # shipping sector's activity data. This will be dealt with in script A8.2, where
 # exogenous shipping data is used to correct both extended and modern year total
 # shipping consumption data (by fuel), with the corrections assigned to the "global" iso.
-    ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping',
-                        X_EXTENSION_YEARS ] <- 0
+ceds_comb_extended[ ceds_comb_extended$sector == '1A3di_International-shipping',
+                    X_EXTENSION_YEARS ] <- 0
 
 # For the "global" iso set all sector and fuel combinations to 0 consumption for the extension years (1750 - 1959)
-    ceds_comb_extended <- ceds_comb_extended %>%
-        dplyr::mutate_at( .vars = X_EXTENSION_YEARS, list( ~ifelse( iso == "global", 0, . ) ) )
+ceds_comb_extended <- ceds_comb_extended %>%
+    dplyr::mutate_at( .vars = X_EXTENSION_YEARS, list( ~ifelse( iso == "global", 0, . ) ) )
 
 # ---------------------------------------------------------------------------
 # 5. Add extended residential biomass (Fernandes data)
 
-    residential_biomass <- A.residential_biomass_extended %>%
-        dplyr::select( iso, year, units, ceds_tot_final ) %>%
-        tidyr::spread( year, ceds_tot_final ) %>%
-        dplyr::mutate( fuel = 'biomass', sector = '1A4b_Residential' ) %>%
-        dplyr::rename_all( make.names )
+residential_biomass <- A.residential_biomass_extended %>%
+    dplyr::select( iso, year, units, ceds_tot_final ) %>%
+    tidyr::spread( year, ceds_tot_final ) %>%
+    dplyr::mutate( fuel = 'biomass', sector = '1A4b_Residential' ) %>%
+    dplyr::rename_all( make.names )
 
-    ceds_comb_extended <- replaceValueColMatch( ceds_comb_extended,
-                                                residential_biomass,
-                                                x.ColName = X_EXTENSION_YEARS,
-                                                match.x = c( 'iso','sector','fuel' ),
-                                                addEntries = FALSE )
-    # Fill in biomass - pse with zero
-    # TODO: When small iso issues are dealt  with this is a spot where improvement could occur for pse
-    ceds_comb_extended[ ceds_comb_extended$sector == '1A4b_Residential' &
-                            ceds_comb_extended$iso == 'pse' &
-                            ceds_comb_extended$fuel == 'biomass', X_EXTENSION_YEARS ] <-0
+ceds_comb_extended <- replaceValueColMatch( ceds_comb_extended,
+                                            residential_biomass,
+                                            x.ColName = X_EXTENSION_YEARS,
+                                            match.x = c( 'iso','sector','fuel' ),
+                                            addEntries = FALSE )
+# Fill in biomass - pse with zero
+# TODO: When small iso issues are dealt  with this is a spot where improvement could occur for pse
+ceds_comb_extended[ ceds_comb_extended$sector == '1A4b_Residential' &
+                        ceds_comb_extended$iso == 'pse' &
+                        ceds_comb_extended$fuel == 'biomass', X_EXTENSION_YEARS ] <-0
+
+#LOGAN -- Added this to account for global values that remained NA
+ceds_comb_extended[ ceds_comb_extended$sector == '1A4b_Residential' &
+                        ceds_comb_extended$iso == 'global' &
+                        ceds_comb_extended$fuel == 'biomass', X_EXTENSION_YEARS ] <-0
 
 # ---------------------------------------------------------------------------
 # 6. Add industrial biomass
 
-    ceds_comb_extended <- add_extended_activity_by_iea( A.industrial_biomass_extended,
-                                                        ceds_comb_extended )
+ceds_comb_extended <- add_extended_activity_by_iea( A.industrial_biomass_extended,
+                                                    ceds_comb_extended )
 
 # ---------------------------------------------------------------------------
 # 7. Add Other Biomass
 
-    ceds_comb_extended <- add_extended_activity_by_iea( A.other_biomass_extended,
-                                                        ceds_comb_extended )
+ceds_comb_extended <- add_extended_activity_by_iea( A.other_biomass_extended,
+                                                    ceds_comb_extended )
 
 # ---------------------------------------------------------------------------
 # 8. Extended other transformation
 
-    other_transformation_extended <- A.coal_extended  %>%
-        dplyr::bind_rows( A.oil_extended ) %>%
-        dplyr::bind_rows( A.natural_gas_extended ) %>%
-        dplyr::filter( sector %in% c( "1A1bc_Other-transformation", "1A1bc_Other-feedstocks" ) ) %>%
-        dplyr::arrange( iso, fuel, sector )
+other_transformation_extended <- A.coal_extended  %>%
+    dplyr::bind_rows( A.oil_extended ) %>%
+    dplyr::bind_rows( A.natural_gas_extended ) %>%
+    dplyr::filter( sector %in% c( "1A1bc_Other-transformation", "1A1bc_Other-feedstocks" ) ) %>%
+    dplyr::arrange( iso, fuel, sector )
 
-    ceds_comb_extended <- add_extended_activity_by_iea( other_transformation_extended ,
-                                                        ceds_comb_extended )
+ceds_comb_extended <- add_extended_activity_by_iea( other_transformation_extended ,
+                                                    ceds_comb_extended )
 
 # ---------------------------------------------------------------------------
 # 9. Arrange and check for NAs
 
-    other_transformation <- ceds_comb_extended %>%
-        dplyr::filter( sector %in% c( "1A1bc_Other-transformation", "1A1bc_Other-feedstocks"))
+other_transformation <- ceds_comb_extended %>%
+    dplyr::filter( sector %in% c( "1A1bc_Other-transformation", "1A1bc_Other-feedstocks"))
 
-    ceds_comb_extended <- ceds_comb_extended %>%
-        dplyr::filter( !( fuel %in% c( 'biomass','light_oil','diesel_oil','heavy_oil' ) &
-                        sector %in% c( "1A1bc_Other-transformation", "1A1bc_Other-feedstocks" ) ) ) %>%
-        dplyr::select( iso, sector, fuel, units, one_of( X_extended_years ) ) %>%
-        dplyr::arrange( iso, sector, fuel )
+ceds_comb_extended <- ceds_comb_extended %>%
+    dplyr::filter( !( fuel %in% c( 'biomass','light_oil','diesel_oil','heavy_oil' ) &
+                          sector %in% c( "1A1bc_Other-transformation", "1A1bc_Other-feedstocks" ) ) ) %>%
+    dplyr::select( iso, sector, fuel, units, one_of( X_extended_years ) ) %>%
+    dplyr::arrange( iso, sector, fuel )
 
-    # Check for NAs
-    if( anyNA( ceds_comb_extended ) ){ stop( 'NAs in final extended combustion data. Please Check...' ) }
+# Check for NAs
+if( anyNA( ceds_comb_extended ) ){ stop( 'NAs in final extended combustion data. Please Check...' ) }
 
 # ---------------------------------------------------------------------------
 # 10. Write out the data
 
-    writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
+writeData( ceds_comb_extended , "MED_OUT", "A.comb_default_activity_extended" )
 
-    logStop( )
+logStop( )
 
 # END

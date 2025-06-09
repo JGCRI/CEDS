@@ -35,10 +35,12 @@
 
 
 # Stop script if running for unsupported emissions species
-    if ( em %!in% c( 'BC', 'CH4', 'CO', 'CO2', 'NH3', 'N2O', 'NMVOC', 'NOx',
-                     'OC', 'SO2' ) ) {
-        stop ( paste( 'REAS script is not supported for emission species', em ) )
-    }
+    if ( em %!in% c( 'BC', 'CO', 'CO2', 'NH3', 'NMVOC', 'NOx',
+                     'OC', 'SO2', 'PM25', 'PM10' ) ) {
+{ Note <- c( "No REAS data available." )
+  output_final <- dplyr::tibble( Note )}
+
+ } else {
 
 
 # ------------------------------------------------------------------------------
@@ -91,6 +93,10 @@
        reas_data <- data.frame()
    }
 
+    # Something is very odd with prk ROAD sector, unreasonably large CO (and maybe other) emissions. remove
+    reas_data <- reas_data %>% filter(!(iso == "prk" & sector == "ROAD"))
+
+
 # ------------------------------------------------------------------------------
 # 2. Output
 # Write Data:
@@ -105,5 +111,7 @@
 
 # Every script should finish with this line-
     logStop()
+
+} # end else block for emission species
 
 # END
