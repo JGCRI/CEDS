@@ -30,9 +30,21 @@ initialize( script_name, log_msg, headers )
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-A.comb_extended <- readData( 'MED_OUT','A.comb_int_shipping_adjusted' )
+A.comb_extended_in <- readData( 'MED_OUT','A.comb_int_shipping_adjusted' )
 A.NC_default_activity_extended <- readData( 'MED_OUT','A.NC_default_activity_extended' )
 MSL <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_selection = "Sectors" )
+
+# ---------------------
+# Quick Fix US historical
+
+US_correction <- A.comb_extended <- readData( 'USER_EN_PROCESS','U.USA_1941-1949_correction_hard_coal' ) %>%
+    pivot_longer(cols = starts_with("X"), names_to = 'year', values_to = 'correction')
+
+A.comb_extended <- A.comb_extended_in %>% pivot_longer(cols = starts_with("X"), names_to = 'year', values_to = 'value') %>%
+    left_join(US_correction, by = join_by(iso, sector, fuel, year)) %>%
+    mutate(value = ifelse(is.na(correction), value, correction)) %>%
+    select(-correction) %>%
+    pivot_wider(names_from = 'year', values_from = 'value')
 
 # ---------------------------------------------------------------------------
 # 2. Combine combustion and non combustion extended activity data
@@ -86,6 +98,10 @@ other_tranformation <- A.comb_extended %>%
 
 other_feedstocks <- A.comb_extended %>%
     dplyr::filter( sector %in% "1A1bc_Other-feedstocks" )
+
+
+
+
 
 # ----------------------------------------------------------------------------
 # 4. Write out the data

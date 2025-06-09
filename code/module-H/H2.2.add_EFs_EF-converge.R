@@ -34,7 +34,7 @@ loadPackage('zoo')
 # ---------------------------------------------------------------------------
 # 1. Load Data
 
-ceds_EFs <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = T )
+ceds_EFs_in <- readData( 'MED_OUT', paste0('H.',em,'_total_EFs_extended_db') , meta = T )
 extension_drivers_EF<- readData("EXT_IN", 'CEDS_historical_extension_methods_EF', meta = T )
 
 if( em == 'CO'){
@@ -45,6 +45,7 @@ if( em == 'CO'){
 # 2. Select relavent driver-methods
 
 trend <- 'EF-converge'
+ceds_EFs <- ceds_EFs_in
 
 # select method
 extension_drivers_EF <- select_EF_drivers(trend)
@@ -110,6 +111,14 @@ if( em == 'CO'){
 
 # ---------------------------------------------------------------------------
 # 5. Output
+# Check input ef_db and output ef_db
+old <- ceds_EFs_in %>%
+    arrange(iso, sector, fuel, units)
+new <- ceds_EFs %>%
+    arrange(iso, sector, fuel, units)
+if( ! identical(old[c('iso', 'sector','fuel')],new[c('iso', 'sector','fuel')]) ){
+    stop('input and outpu EFs in H3.1 apply EF pathway are not identical. Check.')
+}
 
 writeData( ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = T)
 

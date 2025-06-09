@@ -1,0 +1,11 @@
+# summary script
+
+Rscript code/module-S/S1.1.write_summary_data.R BC  --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R CH4  --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R CO  --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R CO2  --nosave --no-restore
+# Rscript code/module-S/S1.1.write_summary_data.R N2O  --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R NH3  --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R NMVOC --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R OC  --nosave --no-restore
+Rscript code/module-S/S1.1.write_summary_data.R SO2  --nosave --no-restore

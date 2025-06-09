@@ -1,0 +1,27 @@
+    documentation:
+        description: Norilsk smelter
+        data_source: raw
+        date: 2021-09-09
+
+    attributes:
+        name: Norilsk
+        id: RAW0000001
+        location: Norilsk
+        longitude: 88.15
+        latitude: 69.35
+        emissions species: SO2
+        units: kt
+        time series:
+            source_1:
+                reference: Impacts of point polluters on terrestrial biota comparative analysis of 18 contaminated areas
+                values: {1970: 1803.1, 1971: 1825, 1972: 1825, 1973: 1825, 1974: 1825, 1975: 1825, 1978: 1580.6, 1979: 1749, 1980: 1622.7, 1982: 1861.5, 1983: 2142.255, 1984: 2080.12, 1986: 1978.205, 1987: 1976.505, 1988: 1907.655, 1989: 1876.375, 1990: 1871.445, 1991: 1871.445, 1993: 1583.38, 1994: 1581.255, 1995: 1667.105, 1996: 1712.24, 1997: 1789.08, 1998: 1755.165, 1999: 1788.4, 2000: 1766.98, 2001: 1742.585, 2002: 1670.25, 2003: 1569.61, 2004: 1709.52, 2005: 1662.005}
+                uncertainty: ...
+            source_3:
+                reference: "The Economics of Forced Labor: The Soviet Gulag"
+                values: {1938: 0, 1939: 2, 1941: 9.09, 1943: 16.02, 1945: 40.04}
+                uncertainty: ...
+        CEDS_sector: 2C4_Non-Ferrous-other-metals
+        EDGAR_sector: NFE
+        fuel: process
+        iso: rus
+        build date: 1939

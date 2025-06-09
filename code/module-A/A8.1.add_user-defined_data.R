@@ -49,7 +49,7 @@ MSL <- dplyr::rename( MSL, CEDS_sector = working_sectors_v1 )
 
 # Remove non-combustion activity from the default data then map it to the
 # standard CEDS format
-all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F ) %>%
+all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', meta = F )%>%
     dplyr::rename( CEDS_sector = sector, CEDS_fuel = fuel ) %>%
     dplyr::filter( CEDS_sector %in% comb_sectors ) %>%
     mapToCEDS( MSL, MFL, aggregate = F )
@@ -57,6 +57,7 @@ all_activity_data <- readData( 'MED_OUT', 'A.comb_default_activity_extended', me
 # Special case for oil 1A1bc_Other-transformation and 1A1bc_Other-feedstocks
 # This data is aggreagated to the agg_fuel level by default, so we place a fill
 # value in for the CEDS_fuel.
+
 all_activity_data <- all_activity_data %>%
     dplyr::mutate(CEDS_fuel = if_else( CEDS_fuel == 'oil' & CEDS_sector %in% othr_sectors,
                                         'AGGREGATE', CEDS_fuel ),

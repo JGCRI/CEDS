@@ -648,7 +648,8 @@
 
     single_break_from_composite <- c('nam','khm','lao', 'mng', 'sur')
 
-# disaggregate_IEA_composite_regions
+#________________________________________________________________________________________________
+# Define disaggregate_IEA_composite_region function
     disaggregate_IEA_composite_regions <- function(in_IEA_data_other, # A.IEA_others_fuel or A.IEA_others_bunkers
                                                in_IEA_data_single, #A.IEA_single_fuel or A.IEA_single_bunkers
                                                in_IEA_full = A.IEAfull,
@@ -803,6 +804,7 @@
  return(disagregate_IEA_composite_region_output)
 
 }# disaggregate_IEA_composite_regions
+#________________________________________________________________________________________________
 
 #---------------------------------------------------
 # 07.  Disaggregate other fuels and bunker fuel from other regions (seperately

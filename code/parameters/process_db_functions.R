@@ -250,8 +250,8 @@ addToActivityDb <- function( df, ext_forward = TRUE, ext_backward = FALSE ){
 addToEmissionsDb<- function( df, em, type, ext_forward = TRUE, ext_backward = FALSE ){
 
     # # DEBUG
-    # df <- data_list[[2]]
-    # em <- "SO2"
+    # df <- FAO_out
+    # em <- "N2O"
     # type <- "NC"
     # ext_forward <- TRUE
     # ext_backward <- FALSE
@@ -369,6 +369,10 @@ addToEmissionsDb<- function( df, em, type, ext_forward = TRUE, ext_backward = FA
 # duplicate entries. Order of data to add: worst then best
 addToEmissionsDb_overwrite <- function( df, em, type ){
 
+    # df = FAO_out
+    # em='CH4'
+    # type='NC'
+
   # Read in necessary files and data: common_data.r required
   # to avoid variable overwrite carryover
   source( paste( PARAM_DIR, "common_data.R", sep = "" ) )
@@ -439,14 +443,10 @@ addToEmissionsDb_overwrite <- function( df, em, type ){
 
   #---------
 
-  # melt old and new dbs
-  df_add<-melt(df,id=c("iso","sector","fuel","units"))
-  names(df_add)[which(names(df_add)=='variable')]<-'year'
-  names(df_add)[which(names(df_add)=='value')]<-'em_new'
+  # reshape old and new dbs
+  df_add<-pivot_longer(df,cols=starts_with('X'), names_to = 'year', values_to = 'em_new')
+  df_old<-pivot_longer(emissions_db,cols=starts_with('X'), names_to = 'year', values_to = 'em')
 
-  df_old<-melt(emissions_db,id=c("iso","sector","fuel","units"))
-  names(df_old)[which(names(df_old)=='variable')]<-'year'
-  names(df_old)[which(names(df_old)=='value')]<-'em'
 
   #merge
   df_new<-merge(df_old,df_add,

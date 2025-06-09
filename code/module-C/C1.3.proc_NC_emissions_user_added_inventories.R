@@ -95,9 +95,13 @@ if ( is.na( em ) ) em <- "SO2"
       replace_inv_data <- replace_inv_data[ , c('iso','sector','fuel','units', years )]
 
       # Interpolate missing data
-      replace_inv_data[ years ] <- interpolateValues( replace_inv_data[ years ]  )
+      replace_inv_data <- interpolateValues( replace_inv_data  )
 
-      replacement_data <- rbind.fill( replacement_data, replace_inv_data )
+      if (length(replacement_data) > 0) {
+              replacement_data <- rbind.fill( replacement_data, replace_inv_data )
+      } else {
+          replacement_data <- replace_inv_data
+      }
     }
   }
 
@@ -119,3 +123,4 @@ if ( is.na( em ) ) em <- "SO2"
   logStop()
 
 # END
+

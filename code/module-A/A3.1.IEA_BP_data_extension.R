@@ -49,11 +49,11 @@ fuel_list <- readData( "MAPPINGS", "Master_Fuel_Sector_List", ".xlsx", sheet_sel
 
 # Read in BP energy data
 printLog( c("Reading in BP energy consumption data."))
-bp_energy_data <- readData( "ENERGY_IN",BP_data_file_name, ".xlsx",  skip = 2)
+bp_energy <- readData( "ENERGY_IN",BP_data_file_name, ".xlsx",  skip = 2)
+bp_energy_data <- lapply(bp_energy, organizeBPData)
 
 # ------------------------------------------------------------------------------
 # 2. Clean/Aggregate Energy Data
-
 printLog( c("Aggregating IEA energy consumption data."))
 # IEA data is more detailed than BP data, so aggregate IEA data to BP regions
 #   We will calculate fuel use trends for these regions and apply them to
@@ -92,6 +92,7 @@ IEA_full_coal <- iea_data_full %>%
 
 # BP
 printLog( c("Cleaning BP energy consumption data."))
+
 BP_oil_clean <- bp_energy_data[[ getBPSheetNumber( "oil", "consumption", "tonnes", bp_energy_data ) ]] %>%
     rename_at(vars(as.character(1965:BP_last_year)), ~ paste0('X',1965:BP_last_year)) %>%
     mutate(BPName = `Million tonnes`) %>%  # This could be more robust

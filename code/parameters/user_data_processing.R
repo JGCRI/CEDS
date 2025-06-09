@@ -65,10 +65,9 @@ procUsrData <- function( usr_data, proc_instr, mappings,
         mappings_name <- intersectNames( mappings, proc_instr )
         mappings <- setNames( list( mappings ), mappings_name )
     }
-
     # If the user data has a unique sector mapping, disaggregate it to the
     # CEDS_sector aggregation level.
-    if ( !is.invalid( proc_instr$sector_map ) ) {
+    if ( !all((is.invalid( proc_instr$sector_map ) ) ) ){
         maps <- list( mappings$iso, mappings$CEDS_fuel, mappings$agg_fuel )
         mcols <- c( 'iso', 'CEDS_fuel', 'agg_fuel' )
         usr_data <- joinUserMaps( usr_data, maps, mcols )
@@ -79,7 +78,7 @@ procUsrData <- function( usr_data, proc_instr, mappings,
     usr_data[ usr_data == 'all' ] <- NA_character_
 
     # If the user data specifies no specific iso, map from instructions
-    if ( is.invalid( usr_data$iso ) ) {
+    if ( all(is.invalid( usr_data$iso ) ) ){
         all_isos <- unique( proc_instr$iso )
         usr_data <- usr_data %>%
             dplyr::slice( rep( 1:n(), each = length( all_isos ) ) ) %>%
@@ -99,9 +98,11 @@ procUsrData <- function( usr_data, proc_instr, mappings,
     year_range <- range( proc_instr$start_year, proc_instr$end_year )
     X_data_years <- paste0( 'X', seq( year_range[1], year_range[2] ) )
 
+    years_to_add <- setdiff(X_data_years, names(mapped_df))
+    mapped_df[years_to_add] <- NA_real_
     # Replace any missing years with NA
     mapped_df <- mapped_df %>%
-        dplyr::mutate_at( setdiff( X_data_years, names( . ) ), funs( +NA_real_ ) ) %>%
+        #dplyr::mutate_at( setdiff( X_data_years, names( . ) ), funs( +NA_real_ ) ) %>%
         dplyr::select( all_of(agg_cols), all_of(X_data_years) )
 
     # Determine if there are instructions at different aggregation levels
@@ -528,16 +529,16 @@ subsetUserData <- function( user_df, instructions ) {
 
     # Subset the dataframe based on which columns are specified in the
     # instructions
-    if ( !is.invalid( subset$CEDS_sector ) ) {
+    if ( !all(is.invalid( subset$CEDS_sector ) ) ){
       subset <- subset[ subset$CEDS_sector %in% instructions$CEDS_sector, ]
-    } else if ( !is.invalid( instructions$agg_sector ) ) {
+    } else if ( !all(is.invalid( instructions$agg_sector ) ) ){
       subset <- subset[ subset$agg_sector %in% instructions$agg_sector, ]
     }
 
-    if ( !is.invalid( instructions$CEDS_fuel ) ) {
+    if ( !all(is.invalid( instructions$CEDS_fuel ) ) ){
       subset <- subset[ subset$CEDS_fuel %in% instructions$CEDS_fuel, ]
     }
-    else if ( !is.invalid( instructions$agg_fuel ) ) {
+    else if ( !all(is.invalid( instructions$agg_fuel ) ) ){
       subset <- subset[ subset$agg_fuel %in% instructions$agg_fuel, ]
     }
 

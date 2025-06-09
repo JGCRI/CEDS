@@ -1,2 +1,2 @@
 Data-Type,Emission,Region,Sector,Start Year,End Year,Source/Comment
-Mapping,BCOC,Canada,All,NA,NA,BCOC scaling mapping is identical to the CAN_scaling_mapping.csv. Copied so BCOC can have different scaling method. 
+Mapping,BCOC,Canada,Road,NA,NA,BCOC scaling mapping is identical to the CAN_2018_scaling_mapping.csv. Copied so BCOC can have different scaling method. 

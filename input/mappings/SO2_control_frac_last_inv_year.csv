@@ -1,19 +1,46 @@
 iso,last_inv_year,Inv_file,Notes
-afg,2015,REAS32,rus is removed from last_inv_year because rus inv data is not used in scaling.
+arm,2007,EMEP_NFR09,rus is removed from last_inv_year because rus inv data is not used in scaling.
 arg,2011,arg,alb are removed from last_inv_year because they are shifting with surounding countries. 
-arm,2007,EMEP_NFR09,mng are removed from last_inv_year because they are shifting with surounding countries. 
-aus,2021,AUS_NPI,ind removed from last_inv_year because rus inv data is not used in scaling (limited controls to date)
-aut,2021,EMEP_NFR14,usa removed since have latest year from inventory for major sectors
-aze,2021,EMEP_NFR14,NA
-bel,2021,EMEP_NFR14,NA
+mne,2011,EMEP_NFR09,mng are removed from last_inv_year because they are shifting with surounding countries. 
+blr,2012,EMEP_NFR09,usa removed since have latest year from inventory for major sectors
+kgz,2012,EMEP_NFR09,"REAS32 no longer used, but use GAINS trends past 2015 anyway"
+lie,2012,UNFCCC,NA
+nzl,2012,UNFCCC,NA
+grc,2013,EMEP_NFR09,NA
+ukr,2013,EMEP_NFR09,NA
+tur,2015,EMEP_NFR14,CHECK THIS ONE
+afg,2015,REAS32,NA
 bgd,2015,REAS32,NA
-bgr,2021,EMEP_NFR14,NA
-blr,2012,EMEP_NFR09,NA
 brn,2015,REAS32,NA
 btn,2015,REAS32,NA
-can,2021,ENV_Canasa,NA
-che,2021,EMEP_NFR14,NA
+ind,2020,REAS32,NA
+idn,2015,REAS32,NA
+kaz,2015,REAS32,NA
+khm,2015,REAS32,NA
+lao,2015,REAS32,NA
+lka,2015,REAS32,NA
+mdv,2015,REAS32,NA
+mmr,2015,REAS32,NA
+mys,2015,REAS32,NA
+npl,2015,REAS32,NA
+pak,2015,REAS32,NA
+phl,2015,REAS32,NA
+prk,2015,REAS32,NA
+sgp,2015,REAS32,NA
+tha,2015,REAS32,NA
+tjk,2015,REAS32,NA
+tkm,2015,REAS32,NA
+uzb,2015,REAS32,NA
+vnm,2015,REAS32,NA
 chn,2017,chn,NA
+kor,2020,EDGAR-HTAP,NA
+jpn,2020,EDGAR-HTAP,NA
+aus,2021,AUS_NPI,NA
+aut,2021,EMEP_NFR14,NA
+aze,2021,EMEP_NFR14,NA
+bel,2021,EMEP_NFR14,NA
+bgr,2021,EMEP_NFR14,NA
+che,2021,EMEP_NFR14,NA
 cyp,2021,EMEP_NFR14,NA
 cze,2021,EMEP_NFR14,NA
 deu,2021,EMEP_NFR14,NA
@@ -24,51 +51,25 @@ fin,2021,EMEP_NFR14,NA
 fra,2021,EMEP_NFR14,NA
 gbr,2021,EMEP_NFR14,NA
 geo,2021,EMEP_NFR14,NA
-grc,2013,EMEP_NFR09,NA
 hrv,2021,EMEP_NFR14,NA
 hun,2021,EMEP_NFR14,NA
-idn,2015,REAS32,NA
 irl,2021,EMEP_NFR14,NA
 isl,2021,EMEP_NFR14,NA
 ita,2021,EMEP_NFR14,NA
-jpn,2012,UNFCCC,NA
-kaz,2015,REAS32,NA
-kgz,2012,EMEP_NFR09,NA
-khm,2015,REAS32,NA
-kor,2018,EDGAR-HTAP,NA
-lao,2015,REAS32,NA
-lie,2012,UNFCCC,NA
-lka,2015,REAS32,NA
 ltu,2021,EMEP_NFR14,NA
 lux,2021,EMEP_NFR14,NA
 lva,2021,EMEP_NFR14,NA
 mda,2021,EMEP_NFR14,NA
-mdv,2015,REAS32,NA
 mkd,2021,EMEP_NFR14,NA
 mlt,2021,EMEP_NFR14,NA
-mmr,2015,REAS32,NA
-mne,2011,EMEP_NFR09,NA
-mys,2015,REAS32,NA
 nld,2021,EMEP_NFR14,NA
 nor,2021,EMEP_NFR14,NA
-npl,2015,REAS32,NA
-nzl,2012,UNFCCC,NA
-pak,2015,REAS32,NA
-phl,2015,REAS32,NA
 pol,2021,EMEP_NFR14,NA
-prk,2015,REAS32,NA
 prt,2021,EMEP_NFR14,NA
 rou,2021,EMEP_NFR14,NA
-sgp,2015,REAS32,NA
 srb,2021,EMEP_NFR14,NA
 svk,2021,EMEP_NFR14,NA
 svn,2021,EMEP_NFR14,NA
 swe,2021,EMEP_NFR14,NA
-tha,2015,REAS32,NA
-tjk,2015,REAS32,NA
-tkm,2015,REAS32,NA
-tur,2015,EMEP_NFR14,NA
+can,2021,ENV_Canada,NA
 twn,2021,twn,NA
-ukr,2013,EMEP_NFR09,NA
-uzb,2015,REAS32,NA
-vnm,2015,REAS32,NA

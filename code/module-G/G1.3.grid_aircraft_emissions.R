@@ -28,12 +28,21 @@ initialize( "G1.3.grid_aircraft_emissions.R", log_msg, headers )
 # ------------------------------------------------------------------------------
 # 0.5 Initialize gridding setups
 
+# Select whether gridding seasonality will be "gridded" or "global" (i.e., carbon monitoring)
+seasonality_profile <- "global"
+
 # Define emissions species variable
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
 res <- as.numeric( args_from_makefile[ 2 ] ) # introducing second command line argument as gridding resolution
 if ( is.na( em ) ) em <- "SO2"
 if ( is.na( res ) ) res <- 0.5 # default gridding resolution of 0.5
+
+# X years
+x_years <- paste0('X', historical_pre_extension_year:end_year)
+
+# Month columns made globaly available
+month_columns <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
 
 # Set tolerance for a warning and/or error if checksum differences are too large
 # This works on the percentage difference checksums, so set a threshold where if there are
@@ -79,6 +88,7 @@ ceds_gridding_mapping <- readData( 'GRIDDING', domain_extension = 'gridding_mapp
 proxy_mapping         <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'proxy_mapping', meta = FALSE )
 seasonality_mapping   <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'seasonality_mapping', meta = FALSE )
 checksum_tols         <- readData( 'GRIDDING', domain_extension = 'gridding_mappings/', 'checksums_error_tolerance', meta = FALSE )
+seasonality_profiles  <- readData( 'MED_OUT', file_name = paste0(em, '_seasonality_mapping') )
 
 # ------------------------------------------------------------------------------
 # 2. Pre-processing
@@ -89,23 +99,77 @@ checksum_tols         <- readData( 'GRIDDING', domain_extension = 'gridding_mapp
 # d) Aggregate the emissions at the gridding sectors
 # e) Fix names
 gridding_emissions <- ceds_gridding_mapping %>%
-  dplyr::select( CEDS_working_sector, CEDS_int_gridding_sector_short ) %>%
-  dplyr::inner_join( emissions, by = c( 'CEDS_working_sector' = 'sector' ) ) %>%
-  dplyr::filter( !is.na( CEDS_int_gridding_sector_short ) ) %>%
-  dplyr::rename( sector = CEDS_int_gridding_sector_short ) %>%
-  dplyr::filter( sector == 'AIR' ) %>%
-  dplyr::group_by( iso, sector ) %>%
-  dplyr::summarise_at( paste0( 'X', year_list ), sum ) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate( iso = 'global' ) %>%
-  dplyr::arrange( sector, iso ) %>%
-  as.data.frame()
+    dplyr::select( CEDS_working_sector, CEDS_int_gridding_sector_short ) %>%
+    dplyr::inner_join( emissions, by = c( 'CEDS_working_sector' = 'sector' ) ) %>%
+    dplyr::filter( !is.na( CEDS_int_gridding_sector_short ) ) %>%
+    dplyr::filter( CEDS_int_gridding_sector_short == 'AIR' ) %>%
+    dplyr::rename( sector = CEDS_working_sector ) %>%
+    dplyr::arrange( sector, iso ) %>%
+    as.data.frame()
 
 proxy_files <- list( primary = list.files( proxy_dir ), backup = list.files( proxy_backup_dir ) )
 
 #Extend to last year
 proxy_mapping <- extendProxyMapping( proxy_mapping )
 seasonality_mapping <- extendSeasonalityMapping( seasonality_mapping )
+
+# 2.1 Get global seasonality mapping to 1750 ----------------------------------
+
+# Get iso/sector/year combinations not present in seasonality profiles
+global_seasonality_iso_sector_combos <- seasonality_profiles %>%
+    dplyr::select(iso, sector) %>%
+    dplyr::distinct()
+global_seasonality_iso_sector_combos[x_years] <- NA
+global_seasonality_iso_sector_year_combos <- global_seasonality_iso_sector_combos %>%
+    tidyr::gather( year, value, all_of(x_years) ) %>%
+    dplyr::mutate( year = as.numeric(gsub('X', '', year)) ) %>%
+    dplyr::select( iso, sector, year )
+extension_combos <- global_seasonality_iso_sector_year_combos %>%
+    dplyr::setdiff( seasonality_profiles %>% dplyr::select(iso,sector,year) )
+
+# Get the earliest profile for each iso/sector
+earliest_year_profiles <- seasonality_profiles %>%
+    dplyr::group_by(iso, sector, CEDS_int_gridding_sector_short, CEDS_final_gridding_sector_short ) %>%
+    dplyr::filter(year == min(year)) %>%
+    dplyr::select(-year) %>%
+    dplyr::ungroup()
+
+# Map that profile to each iso/sector/year in the extension
+extension_seasonality_mapping <- extension_combos %>%
+    dplyr::right_join( earliest_year_profiles, by = c('iso', 'sector'))
+
+# Stack extension with recent years
+full_seasonality_profiles <- dplyr::bind_rows(seasonality_profiles, extension_seasonality_mapping) %>%
+    dplyr::arrange( iso, sector, year )
+
+# Diagnostics, seasonality profiles should sum to 1
+seasonality_profile_diagnostics <- full_seasonality_profiles %>%
+    dplyr::mutate(total = rowSums(.[month_columns])) %>%
+    dplyr::select(iso, sector, year, data_source, total) %>%
+    dplyr::arrange(total)
+
+# Make sure profiles sum to 1
+full_seasonality_profiles <- full_seasonality_profiles %>%
+    dplyr::mutate(total = rowSums(.[month_columns])) %>%
+    dplyr::mutate_at(month_columns, ~./total)
+
+# 2.3 Create monthly emissions by iso/year/int gridding sector -----------------
+global_seasonality_emissions_profiles <- gridding_emissions %>%
+    tidyr::gather( year, emissions, all_of(x_years) ) %>%
+    dplyr::mutate( year = as.numeric(gsub('X', '', year)) ) %>%
+    dplyr::right_join( full_seasonality_profiles, by = c('iso', 'sector', 'year', 'CEDS_int_gridding_sector_short') ) %>%
+    tidyr::drop_na()
+
+# Apply seasonality and aggregate to CEDS int gridding sector
+global_seasonality_emissions <- global_seasonality_emissions_profiles %>%
+    dplyr::mutate_at(month_columns, ~.*emissions ) %>%
+    dplyr::group_by( iso, CEDS_int_gridding_sector_short, year ) %>%
+    dplyr::summarise_at(month_columns, sum) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(total = rowSums(.[month_columns])) %>%
+    dplyr::mutate_at(month_columns, ~./total)
+
+global_seasonality_emissions[is.na(global_seasonality_emissions)] <- 0
 
 # ------------------------------------------------------------------------------
 # 3. Gridding and writing output data
@@ -120,10 +184,20 @@ for ( year in year_list ) {
   # grid one years aircraft emissions
   AIR_grid <- grid_one_year_air( year, em, grid_resolution, gridding_emissions, proxy_mapping, proxy_files )
 
+  # Check for negative values in grids and print out error message
+  if (any(AIR_grid < 0)) {
+      stop(paste("Negative value(s) found in", em, year))
+  }
+
   # generate nc file for gridded one years emissions,
   # a checksum file is also generated along with the nc file
   # which summarize the emissions in mass by sector by month.
-  generate_final_grids_nc_aircraft( AIR_grid, output_dir, grid_resolution, year, em, seasonality_mapping )
+  # Note: either "gridded" or "global" seasonality profile must be selected earlier in the script
+  if (seasonality_profile == "gridded") {
+      generate_final_grids_nc_aircraft( AIR_grid, output_dir, grid_resolution, year, em, seasonality_mapping, seasonality_profile )
+  } else if (seasonality_profile == "global") {
+      generate_final_grids_nc_aircraft( AIR_grid, output_dir, grid_resolution, year, em, global_seasonality_emissions, seasonality_profile)
+  }
 }
 
 # -----------------------------------------------------------------------------
@@ -164,13 +238,13 @@ diag_diff_df <- cbind( checksum_df$sector, abs( gridding_emissions_fin[ X_year_l
 diag_per_df <- cbind( checksum_df$sector, ( diag_diff_df[ X_year_list ] / gridding_emissions_fin[ X_year_list ] ) * 100 )
 diag_per_df[ is.nan.df( diag_per_df ) ] <- NA
 diag_per_df <- diag_per_df %>%
-  dplyr::rename('sector' = 'checksum_df.sector')
+  dplyr::rename('sector' = 'checksum_df$sector')
 diag_diff_df <- diag_diff_df %>%
-  dplyr::rename('sector' = 'checksum_df.sector')
+  dplyr::rename('sector' = 'checksum_df$sector')
 
 
 # -----------------------------------------------------------------------------
-# 5. Write-out 
+# 5. Write-out
 
 out_name <- paste0( 'G.', em, '_AIR_emissions_checksum_comparison_diff' )
 writeData( diag_diff_df, "DIAG_OUT", out_name )
@@ -215,4 +289,8 @@ print('=========================================================================
 
 
 # END -------------------------------------------------------------------------
+# Run negative grid cell check
+printLog( 'Running diagnostic to check for negative grid cell values ...' )
+source( "../code/diagnostic/diag_negative_grid_check_aviation" )
+
 logStop( )

@@ -1,0 +1,2 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+emission factor,CO2,global,Shipping,1960,2023,Hard coal EF copied from gbr since this was dominant source for shipping coal

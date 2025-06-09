@@ -1232,14 +1232,14 @@ F.scaling <- function( ceds_data, inv_data, region,
 # Brief: produces scaling factors from aggregated ceds and inventory data
 # Details:
 # Dependencies: CEDS_header.R, F.invAggregate(), F.cedsAggregate
-# Author: Rachel Hoesly
+# Author: Rachel Hoesly, Steve Smith
 # parameters:
 #
 # return: dataframes of scaled emissions and scaled EFs
 # input files: null
 # output files: list of data frames containing scaled_em and scaled_ef
 
-F.applyScale <- function(scaling_factors){
+F.applyScale <- function(scaling_factors, ignore_fuels = data.frame()){
 
   if ( nrow (scaling_factors) == 0 ){
   printLog ( paste('There is no inventory or scaling factors for', em, 'emission species.') )
@@ -1276,6 +1276,10 @@ F.applyScale <- function(scaling_factors){
   ef_long <- melt(ef_long, id.vars = c('iso','sector','fuel','units'))
   names(ef_long) <- c('iso','sector','fuel','units', 'year', 'ef')
 
+  ef_org_wide <- ef_long %>% filter(sector %in% unique(scaling_ceds_map_unique$ceds_sector)) %>%
+      pivot_wider(values_from = ef, names_from = "year")
+  writeData(ef_org_wide, 'DIAG_OUT', paste0('F.',em,'_',inv_name,'_unscaled_EF_data'),meta = FALSE)
+
   # merge scaling factors and current emissions/ef
   em_long$scaling_factor <- NA
   em_scaled <- replaceValueColMatch(em_long, scaling_factors_by_ceds,
@@ -1289,6 +1293,11 @@ F.applyScale <- function(scaling_factors){
                                     match.x = c('iso',method_col, 'year'),
                                     addEntries = FALSE)
   ef_scaled <- ef_scaled[complete.cases(ef_scaled),]
+
+  # Replace scaling factors if in no-scale fuel list
+  if ( length(ignore_fuels) > 0 ) {
+      ef_scaled <- ef_scaled %>% mutate( scaling_factor = ifelse(fuel %in% ignore_fuels,1.0,scaling_factor))
+  }
 
   # calculate new emissions/ef
   em_scaled$scaled <- em_scaled$emissions * em_scaled$scaling_factor
@@ -1748,7 +1757,7 @@ F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_
   # Find emission ratio of default comb emissions BC/PM2.5 and OC/PM2.5
 
   # Fail if no inv sectors exist
-  if (inv_sector_name > 0) {
+  if (length(inv_sector_name) > 0) {
 
     # Input BC and OC default combustion emissions
     em_to_PM25_defaultratio <- readData( "DEFAULT_EF_IN", paste0('CD.',em,"_to_PM25_defaultratio.csv")) %>%
@@ -1778,16 +1787,16 @@ F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_
     # Remove "iso" and "sector" columns for matrix multiplication. They are re-added in later steps
     em_to_PM25_defaultratio_cleaned <- em_to_PM25_defaultratio_filtered %>%
         select(all_of(X_inv_years))
-    
+
     # Read in PM2.5 from inventory data (output zero for all other values).
     PM25_inv <-inv_data_sheet %>%
       filter(sector %in% inv_sector_name) %>%
       filter(iso %in% inv_iso)
-    
+
     # If some inv_sector_name sectors are not in the current dataset, delete them
     # from the list so as to not cause an error later
     inv_sector_name <- inv_sector_name[inv_sector_name %in% PM25_inv$sector]
-    
+
     # remove iso and sector for matrix multiplication
     PM25_inv <- PM25_inv %>%
       ungroup() %>%
@@ -1815,7 +1824,6 @@ F.Estimate_BC_OC_emissions <- function( em, PM, inv_iso,ceds_sector, inv_sector_
     em_emissions[is.na(em_emissions)] = 0
 
     return(em_emissions)
-    
+
   }
 }
-  

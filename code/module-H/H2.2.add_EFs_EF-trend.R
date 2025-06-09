@@ -23,7 +23,7 @@ initialize( script_name, log_msg, headers )
 
 args_from_makefile <- commandArgs( TRUE )
 em <- args_from_makefile[ 1 ]
-if ( is.na( em ) ) em <- "SO2"
+if ( is.na( em ) ) em <- "NOx"
 
 # ---------------------------------------------------------------------------
 # 1. Load Data
@@ -126,7 +126,7 @@ user_data <- do.call(rbind.fill, user_data_list)
 order <- tibble(order= numeric(0),
                     start= numeric(0))
 for (i in seq_along(user_data_list) ){
-  order[i,] <- c(i,user_data_list[[i]]$start_year[1])
+  order[i,] <- as.list(c(i,user_data_list[[i]]$start_year[1]))
 }
 order <- order[order(-order$start),]
 order_user_data_list <- list()
@@ -139,7 +139,9 @@ for ( i in seq_along(order$order) ){
 # Do extensions in order
 new_EFs <- ceds_EFs
 for (i in seq_along(order_user_data_list) ){
-    driver_trend <- order_user_data_list[[i]]
+    # TO DO: this unique is a bandaid - but there is a reason why it has to be there?
+    # I have no idea what error is there that makes it necessary
+    driver_trend <- order_user_data_list[[i]] %>% unique
     start <- unique(driver_trend$start_year)
     end <-unique(driver_trend$end_year)
 
@@ -165,6 +167,15 @@ printLog(c("user_files_list: ", order_user_files_list) )
 
 # ---------------------------------------------------------------------------
 # 4. Output
+
+# Check input ef_db and output ef_db
+old <- ceds_EFs %>%
+    arrange(iso, sector, fuel, units)
+new <- new_EFs %>%
+    arrange(iso, sector, fuel, units)
+if( ! identical(old[c('iso', 'sector','fuel')],new[c('iso', 'sector','fuel')]) ){
+    stop('input and outpu EFs in H3.1 apply EF pathway are not identical. Check.')
+}
 
 writeData( new_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'), meta = T)
 

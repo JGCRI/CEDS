@@ -1,1 +1,0 @@
-Folder where point source yml files will be saved

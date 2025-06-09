@@ -117,6 +117,17 @@ printLog( "Calculating emissions data" )
 # comb_ef_data[ efs_data_start:length( comb_ef_data ) ] <-
     # sapply( comb_ef_data[ efs_data_start:length( comb_ef_data ) ], as.numeric )
 
+# Check that there are no global sector NC emissions in sectors where there should not be
+   global_nc_sectors <- c('1A3di_Oil_Tanker_Loading')
+   nc_ef_data_global_iso <- nc_ef_data %>% filter(iso == "global", sector %!in% global_nc_sectors)
+
+   if ( sum(colSums( nc_ef_data_global_iso[X_emissions_years] != 0)) ) {
+       printLog( c("WARNING: Non-Zero NC emission factors in global iso removed for em",em) )
+       nc_ef_data_long <- nc_ef_data %>%
+           pivot_longer(cols = all_of(X_emissions_years), values_to ="EFs", names_to = "year") %>%
+           mutate(EFs = ifelse(EFs != 0 & sector %!in% global_nc_sectors & iso == "global", 0, EFs))
+       nc_ef_data <- pivot_wider(nc_ef_data_long, values_from = EFs, names_from = year )
+    }
 
 # Employ function to calculate default emissions
 comb_emissions <- calculateEmissions( comb_energy_data, comb_ef_data )

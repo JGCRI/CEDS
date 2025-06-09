@@ -1,0 +1,18 @@
+Data.Type,Emission,Region,Sector,Start.Year,End.Year,Source.Comment
+EF Adjustment,NOx,ind,1A3b_Road,2020,2023,"Gajbhiye etal 2023 (doi: 10.1016/j.trd.2022.103603) indicate a very low fraction of trucks adhering to the phase VI standards, revised diesel EF improvement downward to a nominal 2%/year after 2020"
+EF Adjustment,NOx,uzb,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,tkm,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,tjk,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,kgz,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,kaz,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,prk,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,mng,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,pak,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,npl,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,mdv,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,lka,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,btn,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,bgd,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,afg,1A3b_Road,2005,2023,Revise default EF for gradual decline with no peak
+EF Adjustment,NOx,mex,1A3b_Road,2005,2023,Standard delayed - https://dieselnet.com/standards/mx/hd.php. 
+EF Adjustment,NOx,ind,1A1a_Electricity-public,2020,2023,Lower decrease after 2015 by half since NOx standards were generally put on hold

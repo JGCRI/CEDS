@@ -127,8 +127,13 @@
         dplyr::mutate( fuel = replace( fuel, fuel == 'natural_gas', 'gas' ) ) %>%
         # dplyr::mutate(fuel = replace(fuel, fuel == 'petroleum', 'oil')) %>%
         dplyr::arrange( iso, sector, fuel ) %>%
-        dplyr::group_by( iso, fuel, sector, units ) %>%
-        dplyr::summarize_all( list( ~sum ) )
+        dplyr::group_by( iso, fuel, sector, units )%>%
+        ##This replaces summarize_all() which is not used anymore
+        #across() tells the summarize to do it with multiple columns
+        #everything() explicity says to do all of the columns
+        #sum means we will sum each column
+        #na.rm = TRUE means we will remove NAs in the summation
+        dplyr::summarize(across(everything(), sum, na.rm = TRUE))
 
     # Add aggregate oil category to MFL so can aggreate correctly below
     new_oil_row <- cbind("oil","oil","","aggreagte oil") %>%
@@ -142,7 +147,12 @@
         dplyr::select( -sector ) %>%
         dplyr::select( -fuel ) %>%
         dplyr::group_by(iso, aggregated_fuel, units ) %>%
-        dplyr::summarize_all( list( ~sum ) )
+        ##This replaces summarize_all() which is not used anymore
+        #across() tells the summarize to do it with multiple columns
+        #everything() explicity says to do all of the columns
+        #sum means we will sum each column
+        #na.rm = TRUE means we will remove NAs in the summation
+        dplyr::summarize(across(everything(), sum, na.rm = TRUE))
 
 # ------------------------------------------------------------------------------
 # 5. Output

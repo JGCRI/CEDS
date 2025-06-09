@@ -9,13 +9,13 @@
 
 #Set up your environment you wish to run in with module commands.
 module purge
-module load R/3.5.1
+module load R/3.6.3
 
 #Actually codes starts here
 now=$(date)
 echo "Current time : $now"
 
-cd /qfs/people/<user_name>/CEDS
+cd /rcfs/projects/ceds/CEDS-dev
 make NMVOC-emissions
 
 now=$(date)

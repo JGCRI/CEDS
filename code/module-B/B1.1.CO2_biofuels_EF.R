@@ -169,8 +169,14 @@
 
       X_extension_years <- X_emissions_years[ X_emissions_years %!in% X_IEA_years ]
 
-      IEA_biofuels_fraction_fixed <- IEA_biofuels_fraction_fixed %>%
-          dplyr::mutate_at( .vars = X_extension_years, .funs = funs( identity ( !!rlang::sym( X_IEA_end_year ) ) ) )
+      if (length(X_extension_years) >1){
+          IEA_biofuels_fraction_fixed[X_extension_years] <- do.call(bind_cols,
+                                                                    apply(IEA_biofuels_fraction_fixed[paste0('X', last(IEA_years) )],
+                                                                          length(X_extension_years), function(x) data.frame(x,x)))
+      }
+      if (length(X_extension_years) ==1){
+          IEA_biofuels_fraction_fixed[X_extension_years] <- IEA_biofuels_fraction_fixed[paste0('X', last(IEA_years) )]
+      }
 
   }
 

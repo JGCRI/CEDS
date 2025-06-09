@@ -126,12 +126,19 @@ update_join <- function(x, y, by = NULL, add_entries = FALSE) {
 #    x: some non-list object
 # Return:       Input vector of strings with pattern replaced by its replacement.
 # is.invalid
-is.invalid <- function(x) return( is.null(x) || is.na(x) || is.nan(x) )
+is.invalid <- function(x) {
+    if (is.null(x)) {
+        return(is.null(x))
+    }
+    else {
+        return(is.na(x) | is.nan(x) )
+    }
+}
 
 # -----------------------------------------------------------------------------
 # is.nan/finite/infinite.df
 # Brief: Makes up for the fact that R has no built-in vectorized check for
-#    is.nan, is.infinite, or is.finite.
+#    is.nan, iSs.infinite, or is.finite.
 # Params:
 #    x: a dataframe that may or may not contain NaN values
 is.nan.df      <- function(x) do.call( cbind, lapply( x, is.nan ) )
@@ -1979,12 +1986,16 @@ disagg_iso_with_population <- function( agg_iso_region, disagg_isos_in_agg_regio
         dplyr::summarise_all( funs( sum (., na.rm = TRUE) ) ) %>%
         dplyr::arrange( fuel, Years ) %>%
         dplyr::mutate( Emissions = round( Emissions, digits = 9 ) ) %>%
-        dplyr::ungroup( )
+        dplyr::ungroup( ) %>%
+        dplyr::select(Years, fuel, Emissions)
 
     agg_region_of_interest_for_check <- agg_region_of_interest %>%
         dplyr::select( -iso ) %>%
         dplyr::arrange( fuel, Years ) %>%
         dplyr::mutate( Emissions = round( Emissions, digits = 9 ) )
+
+    #converts the above data frame to a tibble to account for differences in class()
+    agg_region_of_interest_for_check <- as_tibble(agg_region_of_interest_for_check)
 
     identical_after_downscale <- all.equal(agg_region_downscaled_reaggregated_for_check,agg_region_of_interest_for_check)
 
@@ -2093,5 +2104,58 @@ return(new_efs)
 
 }
 
+# -----------------------------------------------------------------------------
+# organizeBPData
+# Brief: Renames columns in the imported bp_data
+# so that the latest year is distinguished
+# Details:
+# Dependencies: data_functions
+# Author(s): Logan McCue
+# Params:   bp_data     imported bp_data
+# Return:   Updated BP Data with new column names, if necessary
+
+organizeBPData <- function(bp_data){
+
+    #Takes in the original column names of the bp_data,
+    #a general pattern (4 numbers at beggining of name),
+    #and any of the col_names of bp_data that agree with that pattern
+    col_names <- colnames(bp_data)
+    year_pattern <- "^\\d{4}"
+    year_matches <- regmatches(col_names, regexpr(year_pattern, col_names))
+
+    #If there is at least one column name with a four digit year at beginning
+    if (length(year_matches) > 0){
+        #New data frame created with all year column names in a designated column
+        df <- data.frame(years = year_matches)
+
+        #Grabs the year that is present in three column names
+        #(excel importing with add a suffix to the column name if it appears more than once)
+        year <- df %>%
+            count('years') %>%
+            filter(freq == 3) %>%
+            pull('years') %>%
+            first()
+
+        #Picks the 3 columns with the chosen year based on pattern and adds to columns_to_rename
+        rename_pattern <- paste0("^", year, ".*")
+        columns_to_rename <- grep(rename_pattern, col_names, value = TRUE)
+        #Gets new column names
+        new_names <- c(year,
+                       paste("Growth Rate", year),
+                       paste("Share", year))
+
+        #If columns in bp_data are in columns_to_rename, replace, otherwise keep as normal
+        rename_map <- setNames(new_names, columns_to_rename)
+        colnames(bp_data) <- ifelse(
+            colnames(bp_data) %in% columns_to_rename,
+            rename_map[colnames(bp_data)],
+            colnames(bp_data)
+        )
+    }
+
+    #Returns updated bp_data
+    return(bp_data)
+
+}
 
 

@@ -1,6 +1,9 @@
 # ------------------------------------------------------------------------------
 # Program Name: E.Australia_emission_2018Update.R
 # Author(s): Erin McDuffie, based on original from Leyang Feng
+#
+# Depreciated file - here in case we want to extract this for comparison
+#
 # Date Last Updated: September 17, 2020
 # Program Purpose: To read in and reformat Australia NPI data.
 # Input Files: [em]_Australia_UNFCCC_and_NPI.xlsx
@@ -95,6 +98,26 @@
         inv_data_clean$iso <- 'aus'
         inv_data_clean <- inv_data_clean[ , c( 'iso', 'sector', years ) ]
 
+        # write country totals
+
+        country_total <- inv_data_clean %>%
+            filter(!sector %in% c("Biogenics [*]",
+                                  "Burning(fuel red., regen., agric.)/ Wildfires [*]",
+                                  "Services to Air Transport [*]",
+                                  "Aeroplanes [*]" ))
+
+        writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
+                   paste0('inventory_',em,'_', inv_name))
+
+        if (length(country_total) > 0){
+            country_total <- country_total %>%
+                select(-sector)%>%
+                group_by(iso) %>%
+                summarize_each(funs(sum))
+
+            writeData( country_total, domain = "MED_OUT",
+                       paste0('E.',em,'_', inv_name, '_inventory_country_total'))
+        }
     }
 
 # ------------------------------------------------------------------------------
@@ -103,26 +126,6 @@
     writeData( inv_data_clean, domain = "MED_OUT",
                paste0( 'E.', em, '_', inv_name, '_inventory' ) )
 
-# write country totals
-
-    country_total <- inv_data_clean %>%
-        filter(!sector %in% c("Biogenics [*]",
-                              "Burning(fuel red., regen., agric.)/ Wildfires [*]",
-                              "Services to Air Transport [*]",
-                              "Aeroplanes [*]" ))
-
-     writeData( country_total, domain = "DIAG_OUT", domain_extension = "country-inventory-compare/",
-               paste0('inventory_',em,'_', inv_name))
-
-    if (length(country_total) > 0){
-        country_total <- country_total %>%
-            select(-sector)%>%
-            group_by(iso) %>%
-            summarize_each(funs(sum))
-
-        writeData( country_total, domain = "MED_OUT",
-                   paste0('E.',em,'_', inv_name, '_inventory_country_total'))
-        }
 # Every script should finish with this line
     logStop()
 # END

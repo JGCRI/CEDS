@@ -1,0 +1,8 @@
+"Source","Data.Type","Emission","Region","Sector","Start.Year","End.Year","Source.Comment"
+"Master_Country_List.csv","Mapping",NA,"All",NA,NA,NA,"Master iso/name list for CEDS countries cross referenced to various datasets and regional groupings"
+"WPP2015_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx","Population",NA,"Global",NA,"1950","2100","UN total population statistics by country. World Population Prospects: The 2015 Revision. Downloaded from: https://esa.un.org/unpd/wpp/Download/Standard/Population/"
+"WUP2014-F21-Proportion_Urban_Annual.xlsx","Population",NA,"Global",NA,"1950","2050","UN urban population shares by country. World Urbanization Prospects: The 2014 Revision. Downloaded from: https://esa.un.org/unpd/wpp/Download/Standard/Population/"
+"WB_SP.POP.TOTL.csv","Population",NA,"Global",NA,"1960","2014","World Bank total population statistics by country. Pulled from the WDI API using the R package FAOSTAT. Accessed Nov 2015."
+"WB_SP.URB.TOTL.csv","Population",NA,"Global",NA,"1960","2014","World Bank urban population shares by country. Pulled from the WDI API using the R package FAOSTAT. Accessed Nov 2015."
+"urbanpop_2004Rev_tcm61-36007.xlsx","Population",NA,"Global",NA,"1700","2030","HYDE statistics of total population and urban population shares by country. HYDE version 3.0; UN Population Revision, 2004 Revision."
+"UN_pop_WB_HYDE_ext_iso_map.xlsx","Mapping",NA,"All",NA,NA,NA,"Region mapping codes taken from FAOSTAT package (translateCountryCode function), for mapping between UN, HYDE, and WB population data regions."

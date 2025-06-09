@@ -26,7 +26,7 @@ write_yml_by_em <- function(full_source, base_yml_dir){
 
     # If time series is zero (can happen for multiple reasons)
     # return without saving
-    tot_ems <- sum(full_source[paste0('X',1750:2019)])
+    tot_ems <- sum(full_source[paste0('X',1750:end_year)])
     if(!(tot_ems > 0)){
         return()
     }
@@ -60,7 +60,7 @@ write_yml_all_ems <- function(full_source, id = '', yml_dir){
 
     # Turn to long format
     full_source_long <- full_source %>%
-        gather(year, value, paste0('X', 1750:2019) ) %>%
+        gather(year, value, paste0('X', 1750:end_year) ) %>%
         dplyr::mutate( year = gsub('X', '', year) )
 
     # File name set to source ID
@@ -278,6 +278,9 @@ readInOmiYml <- function( target_filenames ){
     # OMI input
     OMI_input <- lapply(target_filenames, read_yaml)
 
+    # Year columns
+    year_columns <- paste0('X', 1750:end_year)
+
     # As data frame
     OMI_sources_df <- do.call( bind_rows,
                                lapply( OMI_input, function( x ){
@@ -290,7 +293,7 @@ readInOmiYml <- function( target_filenames ){
                                                       CEDS_sector, EDGAR_sector,
                                                       fuel, iso, units, location,
                                                       latitude, longitude,
-                                                      build_year, X1750:X2019 ) %>%
+                                                      build_year, all_of(year_columns) ) %>%
                                        dplyr::rename( 'species' = 'emission' )
                                    return( df )
                                } ) )

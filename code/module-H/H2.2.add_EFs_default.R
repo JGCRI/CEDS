@@ -109,6 +109,14 @@ final_ceds_EFs <- replaceWithDefaults( new_ceds_EFs, default_EFs, extension_driv
 # ---------------------------------------------------------------------------
 # 3. Output
 
+old <- ceds_EFs %>%
+    arrange(iso, sector, fuel, units)
+new <- new_ceds_EFs %>%
+    arrange(iso, sector, fuel, units)
+if( ! identical(old[c('iso', 'sector','fuel')],new[c('iso', 'sector','fuel')]) ){
+    stop('input and outpu EFs in H3.1 apply EF pathway are not identical. Check.')
+}
+
 writeData( final_ceds_EFs, "MED_OUT" , paste0('H.',em,'_total_EFs_extended_db'))
 
 logStop()

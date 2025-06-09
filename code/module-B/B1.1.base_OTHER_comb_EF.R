@@ -73,6 +73,8 @@
 
 # Overlapping GAINS and CEDS years
     X_GAINS_CEDS_years <- paste0( "X", GAINS_start_year : end_year )
+    # Reorder to make CEDS extend function happy
+    gainsEMF30_comb <-gainsEMF30_comb[,c("iso","sector","fuel",X_GAINS_CEDS_years)]
 
 # CEDS years that GAINS is missing - for extension
     emf_ext_years <- paste0( 'X', start_year : ( as.numeric( GAINS_start_year ) - 1 ) )
@@ -118,6 +120,7 @@
 # Extend EMF30 data directly back from GAINS_start_year (currently 1990)
     default_extended <- gainsEMF30_comb
     default_extended[ , emf_ext_years ] <- gainsEMF30_comb[ , paste0( "X", GAINS_start_year )  ]
+    default_extended$units <- "kt/kt"
 
 # Trim to required years
     default_extended <- default_extended[ , c( 'iso', 'sector',
@@ -390,6 +393,10 @@ if( nrow( default_efs_na ) > 0 ){
 # Trim to appropriate columns
     base_efs <- default_efs_values[ , c( 'iso', 'sector', 'fuel',
                                          'units', X_emissions_years ) ]
+
+# Eliminate any duplicate rows
+    gainsEMF30_comb_final <- 
+        gainsEMF30_comb_final %>% distinct(iso,sector,fuel, .keep_all = TRUE)
 
 # Sanity checks: make sure all NA rows have been handled, that no EFs have
 # values of infinity, and that no activity_data rows were dropped. if any fails,

@@ -78,6 +78,8 @@
              selected emission species.')
     }
 
+    printLog( paste( "Running: ", paste(scripts,collapse=', ' )," for em ",em) )
+
 # Run all child scripts for the given emissions type. The call to
 # invisible() prevents extraneous output from appearing in the console.
 # lapply calls source_child on each script in the list.

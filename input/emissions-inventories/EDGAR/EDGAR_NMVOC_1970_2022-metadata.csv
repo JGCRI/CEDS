@@ -1,0 +1,2 @@
+Data-Type,Emission,Region,Sector,Start-Year,End-Year,Source/Comment
+Emissions,NMVOC,All,All,1970,2022,EDGAR v8.1 API - https://edgar.jrc.ec.europa.eu/dataset_ap81
